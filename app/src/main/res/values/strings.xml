@@ -1,0 +1,25 @@
+<resources>
+
+    <string name="app_name">Lists</string>
+
+    <!-- Toast -->
+    <string name="toast_edit_mode_on">Edit mode on</string>
+    <string name="toast_edit_mode_off">Edit mode off</string>
+    <string name="toast_favorite_color_added">Favorite color added</string>
+
+    <!-- SQL -->
+    <string name="sql_toast_fail">Database unavailable</string>
+    <string name="sql_init_v1">
+        CREATE TABLE favorite_colors (
+        _id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        tbl_index   INTEGER,
+        color       INTEGER);
+    </string>
+
+    <!-- Color picker icon helper -->
+    <string name="color_picker_ic_helper_swipe">Swipe to left or right</string>
+    <string name="color_picker_ic_helper_touch">Single or double click</string>
+    <string name="color_picker_ic_helper_move">Swipe in edit mode</string>
+    <string name="color_picker_ic_helper_favorite">Add to favorite colors</string>
+
+</resources>

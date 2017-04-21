@@ -1,0 +1,26 @@
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar.Fullscreen">
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+    <style name="ColorPickerPopupWindowAnimation">
+        <item name="android:windowEnterAnimation">@anim/color_picker_pw_on_show</item>
+        <item name="android:windowExitAnimation">@anim/color_picker_pw_on_dismiss</item>
+    </style>
+
+    <style name="ColorPickerHelperIcons">
+        <item name="android:layout_width">36dp</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:tint">@color/colorPickerDefault</item>
+    </style>
+
+</resources>
