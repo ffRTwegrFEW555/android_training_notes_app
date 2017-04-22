@@ -2,30 +2,43 @@
 <resources>
 
     <!-- ColorPicker PopupWindow -->
-    <dimen name="popupwindow_offset_x">0dp</dimen>
-    <dimen name="popupwindow_offset_y">0dp</dimen>
-    <dimen name="popupwindow_width">200dp</dimen>
-    <dimen name="popupwindow_height">200dp</dimen>
-    <dimen name="popupwindow_elevation">24dp</dimen>
+    <dimen name="activity_color_picker_popupwindow_offset_x">0dp</dimen>
+    <dimen name="activity_color_picker_popupwindow_offset_y">0dp</dimen>
+    <dimen name="activity_color_picker_popupwindow_width">200dp</dimen>
+    <dimen name="activity_color_picker_popupwindow_height">200dp</dimen>
+    <dimen name="activity_color_picker_popupwindow_elevation">24dp</dimen>
 
     <!-- Boxes -->
-    <dimen name="box_border_width">1dp</dimen>
+    <dimen name="activity_color_picker_box_border_width">1dp</dimen>
 
     <!--  -->
-    <dimen name="delta_to_enable_change_color">10dp</dimen>
+    <dimen name="activity_color_picker_delta_to_enable_change_color">10dp</dimen>
 
     <!-- Palette box -->
-    <dimen name="palette_box_width">80dp</dimen>
-    <dimen name="palette_box_height">80dp</dimen>
-    <dimen name="palette_box_margin">20dp</dimen>
-    <dimen name="palette_box_anim_elevation_on">8dp</dimen>
-    <dimen name="palette_box_anim_elevation_off">2dp</dimen>
+    <dimen name="activity_color_picker_palette_box_width">80dp</dimen>
+    <dimen name="activity_color_picker_palette_box_height">80dp</dimen>
+    <dimen name="activity_color_picker_palette_box_margin">20dp</dimen>
+    <dimen name="activity_color_picker_palette_box_anim_elevation_on">8dp</dimen>
+    <dimen name="activity_color_picker_palette_box_anim_elevation_off">2dp</dimen>
 
     <!-- Favorite box -->
-    <dimen name="favorite_box_width">60dp</dimen>
-    <dimen name="favorite_box_height">60dp</dimen>
-    <dimen name="favorite_box_margin">10dp</dimen>
-    <dimen name="favorite_box_anim_elevation_on">8dp</dimen>
-    <dimen name="favorite_box_anim_elevation_off">2dp</dimen>
+    <dimen name="activity_color_picker_favorite_box_width">60dp</dimen>
+    <dimen name="activity_color_picker_favorite_box_height">60dp</dimen>
+    <dimen name="activity_color_picker_favorite_box_margin">10dp</dimen>
+    <dimen name="activity_color_picker_favorite_box_anim_elevation_on">8dp</dimen>
+    <dimen name="activity_color_picker_favorite_box_anim_elevation_off">2dp</dimen>
+
+    <!-- Material -->
+    <dimen name="activity_list_material_padding_top">8dp</dimen>
+    <dimen name="activity_list_material_padding_bottom">8dp</dimen>
+    <dimen name="activity_list_item_material_height">88dp</dimen>
+    <dimen name="activity_list_item_material_padding">16dp</dimen>
+    <dimen name="activity_list_item_icon_material_width">40dp</dimen>
+    <dimen name="activity_list_item_icon_material_height">40dp</dimen>
+    <dimen name="activity_list_item_icon_material_margin_end">16dp</dimen>
+    <dimen name="activity_list_item_name_material_text_size">16sp</dimen>
+    <dimen name="activity_list_item_description_material_text_size">14sp</dimen>
+    <dimen name="activity_color_picker_scroll_palette_bar_material_elevation">4dp</dimen>
+    <dimen name="activity_color_picker_ff_result_box_material_elevation">2dp</dimen>
 
 </resources>

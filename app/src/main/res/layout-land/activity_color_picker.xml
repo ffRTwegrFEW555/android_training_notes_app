@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
-    tools:context="com.gamaliev.lists.colorpicker.ColorPickerActivity">
+    tools:context="com.gamaliev.list.colorpicker.ColorPickerActivity">
 
 
     <!-- Favorite icons -->
@@ -13,7 +13,7 @@
         android:id="@+id/image_ic_helper_favorite_swipe"
         style="@style/ColorPickerHelperIcons"
         app:srcCompat="@drawable/ic_swap_horiz_black_36dp"
-        android:contentDescription="@string/color_picker_ic_helper_swipe"
+        android:contentDescription="@string/activity_color_picker_ic_helper_swipe"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
@@ -23,14 +23,14 @@
         android:id="@+id/image_ic_helper_favorite_add"
         style="@style/ColorPickerHelperIcons"
         app:srcCompat="@drawable/ic_favorite_border_black_36dp"
-        android:contentDescription="@string/color_picker_ic_helper_favorite"
+        android:contentDescription="@string/activity_color_picker_ic_helper_favorite"
         android:layout_alignTop="@+id/image_ic_helper_favorite_swipe"
         android:layout_toStartOf="@+id/image_ic_helper_favorite_swipe" />
 
     <ImageView
         android:id="@+id/image_ic_helper_favorite_touch"
         style="@style/ColorPickerHelperIcons"
-        android:contentDescription="@string/color_picker_ic_helper_touch"
+        android:contentDescription="@string/activity_color_picker_ic_helper_touch"
         app:srcCompat="@drawable/ic_touch_app_black_36dp"
         android:layout_alignTop="@+id/image_ic_helper_favorite_add"
         android:layout_toStartOf="@+id/image_ic_helper_favorite_add" />
@@ -40,7 +40,7 @@
     <ImageView
         android:id="@+id/image_ic_helper_palette_swipe"
         style="@style/ColorPickerHelperIcons"
-        android:contentDescription="@string/color_picker_ic_helper_swipe"
+        android:contentDescription="@string/activity_color_picker_ic_helper_swipe"
         app:srcCompat="@drawable/ic_swap_horiz_black_36dp"
         android:layout_below="@+id/scroll_palette_bar"
         android:layout_alignParentEnd="true"
@@ -50,7 +50,7 @@
     <ImageView
         android:id="@+id/image_ic_helper_palette_move"
         style="@style/ColorPickerHelperIcons"
-        android:contentDescription="@string/color_picker_ic_helper_move"
+        android:contentDescription="@string/activity_color_picker_ic_helper_move"
         app:srcCompat="@drawable/ic_open_with_black_36dp"
         android:layout_alignTop="@+id/image_ic_helper_palette_swipe"
         android:layout_toStartOf="@+id/image_ic_helper_palette_swipe" />
@@ -58,19 +58,19 @@
     <ImageView
         android:id="@+id/image_ic_helper_palette_touch"
         style="@style/ColorPickerHelperIcons"
-        android:contentDescription="@string/color_picker_ic_helper_touch"
+        android:contentDescription="@string/activity_color_picker_ic_helper_touch"
         app:srcCompat="@drawable/ic_touch_app_black_36dp"
         android:layout_alignTop="@+id/image_ic_helper_palette_move"
         android:layout_toStartOf="@+id/image_ic_helper_palette_move" />
 
 
     <!-- Palette bar -->
-    <com.gamaliev.lists.common.SwitchableHorizontalScrollView
+    <com.gamaliev.list.common.SwitchableHorizontalScrollView
         android:id="@+id/scroll_palette_bar"
         android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="4dp"
+        android:elevation="@dimen/activity_color_picker_scroll_palette_bar_material_elevation"
         android:background="@color/colorBlack"
         android:scrollbars="none">
 
@@ -80,7 +80,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
         </LinearLayout>
-    </com.gamaliev.lists.common.SwitchableHorizontalScrollView>
+    </com.gamaliev.list.common.SwitchableHorizontalScrollView>
 
 
     <!-- Result and Favorite colors -->
@@ -109,7 +109,7 @@
                 android:layout_gravity="center"
                 android:layout_margin="5dp"
                 android:background="@color/colorPickerDefault"
-                android:elevation="2dp">
+                android:elevation="@dimen/activity_color_picker_ff_result_box_material_elevation">
 
                 <TextView
                     android:id="@+id/text_result_box"

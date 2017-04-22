@@ -2,26 +2,29 @@
 <resources>
 
     <!-- ColorPicker PopupWindow -->
-    <integer name="popupwindow_gravity">17</integer> <!-- Gravity.CENTER : 17-->
-
-    <!-- Boxes -->
-    <integer name="boxes_number">16</integer>
+    <integer name="activity_color_picker_popupwindow_gravity">17</integer> <!-- Gravity.CENTER : 17-->
 
     <!-- Notify -->
-    <integer name="vibration_duration">200</integer>
-    <integer name="notification_interval_border_reaches">1000</integer>
+    <integer name="activity_color_picker_vibration_duration">200</integer>
+    <integer name="activity_color_picker_notification_interval_border_reaches">1000</integer>
 
     <!-- Palette box -->
-    <integer name="palette_box_anim_elevation_duration">100</integer>
+    <integer name="activity_color_picker_palette_boxes_number">16</integer>
+    <integer name="activity_color_picker_palette_box_anim_elevation_duration">100</integer>
 
     <!-- Result box -->
-    <integer name="result_box_outer_alpha_percent">10</integer>
-    <integer name="result_box_animation_change_color_duration">300</integer>
+    <integer name="activity_color_picker_result_box_outer_alpha_percent">10</integer>
+    <integer name="activity_color_picker_result_box_animation_change_color_duration">300</integer>
 
-    <!-- Palette box -->
-    <integer name="favorite_box_anim_elevation_duration">100</integer>
-    <integer name="favorite_box_anim_scale_duration">70</integer>
-    <integer name="favorite_box_anim_scale_on">140</integer>
-    <integer name="favorite_box_anim_scale_off">100</integer>
+    <!-- Favorite box -->
+    <integer name="activity_color_picker_favorite_boxes_number">16</integer>
+    <integer name="activity_color_picker_favorite_box_anim_elevation_duration">100</integer>
+    <integer name="activity_color_picker_favorite_box_anim_scale_duration">70</integer>
+    <integer name="activity_color_picker_favorite_box_anim_scale_on">140</integer>
+    <integer name="activity_color_picker_favorite_box_anim_scale_off">100</integer>
+
+    <!-- Material -->
+    <integer name="activity_list_item_name_material_lines">1</integer>
+    <integer name="activity_list_item_description_material_lines">2</integer>
 
 </resources>

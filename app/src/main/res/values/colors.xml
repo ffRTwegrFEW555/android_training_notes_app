@@ -4,5 +4,5 @@
     <color name="colorBlack">#000000</color>
 
     <!-- Boxes -->
-    <color name="box_border_color">#ffffff</color>
+    <color name="activity_color_picker_palette_box_border_color">#ffffff</color>
 </resources>

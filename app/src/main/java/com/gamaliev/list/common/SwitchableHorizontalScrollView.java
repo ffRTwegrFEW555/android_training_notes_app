@@ -1,4 +1,4 @@
-package com.gamaliev.lists.common;
+package com.gamaliev.list.common;
 
 import android.content.Context;
 import android.util.AttributeSet;

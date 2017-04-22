@@ -1,4 +1,4 @@
-package com.gamaliev.lists.colorpicker;
+package com.gamaliev.list.colorpicker;
 
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -19,14 +19,14 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import com.gamaliev.lists.R;
-import com.gamaliev.lists.common.SwitchableHorizontalScrollView;
+import com.gamaliev.list.R;
+import com.gamaliev.list.common.SwitchableHorizontalScrollView;
 
 import java.util.Arrays;
 import java.util.Locale;
 
-import static com.gamaliev.lists.common.CommonUtils.setBackgroundColorAPI;
-import static com.gamaliev.lists.common.CommonUtils.shiftColor;
+import static com.gamaliev.list.common.CommonUtils.setBackgroundColorAPI;
+import static com.gamaliev.list.common.CommonUtils.shiftColor;
 
 /**
  * @author Vadim Gamaliev
@@ -68,7 +68,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
         resultView  = findViewById(R.id.ff_result_box);
         resultParentView = findViewById(R.id.ff_result_outer);
         editPw      = getPopupWindow();
-        boxesNumber = resources.getInteger(R.integer.boxes_number);
+        boxesNumber = resources.getInteger(R.integer.activity_color_picker_palette_boxes_number);
         hsvDegree   = 360f / (boxesNumber * 2);
 
         if (savedInstanceState == null) {
@@ -120,9 +120,9 @@ public final class ColorPickerActivity extends AppCompatActivity {
         for (int i = 1; i < hsvColors.length; i += 2) {
             // Params
             final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    (int) resources.getDimension(R.dimen.palette_box_width),
-                    (int) resources.getDimension(R.dimen.palette_box_height));
-            final int m = (int) resources.getDimension(R.dimen.palette_box_margin);
+                    (int) resources.getDimension(R.dimen.activity_color_picker_palette_box_width),
+                    (int) resources.getDimension(R.dimen.activity_color_picker_palette_box_height));
+            final int m = (int) resources.getDimension(R.dimen.activity_color_picker_palette_box_margin);
             params.setMargins(m, m, m, m);
 
             // Create view
@@ -131,7 +131,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
             box.setBackground(new ColorDrawable(color));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 box.setElevation(
-                        resources.getDimensionPixelSize(R.dimen.palette_box_anim_elevation_off));
+                        resources.getDimensionPixelSize(R.dimen.activity_color_picker_palette_box_anim_elevation_off));
             }
             setBackgroundColorAPI(this, box, color);
             box.setOnTouchListener(new ColorBoxOnTouchListener(this, box, i));
@@ -143,17 +143,18 @@ public final class ColorPickerActivity extends AppCompatActivity {
 
     /**
      * Add and fill, from database, color boxes to favorite colors bar and set listeners
-     * (see: {@link com.gamaliev.lists.colorpicker.FavoriteColorBoxOnTouchListener})
+     * (see: {@link com.gamaliev.list.colorpicker.FavoriteColorBoxOnTouchListener})
      */
     private void addFavoriteColorBoxesAndSetListeners() {
         final ViewGroup viewGroup = (ViewGroup) findViewById(R.id.ll_favorite_bar);
+        final int boxesNumber = resources.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
 
-        for (int i = 1; i < hsvColors.length; i += 2) {
+        for (int i = 0; i < boxesNumber; i++) {
             // Params
             final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    (int) resources.getDimension(R.dimen.favorite_box_width),
-                    (int) resources.getDimension(R.dimen.favorite_box_height));
-            final int m = (int) resources.getDimension(R.dimen.favorite_box_margin);
+                    (int) resources.getDimension(R.dimen.activity_color_picker_favorite_box_width),
+                    (int) resources.getDimension(R.dimen.activity_color_picker_favorite_box_height));
+            final int m = (int) resources.getDimension(R.dimen.activity_color_picker_favorite_box_margin);
             params.setMargins(m, m, m, m);
 
             // Create view
@@ -181,10 +182,10 @@ public final class ColorPickerActivity extends AppCompatActivity {
         // Color change animation
         shiftColor(resultView, resultColor, color,
                 -1,
-                resources.getInteger(R.integer.result_box_animation_change_color_duration));
+                resources.getInteger(R.integer.activity_color_picker_result_box_animation_change_color_duration));
         shiftColor(resultParentView, resultColor, color,
-                resources.getInteger(R.integer.result_box_outer_alpha_percent) / 100.0f,
-                resources.getInteger(R.integer.result_box_animation_change_color_duration));
+                resources.getInteger(R.integer.activity_color_picker_result_box_outer_alpha_percent) / 100.0f,
+                resources.getInteger(R.integer.activity_color_picker_result_box_animation_change_color_duration));
 
         resultColor = color;
 
@@ -245,12 +246,12 @@ public final class ColorPickerActivity extends AppCompatActivity {
         final FrameLayout fl = new FrameLayout(this);
         final PopupWindow popupWindow = new PopupWindow(
                 fl,
-                (int) resources.getDimension(R.dimen.popupwindow_width),
-                (int) resources.getDimension(R.dimen.popupwindow_height),
+                (int) resources.getDimension(R.dimen.activity_color_picker_popupwindow_width),
+                (int) resources.getDimension(R.dimen.activity_color_picker_popupwindow_height),
                 true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            popupWindow.setElevation(resources.getDimension(R.dimen.popupwindow_elevation));
+            popupWindow.setElevation(resources.getDimension(R.dimen.activity_color_picker_popupwindow_elevation));
         }
         return popupWindow;
     }
@@ -262,9 +263,9 @@ public final class ColorPickerActivity extends AppCompatActivity {
     void showPopupWindow() {
         editPw.setAnimationStyle(R.style.ColorPickerPopupWindowAnimation);
         editPw.showAtLocation(findViewById(android.R.id.content),
-                resources.getInteger(R.integer.popupwindow_gravity),
-                (int) resources.getDimension(R.dimen.popupwindow_offset_x),
-                (int) resources.getDimension(R.dimen.popupwindow_offset_y));
+                resources.getInteger(R.integer.activity_color_picker_popupwindow_gravity),
+                (int) resources.getDimension(R.dimen.activity_color_picker_popupwindow_offset_x),
+                (int) resources.getDimension(R.dimen.activity_color_picker_popupwindow_offset_y));
     }
 
 
@@ -286,7 +287,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
 
     /**
      * Open a new database helper.<br>
-     * See also: {@link com.gamaliev.lists.colorpicker.ColorPickerDatabaseHelper}
+     * See also: {@link com.gamaliev.list.colorpicker.ColorPickerDatabaseHelper}
      */
     @Override
     protected void onResume() {
@@ -298,7 +299,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
 
     /**
      * Close database helper.<br>
-     * See also: {@link com.gamaliev.lists.colorpicker.ColorPickerDatabaseHelper}
+     * See also: {@link com.gamaliev.list.colorpicker.ColorPickerDatabaseHelper}
      */
     @Override
     protected void onPause() {

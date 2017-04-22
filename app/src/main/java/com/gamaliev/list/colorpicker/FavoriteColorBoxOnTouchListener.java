@@ -1,4 +1,4 @@
-package com.gamaliev.lists.colorpicker;
+package com.gamaliev.list.colorpicker;
 
 import android.content.res.Resources;
 import android.media.RingtoneManager;
@@ -8,12 +8,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
-import com.gamaliev.lists.R;
+import com.gamaliev.list.R;
 
-import static com.gamaliev.lists.common.CommonUtils.animateElevation;
-import static com.gamaliev.lists.common.CommonUtils.animateScaleXY;
-import static com.gamaliev.lists.common.CommonUtils.playSoundAndShowToast;
-import static com.gamaliev.lists.common.CommonUtils.setBackgroundColor;
+import static com.gamaliev.list.common.CommonUtils.animateElevation;
+import static com.gamaliev.list.common.CommonUtils.animateScaleXY;
+import static com.gamaliev.list.common.CommonUtils.playSoundAndShowToast;
+import static com.gamaliev.list.common.CommonUtils.setBackgroundColor;
 
 /**
  * @author Vadim Gamaliev
@@ -58,18 +58,18 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 animateElevation(v,
-                        resources.getInteger(R.integer.favorite_box_anim_elevation_duration),
-                        resources.getDimensionPixelOffset(R.dimen.favorite_box_anim_elevation_on));
+                        resources.getInteger(R.integer.activity_color_picker_favorite_box_anim_elevation_duration),
+                        resources.getDimensionPixelOffset(R.dimen.activity_color_picker_favorite_box_anim_elevation_on));
                 return true;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 animateElevation(v,
-                        resources.getInteger(R.integer.favorite_box_anim_elevation_duration),
-                        resources.getDimensionPixelOffset(R.dimen.favorite_box_anim_elevation_off));
+                        resources.getInteger(R.integer.activity_color_picker_favorite_box_anim_elevation_duration),
+                        resources.getDimensionPixelOffset(R.dimen.activity_color_picker_favorite_box_anim_elevation_off));
                 animateScaleXY(v,
-                        resources.getInteger(R.integer.favorite_box_anim_scale_off) / 100.0f,
-                        resources.getInteger(R.integer.favorite_box_anim_scale_duration));
+                        resources.getInteger(R.integer.activity_color_picker_favorite_box_anim_scale_off) / 100.0f,
+                        resources.getInteger(R.integer.activity_color_picker_favorite_box_anim_scale_duration));
                 return true;
 
             default:
@@ -98,13 +98,13 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
                     playSoundAndShowToast(
                             context,
                             RingtoneManager.TYPE_NOTIFICATION,
-                            resources.getString(R.string.toast_favorite_color_added),
+                            resources.getString(R.string.activity_color_picker_toast_favorite_color_added),
                             Toast.LENGTH_SHORT);
 
                     setBackgroundColor(view, resultColor);
                     animateScaleXY(view,
-                            resources.getInteger(R.integer.favorite_box_anim_scale_on) / 100.0f,
-                            resources.getInteger(R.integer.favorite_box_anim_scale_duration));
+                            resources.getInteger(R.integer.activity_color_picker_favorite_box_anim_scale_on) / 100.0f,
+                            resources.getInteger(R.integer.activity_color_picker_favorite_box_anim_scale_duration));
                 }
             }
 

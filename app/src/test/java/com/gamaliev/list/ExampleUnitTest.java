@@ -1,4 +1,4 @@
-package com.gamaliev.lists;
+package com.gamaliev.list;
 
 import org.junit.Test;
 

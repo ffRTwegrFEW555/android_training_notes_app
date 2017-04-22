@@ -1,4 +1,4 @@
-package com.gamaliev.lists.common;
+package com.gamaliev.list.common;
 
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
@@ -20,7 +20,7 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Toast;
 
-import com.gamaliev.lists.R;
+import com.gamaliev.list.R;
 
 /**
  * @author Vadim Gamaliev
@@ -208,15 +208,14 @@ public final class CommonUtils {
         final Resources resources = context.getResources();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            view.getBackground().setColorFilter(color, PorterDuff.Mode.SRC);
-            view.setBackground(CommonUtils.getPressedColorRippleDrawable(color, Color.BLUE));
+            view.getBackground().setColorFilter(color, PorterDuff.Mode.SRC);
             view.invalidate();
 
         } else {
             GradientDrawable g = new GradientDrawable();
             g.setStroke(
-                    (int) resources.getDimension(R.dimen.box_border_width),
-                    resources.getColor(R.color.box_border_color));
+                    (int) resources.getDimension(R.dimen.activity_color_picker_box_border_width),
+                    resources.getColor(R.color.activity_color_picker_palette_box_border_color));
             g.setColor(color);
             view.setBackground(g);
         }
