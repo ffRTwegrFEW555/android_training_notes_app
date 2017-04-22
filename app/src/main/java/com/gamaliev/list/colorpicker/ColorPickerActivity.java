@@ -63,10 +63,10 @@ public final class ColorPickerActivity extends AppCompatActivity {
 
     private void init(@Nullable Bundle savedInstanceState) {
         resources   = getResources();
-        paletteHsv  = (SwitchableHorizontalScrollView) findViewById(R.id.scroll_palette_bar);
+        paletteHsv  = (SwitchableHorizontalScrollView) findViewById(R.id.activity_color_picker_scroll_palette_bar);
         dbHelper    = new ColorPickerDatabaseHelper(this);
-        resultView  = findViewById(R.id.ff_result_box);
-        resultParentView = findViewById(R.id.ff_result_outer);
+        resultView  = findViewById(R.id.activity_color_picker_ff_result_box);
+        resultParentView = findViewById(R.id.activity_color_picker_ff_result_outer);
         editPw      = getPopupWindow();
         boxesNumber = resources.getInteger(R.integer.activity_color_picker_palette_boxes_number);
         hsvDegree   = 360f / (boxesNumber * 2);
@@ -96,7 +96,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
      * Set HSV gradient color (0-360) to background of palette bar.
      */
     private void setGradient() {
-        final View view = findViewById(R.id.ll_palette_bar);
+        final View view = findViewById(R.id.activity_color_picker_ll_palette_bar);
 
         hsvColors = new int[boxesNumber * 2 + 1];
         for (int i = 0; i < hsvColors.length; i++) {
@@ -115,7 +115,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
      * (see: {@link ColorBoxOnTouchListener})
      */
     private void addColorBoxesAndSetListeners() {
-        final ViewGroup viewGroup = (ViewGroup) findViewById(R.id.ll_palette_bar);
+        final ViewGroup viewGroup = (ViewGroup) findViewById(R.id.activity_color_picker_ll_palette_bar);
 
         for (int i = 1; i < hsvColors.length; i += 2) {
             // Params
@@ -146,7 +146,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
      * (see: {@link com.gamaliev.list.colorpicker.FavoriteColorBoxOnTouchListener})
      */
     private void addFavoriteColorBoxesAndSetListeners() {
-        final ViewGroup viewGroup = (ViewGroup) findViewById(R.id.ll_favorite_bar);
+        final ViewGroup viewGroup = (ViewGroup) findViewById(R.id.activity_color_picker_ll_favorite_bar);
         final int boxesNumber = resources.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
 
         for (int i = 0; i < boxesNumber; i++) {
@@ -205,7 +205,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
                 (int) (hsv[2] * 100));
 
         // Set contrast text
-        final TextView tv = (TextView) findViewById(R.id.text_result_box);
+        final TextView tv = (TextView) findViewById(R.id.activity_color_picker_text_result_box);
         tv.setText(rgb + "\n" + hsvString);
         tv.setTextColor(Color.rgb(
                 255 - Color.red(color),

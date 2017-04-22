@@ -19,4 +19,8 @@
     <string name="activity_color_picker_ic_helper_move">Swipe in edit mode</string>
     <string name="activity_color_picker_ic_helper_favorite">Add to favorite colors</string>
 
+    <!-- Menu -->
+    <string name="menu_list_add_entry_title">Add</string>
+    <string name="menu_list_delete_entry_title">Delete</string>
+
 </resources>

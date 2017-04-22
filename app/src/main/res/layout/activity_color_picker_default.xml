@@ -10,62 +10,62 @@
 
     <!-- Favorite icons -->
     <ImageView
-        android:id="@+id/image_ic_helper_favorite_swipe"
+        android:id="@+id/activity_color_picker_image_ic_helper_favorite_swipe"
         style="@style/ColorPickerHelperIcons"
         app:srcCompat="@drawable/ic_swap_horiz_black_36dp"
         android:contentDescription="@string/activity_color_picker_ic_helper_swipe"
-        android:layout_above="@+id/scroll_favorite_bar"
+        android:layout_above="@+id/activity_color_picker_scroll_favorite_bar"
         android:layout_marginEnd="20dp"
         android:layout_alignParentEnd="true" />
 
     <ImageView
-        android:id="@+id/image_ic_helper_favorite_add"
+        android:id="@+id/activity_color_picker_image_ic_helper_favorite_add"
         style="@style/ColorPickerHelperIcons"
         app:srcCompat="@drawable/ic_favorite_border_black_36dp"
         android:contentDescription="@string/activity_color_picker_ic_helper_favorite"
-        android:layout_alignTop="@+id/image_ic_helper_favorite_swipe"
-        android:layout_toStartOf="@+id/image_ic_helper_favorite_swipe" />
+        android:layout_alignTop="@+id/activity_color_picker_image_ic_helper_favorite_swipe"
+        android:layout_toStartOf="@+id/activity_color_picker_image_ic_helper_favorite_swipe" />
 
     <ImageView
-        android:id="@+id/image_ic_helper_favorite_touch"
+        android:id="@+id/activity_color_picker_image_ic_helper_favorite_touch"
         style="@style/ColorPickerHelperIcons"
         android:contentDescription="@string/activity_color_picker_ic_helper_touch"
         app:srcCompat="@drawable/ic_touch_app_black_36dp"
-        android:layout_alignTop="@+id/image_ic_helper_favorite_add"
-        android:layout_toStartOf="@+id/image_ic_helper_favorite_add" />
+        android:layout_alignTop="@+id/activity_color_picker_image_ic_helper_favorite_add"
+        android:layout_toStartOf="@+id/activity_color_picker_image_ic_helper_favorite_add" />
 
 
     <!-- Palette icons -->
     <ImageView
-        android:id="@+id/image_ic_helper_palette_swipe"
+        android:id="@+id/activity_color_picker_image_ic_helper_palette_swipe"
         style="@style/ColorPickerHelperIcons"
         android:contentDescription="@string/activity_color_picker_ic_helper_swipe"
         app:srcCompat="@drawable/ic_swap_horiz_black_36dp"
-        android:layout_below="@+id/scroll_palette_bar"
+        android:layout_below="@+id/activity_color_picker_scroll_palette_bar"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"/>
 
     <ImageView
-        android:id="@+id/image_ic_helper_palette_move"
+        android:id="@+id/activity_color_picker_image_ic_helper_palette_move"
         style="@style/ColorPickerHelperIcons"
         android:contentDescription="@string/activity_color_picker_ic_helper_move"
         app:srcCompat="@drawable/ic_open_with_black_36dp"
-        android:layout_alignTop="@+id/image_ic_helper_palette_swipe"
-        android:layout_toStartOf="@+id/image_ic_helper_palette_swipe" />
+        android:layout_alignTop="@+id/activity_color_picker_image_ic_helper_palette_swipe"
+        android:layout_toStartOf="@+id/activity_color_picker_image_ic_helper_palette_swipe" />
 
     <ImageView
-        android:id="@+id/image_ic_helper_palette_touch"
+        android:id="@+id/activity_color_picker_image_ic_helper_palette_touch"
         style="@style/ColorPickerHelperIcons"
         android:contentDescription="@string/activity_color_picker_ic_helper_touch"
         app:srcCompat="@drawable/ic_touch_app_black_36dp"
-        android:layout_alignTop="@+id/image_ic_helper_palette_move"
-        android:layout_toStartOf="@+id/image_ic_helper_palette_move" />
+        android:layout_alignTop="@+id/activity_color_picker_image_ic_helper_palette_move"
+        android:layout_toStartOf="@+id/activity_color_picker_image_ic_helper_palette_move" />
 
 
     <!-- Palette bar -->
     <com.gamaliev.list.common.SwitchableHorizontalScrollView
-        android:id="@+id/scroll_palette_bar"
+        android:id="@+id/activity_color_picker_scroll_palette_bar"
         android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -74,7 +74,7 @@
         android:scrollbars="none">
 
         <LinearLayout
-            android:id="@+id/ll_palette_bar"
+            android:id="@+id/activity_color_picker_ll_palette_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -84,7 +84,7 @@
 
     <!-- Favorite bar -->
     <HorizontalScrollView
-        android:id="@+id/scroll_favorite_bar"
+        android:id="@+id/activity_color_picker_scroll_favorite_bar"
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -92,7 +92,7 @@
         android:scrollbars="none">
 
         <LinearLayout
-            android:id="@+id/ll_favorite_bar"
+            android:id="@+id/activity_color_picker_ll_favorite_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
@@ -106,14 +106,14 @@
 
     <!-- Result -->
     <FrameLayout
-        android:id="@+id/ff_result_padding"
+        android:id="@+id/activity_color_picker_ff_result_padding"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/image_ic_helper_palette_swipe"
-        android:layout_above="@id/image_ic_helper_favorite_swipe">
+        android:layout_below="@id/activity_color_picker_image_ic_helper_palette_swipe"
+        android:layout_above="@id/activity_color_picker_image_ic_helper_favorite_swipe">
 
         <FrameLayout
-            android:id="@+id/ff_result_outer"
+            android:id="@+id/activity_color_picker_ff_result_outer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -121,7 +121,7 @@
             android:paddingTop="10dp">
 
             <FrameLayout
-                android:id="@+id/ff_result_box"
+                android:id="@+id/activity_color_picker_ff_result_box"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
                 android:layout_gravity="center"
@@ -130,7 +130,7 @@
                 android:elevation="@dimen/activity_color_picker_ff_result_box_material_elevation">
 
                 <TextView
-                    android:id="@+id/text_result_box"
+                    android:id="@+id/activity_color_picker_text_result_box"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
