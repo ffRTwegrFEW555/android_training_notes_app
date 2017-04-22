@@ -11,10 +11,11 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.gamaliev.list.R;
 import com.gamaliev.list.common.DatabaseHelper;
 
-import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 
 import static com.gamaliev.list.common.CommonUtils.showToast;
 
@@ -240,4 +241,77 @@ final class ListDatabaseHelper extends DatabaseHelper {
             }
         }
     }
+
+    // TODO; handle
+    boolean addMockEntries() {
+        SQLiteDatabase db = null;
+
+        try {
+            db = getWritableDatabase();
+            db.beginTransaction();
+            final int itemNumbers = 100;
+            for (int i = 0; i < itemNumbers; i++) {
+                // Content values
+                Random random = new Random();
+                final ContentValues cv = new ContentValues();
+                cv.put(LIST_ITEMS_COLUMN_NAME,          resources.getString(R.string.mock_title));
+                cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   resources.getString(R.string.mock_body));
+                cv.put(LIST_ITEMS_COLUMN_COLOR,         random.nextInt());
+                cv.put(LIST_ITEMS_COLUMN_MODIFIED_TIMESTAMP, "time('now')");
+
+                // Insert
+                if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
+                    final String error = String.format(Locale.ENGLISH,
+                            "[ERROR] Insert entry {%s: %s, %s: %s, %s: %d}",
+                            LIST_ITEMS_COLUMN_NAME, "name",
+                            LIST_ITEMS_COLUMN_DESCRIPTION, "description",
+                            LIST_ITEMS_COLUMN_COLOR, 0);
+                    throw new SQLiteException(error);
+                }
+            }
+            db.setTransactionSuccessful();
+
+            // If ok
+            return true;
+
+        } catch (SQLiteException e) {
+            Log.e(TAG, "[ERROR] Add mock entries: " + e.getMessage());
+            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+            return false;
+
+        } finally {
+            if (db != null) {
+                db.endTransaction();
+                db.close();
+            }
+        }
+    }
+
+    // TODO; handle
+    boolean removeAllEntries() {
+        SQLiteDatabase db = null;
+
+        try {
+            db = getWritableDatabase();
+            db.beginTransaction();
+            db.execSQL(SQL_LIST_ITEMS_DROP_TABLE);
+            db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
+            db.setTransactionSuccessful();
+
+            // If ok
+            return true;
+
+        } catch (SQLiteException e) {
+            Log.e(TAG, "[ERROR] Remove all entries: " + e.getMessage());
+            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+            return false;
+
+        } finally {
+            if (db != null) {
+                db.endTransaction();
+                db.close();
+            }
+        }
+    }
+
 }

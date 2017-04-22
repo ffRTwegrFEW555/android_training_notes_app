@@ -70,7 +70,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="@dimen/activity_color_picker_scroll_palette_bar_material_elevation"
-        android:background="@color/colorBlack"
+        android:background="@color/color_black"
         android:scrollbars="none">
 
         <LinearLayout
@@ -126,7 +126,7 @@
                 android:layout_height="120dp"
                 android:layout_gravity="center"
                 android:layout_margin="5dp"
-                android:background="@color/colorPickerDefault"
+                android:background="@color/color_picker_default"
                 android:elevation="@dimen/activity_color_picker_ff_result_box_material_elevation">
 
                 <TextView

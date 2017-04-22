@@ -5,15 +5,23 @@
 
     <item
         android:id="@+id/menu_list_action_add_entry"
-        android:icon="@drawable/ic_add_black_24dp"
+        android:icon="@drawable/ic_add_white_24dp"
         android:orderInCategory="10"
         android:title="@string/menu_list_add_entry_title"
         app:showAsAction="ifRoom"/>
 
     <item
+        android:id="@+id/menu_list_action_fill_mock"
+        android:icon="@drawable/ic_filter_9_plus_white_24dp"
+        android:title="@string/menu_list_fill_mock_title"
+        android:orderInCategory="20"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/menu_list_action_delete_entry"
-        android:icon="@drawable/ic_delete_black_24dp"
-        android:title="@string/menu_list_delete_entry_title"
-        android:orderInCategory="100"
-        app:showAsAction="ifRoom"/>
+        android:icon="@drawable/ic_delete_forever_white_24dp"
+        android:title="@string/menu_list_delete_all_entries_title"
+        android:orderInCategory="30"
+        app:showAsAction="never"/>
+
 </menu>

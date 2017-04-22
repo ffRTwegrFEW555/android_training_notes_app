@@ -12,6 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity
             android:name=".list.ListActivity"
             android:label="@string/activity_list_name">
@@ -23,6 +24,7 @@
 
         <activity
             android:name=".list.ItemDetailsActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:label="@string/activity_list_details_name"/>
 
         <activity

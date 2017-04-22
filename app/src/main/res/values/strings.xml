@@ -21,6 +21,16 @@
 
     <!-- Menu -->
     <string name="menu_list_add_entry_title">Add</string>
-    <string name="menu_list_delete_entry_title">Delete</string>
+    <string name="menu_list_delete_all_entries_title">Delete all</string>
+    <string name="menu_list_fill_mock_title">Fill example</string>
+
+    <!-- Mock entries -->
+    <string name="mock_title">The quick brown fox jumps over the lazy dog.</string>
+    <string name="mock_body">
+        The quick brown fox jumps over the lazy dog.
+        The quick brown fox jumps over the lazy dog.
+        The quick brown fox jumps over the lazy dog.
+        The quick brown fox jumps over the lazy dog.
+    </string>
 
 </resources>

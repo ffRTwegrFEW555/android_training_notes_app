@@ -15,7 +15,6 @@ import android.widget.Toast;
 import com.gamaliev.list.R;
 
 import java.util.Locale;
-import java.util.Random;
 
 import static com.gamaliev.list.common.CommonUtils.showToast;
 
@@ -41,13 +40,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     protected static final String LIST_ITEMS_COLUMN_CREATED_TIMESTAMP   = "c_timestamp";
     protected static final String LIST_ITEMS_COLUMN_MODIFIED_TIMESTAMP  = "m_timestamp";
 
-    private static final String SQL_FAVORTE_TABLE =
+    protected static final String SQL_FAVORITE_CREATE_TABLE =
             "CREATE TABLE " + FAVORITE_TABLE_NAME + " (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     FAVORITE_COLUMN_INDEX +                 " INTEGER NOT NULL, " +
                     FAVORITE_COLUMN_COLOR +                 " INTEGER NOT NULL); ";
 
-    private static final String SQL_LIST_ITEMS_TABLE =
+    protected static final String SQL_LIST_ITEMS_CREATE_TABLE =
             "CREATE TABLE " + LIST_ITEMS_TABLE_NAME + " (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     LIST_ITEMS_COLUMN_NAME +                " TEXT NOT NULL, " +
@@ -55,6 +54,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     LIST_ITEMS_COLUMN_COLOR +               " INTEGER NOT NULL, " +
                     LIST_ITEMS_COLUMN_CREATED_TIMESTAMP +   " DATETIME DEFAULT CURRENT_TIMESTAMP," +
                     LIST_ITEMS_COLUMN_MODIFIED_TIMESTAMP +  " DATETIME NOT NULL);";
+
+    protected static final String SQL_LIST_ITEMS_DROP_TABLE =
+            "DROP TABLE " + LIST_ITEMS_TABLE_NAME + ";";
 
     @NonNull protected Context context;
     @NonNull protected Resources resources;
@@ -123,36 +125,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion == 0) {
             db.beginTransaction();
             try {
-                db.execSQL(SQL_FAVORTE_TABLE);
-                db.execSQL(SQL_LIST_ITEMS_TABLE);
+                db.execSQL(SQL_FAVORITE_CREATE_TABLE);
+                db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
 
                 // Adding default favorite colors;
                 final int boxesNumber = resources.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
                 final int defaultColor = getDefaultColor();
                 for (int i = 0; i < boxesNumber; i++) {
                     insertFavoriteColor(db, i, defaultColor);
-                }
-
-                // Adding mock list items TODO: remove
-                final int itemNumbers = 100;
-                for (int i = 0; i < itemNumbers; i++) {
-                    // Content values
-                    Random random = new Random();
-                    final ContentValues cv = new ContentValues();
-                    cv.put(LIST_ITEMS_COLUMN_NAME,          "Name Title Name Title Name Title Name Title Name Title Name Title");
-                    cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   "Description Description Description Description Description Description Description Description Description Description");
-                    cv.put(LIST_ITEMS_COLUMN_COLOR,         random.nextInt());
-                    cv.put(LIST_ITEMS_COLUMN_MODIFIED_TIMESTAMP,   "time('now')");
-
-                    // Insert
-                    if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
-                        final String error = String.format(Locale.ENGLISH,
-                                "[ERROR] Insert entry {%s: %s, %s: %s, %s: %d}",
-                                LIST_ITEMS_COLUMN_NAME, "name",
-                                LIST_ITEMS_COLUMN_DESCRIPTION, "description",
-                                LIST_ITEMS_COLUMN_COLOR, 0);
-                        throw new SQLiteException(error);
-                    }
                 }
 
                 db.setTransactionSuccessful();
@@ -200,9 +180,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public int getDefaultColor() {
         int defaultColor;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            defaultColor = resources.getColor(R.color.colorPickerDefault, null);
+            defaultColor = resources.getColor(R.color.color_picker_default, null);
         } else {
-            defaultColor = resources.getColor(R.color.colorPickerDefault);
+            defaultColor = resources.getColor(R.color.color_picker_default);
         }
         return defaultColor;
     }
