@@ -20,9 +20,11 @@
     <string name="activity_color_picker_ic_helper_favorite">Add to favorite colors</string>
 
     <!-- Menu -->
-    <string name="menu_list_add_entry_title">Add</string>
-    <string name="menu_list_delete_all_entries_title">Delete all</string>
-    <string name="menu_list_fill_mock_title">Fill example</string>
+    <string name="menu_list_action_add_entry_title">Add</string>
+    <string name="menu_list_action_delete_all_entries_title">Delete all</string>
+    <string name="menu_list_action_fill_mock_title">Fill example</string>
+    <string name="menu_list_item_details_action_done">Save</string>
+    <string name="menu_list_item_details_action_cancel">Cancel</string>
 
     <!-- Mock entries -->
     <string name="mock_title">The quick brown fox jumps over the lazy dog.</string>
@@ -32,5 +34,12 @@
         The quick brown fox jumps over the lazy dog.
         The quick brown fox jumps over the lazy dog.
     </string>
+
+    <!-- Activity item details -->
+    <string name="activity_item_details_title_add">Add entry</string>
+    <string name="activity_item_details_title_edit">Edit entry</string>
+
+    <string name="activity_item_details_text_view_name">Name</string>
+    <string name="activity_item_details_text_view_description">Description</string>
 
 </resources>

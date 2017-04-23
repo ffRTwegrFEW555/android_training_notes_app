@@ -17,7 +17,7 @@ import com.gamaliev.list.common.SwitchableHorizontalScrollView;
 import static com.gamaliev.list.common.CommonUtils.animateElevation;
 import static com.gamaliev.list.common.CommonUtils.makeVibrate;
 import static com.gamaliev.list.common.CommonUtils.playSoundAndShowToast;
-import static com.gamaliev.list.common.CommonUtils.setBackgroundColorAPI;
+import static com.gamaliev.list.common.CommonUtils.setBackgroundColorRectangleAPI;
 import static com.gamaliev.list.common.CommonUtils.showToast;
 
 /**
@@ -192,7 +192,7 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
             // Set default color back to palette box
             @Override
             public boolean onDoubleTap(MotionEvent e) {
-                setBackgroundColorAPI(context, view, hsvColors[index]);
+                setBackgroundColorRectangleAPI(context, view, hsvColors[index]);
                 hsvColorsOverride[index] = -1;
                 return true;
             }

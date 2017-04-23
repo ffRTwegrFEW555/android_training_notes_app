@@ -10,7 +10,7 @@
         android:id="@+id/activity_list_item_icon"
         android:layout_width="@dimen/activity_list_item_icon_material_width"
         android:layout_height="@dimen/activity_list_item_icon_material_height"
-        android:layout_marginEnd="@dimen/activity_list_item_icon_material_margin_end"
+        android:layout_marginEnd="@dimen/activity_list_item_icon_material_margin_start"
         android:background="@drawable/btn_oval"/>
 
     <LinearLayout

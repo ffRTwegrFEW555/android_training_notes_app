@@ -1,5 +1,7 @@
 package com.gamaliev.list.colorpicker;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -20,12 +22,14 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.gamaliev.list.R;
+import com.gamaliev.list.common.DatabaseHelper;
 import com.gamaliev.list.common.SwitchableHorizontalScrollView;
+import com.gamaliev.list.list.ItemDetailsActivity;
 
 import java.util.Arrays;
 import java.util.Locale;
 
-import static com.gamaliev.list.common.CommonUtils.setBackgroundColorAPI;
+import static com.gamaliev.list.common.CommonUtils.setBackgroundColorRectangleAPI;
 import static com.gamaliev.list.common.CommonUtils.shiftColor;
 
 /**
@@ -36,6 +40,7 @@ import static com.gamaliev.list.common.CommonUtils.shiftColor;
 public final class ColorPickerActivity extends AppCompatActivity {
 
     private static final String TAG = ColorPickerActivity.class.getSimpleName();
+    public static final String EXTRA_COLOR = "color";
 
     @NonNull private Resources resources;
     @NonNull private SwitchableHorizontalScrollView paletteHsv;
@@ -45,6 +50,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
     @NonNull private PopupWindow editPw;
     @NonNull private int[] hsvColors;
     @NonNull private int[] hsvColorsOverride;
+    @Nullable private Intent intent;
     private int boxesNumber;
     private int resultColor;
     private float hsvDegree;
@@ -63,6 +69,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
 
     private void init(@Nullable Bundle savedInstanceState) {
         resources   = getResources();
+        intent      = getIntent();
         paletteHsv  = (SwitchableHorizontalScrollView) findViewById(R.id.activity_color_picker_scroll_palette_bar);
         dbHelper    = new ColorPickerDatabaseHelper(this);
         resultView  = findViewById(R.id.activity_color_picker_ff_result_box);
@@ -72,7 +79,9 @@ public final class ColorPickerActivity extends AppCompatActivity {
         hsvDegree   = 360f / (boxesNumber * 2);
 
         if (savedInstanceState == null) {
-            resultColor = dbHelper.getDefaultColor();
+            resultColor = intent == null ?
+                            DatabaseHelper.getDefaultColor(this) :
+                            intent.getIntExtra(EXTRA_COLOR, DatabaseHelper.getDefaultColor(this));
             hsvColorsOverride = new int[boxesNumber * 2 + 1];
             Arrays.fill(hsvColorsOverride, -1);
 
@@ -85,6 +94,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
         addColorBoxesAndSetListeners();
         addFavoriteColorBoxesAndSetListeners();
         setResultBoxColor(resultColor);
+        setDoneCancelListeners();
     }
 
 
@@ -133,7 +143,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
                 box.setElevation(
                         resources.getDimensionPixelSize(R.dimen.activity_color_picker_palette_box_anim_elevation_off));
             }
-            setBackgroundColorAPI(this, box, color);
+            setBackgroundColorRectangleAPI(this, box, color);
             box.setOnTouchListener(new ColorBoxOnTouchListener(this, box, i));
 
             // Add
@@ -213,6 +223,26 @@ public final class ColorPickerActivity extends AppCompatActivity {
                 255 - Color.blue(color)));
     }
 
+    // TODO: handle
+    private void setDoneCancelListeners() {
+        findViewById(R.id.activity_color_picker_ic_done)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setResult(RESULT_OK, ItemDetailsActivity.getResultColorIntent(resultColor));
+                        finish();
+                    }
+                });
+
+        findViewById(R.id.activity_color_picker_ic_cancel)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        finish();
+                    }
+                });
+    }
+
 
     /**
      * Set color to palette box and popupWindow, when "edit mode" is turn on.
@@ -227,7 +257,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
         } else {
             color = newColor;
         }
-        setBackgroundColorAPI(this, view, color);
+        setBackgroundColorRectangleAPI(this, view, color);
         editPw.getContentView().setBackgroundColor(color);
         hsvColorsOverride[index] = color;
     }
@@ -342,5 +372,19 @@ public final class ColorPickerActivity extends AppCompatActivity {
 
     float getHsvDegree() {
         return hsvDegree;
+    }
+
+
+    /*
+        Intents
+     */
+
+    @NonNull
+    public static Intent getStartIntent(
+            @NonNull final Context context,
+            final int color) {
+        Intent intent = new Intent(context, ColorPickerActivity.class);
+        intent.putExtra(EXTRA_COLOR, color);
+        return intent;
     }
 }

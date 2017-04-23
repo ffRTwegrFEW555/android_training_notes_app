@@ -200,7 +200,7 @@ public final class CommonUtils {
      * @param view      view, whose background color is set.
      * @param color     color.
      */
-    public static void setBackgroundColorAPI(
+    public static void setBackgroundColorRectangleAPI(
             @NonNull final Context context,
             @NonNull final View view,
             final int color) {
@@ -215,7 +215,7 @@ public final class CommonUtils {
             GradientDrawable g = new GradientDrawable();
             g.setStroke(
                     (int) resources.getDimension(R.dimen.activity_color_picker_box_border_width),
-                    resources.getColor(R.color.activity_color_picker_palette_box_border_color));
+                    getResourcesColorAPI(context, R.color.color_white));
             g.setColor(color);
             view.setBackground(g);
         }
@@ -230,6 +230,20 @@ public final class CommonUtils {
      */
     public static void setBackgroundColor(@NonNull final View view, final int color) {
         view.getBackground().setColorFilter(color, PorterDuff.Mode.SRC);
+    }
+
+    // TODO : handle
+    public static int getResourcesColorAPI(
+            @NonNull final Context context,
+            final int colorResource) {
+
+        int color = 0;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            color = context.getResources().getColor(colorResource, null);
+        } else {
+            color = context.getResources().getColor(colorResource);
+        }
+        return color;
     }
 
 

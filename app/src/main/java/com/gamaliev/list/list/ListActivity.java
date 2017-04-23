@@ -2,6 +2,7 @@ package com.gamaliev.list.list;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,7 +19,6 @@ public class ListActivity extends AppCompatActivity {
     private static final String TAG = ListActivity.class.getSimpleName();
 
     @NonNull private ListDatabaseHelper dbHelper;
-    @NonNull private ListCursorAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,9 +100,9 @@ public class ListActivity extends AppCompatActivity {
         if (dbHelper == null) {
             dbHelper = new ListDatabaseHelper(this);
         }
-        Cursor cursor       = dbHelper.getAllEntries(null, true);
-        adapter             = new ListCursorAdapter(this, cursor, 0);
-        ListView listView   = (ListView) findViewById(R.id.activity_list_listview);
+        Cursor cursor               = dbHelper.getAllEntries(null, true);
+        ListCursorAdapter adapter   = new ListCursorAdapter(this, cursor, 0);
+        ListView listView           = (ListView) findViewById(R.id.activity_list_listview);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -111,6 +111,20 @@ public class ListActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        timerDelayRunForScroll(listView, adapter.getCount() - 1, 100);
+    }
+
+    // TODO: handle
+    private void timerDelayRunForScroll(
+            @NonNull final ListView listView,
+            final int position,
+            final long time) {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                listView.smoothScrollToPosition(position);
+            }
+        }, time);
     }
 
     /**

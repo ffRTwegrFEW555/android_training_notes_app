@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.gamaliev.list.R;
 import com.gamaliev.list.common.DatabaseHelper;
 
+import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 
@@ -66,12 +67,12 @@ final class ListDatabaseHelper extends DatabaseHelper {
      * Insert new entry in database.
      * @param entry entry, contains name, description, color.
      */
-    private void insertEntry(@NonNull final ListEntry entry) {
+    boolean insertEntry(@NonNull final ListEntry entry) {
         // Check nullability
         if (entry == null) {
             Log.e(TAG, "[ERROR] Insert entry, entry is null.");
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
-            return;
+            return false;
         }
 
         SQLiteDatabase db = null;
@@ -81,13 +82,14 @@ final class ListDatabaseHelper extends DatabaseHelper {
             db = getWritableDatabase();
             final String name = entry.getName();
             final String description = entry.getDescription();
-            final int color = entry.getColor() == null ? getDefaultColor() : entry.getColor();
+            final int color = entry.getColor() == null ? getDefaultColor(context) : entry.getColor();
 
             // Content values
             final ContentValues cv = new ContentValues();
-            cv.put(LIST_ITEMS_COLUMN_NAME,          name);
-            cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
-            cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
+            cv.put(LIST_ITEMS_COLUMN_NAME,                  name);
+            cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,           description);
+            cv.put(LIST_ITEMS_COLUMN_COLOR,                 color);
+            cv.put(LIST_ITEMS_COLUMN_MODIFIED_TIMESTAMP,   "time('now')");
 
             // Insert
             if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
@@ -99,9 +101,13 @@ final class ListDatabaseHelper extends DatabaseHelper {
                 throw new SQLiteException(error);
             }
 
+            // If ok
+            return true;
+
         } catch (SQLiteException e) {
             Log.e(TAG, e.getMessage());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+            return false;
 
         } finally {
             if (db != null) {
@@ -134,7 +140,7 @@ final class ListDatabaseHelper extends DatabaseHelper {
             id = entry.getId();
             name = entry.getName();
             description = entry.getDescription();
-            color = entry.getColor() == null ? getDefaultColor() : entry.getColor();
+            color = entry.getColor() == null ? getDefaultColor(context) : entry.getColor();
 
             // Content values
             final ContentValues cv = new ContentValues();
@@ -192,11 +198,13 @@ final class ListDatabaseHelper extends DatabaseHelper {
     @Nullable
     Cursor getAllEntries(@Nullable String order, final boolean asc) {
         if (order == null) {
-            order = ORDER_NAME;
+            order = ORDER_ADDING;
         }
 
+        SQLiteDatabase db = null;
+
         try {
-            final SQLiteDatabase db = getReadableDatabase();
+            db = getReadableDatabase();
             return db.query(LIST_ITEMS_TABLE_NAME, null, null, null, null, null,
                     order + (asc ? " ASC" : " DESC"));
 
@@ -204,7 +212,58 @@ final class ListDatabaseHelper extends DatabaseHelper {
             Log.e(TAG, "[ERROR] Get entries: " + e.getMessage());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
             return null;
+
+            // TODO: db.close -> cursor.close -> exception.
+        /*} finally {
+            if (db != null) {
+                db.close();
+            }*/
         }
+    }
+
+    // TODO: Handle
+    @Nullable
+    ListEntry getEntry(@NonNull Long id) {
+        if (id == null) {
+            return null;
+        }
+
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+
+        try {
+            db = getReadableDatabase();
+            cursor = db.query(
+                    LIST_ITEMS_TABLE_NAME,
+                    null,
+                    "_id = ?",
+                    new String[] {id.toString()},
+                    null, null, null);
+            ListEntry entry = new ListEntry();
+            if (cursor.moveToFirst()) {
+                entry.setId(cursor.getInt(0));
+                entry.setName(cursor.getString(1));
+                entry.setDescription(cursor.getString(2));
+                entry.setColor(cursor.getInt(3));
+                return entry;
+            }
+            // TODO: add created date and modified date
+
+        } catch (SQLiteException e) {
+            Log.e(TAG, "[ERROR] Get entries: " + e.getMessage());
+            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+            return null;
+
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            if (db != null) {
+                db.close();
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -249,7 +308,7 @@ final class ListDatabaseHelper extends DatabaseHelper {
         try {
             db = getWritableDatabase();
             db.beginTransaction();
-            final int itemNumbers = 100;
+            final int itemNumbers = resources.getInteger(R.integer.mock_items_number);
             for (int i = 0; i < itemNumbers; i++) {
                 // Content values
                 Random random = new Random();

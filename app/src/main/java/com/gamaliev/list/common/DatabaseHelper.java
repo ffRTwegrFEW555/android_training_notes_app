@@ -49,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     protected static final String SQL_LIST_ITEMS_CREATE_TABLE =
             "CREATE TABLE " + LIST_ITEMS_TABLE_NAME + " (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    LIST_ITEMS_COLUMN_NAME +                " TEXT NOT NULL, " +
+                    LIST_ITEMS_COLUMN_NAME +                " TEXT, " +
                     LIST_ITEMS_COLUMN_DESCRIPTION +         " TEXT, " +
                     LIST_ITEMS_COLUMN_COLOR +               " INTEGER NOT NULL, " +
                     LIST_ITEMS_COLUMN_CREATED_TIMESTAMP +   " DATETIME DEFAULT CURRENT_TIMESTAMP," +
@@ -130,7 +130,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                 // Adding default favorite colors;
                 final int boxesNumber = resources.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
-                final int defaultColor = getDefaultColor();
+                final int defaultColor = getDefaultColor(context);
                 for (int i = 0; i < boxesNumber; i++) {
                     insertFavoriteColor(db, i, defaultColor);
                 }
@@ -177,12 +177,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * @return default color. See color resource with name "colorPickerDefault".
      */
-    public int getDefaultColor() {
+    // TODO: handle
+    public static int getDefaultColor(@NonNull final Context context) {
         int defaultColor;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            defaultColor = resources.getColor(R.color.color_picker_default, null);
+            defaultColor = context.getResources().getColor(R.color.color_picker_default, null);
         } else {
-            defaultColor = resources.getColor(R.color.color_picker_default);
+            defaultColor = context.getResources().getColor(R.color.color_picker_default);
         }
         return defaultColor;
     }

@@ -1,10 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
+    <FrameLayout
+        android:id="@+id/activity_item_details_ff_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:elevation="@dimen/activity_item_details_ff_title_material_elevation"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="bottom">
+
+            <FrameLayout
+                android:id="@+id/activity_item_details_color"
+                android:layout_width="@dimen/activity_item_details_ff_color_radius"
+                android:layout_height="@dimen/activity_item_details_ff_color_radius"
+                android:layout_marginStart="@dimen/activity_list_item_icon_material_margin_start"
+                android:layout_marginBottom="@dimen/activity_list_item_icon_material_margin_bottom"
+                android:layout_gravity="bottom"/>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/activity_item_details_text_layout_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_margin="16dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/activity_item_details_text_view_name"
+                    style="@style/Base.TextAppearance.AppCompat.Title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/activity_item_details_text_view_name"
+                    android:inputType="textNoSuggestions"
+                    android:maxLines="1" />
+
+            </android.support.design.widget.TextInputLayout>
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="16dp">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/activity_item_details_text_view_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Base.TextAppearance.AppCompat.Body1"
+            android:hint="@string/activity_item_details_text_view_description"
+            android:inputType="textMultiLine|textNoSuggestions"
+            android:textColor="?android:textColorSecondary"/>
+
+    </android.support.design.widget.TextInputLayout>
 
 </LinearLayout>
 

@@ -1,14 +1,21 @@
 <resources>
 
+
+    <!-- App Theme -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <!-- YAGNI? -->
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="AppTheme.ActionBar" parent="style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="AppTheme.ActionBarWithoutElevation">
+        <item name="actionBarStyle">@style/AppTheme.ActionBar</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
@@ -19,6 +26,8 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
+
+    <!-- Activity Color Picker -->
     <style name="ColorPickerPopupWindowAnimation">
         <item name="android:windowEnterAnimation">@anim/activity_color_picker_pw_on_show</item>
         <item name="android:windowExitAnimation">@anim/activity_color_picker_pw_on_dismiss</item>
@@ -27,6 +36,14 @@
     <style name="ColorPickerHelperIcons">
         <item name="android:layout_width">36dp</item>
         <item name="android:layout_height">36dp</item>
+        <item name="android:tint">@color/color_picker_default</item>
+    </style>
+
+    <style name="ColorPickerActionIcons">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginStart">110dp</item>
         <item name="android:tint">@color/color_picker_default</item>
     </style>
 

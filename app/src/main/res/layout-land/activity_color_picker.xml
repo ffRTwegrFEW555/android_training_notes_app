@@ -120,6 +120,18 @@
                     android:textStyle="bold" />
             </FrameLayout>
 
+            <ImageView
+                android:id="@+id/activity_color_picker_ic_done"
+                style="@style/ColorPickerActionIcons"
+                android:layout_marginBottom="30dp"
+                app:srcCompat="@drawable/ic_done_black_48dp" />
+
+            <ImageView
+                android:id="@+id/activity_color_picker_ic_cancel"
+                style="@style/ColorPickerActionIcons"
+                android:layout_marginTop="30dp"
+                app:srcCompat="@drawable/ic_clear_black_48dp"/>
+
         </FrameLayout>
 
         <!-- Favorite bar -->

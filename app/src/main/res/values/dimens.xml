@@ -11,6 +11,9 @@
     <!-- Boxes -->
     <dimen name="activity_color_picker_box_border_width">1dp</dimen>
 
+    <!-- List item details -->
+    <dimen name="activity_item_details_ff_color_stroke_width">2dp</dimen>
+
     <!--  -->
     <dimen name="activity_color_picker_delta_to_enable_change_color">10dp</dimen>
 
@@ -35,10 +38,15 @@
     <dimen name="activity_list_item_material_padding">16dp</dimen>
     <dimen name="activity_list_item_icon_material_width">40dp</dimen>
     <dimen name="activity_list_item_icon_material_height">40dp</dimen>
-    <dimen name="activity_list_item_icon_material_margin_end">16dp</dimen>
+    <dimen name="activity_list_item_icon_material_margin_start">16dp</dimen>
+    <dimen name="activity_list_item_icon_material_margin_bottom">16dp</dimen>
     <dimen name="activity_list_item_name_material_text_size">16sp</dimen>
     <dimen name="activity_list_item_description_material_text_size">14sp</dimen>
     <dimen name="activity_color_picker_scroll_palette_bar_material_elevation">4dp</dimen>
     <dimen name="activity_color_picker_ff_result_box_material_elevation">2dp</dimen>
+    <dimen name="activity_item_details_ff_title_material_elevation">4dp</dimen>
+    <dimen name="activity_item_details_ff_title_height">124dp</dimen>
+    <dimen name="activity_item_details_fab_color_margin_end">16dp</dimen>
+    <dimen name="activity_item_details_ff_color_radius">56dp</dimen>
 
 </resources>
