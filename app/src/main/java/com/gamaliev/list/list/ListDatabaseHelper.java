@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -322,7 +323,8 @@ final class ListDatabaseHelper extends DatabaseHelper {
                 final ContentValues cv = new ContentValues();
                 cv.put(LIST_ITEMS_COLUMN_NAME,          resources.getString(R.string.mock_title));
                 cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   resources.getString(R.string.mock_body));
-                cv.put(LIST_ITEMS_COLUMN_COLOR,         random.nextInt());
+                cv.put(LIST_ITEMS_COLUMN_COLOR,
+                        Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256)));
                 cv.put(LIST_ITEMS_COLUMN_MODIFIED_TIMESTAMP, "time('now')");
 
                 // Insert
