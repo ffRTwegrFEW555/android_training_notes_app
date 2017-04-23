@@ -109,9 +109,13 @@ public class ItemDetailsActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_COLOR && resultCode == RESULT_OK) {
             if (data != null) {
-                refreshColorBox(data.getIntExtra(
+                int color = data.getIntExtra(
                         ColorPickerActivity.EXTRA_COLOR,
-                        getDefaultColor(ItemDetailsActivity.this)));
+                        getDefaultColor(ItemDetailsActivity.this));
+                refreshColorBox(color);
+                if (savedInstanceState != null) {
+                    savedInstanceState.putInt("color", color);
+                }
             }
         }
     }
