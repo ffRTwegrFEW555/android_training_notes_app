@@ -110,7 +110,8 @@
                 android:layout_gravity="center"
                 android:layout_margin="5dp"
                 android:background="@color/color_picker_default"
-                android:elevation="@dimen/activity_color_picker_ff_result_box_material_elevation">
+                android:elevation="@dimen/activity_color_picker_ff_result_box_material_elevation"
+                android:transitionName="@string/shared_transition_name_color_box">
 
                 <TextView
                     android:id="@+id/activity_color_picker_text_result_box"

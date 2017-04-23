@@ -22,6 +22,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.gamaliev.list.R;
+import com.gamaliev.list.common.CommonUtils;
 import com.gamaliev.list.common.SwitchableHorizontalScrollView;
 import com.gamaliev.list.list.ItemDetailsActivity;
 
@@ -97,6 +98,13 @@ public final class ColorPickerActivity extends AppCompatActivity {
         addFavoriteColorBoxesAndSetListeners();
         setResultBoxColor(resultColor);
         setDoneCancelListeners();
+
+        // Shared transition color box
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setSharedElementEnterTransition(CommonUtils.getChangeBounds(this));
+            getWindow().setSharedElementReturnTransition(null);
+            findViewById(android.R.id.content).invalidate();
+        }
     }
 
 

@@ -2,9 +2,12 @@ package com.gamaliev.list.list;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,13 +20,22 @@ import com.gamaliev.list.R;
 public class ListActivity extends AppCompatActivity {
 
     private static final String TAG = ListActivity.class.getSimpleName();
+    private static final int REQUEST_CODE_ADD = 1;
+    private static final int REQUEST_CODE_EDIT = 2;
 
     @NonNull private ListDatabaseHelper dbHelper;
+    @NonNull private ListCursorAdapter adapter;
+    @NonNull private ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
+        init();
+    }
+
+    private void init() {
+        refreshDatabase();
     }
 
 
@@ -51,25 +63,24 @@ public class ListActivity extends AppCompatActivity {
             // Add new entry
             case R.id.menu_list_action_add_entry:
                 Intent intent = ItemDetailsActivity.getAddStartIntent(this);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_CODE_ADD);
                 break;
 
             // Fill example entries
             case R.id.menu_list_action_fill_mock:
                 dbHelper.addMockEntries();
-                refreshDatabase();
                 break;
 
             // Remove all entries
             case R.id.menu_list_action_delete_entry:
                 dbHelper.removeAllEntries();
-                refreshDatabase();
                 break;
 
             default:
                 break;
         }
 
+        refreshDatabase();
         return super.onOptionsItemSelected(item);
     }
 
@@ -79,12 +90,15 @@ public class ListActivity extends AppCompatActivity {
      */
 
     /**
-     * Open database helper.. see {@link #refreshDatabase()}
+     * Close database helper.<br>
+     * See also: {@link com.gamaliev.list.list.ListDatabaseHelper}
      */
     @Override
-    protected void onResume() {
-        refreshDatabase();
-        super.onResume();
+    protected void onPause() {
+        if (dbHelper != null) {
+            dbHelper.close();
+        }
+        super.onPause();
     }
 
     /**
@@ -95,18 +109,32 @@ public class ListActivity extends AppCompatActivity {
         if (dbHelper == null) {
             dbHelper = new ListDatabaseHelper(this);
         }
-        Cursor cursor               = dbHelper.getAllEntries(null, true);
-        ListCursorAdapter adapter   = new ListCursorAdapter(this, cursor, 0);
-        ListView listView           = (ListView) findViewById(R.id.activity_list_listview);
+        Cursor cursor   = dbHelper.getAllEntries(null, true);
+        adapter         = new ListCursorAdapter(this, cursor, 0);
+        listView        = (ListView) findViewById(R.id.activity_list_listview);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = ItemDetailsActivity.getEditStartIntent(ListActivity.this, id);
-                startActivity(intent);
+
+                // Shared transition color box
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    View iconView = view.findViewById(R.id.activity_list_item_icon);
+                    iconView.setTransitionName(
+                            getString(R.string.shared_transition_name_color_box));
+                    Pair<View, String> icon = new Pair<>(iconView, iconView.getTransitionName());
+                    ActivityOptionsCompat aoc =
+                            ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                    ListActivity.this, icon);
+                    Intent intent = ItemDetailsActivity.getEditStartIntent(ListActivity.this, id);
+                    startActivityForResult(intent, REQUEST_CODE_EDIT, aoc.toBundle());
+
+                } else {
+                    Intent intent = ItemDetailsActivity.getEditStartIntent(ListActivity.this, id);
+                    startActivityForResult(intent, REQUEST_CODE_EDIT);
+                }
             }
         });
-        timerDelayRunForScroll(listView, adapter.getCount() - 1, 100);
     }
 
 
@@ -128,15 +156,21 @@ public class ListActivity extends AppCompatActivity {
         }, time);
     }
 
-    /**
-     * Close database helper.<br>
-     * See also: {@link com.gamaliev.list.list.ListDatabaseHelper}
+
+    /*
+        Intents
      */
+
     @Override
-    protected void onPause() {
-        if (dbHelper != null) {
-            dbHelper.close();
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CODE_ADD) {
+                refreshDatabase();
+                timerDelayRunForScroll(listView, adapter.getCount(), 200);
+            } else if (requestCode == REQUEST_CODE_EDIT) {
+                refreshDatabase();
+            }
+
         }
-        super.onPause();
     }
 }

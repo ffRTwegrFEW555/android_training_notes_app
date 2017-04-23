@@ -17,7 +17,9 @@ import android.os.Build;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.transition.ChangeBounds;
 import android.view.View;
+import android.view.animation.OvershootInterpolator;
 import android.widget.Toast;
 
 import com.gamaliev.list.R;
@@ -256,6 +258,19 @@ public final class CommonUtils {
      */
     public static int getDefaultColor(@NonNull final Context context) {
         return getResourceColorApi(context, R.color.color_picker_default);
+    }
+
+    /**
+     * Get shared transition animation object.
+     * @return change bounds.
+     */
+    @NonNull
+    public static ChangeBounds getChangeBounds(@NonNull final Context context) {
+        ChangeBounds changeBounds = new ChangeBounds();
+        changeBounds.setDuration(context.getResources()
+                .getInteger(R.integer.shared_transition_animation_change_bounds_duration));
+        changeBounds.setInterpolator(new OvershootInterpolator());
+        return changeBounds;
     }
 
 

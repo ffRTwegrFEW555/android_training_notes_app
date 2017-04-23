@@ -3,9 +3,12 @@ package com.gamaliev.list.list;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -15,6 +18,7 @@ import android.widget.EditText;
 
 import com.gamaliev.list.R;
 import com.gamaliev.list.colorpicker.ColorPickerActivity;
+import com.gamaliev.list.common.CommonUtils;
 
 import static com.gamaliev.list.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.list.common.CommonUtils.getResourceColorApi;
@@ -54,6 +58,12 @@ public class ItemDetailsActivity extends AppCompatActivity {
         name = (EditText) findViewById(R.id.activity_item_details_text_view_name);
         description = (EditText) findViewById(R.id.activity_item_details_text_view_description);
         this.savedInstanceState = savedInstanceState;
+
+        // Shared transition color box
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setSharedElementEnterTransition(CommonUtils.getChangeBounds(this));
+            findViewById(android.R.id.content).invalidate();
+        }
     }
 
 
@@ -135,8 +145,22 @@ public class ItemDetailsActivity extends AppCompatActivity {
         colorBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = ColorPickerActivity.getStartIntent(ItemDetailsActivity.this, color);
-                startActivityForResult(intent, REQUEST_CODE_COLOR);
+                // Shared transition color box
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    View iconView = findViewById(R.id.activity_item_details_color);
+                    iconView.setTransitionName(
+                            getString(R.string.shared_transition_name_color_box));
+                    Pair<View, String> icon = new Pair<>(iconView, iconView.getTransitionName());
+                    ActivityOptionsCompat aoc =
+                            ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                    ItemDetailsActivity.this, icon);
+                    Intent intent = ColorPickerActivity.getStartIntent(ItemDetailsActivity.this, color);
+                    startActivityForResult(intent, REQUEST_CODE_COLOR, aoc.toBundle());
+
+                } else {
+                    Intent intent = ColorPickerActivity.getStartIntent(ItemDetailsActivity.this, color);
+                    startActivityForResult(intent, REQUEST_CODE_COLOR);
+                }
             }
         });
 
@@ -232,6 +256,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                         newEntry.setDescription(description.getText().toString());
                         newEntry.setColor(color);
                         dbHelper.insertEntry(newEntry);
+                        setResult(RESULT_OK);
                         finish();
                         break;
 
@@ -244,6 +269,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                             changeableEntry.setColor(color);
                             dbHelper.updateEntry(changeableEntry);
                         }
+                        setResult(RESULT_OK);
                         finish();
                         break;
 

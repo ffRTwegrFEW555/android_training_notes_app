@@ -24,7 +24,8 @@
                 android:layout_height="@dimen/activity_item_details_ff_color_radius"
                 android:layout_marginStart="@dimen/activity_list_item_icon_material_margin_start"
                 android:layout_marginBottom="@dimen/activity_list_item_icon_material_margin_bottom"
-                android:layout_gravity="bottom"/>
+                android:layout_gravity="bottom"
+                android:transitionName="@string/shared_transition_name_color_box"/>
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/activity_item_details_text_layout_name"

@@ -40,8 +40,10 @@
     <!-- Activity item details -->
     <string name="activity_item_details_title_add">Add entry</string>
     <string name="activity_item_details_title_edit">Edit entry</string>
-
     <string name="activity_item_details_text_view_name">Name</string>
     <string name="activity_item_details_text_view_description">Description</string>
+
+    <!-- Other -->
+    <string name="shared_transition_name_color_box">color_box</string>
 
 </resources>
