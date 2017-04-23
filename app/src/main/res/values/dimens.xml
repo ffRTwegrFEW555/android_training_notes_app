@@ -45,8 +45,6 @@
     <dimen name="activity_color_picker_scroll_palette_bar_material_elevation">4dp</dimen>
     <dimen name="activity_color_picker_ff_result_box_material_elevation">2dp</dimen>
     <dimen name="activity_item_details_ff_title_material_elevation">4dp</dimen>
-    <dimen name="activity_item_details_ff_title_height">124dp</dimen>
-    <dimen name="activity_item_details_fab_color_margin_end">16dp</dimen>
     <dimen name="activity_item_details_ff_color_radius">56dp</dimen>
 
 </resources>

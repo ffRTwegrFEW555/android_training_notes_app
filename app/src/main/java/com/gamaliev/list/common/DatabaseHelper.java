@@ -7,7 +7,6 @@ import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
@@ -130,7 +129,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                 // Adding default favorite colors;
                 final int boxesNumber = resources.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
-                final int defaultColor = getDefaultColor(context);
+                final int defaultColor = CommonUtils.getDefaultColor(context);
                 for (int i = 0; i < boxesNumber; i++) {
                     insertFavoriteColor(db, i, defaultColor);
                 }
@@ -167,24 +166,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "[ERROR] Insert favorite color {%s: %d, %s: %d}",
                     FAVORITE_COLUMN_INDEX, index, FAVORITE_COLUMN_COLOR, color));
         }
-    }
-
-
-    /*
-        Get default color
-     */
-
-    /**
-     * @return default color. See color resource with name "colorPickerDefault".
-     */
-    // TODO: handle
-    public static int getDefaultColor(@NonNull final Context context) {
-        int defaultColor;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            defaultColor = context.getResources().getColor(R.color.color_picker_default, null);
-        } else {
-            defaultColor = context.getResources().getColor(R.color.color_picker_default);
-        }
-        return defaultColor;
     }
 }

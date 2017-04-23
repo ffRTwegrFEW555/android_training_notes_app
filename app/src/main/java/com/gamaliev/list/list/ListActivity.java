@@ -2,10 +2,10 @@ package com.gamaliev.list.list;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,16 +24,12 @@ public class ListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
-        init();
     }
-
-    private void init() {}
 
 
     /*
         Options menu
      */
-
 
     /**
      * Inflate action bar menu.
@@ -82,7 +78,6 @@ public class ListActivity extends AppCompatActivity {
         On Pause/Resume
      */
 
-
     /**
      * Open database helper.. see {@link #refreshDatabase()}
      */
@@ -114,7 +109,13 @@ public class ListActivity extends AppCompatActivity {
         timerDelayRunForScroll(listView, adapter.getCount() - 1, 100);
     }
 
-    // TODO: handle
+
+    /**
+     * Smooth scroll ListView object to given position, and delay time.
+     * @param listView  ListView object.
+     * @param position  position to scroll.
+     * @param time      delay before start scrolling.
+     */
     private void timerDelayRunForScroll(
             @NonNull final ListView listView,
             final int position,

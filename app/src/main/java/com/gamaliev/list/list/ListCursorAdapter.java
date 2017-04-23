@@ -51,9 +51,9 @@ final class ListCursorAdapter extends CursorAdapter {
 
     private static class ViewHolder {
         private Integer id;
-        private TextView nameView;
-        private TextView descriptionView;
-        private View iconView;
+        private final TextView nameView;
+        private final TextView descriptionView;
+        private final View iconView;
 
         ViewHolder(View view) {
             nameView = (TextView) view.findViewById(R.id.activity_list_item_name);

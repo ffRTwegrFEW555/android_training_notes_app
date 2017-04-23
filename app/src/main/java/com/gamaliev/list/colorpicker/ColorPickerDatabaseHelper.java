@@ -21,7 +21,7 @@ import static com.gamaliev.list.common.CommonUtils.showToast;
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public final class ColorPickerDatabaseHelper extends DatabaseHelper {
+final class ColorPickerDatabaseHelper extends DatabaseHelper {
 
     private static final String TAG = ColorPickerDatabaseHelper.class.getSimpleName();
 

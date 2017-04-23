@@ -14,10 +14,10 @@ import android.widget.Toast;
 import com.gamaliev.list.R;
 import com.gamaliev.list.common.DatabaseHelper;
 
-import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 
+import static com.gamaliev.list.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.list.common.CommonUtils.showToast;
 
 /**
@@ -221,9 +221,13 @@ final class ListDatabaseHelper extends DatabaseHelper {
         }
     }
 
-    // TODO: Handle
+    /**
+     * Get filled object from database, with given id.
+     * @param id id of entry.
+     * @return filled object. See {@link com.gamaliev.list.list.ListEntry}
+     */
     @Nullable
-    ListEntry getEntry(@NonNull Long id) {
+    ListEntry getEntry(@NonNull final Long id) {
         if (id == null) {
             return null;
         }
@@ -301,17 +305,20 @@ final class ListDatabaseHelper extends DatabaseHelper {
         }
     }
 
-    // TODO; handle
+    /**
+     * Add mock entries in list activity. See: {@link com.gamaliev.list.list.ListActivity}
+     * @return true if ok, otherwise false.
+     */
     boolean addMockEntries() {
         SQLiteDatabase db = null;
 
         try {
+            Random random = new Random();
             db = getWritableDatabase();
             db.beginTransaction();
             final int itemNumbers = resources.getInteger(R.integer.mock_items_number);
             for (int i = 0; i < itemNumbers; i++) {
                 // Content values
-                Random random = new Random();
                 final ContentValues cv = new ContentValues();
                 cv.put(LIST_ITEMS_COLUMN_NAME,          resources.getString(R.string.mock_title));
                 cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   resources.getString(R.string.mock_body));
@@ -346,7 +353,10 @@ final class ListDatabaseHelper extends DatabaseHelper {
         }
     }
 
-    // TODO; handle
+    /**
+     * Delete all rows from list table. See: {@link com.gamaliev.list.list.ListActivity}
+     * @return true if ok, otherwise false.
+     */
     boolean removeAllEntries() {
         SQLiteDatabase db = null;
 

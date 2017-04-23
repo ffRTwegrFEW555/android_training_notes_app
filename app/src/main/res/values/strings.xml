@@ -13,11 +13,13 @@
     <!-- SQL -->
     <string name="sql_toast_fail">Database unavailable</string>
 
-    <!-- Color picker icon helper -->
+    <!-- Color picker -->
     <string name="activity_color_picker_ic_helper_swipe">Swipe to left or right</string>
     <string name="activity_color_picker_ic_helper_touch">Single or double click</string>
     <string name="activity_color_picker_ic_helper_move">Swipe in edit mode</string>
     <string name="activity_color_picker_ic_helper_favorite">Add to favorite colors</string>
+    <string name="activity_color_picker_ic_done_description">Done</string>
+    <string name="activity_color_picker_ic_cancel_description">Cancel</string>
 
     <!-- Menu -->
     <string name="menu_list_action_add_entry_title">Add</string>

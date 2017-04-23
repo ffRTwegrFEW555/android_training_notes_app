@@ -1,6 +1,5 @@
 <resources>
 
-
     <!-- App Theme -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -26,7 +25,6 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
-
     <!-- Activity Color Picker -->
     <style name="ColorPickerPopupWindowAnimation">
         <item name="android:windowEnterAnimation">@anim/activity_color_picker_pw_on_show</item>
@@ -46,6 +44,5 @@
         <item name="android:layout_marginStart">110dp</item>
         <item name="android:tint">@color/color_picker_default</item>
     </style>
-
 
 </resources>

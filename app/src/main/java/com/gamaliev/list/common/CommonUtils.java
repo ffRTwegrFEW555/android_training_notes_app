@@ -215,7 +215,7 @@ public final class CommonUtils {
             GradientDrawable g = new GradientDrawable();
             g.setStroke(
                     (int) resources.getDimension(R.dimen.activity_color_picker_box_border_width),
-                    getResourcesColorAPI(context, R.color.color_white));
+                    getResourceColorApi(context, R.color.color_white));
             g.setColor(color);
             view.setBackground(g);
         }
@@ -232,18 +232,30 @@ public final class CommonUtils {
         view.getBackground().setColorFilter(color, PorterDuff.Mode.SRC);
     }
 
-    // TODO : handle
-    public static int getResourcesColorAPI(
+    /**
+     * Get color from resources, depending on the api.
+     * @param context       context.
+     * @param resourceColor resource of color.
+     * @return color.
+     */
+    public static int getResourceColorApi(
             @NonNull final Context context,
-            final int colorResource) {
+            final int resourceColor) {
 
         int color = 0;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            color = context.getResources().getColor(colorResource, null);
+            color = context.getResources().getColor(resourceColor, null);
         } else {
-            color = context.getResources().getColor(colorResource);
+            color = context.getResources().getColor(resourceColor);
         }
         return color;
+    }
+
+    /**
+     * @return default color. See color resource with name "color_picker_default".
+     */
+    public static int getDefaultColor(@NonNull final Context context) {
+        return getResourceColorApi(context, R.color.color_picker_default);
     }
 
 
@@ -257,7 +269,9 @@ public final class CommonUtils {
             final int pressedColor) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return new RippleDrawable(getPressedColorSelector(normalColor, pressedColor), getColorDrawableFromColor(normalColor), null);
+            return new RippleDrawable(
+                    getPressedColorSelector(normalColor, pressedColor),
+                    getColorDrawableFromColor(normalColor), null);
         } else {
             return null;
         }

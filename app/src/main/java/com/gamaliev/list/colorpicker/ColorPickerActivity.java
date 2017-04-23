@@ -22,13 +22,13 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.gamaliev.list.R;
-import com.gamaliev.list.common.DatabaseHelper;
 import com.gamaliev.list.common.SwitchableHorizontalScrollView;
 import com.gamaliev.list.list.ItemDetailsActivity;
 
 import java.util.Arrays;
 import java.util.Locale;
 
+import static com.gamaliev.list.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.list.common.CommonUtils.setBackgroundColorRectangleAPI;
 import static com.gamaliev.list.common.CommonUtils.shiftColor;
 
@@ -50,7 +50,6 @@ public final class ColorPickerActivity extends AppCompatActivity {
     @NonNull private PopupWindow editPw;
     @NonNull private int[] hsvColors;
     @NonNull private int[] hsvColorsOverride;
-    @Nullable private Intent intent;
     private int boxesNumber;
     private int resultColor;
     private float hsvDegree;
@@ -67,10 +66,11 @@ public final class ColorPickerActivity extends AppCompatActivity {
         init(savedInstanceState);
     }
 
-    private void init(@Nullable Bundle savedInstanceState) {
+    private void init(@Nullable final Bundle savedInstanceState) {
         resources   = getResources();
-        intent      = getIntent();
-        paletteHsv  = (SwitchableHorizontalScrollView) findViewById(R.id.activity_color_picker_scroll_palette_bar);
+        paletteHsv  = (SwitchableHorizontalScrollView)
+                findViewById(R.id.activity_color_picker_scroll_palette_bar);
+
         dbHelper    = new ColorPickerDatabaseHelper(this);
         resultView  = findViewById(R.id.activity_color_picker_ff_result_box);
         resultParentView = findViewById(R.id.activity_color_picker_ff_result_outer);
@@ -79,15 +79,17 @@ public final class ColorPickerActivity extends AppCompatActivity {
         hsvDegree   = 360f / (boxesNumber * 2);
 
         if (savedInstanceState == null) {
+            // Set result color on start activity. Either by default, or from the Intent.
+            Intent intent = getIntent();
             resultColor = intent == null ?
-                            DatabaseHelper.getDefaultColor(this) :
-                            intent.getIntExtra(EXTRA_COLOR, DatabaseHelper.getDefaultColor(this));
+                            getDefaultColor(this) :
+                            intent.getIntExtra(EXTRA_COLOR, getDefaultColor(this));
             hsvColorsOverride = new int[boxesNumber * 2 + 1];
             Arrays.fill(hsvColorsOverride, -1);
 
         } else {
-            resultColor = savedInstanceState.getInt ("resultColor");
-            hsvColorsOverride = savedInstanceState.getIntArray ("hsvColorsOverride");
+            resultColor = savedInstanceState.getInt("resultColor");
+            hsvColorsOverride = savedInstanceState.getIntArray("hsvColorsOverride");
         }
 
         setGradient();
@@ -119,13 +121,13 @@ public final class ColorPickerActivity extends AppCompatActivity {
         view.setBackground(g);
     }
 
-
     /**
      * Add color boxes to palette bar and set listeners
      * (see: {@link ColorBoxOnTouchListener})
      */
     private void addColorBoxesAndSetListeners() {
-        final ViewGroup viewGroup = (ViewGroup) findViewById(R.id.activity_color_picker_ll_palette_bar);
+        final ViewGroup viewGroup =
+                (ViewGroup) findViewById(R.id.activity_color_picker_ll_palette_bar);
 
         for (int i = 1; i < hsvColors.length; i += 2) {
             // Params
@@ -156,7 +158,8 @@ public final class ColorPickerActivity extends AppCompatActivity {
      * (see: {@link com.gamaliev.list.colorpicker.FavoriteColorBoxOnTouchListener})
      */
     private void addFavoriteColorBoxesAndSetListeners() {
-        final ViewGroup viewGroup = (ViewGroup) findViewById(R.id.activity_color_picker_ll_favorite_bar);
+        final ViewGroup viewGroup =
+                (ViewGroup) findViewById(R.id.activity_color_picker_ll_favorite_bar);
         final int boxesNumber = resources.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
 
         for (int i = 0; i < boxesNumber; i++) {
@@ -174,7 +177,8 @@ public final class ColorPickerActivity extends AppCompatActivity {
             } else {
                 button.setBackground(resources.getDrawable(R.drawable.btn_oval));
             }
-            button.getBackground().setColorFilter(dbHelper.getFavoriteColor(i), PorterDuff.Mode.SRC);
+            button.getBackground()
+                    .setColorFilter(dbHelper.getFavoriteColor(i), PorterDuff.Mode.SRC);
             button.setOnTouchListener(
                     new FavoriteColorBoxOnTouchListener(this, button, dbHelper, i));
 
@@ -182,7 +186,6 @@ public final class ColorPickerActivity extends AppCompatActivity {
             viewGroup.addView(button, params);
         }
     }
-
 
     /**
      * Set color to result box.
@@ -223,8 +226,11 @@ public final class ColorPickerActivity extends AppCompatActivity {
                 255 - Color.blue(color)));
     }
 
-    // TODO: handle
+    /**
+     * Setting listeners on 'Done' and 'Cancel' buttons.
+     */
     private void setDoneCancelListeners() {
+        // Return RESULT_OK and selected color.
         findViewById(R.id.activity_color_picker_ic_done)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -234,6 +240,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
                     }
                 });
 
+        // Finish the activity
         findViewById(R.id.activity_color_picker_ic_cancel)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -242,7 +249,6 @@ public final class ColorPickerActivity extends AppCompatActivity {
                     }
                 });
     }
-
 
     /**
      * Set color to palette box and popupWindow, when "edit mode" is turn on.
@@ -379,6 +385,11 @@ public final class ColorPickerActivity extends AppCompatActivity {
         Intents
      */
 
+    /**
+     * @param context   context.
+     * @param color     color, that link with intent, see: {@link #EXTRA_COLOR}.
+     * @return started intent of ColorPickerActivity, with given color.
+     */
     @NonNull
     public static Intent getStartIntent(
             @NonNull final Context context,
