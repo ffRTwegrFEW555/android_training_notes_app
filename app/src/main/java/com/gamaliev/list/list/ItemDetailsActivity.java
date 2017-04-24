@@ -26,21 +26,18 @@ import static com.gamaliev.list.common.CommonUtils.getResourceColorApi;
 
 public class ItemDetailsActivity extends AppCompatActivity {
 
-    private static final String ACTION_ADD      = "add";
-    private static final String ACTION_EDIT     = "edit";
-    private static final String EXTRA_ID        = "id";
-
+    private static final String ACTION_ADD      = "ItemDetailsActivity_add";
+    private static final String ACTION_EDIT     = "ItemDetailsActivity_edit";
+    private static final String EXTRA_ID        = "ItemDetailsActivity_id";
+    private static final String EXTRA_ENTRY     = "ItemDetailsActivity_entry";
     private static final int REQUEST_CODE_COLOR = 1;
-    private static final String EXTRA_COLOR     = "color";
-    private static final String EXTRA_ENTRY     = "entry";
-    private static final String EXTRA_CHANGEABLE_ENTRY = "changeableEntry";
 
     @NonNull private ListDatabaseHelper dbHelper;
     @NonNull private ActionBar actionBar;
     @NonNull private View colorBox;
     @NonNull private EditText name;
     @NonNull private EditText description;
-    @Nullable private ListEntry changeableEntry;
+    @NonNull private ListEntry entry;
     @Nullable private Bundle savedInstanceState;
     private int color;
 
@@ -52,9 +49,9 @@ public class ItemDetailsActivity extends AppCompatActivity {
     }
 
     private void init(@Nullable final Bundle savedInstanceState) {
-        actionBar = getSupportActionBar();
-        colorBox = findViewById(R.id.activity_item_details_color);
-        name = (EditText) findViewById(R.id.activity_item_details_text_view_name);
+        actionBar   = getSupportActionBar();
+        colorBox    = findViewById(R.id.activity_item_details_color);
+        name        = (EditText) findViewById(R.id.activity_item_details_text_view_name);
         description = (EditText) findViewById(R.id.activity_item_details_text_view_description);
         this.savedInstanceState = savedInstanceState;
 
@@ -86,6 +83,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
         colorBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                refreshEntry();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     View iconView = findViewById(R.id.activity_item_details_color);
                     iconView.setTransitionName(
@@ -107,50 +105,80 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
     /**
      * Process Action, when start activity.<br>
+     * Filling in the necessary views.<br>
      * See also: {@link #ACTION_ADD}, {@link #ACTION_EDIT}.
      */
     private void processAction() {
         switch (getIntent().getAction()) {
 
-            // Change action bar title, and set default color.
             case ACTION_ADD:
                 actionBar.setTitle(getResources().getString(R.string.activity_item_details_title_add));
-                if (savedInstanceState != null) {
-                    refreshColorBox(savedInstanceState.getInt(EXTRA_COLOR, color));
-                } else {
+                if (savedInstanceState == null) {
+                    // On first start activity
                     refreshColorBox(getDefaultColor(this));
+                    entry = getFilledEntry();
+                } else {
+                    // On restart activity
+                    entry = savedInstanceState.getParcelable(EXTRA_ENTRY);
+                    fillActivityData();
                 }
                 break;
 
-            // Change action bar title, and fill all fields
             case ACTION_EDIT:
                 actionBar.setTitle(getResources().getString(R.string.activity_item_details_title_edit));
-                if (savedInstanceState != null) {
-                    // On restart activity
-                    ListEntry entry = savedInstanceState.getParcelable(EXTRA_ENTRY);
-                    name.setText(entry.getName());
-                    description.setText(entry.getDescription());
-                    refreshColorBox(savedInstanceState.getInt(EXTRA_COLOR, color));
-                    changeableEntry = savedInstanceState
-                            .getParcelable(EXTRA_CHANGEABLE_ENTRY);
-
-                } else {
-                    // Get entry from database, with given id.
-                    long id = getIntent().getLongExtra(EXTRA_ID, -1);
-                    dbHelper = new ListDatabaseHelper(this);
-                    changeableEntry = dbHelper.getEntry(id);
+                if (savedInstanceState == null) {
+                    // On first start activity. Get entry from database, with given id.
+                    long id     = getIntent().getLongExtra(EXTRA_ID, -1);
+                    dbHelper    = new ListDatabaseHelper(this);
+                    entry       = dbHelper.getEntry(id);
                     dbHelper.close();
-                    if (changeableEntry != null) {
-                        name.setText(changeableEntry.getName());
-                        description.setText(changeableEntry.getDescription());
-                        refreshColorBox(changeableEntry.getColor());
+                    if (entry != null) {
+                        fillActivityData();
+                    } else {
+                        refreshColorBox(getDefaultColor(this));
+                        entry = getFilledEntry();
                     }
+                } else {
+                    // On restart activity
+                    entry = savedInstanceState.getParcelable(EXTRA_ENTRY);
+                    fillActivityData();
                 }
                 break;
 
             default:
                 break;
         }
+    }
+
+    /**
+     * Fill all activity views with values from the entry-object.
+     */
+    private void fillActivityData() {
+        name.setText(entry.getName());
+        description.setText(entry.getDescription());
+        refreshColorBox(entry.getColor());
+    }
+
+    /**
+     * @return ListEntry, associated with current activity data.<br>
+     * See also: {@link com.gamaliev.list.list.ListEntry}
+     */
+    @NonNull
+    private ListEntry getFilledEntry() {
+        final ListEntry entry = new ListEntry();
+        entry.setName(name.getText().toString());
+        entry.setDescription(description.getText().toString());
+        entry.setColor(color);
+        return entry;
+    }
+
+    /**
+     * Fill entry-fields with values from all activity views.
+     */
+    private void refreshEntry() {
+        entry.setName(name.getText().toString());
+        entry.setDescription(description.getText().toString());
+        entry.setColor(color);
     }
 
     /**
@@ -176,19 +204,6 @@ public class ItemDetailsActivity extends AppCompatActivity {
         g.setCornerRadius(getResources().getDimension(R.dimen.activity_item_details_ff_color_radius));
         g.setColor(color);
         return g;
-    }
-
-    /**
-     * @return ListEntry, associated with current activity data.<br>
-     * See also: {@link com.gamaliev.list.list.ListEntry}
-     */
-    @NonNull
-    private ListEntry getFilledEntry() {
-        final ListEntry entry = new ListEntry();
-        entry.setName(name.getText().toString());
-        entry.setDescription(description.getText().toString());
-        entry.setColor(color);
-        return entry;
     }
 
 
@@ -254,10 +269,8 @@ public class ItemDetailsActivity extends AppCompatActivity {
                 int color = data.getIntExtra(
                         ColorPickerActivity.EXTRA_COLOR,
                         getDefaultColor(ItemDetailsActivity.this));
-                refreshColorBox(color);
-                if (savedInstanceState != null) {
-                    savedInstanceState.putInt(EXTRA_COLOR, color);
-                }
+                entry.setColor(color);
+                fillActivityData();
             }
         }
     }
@@ -292,11 +305,8 @@ public class ItemDetailsActivity extends AppCompatActivity {
                     // If new, then add to database, and finish activity.
                     // TODO: return result with notify;
                     case ACTION_ADD:
-                        ListEntry newEntry = new ListEntry();
-                        newEntry.setName(name.getText().toString());
-                        newEntry.setDescription(description.getText().toString());
-                        newEntry.setColor(color);
-                        dbHelper.insertEntry(newEntry);
+                        refreshEntry();
+                        dbHelper.insertEntry(entry);
                         setResult(RESULT_OK);
                         finish();
                         break;
@@ -304,12 +314,8 @@ public class ItemDetailsActivity extends AppCompatActivity {
                     // If edit, then update entry in database, and finish activity.
                     // TODO: return result with notify;
                     case ACTION_EDIT:
-                        if (changeableEntry != null) {
-                            changeableEntry.setName(name.getText().toString());
-                            changeableEntry.setDescription(description.getText().toString());
-                            changeableEntry.setColor(color);
-                            dbHelper.updateEntry(changeableEntry);
-                        }
+                            refreshEntry();
+                            dbHelper.updateEntry(entry);
                         setResult(RESULT_OK);
                         finish();
                         break;
@@ -340,9 +346,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putInt(EXTRA_COLOR, color);
-        outState.putParcelable(EXTRA_ENTRY, getFilledEntry());
-        outState.putParcelable(EXTRA_CHANGEABLE_ENTRY, changeableEntry);
+        outState.putParcelable(EXTRA_ENTRY, entry);
         super.onSaveInstanceState(outState);
     }
 }
