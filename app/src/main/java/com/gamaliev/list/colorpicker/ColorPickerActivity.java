@@ -41,9 +41,9 @@ import static com.gamaliev.list.common.CommonUtils.shiftColor;
 public final class ColorPickerActivity extends AppCompatActivity {
     private static final String TAG = ColorPickerActivity.class.getSimpleName();
 
-    public static final String EXTRA_COLOR                  = "ColorPickerActivity_color";
-    private static final String EXTRA_RESULT_COLOR          = "ColorPickerActivity_resultColor";
-    private static final String EXTRA_HSV_COLOR_OVERRIDE    = "ColorPickerActivity_hsvColorsOverride";
+    public static final String EXTRA_COLOR                  = "ColorPickerActivity.EXTRA_COLOR";
+    private static final String EXTRA_RESULT_COLOR          = "ColorPickerActivity.EXTRA_RESULT_COLOR";
+    private static final String EXTRA_HSV_COLOR_OVERRIDE    = "ColorPickerActivity.EXTRA_HSV_COLOR_OVERRIDE";
 
     @NonNull private Resources resources;
     @NonNull private SwitchableHorizontalScrollView paletteHsv;

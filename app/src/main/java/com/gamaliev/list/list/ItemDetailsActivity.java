@@ -26,17 +26,17 @@ import static com.gamaliev.list.common.CommonUtils.getResourceColorApi;
 
 public class ItemDetailsActivity extends AppCompatActivity {
 
-    private static final String ACTION_ADD      = "ItemDetailsActivity_add";
-    private static final String ACTION_EDIT     = "ItemDetailsActivity_edit";
-    private static final String EXTRA_ID        = "ItemDetailsActivity_id";
-    private static final String EXTRA_ENTRY     = "ItemDetailsActivity_entry";
+    private static final String ACTION_ADD      = "ItemDetailsActivity.ACTION_ADD";
+    private static final String ACTION_EDIT     = "ItemDetailsActivity.ACTION_EDIT";
+    private static final String EXTRA_ID        = "ItemDetailsActivity.EXTRA_ID";
+    private static final String EXTRA_ENTRY     = "ItemDetailsActivity.EXTRA_ENTRY";
     private static final int REQUEST_CODE_COLOR = 1;
 
     @NonNull private ListDatabaseHelper dbHelper;
     @NonNull private ActionBar actionBar;
-    @NonNull private View colorBox;
-    @NonNull private EditText name;
-    @NonNull private EditText description;
+    @NonNull private View colorView;
+    @NonNull private EditText nameEditText;
+    @NonNull private EditText descEditText;
     @NonNull private ListEntry entry;
     @Nullable private Bundle savedInstanceState;
     private int color;
@@ -49,10 +49,10 @@ public class ItemDetailsActivity extends AppCompatActivity {
     }
 
     private void init(@Nullable final Bundle savedInstanceState) {
-        actionBar   = getSupportActionBar();
-        colorBox    = findViewById(R.id.activity_item_details_color);
-        name        = (EditText) findViewById(R.id.activity_item_details_text_view_name);
-        description = (EditText) findViewById(R.id.activity_item_details_text_view_description);
+        actionBar       = getSupportActionBar();
+        colorView       = findViewById(R.id.activity_item_details_color);
+        nameEditText    = (EditText) findViewById(R.id.activity_item_details_text_view_name);
+        descEditText    = (EditText) findViewById(R.id.activity_item_details_text_view_description);
         this.savedInstanceState = savedInstanceState;
 
         enableEnterSharedTransition();
@@ -80,7 +80,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
      * If API >= 21, then enable shared transition color box.
      */
     private void setColorBoxListener() {
-        colorBox.setOnClickListener(new View.OnClickListener() {
+        colorView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 refreshEntry();
@@ -116,7 +116,8 @@ public class ItemDetailsActivity extends AppCompatActivity {
                 if (savedInstanceState == null) {
                     // On first start activity
                     refreshColorBox(getDefaultColor(this));
-                    entry = getFilledEntry();
+                    entry = new ListEntry();
+                    refreshEntry();
                 } else {
                     // On restart activity
                     entry = savedInstanceState.getParcelable(EXTRA_ENTRY);
@@ -136,7 +137,8 @@ public class ItemDetailsActivity extends AppCompatActivity {
                         fillActivityData();
                     } else {
                         refreshColorBox(getDefaultColor(this));
-                        entry = getFilledEntry();
+                        entry = new ListEntry();
+                        refreshEntry();
                     }
                 } else {
                     // On restart activity
@@ -154,30 +156,17 @@ public class ItemDetailsActivity extends AppCompatActivity {
      * Fill all activity views with values from the entry-object.
      */
     private void fillActivityData() {
-        name.setText(entry.getName());
-        description.setText(entry.getDescription());
+        nameEditText.setText(entry.getName());
+        descEditText.setText(entry.getDescription());
         refreshColorBox(entry.getColor());
-    }
-
-    /**
-     * @return ListEntry, associated with current activity data.<br>
-     * See also: {@link com.gamaliev.list.list.ListEntry}
-     */
-    @NonNull
-    private ListEntry getFilledEntry() {
-        final ListEntry entry = new ListEntry();
-        entry.setName(name.getText().toString());
-        entry.setDescription(description.getText().toString());
-        entry.setColor(color);
-        return entry;
     }
 
     /**
      * Fill entry-fields with values from all activity views.
      */
     private void refreshEntry() {
-        entry.setName(name.getText().toString());
-        entry.setDescription(description.getText().toString());
+        entry.setName(nameEditText.getText().toString());
+        entry.setDescription(descEditText.getText().toString());
         entry.setColor(color);
     }
 
@@ -187,7 +176,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
      */
     private void refreshColorBox(final int color) {
         this.color = color;
-        colorBox.setBackground(
+        colorView.setBackground(
                 getGradientDrawableCircleWithBorder(color));
     }
 
