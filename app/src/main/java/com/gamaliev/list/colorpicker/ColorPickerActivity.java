@@ -41,7 +41,9 @@ import static com.gamaliev.list.common.CommonUtils.shiftColor;
 public final class ColorPickerActivity extends AppCompatActivity {
 
     private static final String TAG = ColorPickerActivity.class.getSimpleName();
-    public static final String EXTRA_COLOR = "color";
+    public static final String EXTRA_COLOR                  = "color";
+    private static final String EXTRA_RESULT_COLOR          = "resultColor";
+    private static final String EXTRA_HSV_COLOR_OVERRIDE    = "hsvColorsOverride";
 
     @NonNull private Resources resources;
     @NonNull private SwitchableHorizontalScrollView paletteHsv;
@@ -89,8 +91,8 @@ public final class ColorPickerActivity extends AppCompatActivity {
             Arrays.fill(hsvColorsOverride, -1);
 
         } else {
-            resultColor = savedInstanceState.getInt("resultColor");
-            hsvColorsOverride = savedInstanceState.getIntArray("hsvColorsOverride");
+            resultColor = savedInstanceState.getInt(EXTRA_RESULT_COLOR);
+            hsvColorsOverride = savedInstanceState.getIntArray(EXTRA_HSV_COLOR_OVERRIDE);
         }
 
         setGradient();
@@ -98,13 +100,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
         addFavoriteColorBoxesAndSetListeners();
         setResultBoxColor(resultColor);
         setDoneCancelListeners();
-
-        // Shared transition color box
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setSharedElementEnterTransition(CommonUtils.getChangeBounds(this));
-            getWindow().setSharedElementReturnTransition(null);
-            findViewById(android.R.id.content).invalidate();
-        }
+        enableEnterSharedTransition();
     }
 
 
@@ -259,6 +255,17 @@ public final class ColorPickerActivity extends AppCompatActivity {
     }
 
     /**
+     * Enable shared transition.
+     */
+    private void enableEnterSharedTransition() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setSharedElementEnterTransition(CommonUtils.getChangeBounds(this));
+            getWindow().setSharedElementReturnTransition(null);
+            findViewById(android.R.id.content).invalidate();
+        }
+    }
+
+    /**
      * Set color to palette box and popupWindow, when "edit mode" is turn on.
      * @param newColor color to set.
      * @param view view, whose "edit mode" is turn on, that changes color.
@@ -319,8 +326,8 @@ public final class ColorPickerActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putInt ("resultColor", resultColor);
-        outState.putIntArray ("hsvColorsOverride", hsvColorsOverride);
+        outState.putInt(EXTRA_RESULT_COLOR, resultColor);
+        outState.putIntArray(EXTRA_HSV_COLOR_OVERRIDE, hsvColorsOverride);
         super.onSaveInstanceState(outState);
     }
 

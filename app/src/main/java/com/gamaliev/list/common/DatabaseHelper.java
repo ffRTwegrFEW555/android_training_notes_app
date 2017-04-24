@@ -7,6 +7,7 @@ import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
@@ -23,10 +24,13 @@ import static com.gamaliev.list.common.CommonUtils.showToast;
  */
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-
     private static final String TAG = DatabaseHelper.class.getSimpleName();
-    private static final String DB_NAME = "ya_school_app";
-    private static final int DB_VERSION = 1;
+
+    private static final String DB_NAME     = "ya_school_app";
+    private static final int DB_VERSION_A   = 1;
+    private static final int DB_VERSION     = DB_VERSION_A;
+
+    protected static final String BASE_COLUMN_ID                        = BaseColumns._ID;
 
     protected static final String FAVORITE_TABLE_NAME                   = "favorite_colors";
     protected static final String FAVORITE_COLUMN_INDEX                 = "tbl_index";
@@ -41,13 +45,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     protected static final String SQL_FAVORITE_CREATE_TABLE =
             "CREATE TABLE " + FAVORITE_TABLE_NAME + " (" +
-                    "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     FAVORITE_COLUMN_INDEX +                 " INTEGER NOT NULL, " +
                     FAVORITE_COLUMN_COLOR +                 " INTEGER NOT NULL); ";
 
     protected static final String SQL_LIST_ITEMS_CREATE_TABLE =
             "CREATE TABLE " + LIST_ITEMS_TABLE_NAME + " (" +
-                    "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     LIST_ITEMS_COLUMN_NAME +                " TEXT, " +
                     LIST_ITEMS_COLUMN_DESCRIPTION +         " TEXT, " +
                     LIST_ITEMS_COLUMN_COLOR +               " INTEGER NOT NULL, " +

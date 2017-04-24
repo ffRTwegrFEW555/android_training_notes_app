@@ -62,43 +62,26 @@ public class ListActivity extends AppCompatActivity {
 
             // Add new entry
             case R.id.menu_list_action_add_entry:
-                Intent intent = ItemDetailsActivity.getAddStartIntent(this);
-                startActivityForResult(intent, REQUEST_CODE_ADD);
+                ItemDetailsActivity.startAdd(this, REQUEST_CODE_ADD);
                 break;
 
             // Fill example entries
             case R.id.menu_list_action_fill_mock:
                 dbHelper.addMockEntries();
+                refreshDatabase();
                 break;
 
             // Remove all entries
             case R.id.menu_list_action_delete_entry:
                 dbHelper.removeAllEntries();
+                refreshDatabase();
                 break;
 
             default:
                 break;
         }
 
-        refreshDatabase();
         return super.onOptionsItemSelected(item);
-    }
-
-
-    /*
-        On Pause/Resume
-     */
-
-    /**
-     * Close database helper.<br>
-     * See also: {@link com.gamaliev.list.list.ListDatabaseHelper}
-     */
-    @Override
-    protected void onPause() {
-        if (dbHelper != null) {
-            dbHelper.close();
-        }
-        super.onPause();
     }
 
     /**
@@ -126,17 +109,16 @@ public class ListActivity extends AppCompatActivity {
                     ActivityOptionsCompat aoc =
                             ActivityOptionsCompat.makeSceneTransitionAnimation(
                                     ListActivity.this, icon);
-                    Intent intent = ItemDetailsActivity.getEditStartIntent(ListActivity.this, id);
-                    startActivityForResult(intent, REQUEST_CODE_EDIT, aoc.toBundle());
+                    ItemDetailsActivity.startEdit(
+                            ListActivity.this, id, REQUEST_CODE_EDIT, aoc.toBundle());
 
                 } else {
-                    Intent intent = ItemDetailsActivity.getEditStartIntent(ListActivity.this, id);
-                    startActivityForResult(intent, REQUEST_CODE_EDIT);
+                    ItemDetailsActivity.startEdit(
+                            ListActivity.this, id, REQUEST_CODE_EDIT, null);
                 }
             }
         });
     }
-
 
     /**
      * Smooth scroll ListView object to given position, and delay time.
@@ -170,7 +152,21 @@ public class ListActivity extends AppCompatActivity {
             } else if (requestCode == REQUEST_CODE_EDIT) {
                 refreshDatabase();
             }
-
         }
+    }
+
+
+    /*
+        On Pause/Resume
+     */
+
+    /**
+     * Close database helper.<br>
+     * See also: {@link com.gamaliev.list.list.ListDatabaseHelper}
+     */
+    @Override
+    protected void onPause() {
+        dbHelper.close();
+        super.onPause();
     }
 }

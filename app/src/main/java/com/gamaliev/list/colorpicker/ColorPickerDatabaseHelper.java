@@ -61,10 +61,8 @@ final class ColorPickerDatabaseHelper extends DatabaseHelper {
      * @return true if update is success, otherwise false.
      */
     boolean updateFavoriteColor(final int index, final int color) {
-        SQLiteDatabase db = null;
+        try (SQLiteDatabase db = getWritableDatabase()) {
 
-        try {
-            db = getWritableDatabase();
             final ContentValues cv = new ContentValues();
             cv.put(FAVORITE_COLUMN_COLOR, color);
             db.update(
@@ -83,11 +81,6 @@ final class ColorPickerDatabaseHelper extends DatabaseHelper {
             Log.e(TAG, error + ": " + e.getMessage());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
             return false;
-
-        } finally {
-            if (db != null) {
-                db.close();
-            }
         }
     }
 
@@ -97,18 +90,15 @@ final class ColorPickerDatabaseHelper extends DatabaseHelper {
      * @return color number if success, otherwise "-1".
      */
     int getFavoriteColor(final int index) {
-        SQLiteDatabase db = null;
-        Cursor cursor = null;
         int color = -1;
 
-        try {
-            db      = getReadableDatabase();
-            cursor  = db.query(
+        try (   SQLiteDatabase db = getReadableDatabase();
+                Cursor cursor = db.query(
                     FAVORITE_TABLE_NAME,
-                    new String[] {FAVORITE_COLUMN_COLOR},
+                    new String[]{FAVORITE_COLUMN_COLOR},
                     FAVORITE_COLUMN_INDEX + " = ?",
-                    new String[] {Integer.toString(index)},
-                    null, null, null);
+                    new String[]{Integer.toString(index)},
+                    null, null, null)) {
 
             if (cursor.moveToFirst()) {
                 color = cursor.getInt(0);
@@ -122,14 +112,6 @@ final class ColorPickerDatabaseHelper extends DatabaseHelper {
             Log.e(TAG, error + ": " + e.getMessage());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
             return color;
-
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-            if (db != null) {
-                db.close();
-            }
         }
     }
 }

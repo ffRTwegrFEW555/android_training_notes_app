@@ -30,7 +30,7 @@ final class ListDatabaseHelper extends DatabaseHelper {
 
     private static final String TAG = ListDatabaseHelper.class.getSimpleName();
 
-    public static final String ORDER_ADDING         = "_id";
+    public static final String ORDER_ADDING         = BASE_COLUMN_ID;
     public static final String ORDER_NAME           = LIST_ITEMS_COLUMN_NAME;
     public static final String ORDER_CREATED_DATE   = LIST_ITEMS_COLUMN_CREATED_TIMESTAMP;
     public static final String ORDER_MODIFIED_DATE  = LIST_ITEMS_COLUMN_MODIFIED_TIMESTAMP;
@@ -69,18 +69,9 @@ final class ListDatabaseHelper extends DatabaseHelper {
      * @param entry entry, contains name, description, color.
      */
     boolean insertEntry(@NonNull final ListEntry entry) {
-        // Check nullability
-        if (entry == null) {
-            Log.e(TAG, "[ERROR] Insert entry, entry is null.");
-            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
-            return false;
-        }
+        try (SQLiteDatabase db = getWritableDatabase()) {
 
-        SQLiteDatabase db = null;
-
-        try {
             // Variables
-            db = getWritableDatabase();
             final String name = entry.getName();
             final String description = entry.getDescription();
             final int color = entry.getColor() == null ? getDefaultColor(context) : entry.getColor();
@@ -109,11 +100,6 @@ final class ListDatabaseHelper extends DatabaseHelper {
             Log.e(TAG, e.getMessage());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
             return false;
-
-        } finally {
-            if (db != null) {
-                db.close();
-            }
         }
     }
 
@@ -122,22 +108,14 @@ final class ListDatabaseHelper extends DatabaseHelper {
      * @param entry entry, must contains non-null id and name.
      */
     boolean updateEntry(@NonNull final ListEntry entry) {
-        // Check nullability
-        if (entry == null || entry.getId() == null || entry.getName() == null) {
-            Log.e(TAG, "[ERROR] Update entry, id or name is null.");
-            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
-            return false;
-        }
-
-        SQLiteDatabase db = null;
         int id = 0;
         String name = null;
         String description = null;
         int color = 0;
 
-        try {
+        try (SQLiteDatabase db = getWritableDatabase()) {
+
             // Variables
-            db = getWritableDatabase();
             id = entry.getId();
             name = entry.getName();
             description = entry.getDescription();
@@ -154,14 +132,13 @@ final class ListDatabaseHelper extends DatabaseHelper {
             final int updateResult = db.update(
                     LIST_ITEMS_TABLE_NAME,
                     cv,
-                    "_id = ?",
+                    BASE_COLUMN_ID + " = ?",
                     new String[]{Integer.toString(id)});
             if (updateResult == 0) {
                 throw new SQLiteException("The number of rows affected is 0");
             }
 
             // If ok
-            db.close();
             return true;
 
         } catch (SQLiteException e) {
@@ -175,11 +152,6 @@ final class ListDatabaseHelper extends DatabaseHelper {
             Log.e(TAG, error + ": " + e.getMessage());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
             return false;
-
-        } finally {
-            if (db != null) {
-                db.close();
-            }
         }
     }
 
@@ -229,21 +201,14 @@ final class ListDatabaseHelper extends DatabaseHelper {
      */
     @Nullable
     ListEntry getEntry(@NonNull final Long id) {
-        if (id == null) {
-            return null;
-        }
+        try (   SQLiteDatabase db = getReadableDatabase();
+                Cursor cursor = db.query(
+                        LIST_ITEMS_TABLE_NAME,
+                        null,
+                        BASE_COLUMN_ID + " = ?",
+                        new String[] {id.toString()},
+                        null, null, null)) {
 
-        SQLiteDatabase db = null;
-        Cursor cursor = null;
-
-        try {
-            db = getReadableDatabase();
-            cursor = db.query(
-                    LIST_ITEMS_TABLE_NAME,
-                    null,
-                    "_id = ?",
-                    new String[] {id.toString()},
-                    null, null, null);
             ListEntry entry = new ListEntry();
             if (cursor.moveToFirst()) {
                 entry.setId(cursor.getInt(0));
@@ -257,15 +222,6 @@ final class ListDatabaseHelper extends DatabaseHelper {
         } catch (SQLiteException e) {
             Log.e(TAG, "[ERROR] Get entries: " + e.getMessage());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
-            return null;
-
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-            if (db != null) {
-                db.close();
-            }
         }
 
         return null;
@@ -277,32 +233,24 @@ final class ListDatabaseHelper extends DatabaseHelper {
      * @return      true if success, otherwise false.
      */
     boolean deleteEntry(@NonNull final Integer id) {
-        // Check nullability
-        if (id == null) {
-            Log.e(TAG, "[ERROR] Delete entry, id is null.");
-            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
-            return false;
-        }
+        try (SQLiteDatabase db = getWritableDatabase()) {
 
-        SQLiteDatabase db = null;
+            final int deleteResult = db.delete(
+                    LIST_ITEMS_TABLE_NAME,
+                    BASE_COLUMN_ID + " = ?",
+                    new String[]{id.toString()});
 
-        try {
-            db = getWritableDatabase();
-            final int deleteResult = db.delete(LIST_ITEMS_TABLE_NAME, "_id = ?", new String[]{id.toString()});
             if (deleteResult == 0) {
                 throw new SQLiteException("The number of rows affected is 0");
             }
+
+            // If ok
             return true;
 
         } catch (SQLiteException e) {
             Log.e(TAG, "[ERROR] Delete entry: " + e.getMessage());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
             return false;
-
-        } finally {
-            if (db != null) {
-                db.close();
-            }
         }
     }
 
@@ -313,6 +261,7 @@ final class ListDatabaseHelper extends DatabaseHelper {
     boolean addMockEntries() {
         SQLiteDatabase db = null;
 
+        // TODO: try-catch-with-resources and db.endTransaction?!
         try {
             Random random = new Random();
             db = getWritableDatabase();
@@ -362,6 +311,7 @@ final class ListDatabaseHelper extends DatabaseHelper {
     boolean removeAllEntries() {
         SQLiteDatabase db = null;
 
+        // TODO: try-catch-with-resources and db.endTransaction?!
         try {
             db = getWritableDatabase();
             db.beginTransaction();
@@ -384,5 +334,4 @@ final class ListDatabaseHelper extends DatabaseHelper {
             }
         }
     }
-
 }

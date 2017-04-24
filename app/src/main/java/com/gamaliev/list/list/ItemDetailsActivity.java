@@ -1,5 +1,6 @@
 package com.gamaliev.list.list;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
@@ -25,16 +26,16 @@ import static com.gamaliev.list.common.CommonUtils.getResourceColorApi;
 
 public class ItemDetailsActivity extends AppCompatActivity {
 
-    private final static String ACTION_INTENT   = "action";
-    private final static String ACTION_ADD      = "add";
-    private final static String ACTION_EDIT     = "edit";
-    private final static String EXTRA_ID        = "id";
+    private static final String ACTION_ADD      = "add";
+    private static final String ACTION_EDIT     = "edit";
+    private static final String EXTRA_ID        = "id";
 
-    private final static int REQUEST_CODE_COLOR = 1;
+    private static final int REQUEST_CODE_COLOR = 1;
+    private static final String EXTRA_COLOR     = "color";
+    private static final String EXTRA_ENTRY     = "entry";
+    private static final String EXTRA_CHANGEABLE_ENTRY = "changeableEntry";
 
     @NonNull private ListDatabaseHelper dbHelper;
-    @NonNull private Intent intent;
-    @NonNull private String action;
     @NonNull private ActionBar actionBar;
     @NonNull private View colorBox;
     @NonNull private EditText name;
@@ -51,19 +52,143 @@ public class ItemDetailsActivity extends AppCompatActivity {
     }
 
     private void init(@Nullable final Bundle savedInstanceState) {
-        intent = getIntent();
-        action = intent.getStringExtra(ACTION_INTENT);
         actionBar = getSupportActionBar();
         colorBox = findViewById(R.id.activity_item_details_color);
         name = (EditText) findViewById(R.id.activity_item_details_text_view_name);
         description = (EditText) findViewById(R.id.activity_item_details_text_view_description);
         this.savedInstanceState = savedInstanceState;
 
-        // Shared transition color box
+        enableEnterSharedTransition();
+        setColorBoxListener();
+        processAction();
+    }
+
+
+    /*
+        Methods
+     */
+
+    /**
+     * Enable shared transition.
+     */
+    private void enableEnterSharedTransition() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setSharedElementEnterTransition(CommonUtils.getChangeBounds(this));
             findViewById(android.R.id.content).invalidate();
         }
+    }
+
+    /**
+     * Start choosing color on click.<br>
+     * If API >= 19, then enable shared transition color box.
+     */
+    private void setColorBoxListener() {
+        colorBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    View iconView = findViewById(R.id.activity_item_details_color);
+                    iconView.setTransitionName(
+                            getString(R.string.shared_transition_name_color_box));
+                    Pair<View, String> icon = new Pair<>(iconView, iconView.getTransitionName());
+                    ActivityOptionsCompat aoc =
+                            ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                    ItemDetailsActivity.this, icon);
+                    Intent intent = ColorPickerActivity.getStartIntent(ItemDetailsActivity.this, color);
+                    startActivityForResult(intent, REQUEST_CODE_COLOR, aoc.toBundle());
+
+                } else {
+                    Intent intent = ColorPickerActivity.getStartIntent(ItemDetailsActivity.this, color);
+                    startActivityForResult(intent, REQUEST_CODE_COLOR);
+                }
+            }
+        });
+    }
+
+    /**
+     * Process Action, when start activity.<br>
+     * See also: {@link #ACTION_ADD}, {@link #ACTION_EDIT}.
+     */
+    private void processAction() {
+        switch (getIntent().getAction()) {
+
+            // Change action bar title, and set default color.
+            case ACTION_ADD:
+                actionBar.setTitle(getResources().getString(R.string.activity_item_details_title_add));
+                if (savedInstanceState != null) {
+                    refreshColorBox(savedInstanceState.getInt(EXTRA_COLOR, color));
+                } else {
+                    refreshColorBox(getDefaultColor(this));
+                }
+                break;
+
+            // Change action bar title, and fill all fields
+            case ACTION_EDIT:
+                actionBar.setTitle(getResources().getString(R.string.activity_item_details_title_edit));
+                if (savedInstanceState != null) {
+                    // On restart activity
+                    ListEntry entry = savedInstanceState.getParcelable(EXTRA_ENTRY);
+                    name.setText(entry.getName());
+                    description.setText(entry.getDescription());
+                    refreshColorBox(savedInstanceState.getInt(EXTRA_COLOR, color));
+                    changeableEntry = savedInstanceState
+                            .getParcelable(EXTRA_CHANGEABLE_ENTRY);
+
+                } else {
+                    // Get entry from database, with given id.
+                    long id = getIntent().getLongExtra(EXTRA_ID, -1);
+                    dbHelper = new ListDatabaseHelper(this);
+                    changeableEntry = dbHelper.getEntry(id);
+                    dbHelper.close();
+                    if (changeableEntry != null) {
+                        name.setText(changeableEntry.getName());
+                        description.setText(changeableEntry.getDescription());
+                        refreshColorBox(changeableEntry.getColor());
+                    }
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Refresh color box, with given color.
+     * @param color new color.
+     */
+    private void refreshColorBox(final int color) {
+        this.color = color;
+        colorBox.setBackground(
+                getGradientDrawableCircleWithBorder(color));
+    }
+
+    /**
+     * @param color color of drawable.
+     * @return new gradient drawable, circle, with border.
+     */
+    @NonNull
+    private GradientDrawable getGradientDrawableCircleWithBorder(final int color) {
+        final GradientDrawable g = new GradientDrawable();
+        g.setStroke(
+                (int) getResources().getDimension(R.dimen.activity_item_details_ff_color_stroke_width),
+                getResourceColorApi(this, android.R.color.primary_text_dark));
+        g.setCornerRadius(getResources().getDimension(R.dimen.activity_item_details_ff_color_radius));
+        g.setColor(color);
+        return g;
+    }
+
+    /**
+     * @return ListEntry, associated with current activity data.<br>
+     * See also: {@link com.gamaliev.list.list.ListEntry}
+     */
+    @NonNull
+    private ListEntry getFilledEntry() {
+        final ListEntry entry = new ListEntry();
+        entry.setName(name.getText().toString());
+        entry.setDescription(description.getText().toString());
+        entry.setColor(color);
+        return entry;
     }
 
 
@@ -72,32 +197,39 @@ public class ItemDetailsActivity extends AppCompatActivity {
      */
 
     /**
-     * @param context context.
-     * @return started intent of ItemDetailsActivity, with Add action.
+     * Start intent with Add action.
+     * @param context       context.
+     * @param requestCode   this code will be returned in onActivityResult() when the activity exits.
      * See {@link #ACTION_ADD}.
      */
-    @NonNull
-    public static Intent getAddStartIntent(@NonNull final Context context) {
-        Intent intent = new Intent(context, ItemDetailsActivity.class);
-        intent.putExtra(ACTION_INTENT, ACTION_ADD);
-        return intent;
+    public static void startAdd(@NonNull final Context context, final int requestCode) {
+        Intent starter = new Intent(context, ItemDetailsActivity.class);
+        starter.setAction(ACTION_ADD);
+        ((Activity) context).startActivityForResult(starter, requestCode);
     }
 
     /**
-     * @param context   context.
-     * @param id        id of entry, that link with intent, see: {@link #EXTRA_ID}.
-     * @return started intent of ItemDetailsActivity, with Edit action.
-     * See {@link #ACTION_EDIT}.
+     * Start intent with Edit action.
+     * @param context       context.
+     * @param id            id of entry, that link with intent, see: {@link #EXTRA_ID}.
+     * @param requestCode   this code will be returned in onActivityResult() when the activity exits.
+     * @param bundle        Additional options for how the Activity should be started.
+     * See also: {@link #ACTION_EDIT}.
      */
-    @NonNull
-    public static Intent getEditStartIntent(
+    public static void startEdit(
             @NonNull final Context context,
-            final long id) {
+            final long id,
+            final int requestCode,
+            @Nullable final Bundle bundle) {
 
-        Intent intent = new Intent(context, ItemDetailsActivity.class);
-        intent.putExtra(ACTION_INTENT, ACTION_EDIT);
-        intent.putExtra(EXTRA_ID, id);
-        return intent;
+        Intent starter = new Intent(context, ItemDetailsActivity.class);
+        starter.setAction(ACTION_EDIT);
+        starter.putExtra(EXTRA_ID, id);
+        if (bundle == null) {
+            ((Activity) context).startActivityForResult(starter, requestCode);
+        } else {
+            ((Activity) context).startActivityForResult(starter, requestCode, bundle);
+        }
     }
 
     /**
@@ -124,11 +256,12 @@ public class ItemDetailsActivity extends AppCompatActivity {
                         getDefaultColor(ItemDetailsActivity.this));
                 refreshColorBox(color);
                 if (savedInstanceState != null) {
-                    savedInstanceState.putInt("color", color);
+                    savedInstanceState.putInt(EXTRA_COLOR, color);
                 }
             }
         }
     }
+
 
     /*
         Options menu
@@ -140,99 +273,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_list_item_details, menu);
-
-        // Start choosing color on click.
-        colorBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Shared transition color box
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    View iconView = findViewById(R.id.activity_item_details_color);
-                    iconView.setTransitionName(
-                            getString(R.string.shared_transition_name_color_box));
-                    Pair<View, String> icon = new Pair<>(iconView, iconView.getTransitionName());
-                    ActivityOptionsCompat aoc =
-                            ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                    ItemDetailsActivity.this, icon);
-                    Intent intent = ColorPickerActivity.getStartIntent(ItemDetailsActivity.this, color);
-                    startActivityForResult(intent, REQUEST_CODE_COLOR, aoc.toBundle());
-
-                } else {
-                    Intent intent = ColorPickerActivity.getStartIntent(ItemDetailsActivity.this, color);
-                    startActivityForResult(intent, REQUEST_CODE_COLOR);
-                }
-            }
-        });
-
-        if (actionBar != null) {
-            switch (action) {
-
-                // Change action bar title, and set default color.
-                case ACTION_ADD:
-                    actionBar.setTitle(getResources().getString(R.string.activity_item_details_title_add));
-                    if (savedInstanceState != null) {
-                        refreshColorBox(savedInstanceState.getInt("color", color));
-                    } else {
-                        refreshColorBox(getDefaultColor(this));
-                    }
-                    break;
-
-                // Change action bar title, and fill all fields
-                case ACTION_EDIT:
-                    actionBar.setTitle(getResources().getString(R.string.activity_item_details_title_edit));
-                    if (savedInstanceState != null) {
-                        // On restart activity
-                        name.setText(savedInstanceState.getString("name", name.getText().toString()));
-                        description.setText(savedInstanceState.getString("description", description.getText().toString()));
-                        refreshColorBox(savedInstanceState.getInt("color", color));
-                        changeableEntry = (ListEntry) savedInstanceState.getSerializable("changeableEntry");
-
-                    } else {
-                        // Get entry from database, with given id.
-                        long id = intent.getLongExtra(EXTRA_ID, -1);
-                        dbHelper = new ListDatabaseHelper(this);
-                        changeableEntry = dbHelper.getEntry(id);
-                        dbHelper.close();
-                        if (changeableEntry != null) {
-                            name.setText(changeableEntry.getName());
-                            description.setText(changeableEntry.getDescription());
-                            refreshColorBox(changeableEntry.getColor());
-                        }
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
         return super.onCreateOptionsMenu(menu);
-    }
-
-    /**
-     * Refresh color box, with given color.
-     * @param color new color.
-     */
-    private void refreshColorBox(final int color) {
-        this.color = color;
-        GradientDrawable circleWithBorder;
-        circleWithBorder = getGradientDrawableCircleWithBorder(color);
-        colorBox.setBackground(circleWithBorder);
-    }
-
-    /**
-     * @param color color of drawable.
-     * @return new gradient drawable, circle, with border.
-     */
-    @NonNull
-    private GradientDrawable getGradientDrawableCircleWithBorder(final int color) {
-        GradientDrawable g = new GradientDrawable();
-        g.setStroke(
-                (int) getResources().getDimension(R.dimen.activity_item_details_ff_color_stroke_width),
-                getResourceColorApi(this, android.R.color.primary_text_dark));
-        g.setCornerRadius(getResources().getDimension(R.dimen.activity_item_details_ff_color_radius));
-        g.setColor(color);
-        return g;
     }
 
     /**
@@ -246,7 +287,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
             case R.id.menu_list_item_details_done:
                 dbHelper = new ListDatabaseHelper(this);
 
-                switch (action) {
+                switch (getIntent().getAction()) {
 
                     // If new, then add to database, and finish activity.
                     // TODO: return result with notify;
@@ -299,10 +340,9 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putString("name", name.getText().toString());
-        outState.putString("description", description.getText().toString());
-        outState.putInt("color", color);
-        outState.putSerializable("changeableEntry", changeableEntry);
+        outState.putInt(EXTRA_COLOR, color);
+        outState.putParcelable(EXTRA_ENTRY, getFilledEntry());
+        outState.putParcelable(EXTRA_CHANGEABLE_ENTRY, changeableEntry);
         super.onSaveInstanceState(outState);
     }
 }
