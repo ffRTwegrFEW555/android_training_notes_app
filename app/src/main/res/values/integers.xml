@@ -31,6 +31,6 @@
     <integer name="mock_items_number">20</integer>
 
     <!-- Other -->
-    <integer name="shared_transition_animation_change_bounds_duration">1000</integer>
+    <integer name="shared_transition_animation_change_bounds_duration">500</integer>
 
 </resources>

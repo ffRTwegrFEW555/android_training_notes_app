@@ -269,7 +269,7 @@ public final class CommonUtils {
         ChangeBounds changeBounds = new ChangeBounds();
         changeBounds.setDuration(context.getResources()
                 .getInteger(R.integer.shared_transition_animation_change_bounds_duration));
-        changeBounds.setInterpolator(new OvershootInterpolator());
+        changeBounds.setInterpolator(new OvershootInterpolator(0f));
         return changeBounds;
     }
 
