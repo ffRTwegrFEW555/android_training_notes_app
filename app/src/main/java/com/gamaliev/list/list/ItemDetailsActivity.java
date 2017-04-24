@@ -69,7 +69,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
      */
 
     /**
-     * Enable shared transition.
+     * Enable shared transition. Work if API >= 21.
      */
     private void enableEnterSharedTransition() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -80,7 +80,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
     /**
      * Start choosing color on click.<br>
-     * If API >= 19, then enable shared transition color box.
+     * If API >= 21, then enable shared transition color box.
      */
     private void setColorBoxListener() {
         colorBox.setOnClickListener(new View.OnClickListener() {

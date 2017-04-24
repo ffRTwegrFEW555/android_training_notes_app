@@ -255,7 +255,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
     }
 
     /**
-     * Enable shared transition.
+     * Enable shared transition. Work if API >= 21.
      */
     private void enableEnterSharedTransition() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
