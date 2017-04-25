@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +23,6 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.gamaliev.list.R;
-import com.gamaliev.list.common.CommonUtils;
 import com.gamaliev.list.common.SwitchableHorizontalScrollView;
 import com.gamaliev.list.list.ItemDetailsActivity;
 
@@ -259,7 +259,10 @@ public final class ColorPickerActivity extends AppCompatActivity {
      */
     private void enableEnterSharedTransition() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setSharedElementEnterTransition(CommonUtils.getChangeBounds(this));
+            getWindow().setSharedElementEnterTransition(
+                    TransitionInflater
+                            .from(this)
+                            .inflateTransition(R.transition.transition_activity_1));
             getWindow().setSharedElementReturnTransition(null);
             findViewById(android.R.id.content).invalidate();
         }

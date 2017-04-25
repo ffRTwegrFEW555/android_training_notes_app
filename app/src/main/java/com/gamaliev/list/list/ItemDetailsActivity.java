@@ -12,6 +12,7 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.transition.TransitionInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,7 +20,6 @@ import android.widget.EditText;
 
 import com.gamaliev.list.R;
 import com.gamaliev.list.colorpicker.ColorPickerActivity;
-import com.gamaliev.list.common.CommonUtils;
 
 import static com.gamaliev.list.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.list.common.CommonUtils.getResourceColorApi;
@@ -70,7 +70,10 @@ public class ItemDetailsActivity extends AppCompatActivity {
      */
     private void enableEnterSharedTransition() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setSharedElementEnterTransition(CommonUtils.getChangeBounds(this));
+            getWindow().setSharedElementEnterTransition(
+                    TransitionInflater
+                            .from(this)
+                            .inflateTransition(R.transition.transition_activity_1));
             findViewById(android.R.id.content).invalidate();
         }
     }
@@ -121,7 +124,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                 } else {
                     // On restart activity
                     entry = savedInstanceState.getParcelable(EXTRA_ENTRY);
-                    fillActivityData();
+                    fillActivityViews();
                 }
                 break;
 
@@ -134,7 +137,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                     entry       = dbHelper.getEntry(id);
                     dbHelper.close();
                     if (entry != null) {
-                        fillActivityData();
+                        fillActivityViews();
                     } else {
                         refreshColorBox(getDefaultColor(this));
                         entry = new ListEntry();
@@ -143,7 +146,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                 } else {
                     // On restart activity
                     entry = savedInstanceState.getParcelable(EXTRA_ENTRY);
-                    fillActivityData();
+                    fillActivityViews();
                 }
                 break;
 
@@ -155,7 +158,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
     /**
      * Fill all activity views with values from the entry-object.
      */
-    private void fillActivityData() {
+    private void fillActivityViews() {
         nameEditText.setText(entry.getName());
         descEditText.setText(entry.getDescription());
         refreshColorBox(entry.getColor());
@@ -259,7 +262,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                         ColorPickerActivity.EXTRA_COLOR,
                         getDefaultColor(ItemDetailsActivity.this));
                 entry.setColor(color);
-                fillActivityData();
+                fillActivityViews();
             }
         }
     }
@@ -303,8 +306,8 @@ public class ItemDetailsActivity extends AppCompatActivity {
                     // If edit, then update entry in database, and finish activity.
                     // TODO: return result with notify;
                     case ACTION_EDIT:
-                            refreshEntry();
-                            dbHelper.updateEntry(entry);
+                        refreshEntry();
+                        dbHelper.updateEntry(entry);
                         setResult(RESULT_OK);
                         finish();
                         break;

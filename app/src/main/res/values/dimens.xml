@@ -12,7 +12,7 @@
     <dimen name="activity_color_picker_box_border_width">1dp</dimen>
 
     <!-- List item details -->
-    <dimen name="activity_item_details_ff_color_stroke_width">2dp</dimen>
+    <dimen name="activity_item_details_ff_color_stroke_width">1dp</dimen>
 
     <!--  -->
     <dimen name="activity_color_picker_delta_to_enable_change_color">10dp</dimen>
