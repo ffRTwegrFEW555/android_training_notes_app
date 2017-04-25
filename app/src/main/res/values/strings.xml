@@ -22,7 +22,7 @@
     <string name="activity_color_picker_ic_cancel_description">Cancel</string>
 
     <!-- Menu -->
-    <string name="menu_list_action_add_entry_title">Add</string>
+    <string name="menu_list_search_title">Search</string>
     <string name="menu_list_action_delete_all_entries_title">Delete all</string>
     <string name="menu_list_action_fill_mock_title">Fill example</string>
     <string name="menu_list_item_details_action_done">Save</string>
@@ -40,7 +40,7 @@
     <!-- Activity item details -->
     <string name="activity_item_details_title_add">Add entry</string>
     <string name="activity_item_details_title_edit">Edit entry</string>
-    <string name="activity_item_details_text_view_name">Name</string>
+    <string name="activity_item_details_text_view_title">Title</string>
     <string name="activity_item_details_text_view_description">Description</string>
 
     <!-- Other -->

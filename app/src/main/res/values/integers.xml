@@ -24,7 +24,7 @@
     <integer name="activity_color_picker_favorite_box_anim_scale_off">100</integer>
 
     <!-- Material -->
-    <integer name="activity_list_item_name_material_lines">1</integer>
+    <integer name="activity_list_item_title_material_lines">1</integer>
     <integer name="activity_list_item_description_material_lines">2</integer>
 
     <!-- Mock -->

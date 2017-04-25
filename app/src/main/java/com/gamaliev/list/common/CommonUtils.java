@@ -1,25 +1,23 @@
 package com.gamaliev.list.common;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.RippleDrawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.transition.ChangeBounds;
+import android.support.annotation.RequiresApi;
 import android.view.View;
-import android.view.animation.OvershootInterpolator;
+import android.view.ViewAnimationUtils;
 import android.widget.Toast;
 
 import com.gamaliev.list.R;
@@ -116,6 +114,71 @@ public final class CommonUtils {
         final int g = Color.green(color);
         final int b = Color.blue(color);
         return Color.argb(a, r, g, b);
+    }
+
+
+    /*
+        Reveal circular animation
+     */
+
+    /**
+     * Animate show circular reveal effect on given view. Work if API >= 21.
+     * @param view previously invisible view.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static void circularRevealEffectOn(@NonNull final View view) {
+        // get the center for the clipping circle
+        int cx = view.getWidth() / 2;
+        int cy = view.getHeight() / 2;
+
+        // get the final radius for the clipping circle
+        float finalRadius = (float) Math.hypot(cx, cy);
+
+        // create the animator for this view (the start radius is zero)
+        Animator anim =
+                ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, finalRadius);
+
+        // make the view visible and start the animation
+        view.setVisibility(View.VISIBLE);
+        anim.start();
+    }
+
+    /**
+     * Animate hide circular reveal effect on given view. Work if API >= 21.
+     * @param view previously visible view.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static void circularRevealEffectOff(@NonNull final View view) {
+
+        /*
+            Why the condition? Fix bug with change orientation.
+            Cannot start animation with detached view.
+        */
+        if (view.isAttachedToWindow()) {
+
+            // get the center for the clipping circle
+            int cx = view.getWidth() / 2;
+            int cy = view.getHeight() / 2;
+
+            // get the initial radius for the clipping circle
+            float initialRadius = (float) Math.hypot(cx, cy);
+
+            // create the animation (the final radius is zero)
+            Animator anim =
+                    ViewAnimationUtils.createCircularReveal(view, cx, cy, initialRadius, 0);
+
+            // make the view invisible when the animation is done
+            anim.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    view.setVisibility(View.INVISIBLE);
+                }
+            });
+
+            // start the animation
+            anim.start();
+        }
     }
 
 

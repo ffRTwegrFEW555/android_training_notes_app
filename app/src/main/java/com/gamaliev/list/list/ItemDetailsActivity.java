@@ -35,7 +35,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
     @NonNull private ListDatabaseHelper dbHelper;
     @NonNull private ActionBar actionBar;
     @NonNull private View colorView;
-    @NonNull private EditText nameEditText;
+    @NonNull private EditText titleEditText;
     @NonNull private EditText descEditText;
     @NonNull private ListEntry entry;
     @Nullable private Bundle savedInstanceState;
@@ -51,7 +51,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
     private void init(@Nullable final Bundle savedInstanceState) {
         actionBar       = getSupportActionBar();
         colorView       = findViewById(R.id.activity_item_details_color);
-        nameEditText    = (EditText) findViewById(R.id.activity_item_details_text_view_name);
+        titleEditText   = (EditText) findViewById(R.id.activity_item_details_text_view_title);
         descEditText    = (EditText) findViewById(R.id.activity_item_details_text_view_description);
         this.savedInstanceState = savedInstanceState;
 
@@ -159,7 +159,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
      * Fill all activity views with values from the entry-object.
      */
     private void fillActivityViews() {
-        nameEditText.setText(entry.getName());
+        titleEditText.setText(entry.getTitle());
         descEditText.setText(entry.getDescription());
         refreshColorBox(entry.getColor());
     }
@@ -168,7 +168,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
      * Fill entry-fields with values from all activity views.
      */
     private void refreshEntry() {
-        entry.setName(nameEditText.getText().toString());
+        entry.setTitle(titleEditText.getText().toString());
         entry.setDescription(descEditText.getText().toString());
         entry.setColor(color);
     }

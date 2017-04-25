@@ -3,10 +3,10 @@ package com.gamaliev.list.list;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.PorterDuff;
+import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 import com.gamaliev.list.R;
@@ -37,12 +37,12 @@ final class ListCursorAdapter extends CursorAdapter {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         int id              = cursor.getInt(0);
-        String name         = cursor.getString(1);
+        String title        = cursor.getString(1);
         String description  = cursor.getString(2);
         int color           = cursor.getInt(3);
 
         viewHolder.id = id;
-        viewHolder.nameView.setText(name);
+        viewHolder.titleView.setText(title);
         viewHolder.descriptionView.setText(description);
         viewHolder.iconView
                 .getBackground()
@@ -50,15 +50,15 @@ final class ListCursorAdapter extends CursorAdapter {
     }
 
     private static class ViewHolder {
-        private Integer id;
-        private final TextView nameView;
-        private final TextView descriptionView;
-        private final View iconView;
+        private Integer         id;
+        private final TextView  titleView;
+        private final TextView  descriptionView;
+        private final View      iconView;
 
         ViewHolder(View view) {
-            nameView = (TextView) view.findViewById(R.id.activity_list_item_name);
+            titleView       = (TextView) view.findViewById(R.id.activity_list_item_title);
             descriptionView = (TextView) view.findViewById(R.id.activity_list_item_description);
-            iconView = view.findViewById(R.id.activity_list_item_icon);
+            iconView        = view.findViewById(R.id.activity_list_item_color);
         }
     }
 }

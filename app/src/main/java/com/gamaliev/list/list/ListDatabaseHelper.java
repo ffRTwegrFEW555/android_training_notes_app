@@ -2,6 +2,7 @@ package com.gamaliev.list.list;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 import com.gamaliev.list.R;
 import com.gamaliev.list.common.DatabaseHelper;
 
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Random;
 
@@ -26,14 +28,16 @@ import static com.gamaliev.list.common.CommonUtils.showToast;
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-final class ListDatabaseHelper extends DatabaseHelper {
+public final class ListDatabaseHelper extends DatabaseHelper {
 
     private static final String TAG = ListDatabaseHelper.class.getSimpleName();
 
-    public static final String ORDER_ADDING         = BASE_COLUMN_ID;
-    public static final String ORDER_NAME           = LIST_ITEMS_COLUMN_NAME;
-    public static final String ORDER_CREATED_DATE   = LIST_ITEMS_COLUMN_CREATED_TIMESTAMP;
-    public static final String ORDER_MODIFIED_DATE  = LIST_ITEMS_COLUMN_MODIFIED_TIMESTAMP;
+    public static final String ORDER_ADDED      = BASE_COLUMN_ID;
+    public static final String ORDER_TITLE      = LIST_ITEMS_COLUMN_TITLE;
+    public static final String ORDER_CREATED    = LIST_ITEMS_COLUMN_CREATED;
+    public static final String ORDER_EDITED     = LIST_ITEMS_COLUMN_EDITED;
+    public static final String ORDER_VIEWED     = LIST_ITEMS_COLUMN_EDITED;
+    public static final String ORDER_DEFAULT    = ORDER_ADDED;
 
 
     /*
@@ -66,28 +70,28 @@ final class ListDatabaseHelper extends DatabaseHelper {
 
     /**
      * Insert new entry in database.
-     * @param entry entry, contains name, description, color.
+     * @param entry entry, contains title, description, color.
      */
     boolean insertEntry(@NonNull final ListEntry entry) {
         try (SQLiteDatabase db = getWritableDatabase()) {
 
             // Variables
-            final String name = entry.getName();
+            final String title = entry.getTitle();
             final String description = entry.getDescription();
             final int color = entry.getColor() == null ? getDefaultColor(context) : entry.getColor();
 
             // Content values
             final ContentValues cv = new ContentValues();
-            cv.put(LIST_ITEMS_COLUMN_NAME,                  name);
-            cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,           description);
-            cv.put(LIST_ITEMS_COLUMN_COLOR,                 color);
-            cv.put(LIST_ITEMS_COLUMN_MODIFIED_TIMESTAMP,   "time('now')");
+            cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
+            cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
+            cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
+            cv.put(LIST_ITEMS_COLUMN_EDITED,        "time('now')");
 
             // Insert
             if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
                 final String error = String.format(Locale.ENGLISH,
                         "[ERROR] Insert entry {%s: %s, %s: %s, %s: %d}",
-                        LIST_ITEMS_COLUMN_NAME, name,
+                        LIST_ITEMS_COLUMN_TITLE, title,
                         LIST_ITEMS_COLUMN_DESCRIPTION, description,
                         LIST_ITEMS_COLUMN_COLOR, color);
                 throw new SQLiteException(error);
@@ -105,28 +109,28 @@ final class ListDatabaseHelper extends DatabaseHelper {
 
     /**
      * Update entry in database.
-     * @param entry entry, must contains non-null id and name.
+     * @param entry entry, must contains non-null id and title.
      */
     boolean updateEntry(@NonNull final ListEntry entry) {
-        int id = 0;
-        String name = null;
-        String description = null;
-        int color = 0;
+        int id              = 0;
+        String title        = null;
+        String description  = null;
+        int color           = 0;
 
         try (SQLiteDatabase db = getWritableDatabase()) {
 
             // Variables
-            id = entry.getId();
-            name = entry.getName();
+            id          = entry.getId();
+            title       = entry.getTitle();
             description = entry.getDescription();
-            color = entry.getColor() == null ? getDefaultColor(context) : entry.getColor();
+            color       = entry.getColor() == null ? getDefaultColor(context) : entry.getColor();
 
             // Content values
             final ContentValues cv = new ContentValues();
-            cv.put(LIST_ITEMS_COLUMN_NAME,                  name);
-            cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,           description);
-            cv.put(LIST_ITEMS_COLUMN_COLOR,                 color);
-            cv.put(LIST_ITEMS_COLUMN_MODIFIED_TIMESTAMP,   "time('now')");
+            cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
+            cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
+            cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
+            cv.put(LIST_ITEMS_COLUMN_EDITED,        "time('now')");
 
             // Update
             final int updateResult = db.update(
@@ -146,7 +150,7 @@ final class ListDatabaseHelper extends DatabaseHelper {
                     Locale.ENGLISH,
                     "[ERROR] Update entry {id: %d, %s: %s, %s: %s, %s: %d}",
                     id,
-                    LIST_ITEMS_COLUMN_NAME, name,
+                    LIST_ITEMS_COLUMN_TITLE, title,
                     LIST_ITEMS_COLUMN_DESCRIPTION, description,
                     LIST_ITEMS_COLUMN_COLOR, color);
             Log.e(TAG, error + ": " + e.getMessage());
@@ -159,27 +163,64 @@ final class ListDatabaseHelper extends DatabaseHelper {
      * Get all entries from database by order.
      *
      * @param order see
-     *      {@link #ORDER_NAME},
-     *      {@link #ORDER_ADDING},
-     *      {@link #ORDER_CREATED_DATE},
-     *      {@link #ORDER_MODIFIED_DATE}.
-     *              Default is {@link #ORDER_NAME}.
+     *      {@link #ORDER_TITLE},
+     *      {@link #ORDER_ADDED},
+     *      {@link #ORDER_CREATED},
+     *      {@link #ORDER_EDITED}.
+     *              Default is {@link #ORDER_TITLE}.
      *
      * @param asc   ascending or descending of order. True if ascending, otherwise false;
      * @return cursor, with ordered entries.
      */
+    // TODO: refactor
     @Nullable
-    Cursor getAllEntries(@Nullable String order, final boolean asc) {
+    Cursor getAllEntries(
+            @Nullable final String searchText,
+            @Nullable final String[] searchColumns,
+            @Nullable String order,
+            final boolean asc) {
+
+        // Local variables
+        SQLiteDatabase db = null;
+        String[] searchTextConvert = null;
+        String searchColumnsConvert = null;
+
+        // Order formation
         if (order == null) {
-            order = ORDER_ADDING;
+            order = ORDER_DEFAULT + (asc ? " ASC" : " DESC");
+        } else {
+            order += (asc ? " ASC" : " DESC");
         }
 
-        SQLiteDatabase db = null;
+
+        if (searchText != null && searchColumns != null) {
+
+            // Convert searchColumns array to String selection query.
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < searchColumns.length; i++) {
+                if (i != 0) {
+                    sb.append(" OR ");
+                }
+                sb.append(searchColumns[i]);
+                sb.append(" LIKE ?");
+            }
+            searchColumnsConvert = sb.toString();
+
+            // Convert searchText string to args array.
+            searchTextConvert = new String[searchColumns.length];
+            Arrays.fill(searchTextConvert, "%" + searchText + "%");
+        }
 
         try {
             db = getReadableDatabase();
-            return db.query(LIST_ITEMS_TABLE_NAME, null, null, null, null, null,
-                    order + (asc ? " ASC" : " DESC"));
+            return db.query(
+                    LIST_ITEMS_TABLE_NAME,
+                    null,
+                    searchColumns   == null ? null : searchColumnsConvert,
+                    searchText      == null ? null : searchTextConvert,
+                    null,
+                    null,
+                    order);
 
         } catch (SQLiteException e) {
             Log.e(TAG, "[ERROR] Get entries: " + e.getMessage());
@@ -212,12 +253,12 @@ final class ListDatabaseHelper extends DatabaseHelper {
             ListEntry entry = new ListEntry();
             if (cursor.moveToFirst()) {
                 entry.setId(cursor.getInt(0));
-                entry.setName(cursor.getString(1));
+                entry.setTitle(cursor.getString(1));
                 entry.setDescription(cursor.getString(2));
                 entry.setColor(cursor.getInt(3));
                 return entry;
             }
-            // TODO: add created date and modified date
+            // TODO: add created date and edited date
 
         } catch (SQLiteException e) {
             Log.e(TAG, "[ERROR] Get entries: " + e.getMessage());
@@ -263,29 +304,9 @@ final class ListDatabaseHelper extends DatabaseHelper {
 
         // TODO: try-catch-with-resources and db.endTransaction?!
         try {
-            Random random = new Random();
             db = getWritableDatabase();
             db.beginTransaction();
-            final int itemNumbers = resources.getInteger(R.integer.mock_items_number);
-            for (int i = 0; i < itemNumbers; i++) {
-                // Content values
-                final ContentValues cv = new ContentValues();
-                cv.put(LIST_ITEMS_COLUMN_NAME,          resources.getString(R.string.mock_title));
-                cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   resources.getString(R.string.mock_body));
-                cv.put(LIST_ITEMS_COLUMN_COLOR,
-                        Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256)));
-                cv.put(LIST_ITEMS_COLUMN_MODIFIED_TIMESTAMP, "time('now')");
-
-                // Insert
-                if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
-                    final String error = String.format(Locale.ENGLISH,
-                            "[ERROR] Insert entry {%s: %s, %s: %s, %s: %d}",
-                            LIST_ITEMS_COLUMN_NAME, "name",
-                            LIST_ITEMS_COLUMN_DESCRIPTION, "description",
-                            LIST_ITEMS_COLUMN_COLOR, 0);
-                    throw new SQLiteException(error);
-                }
-            }
+            addMockEntries(resources, db);
             db.setTransactionSuccessful();
 
             // If ok
@@ -300,6 +321,41 @@ final class ListDatabaseHelper extends DatabaseHelper {
             if (db != null) {
                 db.endTransaction();
                 db.close();
+            }
+        }
+    }
+
+
+    /**
+     * Add mock entries in list activity, with given params.<br>
+     * See: {@link com.gamaliev.list.list.ListActivity}
+     *
+     * @param resources resources.
+     * @param db        database.
+     * @throws SQLiteException if insert error.
+     */
+    public static void addMockEntries(
+            Resources resources,
+            SQLiteDatabase db) throws SQLiteException {
+
+        Random random = new Random();
+        final int itemNumbers = resources.getInteger(R.integer.mock_items_number);
+
+        for (int i = 0; i < itemNumbers; i++) {
+            // Content values
+            final ContentValues cv = new ContentValues();
+            cv.put(LIST_ITEMS_COLUMN_TITLE,         resources.getString(R.string.mock_title));
+            cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   resources.getString(R.string.mock_body));
+            cv.put(LIST_ITEMS_COLUMN_COLOR,         Color.argb(
+                            255,
+                            random.nextInt(256),
+                            random.nextInt(256),
+                            random.nextInt(256)));
+            cv.put(LIST_ITEMS_COLUMN_EDITED,        "time('now')");
+
+            // Insert
+            if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
+                throw new SQLiteException("[ERROR] Add mock entries.");
             }
         }
     }

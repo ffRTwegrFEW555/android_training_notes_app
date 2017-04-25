@@ -14,20 +14,22 @@ import java.util.Date;
 
 class ListEntry implements Parcelable {
 
-    @Nullable private Integer id;
-    @Nullable private String name;
-    @Nullable private String description;
-    @Nullable private Integer color;
-    @Nullable private Date createdDate;
-    @Nullable private Date modifiedDate;
+    @Nullable private Integer   id;
+    @Nullable private String    title;
+    @Nullable private String    description;
+    @Nullable private Integer   color;
+    @Nullable private Date      created;
+    @Nullable private Date      edited;
+    @Nullable private Date      viewed;
 
     // What to Write and Read flags.
-    private static final int W_ID           = 1;
-    private static final int W_NAME         = 2;
-    private static final int W_DESCRIPTION  = 4;
-    private static final int W_COLOR        = 8;
-    private static final int W_CREATED_DATE = 16;
-    private static final int W_MODIFIED_DATE = 32;
+    private static final int RW_ID          = 1;
+    private static final int RW_TITLE       = 2;
+    private static final int RW_DESCRIPTION = 4;
+    private static final int RW_COLOR       = 8;
+    private static final int RW_CREATED     = 16;
+    private static final int RW_EDITED      = 32;
+    private static final int RW_VIEWED      = 64;
 
     ListEntry() {}
 
@@ -39,32 +41,35 @@ class ListEntry implements Parcelable {
     protected ListEntry(Parcel in) {
 
         int whatToRead = in.readInt();
-        if ((whatToRead & W_ID) > 0)            id = in.readInt();
-        if ((whatToRead & W_NAME) > 0)          name = in.readString();
-        if ((whatToRead & W_DESCRIPTION) > 0)   description = in.readString();
-        if ((whatToRead & W_COLOR) > 0)         color = in.readInt();
-        if ((whatToRead & W_CREATED_DATE) > 0)  createdDate = (Date) in.readSerializable();
-        if ((whatToRead & W_MODIFIED_DATE) > 0) modifiedDate = (Date) in.readSerializable();
+        if ((whatToRead & RW_ID) > 0)           id          = in.readInt();
+        if ((whatToRead & RW_TITLE) > 0)        title       = in.readString();
+        if ((whatToRead & RW_DESCRIPTION) > 0)  description = in.readString();
+        if ((whatToRead & RW_COLOR) > 0)        color       = in.readInt();
+        if ((whatToRead & RW_CREATED) > 0)      created     = (Date) in.readSerializable();
+        if ((whatToRead & RW_EDITED) > 0)       edited      = (Date) in.readSerializable();
+        if ((whatToRead & RW_VIEWED) > 0)       viewed      = (Date) in.readSerializable();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
 
         int whatToWrite = 0;
-        if (id != null)             whatToWrite |= W_ID;
-        if (name != null)           whatToWrite |= W_NAME;
-        if (description != null)    whatToWrite |= W_DESCRIPTION;
-        if (color != null)          whatToWrite |= W_COLOR;
-        if (createdDate != null)    whatToWrite |= W_CREATED_DATE;
-        if (modifiedDate != null)   whatToWrite |= W_MODIFIED_DATE;
+        if (id != null)             whatToWrite |= RW_ID;
+        if (title != null)          whatToWrite |= RW_TITLE;
+        if (description != null)    whatToWrite |= RW_DESCRIPTION;
+        if (color != null)          whatToWrite |= RW_COLOR;
+        if (created != null)        whatToWrite |= RW_CREATED;
+        if (edited != null)         whatToWrite |= RW_EDITED;
+        if (viewed != null)         whatToWrite |= RW_VIEWED;
 
         dest.writeInt(whatToWrite);
         if (id != null)             dest.writeInt(id);
-        if (name != null)           dest.writeString(name);
+        if (title != null)          dest.writeString(title);
         if (description != null)    dest.writeString(description);
         if (color != null)          dest.writeInt(color);
-        if (createdDate != null)    dest.writeSerializable(createdDate);
-        if (modifiedDate != null)   dest.writeSerializable(modifiedDate);
+        if (created != null)        dest.writeSerializable(created);
+        if (edited != null)         dest.writeSerializable(edited);
+        if (viewed != null)         dest.writeSerializable(viewed);
     }
 
     @Override
@@ -93,8 +98,8 @@ class ListEntry implements Parcelable {
         this.id = id;
     }
 
-    public void setName(@NonNull String name) {
-        this.name = name;
+    public void setTitle(@NonNull String title) {
+        this.title = title;
     }
 
     public void setDescription(@NonNull String description) {
@@ -105,12 +110,16 @@ class ListEntry implements Parcelable {
         this.color = color;
     }
 
-    public void setCreatedDate(@NonNull Date createdDate) {
-        this.createdDate = createdDate;
+    public void setCreated(@NonNull Date created) {
+        this.created = created;
     }
 
-    public void setModifiedDate(@NonNull Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
+    public void setEdited(@NonNull Date edited) {
+        this.edited = edited;
+    }
+
+    public void setViewed(@NonNull Date viewed) {
+        this.viewed = viewed;
     }
 
 
@@ -124,8 +133,8 @@ class ListEntry implements Parcelable {
     }
 
     @Nullable
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
     @Nullable
@@ -139,12 +148,17 @@ class ListEntry implements Parcelable {
     }
 
     @Nullable
-    public Date getCreatedDate() {
-        return createdDate;
+    public Date getCreated() {
+        return created;
     }
 
     @Nullable
-    public Date getModifiedDate() {
-        return modifiedDate;
+    public Date getEdited() {
+        return edited;
+    }
+
+    @Nullable
+    public Date getViewed() {
+        return viewed;
     }
 }
