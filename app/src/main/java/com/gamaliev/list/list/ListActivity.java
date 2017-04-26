@@ -25,37 +25,32 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.gamaliev.list.common.CommonUtils.circularRevealEffectOff;
-import static com.gamaliev.list.common.CommonUtils.circularRevealEffectOn;
+import static com.gamaliev.list.common.CommonUtils.circularRevealAnimationOff;
+import static com.gamaliev.list.common.CommonUtils.circularRevealAnimationOn;
 
 public class ListActivity extends AppCompatActivity {
 
-    /* Log */
+    /* Logger */
     private static final String TAG = ListActivity.class.getSimpleName();
-
 
     /* Intents */
     private static final int REQUEST_CODE_ADD = 1;
     private static final int REQUEST_CODE_EDIT = 2;
 
-
     /* SQLite */
-    @NonNull private static final String[] searchColumns = {
+    @NonNull private static final String[] SEARCH_COLUMNS = {
             DatabaseHelper.LIST_ITEMS_COLUMN_TITLE,
             DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION};
 
-    @NonNull private String selectionOrder = ListDatabaseHelper.ORDER_DEFAULT;
+    @NonNull private String selectionOrder = ListDatabaseHelper.LIST_ORDER_DEFAULT;
     @NonNull private ListDatabaseHelper dbHelper;
     @NonNull private ListCursorAdapter adapter;
     @NonNull private FilterQueryProvider fqp;
 
-    /**
-     * Ascending - true, Descending - false.
-     */
+    /** Ascending - true, Descending - false. */
     private boolean sortingType = true;
 
-
-    /* Other */
+    /* */
     @NonNull private ListView listView;
     @NonNull private Button foundView;
     private long timerFound;
@@ -77,7 +72,7 @@ public class ListActivity extends AppCompatActivity {
         foundView = (Button) findViewById(R.id.activity_list_button_found);
 
         setFabOnClickListener();
-        refreshDatabaseAndView();
+        refreshDbConnectAndView();
     }
 
 
@@ -86,7 +81,7 @@ public class ListActivity extends AppCompatActivity {
      */
 
     /**
-     * Inflate action bar menu.
+     * Inflate action bar menu and setup search function.
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -100,9 +95,9 @@ public class ListActivity extends AppCompatActivity {
      * Setting SearchView listener.<br>
      * Filtering and updating list on text change.<br>
      * Also there is a notification about the number of positions found.
-     * @param menu menu of activity.
+     * @param menu Action bar menu of activity.
      */
-    private void setupSearchView(Menu menu) {
+    private void setupSearchView(@NonNull final Menu menu) {
         final SearchView searchView =
                 (SearchView) menu.findItem(R.id.menu_list_search).getActionView();
 
@@ -114,6 +109,7 @@ public class ListActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                // Set filter text and show "Found" notification.
                 adapter.getFilter().filter(newText);
                 showFoundNotification();
                 return true;
@@ -122,7 +118,7 @@ public class ListActivity extends AppCompatActivity {
     }
 
     /**
-     * Action bar menu item selection handler
+     * Action bar menu item selection handler.
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -131,13 +127,13 @@ public class ListActivity extends AppCompatActivity {
             // Fill example entries
             case R.id.menu_list_action_fill_mock:
                 dbHelper.addMockEntries();
-                refreshDatabaseAndView();
+                refreshDbConnectAndView();
                 break;
 
             // Remove all entries
             case R.id.menu_list_action_delete_entry:
                 dbHelper.removeAllEntries();
-                refreshDatabaseAndView();
+                refreshDbConnectAndView();
                 break;
 
             default:
@@ -148,14 +144,15 @@ public class ListActivity extends AppCompatActivity {
     }
 
     /**
-     * Open a new database helper, get cursor, create and set adapter, set on click listener.<br>
+     * Open a new database helper, get cursor, create and set adapter,
+     * set on click listener, set filter query provider.<br>
      * See also: {@link com.gamaliev.list.list.ListDatabaseHelper}
      */
-    private void refreshDatabaseAndView() {
+    private void refreshDbConnectAndView() {
         if (dbHelper == null) {
             dbHelper = new ListDatabaseHelper(this);
         }
-        Cursor cursor   = dbHelper.getAllEntries(null, null, null, true);
+        Cursor cursor   = dbHelper.getEntries(null, null, null, true);
         adapter         = new ListCursorAdapter(this, cursor, 0);
         listView        = (ListView) findViewById(R.id.activity_list_listview);
         listView.setAdapter(adapter);
@@ -163,8 +160,9 @@ public class ListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                // Shared transition color box
+                // On click - start item details activity, with edit action.
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    // If API >= 21, then set shared transition animation.
                     View iconView = view.findViewById(R.id.activity_list_item_color);
                     iconView.setTransitionName(
                             getString(R.string.shared_transition_name_color_box));
@@ -182,7 +180,7 @@ public class ListActivity extends AppCompatActivity {
             }
         });
 
-        // SearchView filter handler
+        // SearchView filter query provider.
         adapter.setFilterQueryProvider(fqp);
     }
 
@@ -197,10 +195,14 @@ public class ListActivity extends AppCompatActivity {
             if (requestCode == REQUEST_CODE_ADD) {
                 // If new position added, then update list and scroll to new position (to end).
                 // TODO: if sort by name?
-                refreshDatabaseAndView();
-                timerDelayRunForScroll(listView, adapter.getCount(), 200);
+                refreshDbConnectAndView();
+                timerDelayRunForScroll(
+                        listView,
+                        adapter.getCount(),
+                        getResources().getInteger(R.integer.activity_list_smooth_scroll_delay));
+
             } else if (requestCode == REQUEST_CODE_EDIT) {
-                refreshDatabaseAndView();
+                refreshDbConnectAndView();
             }
         }
     }
@@ -208,8 +210,8 @@ public class ListActivity extends AppCompatActivity {
     /**
      * Smooth scroll ListView object to given position, and delay time.
      * @param listView  ListView object.
-     * @param position  position to scroll.
-     * @param time      delay before start scrolling.
+     * @param position  Position to scroll.
+     * @param time      Delay before start scrolling.
      */
     private void timerDelayRunForScroll(
             @NonNull final ListView listView,
@@ -240,6 +242,82 @@ public class ListActivity extends AppCompatActivity {
 
 
     /*
+        Found notification
+     */
+
+
+    /**
+     * Show found notification.<br>
+     * After stopping the input of text, after some times, the notification closes.
+     */
+    private void showFoundNotification() {
+        final Handler handler = new Handler();
+        handler.postDelayed(
+                getRunnableForFoundNotification(),
+                getResources().getInteger(R.integer.activity_list_notification_delay));
+    }
+
+    /**
+     * @return Runnable task for found notification, contains all logic.
+     */
+    @NonNull
+    private Runnable getRunnableForFoundNotification() {
+        return new Runnable() {
+            @Override
+            public void run() {
+                final int delay = getResources()
+                        .getInteger(R.integer.activity_list_notification_delay);
+                final int delayClose = getResources()
+                        .getInteger(R.integer.activity_list_notification_delay_auto_close);
+
+                // Set text.
+                foundView.setText(String.format(Locale.ENGLISH,
+                        getResources().getString(R.string.activity_list_notification_found_text) + "\n%d",
+                        listView.getCount()));
+
+                // Set start time of the notification display.
+                timerFound = System.currentTimeMillis();
+
+                if (foundView.getVisibility() == View.INVISIBLE) {
+                    // Show notification. If API >= 21, then with circular reveal animation.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        circularRevealAnimationOn(foundView);
+                    } else {
+                        foundView.setVisibility(View.VISIBLE);
+                    }
+
+                    // Start notification close timer.
+                    // Timer is cyclical, while notification is showed.
+                    final Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            if (System.currentTimeMillis() - timerFound >
+                                    delayClose) {
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                            circularRevealAnimationOff(foundView);
+                                        } else {
+                                            foundView.setVisibility(View.INVISIBLE);
+                                        }
+                                    }
+                                });
+
+                                // If notification is closed, then stop timer.
+                                timer.cancel();
+                            }
+                        }
+                    }, delay, delay);
+                }
+            }
+        };
+    }
+
+
+    /*
         Methods
      */
 
@@ -256,69 +334,20 @@ public class ListActivity extends AppCompatActivity {
         });
     }
 
-    // TODO: Handle;
+    /**
+     * Всё сложно.
+     */
+    // TODO: Handle
     @NonNull
     private FilterQueryProvider getFilterQueryProvider() {
         return new FilterQueryProvider() {
             @Override
             public Cursor runQuery(CharSequence constraint) {
-                return dbHelper.getAllEntries(
+                return dbHelper.getEntries(
                         constraint.toString(),
-                        searchColumns,
+                        SEARCH_COLUMNS,
                         selectionOrder,
                         sortingType);
-            }
-        };
-    }
-
-
-    /*
-        Found notification
-     */
-
-    // TODO: Handle
-    private void showFoundNotification() {
-        final Handler handler = new Handler();
-        handler.postDelayed(getRunnableForFoundNotification(), 500); // TODO: constant
-    }
-
-    @NonNull
-    private Runnable getRunnableForFoundNotification() {
-        return new Runnable() {
-            @Override
-            public void run() {
-                foundView.setText(String.format(
-                        Locale.ENGLISH,
-                        "FOUND:\n%d", listView.getCount())); // TODO: constant
-
-                timerFound = System.currentTimeMillis();
-
-                if (foundView.getVisibility() == View.INVISIBLE) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        circularRevealEffectOn(foundView);
-                    } else {
-                        foundView.setVisibility(View.VISIBLE);
-                    }
-                    final Timer timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            if (System.currentTimeMillis() - timerFound > 3000) { // TODO: constant
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                            circularRevealEffectOff(foundView);
-                                        } else {
-                                            foundView.setVisibility(View.INVISIBLE);
-                                        }
-                                    }
-                                });
-                                timer.cancel();
-                            }
-                        }
-                    }, 1000, 1000); // TODO: constant
-                }
             }
         };
     }

@@ -21,7 +21,7 @@ import static com.gamaliev.list.common.CommonUtils.showToast;
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-final class ColorPickerDatabaseHelper extends DatabaseHelper {
+public final class ColorPickerDatabaseHelper extends DatabaseHelper {
 
     private static final String TAG = ColorPickerDatabaseHelper.class.getSimpleName();
 
@@ -56,13 +56,13 @@ final class ColorPickerDatabaseHelper extends DatabaseHelper {
 
     /**
      * Update color in database.
-     * @param index index of color.
-     * @param color color.
-     * @return true if update is success, otherwise false.
+     * @param index Index of color.
+     * @param color Color.
+     * @return True if update is success, otherwise false.
      */
     boolean updateFavoriteColor(final int index, final int color) {
-        try (SQLiteDatabase db = getWritableDatabase()) {
 
+        try (SQLiteDatabase db = getWritableDatabase()) {
             final ContentValues cv = new ContentValues();
             cv.put(FAVORITE_COLUMN_COLOR, color);
             db.update(
@@ -70,15 +70,10 @@ final class ColorPickerDatabaseHelper extends DatabaseHelper {
                     cv,
                     FAVORITE_COLUMN_INDEX + " = ?",
                     new String[] {Integer.toString(index)});
-            db.close();
             return true;
 
         } catch (SQLiteException e) {
-            final String error = String.format(
-                    Locale.ENGLISH,
-                    "[ERROR] Update favorite color {%s: %d, %s: %d}",
-                    FAVORITE_COLUMN_INDEX, index, FAVORITE_COLUMN_COLOR, color);
-            Log.e(TAG, error + ": " + e.getMessage());
+            Log.e(TAG, e.toString());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
             return false;
         }
@@ -86,8 +81,8 @@ final class ColorPickerDatabaseHelper extends DatabaseHelper {
 
     /**
      * Get color from database.
-     * @param index index of color
-     * @return color number if success, otherwise "-1".
+     * @param index Index of color
+     * @return Color number if success, otherwise "-1".
      */
     int getFavoriteColor(final int index) {
         int color = -1;
@@ -101,17 +96,36 @@ final class ColorPickerDatabaseHelper extends DatabaseHelper {
                     null, null, null)) {
 
             if (cursor.moveToFirst()) {
-                color = cursor.getInt(0);
+                final int indexColor = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_COLOR);
+                color = cursor.getInt(indexColor);
             }
             return color;
 
         } catch (SQLiteException e) {
-            final String error = String.format(
-                    Locale.ENGLISH,
-                    "[ERROR] Get favorite color {%s: %d}", FAVORITE_COLUMN_INDEX, index);
-            Log.e(TAG, error + ": " + e.getMessage());
+            Log.e(TAG, e.toString());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
             return color;
+        }
+    }
+
+    /**
+     * Insert row (color with index) in database.
+     * @param db    Opened database.
+     * @param index Index of color.
+     * @param color Color.
+     */
+    public static void insertFavoriteColor(
+            @NonNull final SQLiteDatabase db,
+            final int index,
+            final int color) {
+
+        final ContentValues cv = new ContentValues();
+        cv.put(FAVORITE_COLUMN_INDEX, index);
+        cv.put(FAVORITE_COLUMN_COLOR, color);
+        if (db.insert(FAVORITE_TABLE_NAME, null, cv) == -1) {
+            throw new SQLiteException(String.format(Locale.ENGLISH,
+                    "[ERROR] Insert favorite color {%s: %d, %s: %d}",
+                    FAVORITE_COLUMN_INDEX, index, FAVORITE_COLUMN_COLOR, color));
         }
     }
 }

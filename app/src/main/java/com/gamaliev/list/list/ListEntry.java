@@ -53,6 +53,7 @@ class ListEntry implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
 
+        // Compute what to write to parcel.
         int whatToWrite = 0;
         if (id != null)             whatToWrite |= RW_ID;
         if (title != null)          whatToWrite |= RW_TITLE;
@@ -62,6 +63,7 @@ class ListEntry implements Parcelable {
         if (edited != null)         whatToWrite |= RW_EDITED;
         if (viewed != null)         whatToWrite |= RW_VIEWED;
 
+        // Write computed to parcel.
         dest.writeInt(whatToWrite);
         if (id != null)             dest.writeInt(id);
         if (title != null)          dest.writeString(title);

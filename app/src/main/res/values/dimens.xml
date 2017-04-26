@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- ColorPicker PopupWindow -->
+
+    <!--                        -->
+    <!-- Activity ColorPicker   -->
+    <!--                        -->
+
+    <!-- Popup window -->
     <dimen name="activity_color_picker_popupwindow_offset_x">0dp</dimen>
     <dimen name="activity_color_picker_popupwindow_offset_y">0dp</dimen>
     <dimen name="activity_color_picker_popupwindow_width">200dp</dimen>
     <dimen name="activity_color_picker_popupwindow_height">200dp</dimen>
     <dimen name="activity_color_picker_popupwindow_elevation">24dp</dimen>
 
-    <!-- Boxes -->
-    <dimen name="activity_color_picker_box_border_width">1dp</dimen>
-
-    <!-- List item details -->
-    <dimen name="activity_item_details_ff_color_stroke_width">1dp</dimen>
-
-    <!--  -->
-    <dimen name="activity_color_picker_delta_to_enable_change_color">10dp</dimen>
-
     <!-- Palette box -->
+    <dimen name="activity_color_picker_scroll_palette_bar_elevation">4dp</dimen>
+    <dimen name="activity_color_picker_box_border_width">1dp</dimen>
     <dimen name="activity_color_picker_palette_box_width">80dp</dimen>
     <dimen name="activity_color_picker_palette_box_height">80dp</dimen>
     <dimen name="activity_color_picker_palette_box_margin">20dp</dimen>
@@ -31,20 +29,52 @@
     <dimen name="activity_color_picker_favorite_box_anim_elevation_on">8dp</dimen>
     <dimen name="activity_color_picker_favorite_box_anim_elevation_off">2dp</dimen>
 
-    <!-- Material -->
-    <dimen name="activity_list_material_padding_top">8dp</dimen>
-    <dimen name="activity_list_material_padding_bottom">8dp</dimen>
-    <dimen name="activity_list_item_material_height">88dp</dimen>
-    <dimen name="activity_list_item_material_padding">16dp</dimen>
-    <dimen name="activity_list_item_icon_material_width">40dp</dimen>
-    <dimen name="activity_list_item_icon_material_height">40dp</dimen>
-    <dimen name="activity_list_item_icon_material_margin_start">16dp</dimen>
-    <dimen name="activity_list_item_icon_material_margin_bottom">16dp</dimen>
-    <dimen name="activity_list_item_title_material_text_size">16sp</dimen>
-    <dimen name="activity_list_item_description_material_text_size">14sp</dimen>
-    <dimen name="activity_color_picker_scroll_palette_bar_material_elevation">4dp</dimen>
-    <dimen name="activity_color_picker_ff_result_box_material_elevation">2dp</dimen>
-    <dimen name="activity_item_details_ff_title_material_elevation">4dp</dimen>
+    <!-- Other -->
+    <dimen name="activity_color_picker_ff_result_box_elevation">2dp</dimen>
+    <dimen name="activity_color_picker_delta_to_enable_change_color">10dp</dimen>
+
+
+    <!--                -->
+    <!-- Activity List  -->
+    <!--                -->
+
+    <!-- Found button -->
+    <dimen name="activity_list_button_found_width">90dp</dimen>
+    <dimen name="activity_list_button_found_height">60dp</dimen>
+    <dimen name="activity_list_button_found_margin">16dp</dimen>
+
+    <!-- Other -->
+    <dimen name="activity_list_fab_margin">16dp</dimen>
+    <dimen name="activity_list_padding_top">8dp</dimen>
+    <dimen name="activity_list_padding_bottom">8dp</dimen>
+
+
+    <!--                    -->
+    <!-- Activity ListItem  -->
+    <!--                    -->
+
+    <!-- Color box -->
+    <dimen name="activity_list_item_color_width">40dp</dimen>
+    <dimen name="activity_list_item_color_height">40dp</dimen>
+    <dimen name="activity_list_item_color_margin_start">16dp</dimen>
+    <dimen name="activity_list_item_color_margin_bottom">16dp</dimen>
+
+    <!-- Other -->
+    <dimen name="activity_list_item_height">88dp</dimen>
+    <dimen name="activity_list_item_padding">16dp</dimen>
+    <dimen name="activity_list_item_title_text_size">16sp</dimen>
+    <dimen name="activity_list_item_description_text_size">14sp</dimen>
+
+
+    <!--                        -->
+    <!-- Activity ItemDetails   -->
+    <!--                        -->
+
+    <!-- Other -->
+    <dimen name="activity_item_details_ff_color_stroke_width">1dp</dimen>
+    <dimen name="activity_item_details_ff_title_elevation">4dp</dimen>
     <dimen name="activity_item_details_ff_color_radius">56dp</dimen>
+    <dimen name="activity_item_details_text_layout_name_margin">16dp</dimen>
+    <dimen name="activity_item_details_text_layout_description_margin">16dp</dimen>
 
 </resources>

@@ -30,14 +30,16 @@ import static com.gamaliev.list.common.CommonUtils.showToast;
 
 public final class ListDatabaseHelper extends DatabaseHelper {
 
+    /* Logger */
     private static final String TAG = ListDatabaseHelper.class.getSimpleName();
 
-    public static final String ORDER_ADDED      = BASE_COLUMN_ID;
-    public static final String ORDER_TITLE      = LIST_ITEMS_COLUMN_TITLE;
-    public static final String ORDER_CREATED    = LIST_ITEMS_COLUMN_CREATED;
-    public static final String ORDER_EDITED     = LIST_ITEMS_COLUMN_EDITED;
-    public static final String ORDER_VIEWED     = LIST_ITEMS_COLUMN_EDITED;
-    public static final String ORDER_DEFAULT    = ORDER_ADDED;
+    /* SQL */
+    public static final String LIST_ORDER_ADDED     = BASE_COLUMN_ID;
+    public static final String LIST_ORDER_TITLE     = LIST_ITEMS_COLUMN_TITLE;
+    public static final String LIST_ORDER_CREATED   = LIST_ITEMS_COLUMN_CREATED;
+    public static final String LIST_ORDER_EDITED    = LIST_ITEMS_COLUMN_EDITED;
+    public static final String LIST_ORDER_VIEWED    = LIST_ITEMS_COLUMN_EDITED;
+    public static final String LIST_ORDER_DEFAULT   = LIST_ORDER_ADDED;
 
 
     /*
@@ -70,7 +72,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
 
     /**
      * Insert new entry in database.
-     * @param entry entry, contains title, description, color.
+     * @param entry Entry, contains title, description, color.
      */
     boolean insertEntry(@NonNull final ListEntry entry) {
         try (SQLiteDatabase db = getWritableDatabase()) {
@@ -85,7 +87,6 @@ public final class ListDatabaseHelper extends DatabaseHelper {
             cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
             cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
             cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
-            cv.put(LIST_ITEMS_COLUMN_EDITED,        "time('now')");
 
             // Insert
             if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
@@ -101,7 +102,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
             return true;
 
         } catch (SQLiteException e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, e.toString());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
             return false;
         }
@@ -109,28 +110,25 @@ public final class ListDatabaseHelper extends DatabaseHelper {
 
     /**
      * Update entry in database.
-     * @param entry entry, must contains non-null id and title.
+     * @param entry Entry, must contains non-null id.
      */
     boolean updateEntry(@NonNull final ListEntry entry) {
-        int id              = 0;
-        String title        = null;
-        String description  = null;
-        int color           = 0;
-
         try (SQLiteDatabase db = getWritableDatabase()) {
 
             // Variables
-            id          = entry.getId();
-            title       = entry.getTitle();
-            description = entry.getDescription();
-            color       = entry.getColor() == null ? getDefaultColor(context) : entry.getColor();
+            final int id                = entry.getId();
+            final String title          = entry.getTitle();
+            final String description    = entry.getDescription();
+            final int color             = entry.getColor() == null
+                                            ? getDefaultColor(context)
+                                            : entry.getColor();
 
             // Content values
             final ContentValues cv = new ContentValues();
             cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
             cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
             cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
-            cv.put(LIST_ITEMS_COLUMN_EDITED,        "time('now')");
+            cv.put(LIST_ITEMS_COLUMN_EDITED,        "datetime('now', 'utc')");
 
             // Update
             final int updateResult = db.update(
@@ -138,60 +136,46 @@ public final class ListDatabaseHelper extends DatabaseHelper {
                     cv,
                     BASE_COLUMN_ID + " = ?",
                     new String[]{Integer.toString(id)});
+
             if (updateResult == 0) {
-                throw new SQLiteException("The number of rows affected is 0");
+                throw new SQLiteException("[ERROR] The number of rows affected is 0");
             }
 
             // If ok
             return true;
 
         } catch (SQLiteException e) {
-            final String error = String.format(
-                    Locale.ENGLISH,
-                    "[ERROR] Update entry {id: %d, %s: %s, %s: %s, %s: %d}",
-                    id,
-                    LIST_ITEMS_COLUMN_TITLE, title,
-                    LIST_ITEMS_COLUMN_DESCRIPTION, description,
-                    LIST_ITEMS_COLUMN_COLOR, color);
-            Log.e(TAG, error + ": " + e.getMessage());
+            Log.e(TAG, e.toString());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
             return false;
         }
     }
 
-    /**
-     * Get all entries from database by order.
-     *
-     * @param order see
-     *      {@link #ORDER_TITLE},
-     *      {@link #ORDER_ADDED},
-     *      {@link #ORDER_CREATED},
-     *      {@link #ORDER_EDITED}.
-     *              Default is {@link #ORDER_TITLE}.
-     *
-     * @param asc   ascending or descending of order. True if ascending, otherwise false;
-     * @return cursor, with ordered entries.
-     */
+
     // TODO: refactor
+    // "datetime('%Y-%m-%d %H:%M:%S', 'utc')"
+    /**
+     * Get entries from database with specified parameters.
+     * @return Result cursor.
+     */
     @Nullable
-    Cursor getAllEntries(
+    Cursor getEntries(
             @Nullable final String searchText,
             @Nullable final String[] searchColumns,
             @Nullable String order,
             final boolean asc) {
 
         // Local variables
-        SQLiteDatabase db = null;
         String[] searchTextConvert = null;
         String searchColumnsConvert = null;
+        final String ascDesc = asc ? ORDER_ASCENDING : ORDER_DESCENDING;
 
         // Order formation
         if (order == null) {
-            order = ORDER_DEFAULT + (asc ? " ASC" : " DESC");
+            order = LIST_ORDER_DEFAULT + ascDesc;
         } else {
-            order += (asc ? " ASC" : " DESC");
+            order += ascDesc;
         }
-
 
         if (searchText != null && searchColumns != null) {
 
@@ -212,18 +196,21 @@ public final class ListDatabaseHelper extends DatabaseHelper {
         }
 
         try {
-            db = getReadableDatabase();
+            // Open database.
+            final SQLiteDatabase db = getReadableDatabase();
+
+            // Get query and return cursor, if ok;
             return db.query(
                     LIST_ITEMS_TABLE_NAME,
                     null,
-                    searchColumns   == null ? null : searchColumnsConvert,
-                    searchText      == null ? null : searchTextConvert,
+                    searchColumns == null ? null : searchColumnsConvert,
+                    searchText == null ? null : searchTextConvert,
                     null,
                     null,
                     order);
 
         } catch (SQLiteException e) {
-            Log.e(TAG, "[ERROR] Get entries: " + e.getMessage());
+            Log.e(TAG, e.toString());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
             return null;
 
@@ -237,8 +224,8 @@ public final class ListDatabaseHelper extends DatabaseHelper {
 
     /**
      * Get filled object from database, with given id.
-     * @param id id of entry.
-     * @return filled object. See {@link com.gamaliev.list.list.ListEntry}
+     * @param id    Id of entry.
+     * @return      Filled object. See {@link com.gamaliev.list.list.ListEntry}
      */
     @Nullable
     ListEntry getEntry(@NonNull final Long id) {
@@ -248,20 +235,28 @@ public final class ListDatabaseHelper extends DatabaseHelper {
                         null,
                         BASE_COLUMN_ID + " = ?",
                         new String[] {id.toString()},
-                        null, null, null)) {
+                        null,
+                        null,
+                        null)) {
 
-            ListEntry entry = new ListEntry();
+            // Fill new entry.
+            final ListEntry entry = new ListEntry();
             if (cursor.moveToFirst()) {
-                entry.setId(cursor.getInt(0));
-                entry.setTitle(cursor.getString(1));
-                entry.setDescription(cursor.getString(2));
-                entry.setColor(cursor.getInt(3));
+                final int indexId           = cursor.getColumnIndex(DatabaseHelper.BASE_COLUMN_ID);
+                final int indexTitle        = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_TITLE);
+                final int indexDescription  = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION);
+                final int indexColor        = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_COLOR);
+
+                entry.setId(            cursor.getInt(      indexId));
+                entry.setTitle(         cursor.getString(   indexTitle));
+                entry.setDescription(   cursor.getString(   indexDescription));
+                entry.setColor(         cursor.getInt(      indexColor));
+                // TODO: add created date and edited date
                 return entry;
             }
-            // TODO: add created date and edited date
 
         } catch (SQLiteException e) {
-            Log.e(TAG, "[ERROR] Get entries: " + e.getMessage());
+            Log.e(TAG, e.toString());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
         }
 
@@ -269,27 +264,29 @@ public final class ListDatabaseHelper extends DatabaseHelper {
     }
 
     /**
-     * Delete entry from database.
-     * @param id    id of entry to be deleted.
-     * @return      true if success, otherwise false.
+     * Delete entry from database, with given id.
+     * @param id    Id of entry to be deleted.
+     * @return      True if success, otherwise false.
      */
     boolean deleteEntry(@NonNull final Integer id) {
         try (SQLiteDatabase db = getWritableDatabase()) {
 
+            // Delete query.
             final int deleteResult = db.delete(
                     LIST_ITEMS_TABLE_NAME,
                     BASE_COLUMN_ID + " = ?",
                     new String[]{id.toString()});
 
+            // If error.
             if (deleteResult == 0) {
-                throw new SQLiteException("The number of rows affected is 0");
+                throw new SQLiteException("[ERROR] The number of rows affected is 0");
             }
 
-            // If ok
+            // If ok.
             return true;
 
         } catch (SQLiteException e) {
-            Log.e(TAG, "[ERROR] Delete entry: " + e.getMessage());
+            Log.e(TAG, e.toString());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
             return false;
         }
@@ -297,34 +294,41 @@ public final class ListDatabaseHelper extends DatabaseHelper {
 
     /**
      * Add mock entries in list activity. See: {@link com.gamaliev.list.list.ListActivity}
-     * @return true if ok, otherwise false.
+     * @return True if ok, otherwise false.
      */
     boolean addMockEntries() {
         SQLiteDatabase db = null;
 
         // TODO: try-catch-with-resources and db.endTransaction?!
         try {
+            // Open database.
             db = getWritableDatabase();
+
+            // Begin transaction.
             db.beginTransaction();
+
+            // Helper method for add entries.
             addMockEntries(resources, db);
+
+            // Success transaction.
             db.setTransactionSuccessful();
 
-            // If ok
+            // If ok.
             return true;
 
         } catch (SQLiteException e) {
-            Log.e(TAG, "[ERROR] Add mock entries: " + e.getMessage());
+            Log.e(TAG, e.toString());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
             return false;
 
         } finally {
             if (db != null) {
+                // End transaction and close database.
                 db.endTransaction();
                 db.close();
             }
         }
     }
-
 
     /**
      * Add mock entries in list activity, with given params.<br>
@@ -335,14 +339,14 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      * @throws SQLiteException if insert error.
      */
     public static void addMockEntries(
-            Resources resources,
-            SQLiteDatabase db) throws SQLiteException {
+            @NonNull final Resources resources,
+            @NonNull final SQLiteDatabase db) throws SQLiteException {
 
-        Random random = new Random();
+        final Random random = new Random();
         final int itemNumbers = resources.getInteger(R.integer.mock_items_number);
 
         for (int i = 0; i < itemNumbers; i++) {
-            // Content values
+            // Content values.
             final ContentValues cv = new ContentValues();
             cv.put(LIST_ITEMS_COLUMN_TITLE,         resources.getString(R.string.mock_title));
             cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   resources.getString(R.string.mock_body));
@@ -351,9 +355,8 @@ public final class ListDatabaseHelper extends DatabaseHelper {
                             random.nextInt(256),
                             random.nextInt(256),
                             random.nextInt(256)));
-            cv.put(LIST_ITEMS_COLUMN_EDITED,        "time('now')");
 
-            // Insert
+            // Insert query.
             if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
                 throw new SQLiteException("[ERROR] Add mock entries.");
             }
@@ -369,22 +372,30 @@ public final class ListDatabaseHelper extends DatabaseHelper {
 
         // TODO: try-catch-with-resources and db.endTransaction?!
         try {
+            // Open database.
             db = getWritableDatabase();
+
+            // Begin transaction.
             db.beginTransaction();
+
+            // Exec SQL queries.
             db.execSQL(SQL_LIST_ITEMS_DROP_TABLE);
             db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
+
+            // Success transaction.
             db.setTransactionSuccessful();
 
             // If ok
             return true;
 
         } catch (SQLiteException e) {
-            Log.e(TAG, "[ERROR] Remove all entries: " + e.getMessage());
+            Log.e(TAG, e.toString());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
             return false;
 
         } finally {
             if (db != null) {
+                // End transaction and close database.
                 db.endTransaction();
                 db.close();
             }

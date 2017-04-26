@@ -1,20 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- ColorPicker PopupWindow -->
+
+    <!--                        -->
+    <!-- Activity ColorPicker   -->
+    <!--                        -->
+
+    <!-- Popup window -->
     <integer name="activity_color_picker_popupwindow_gravity">17</integer> <!-- Gravity.CENTER : 17-->
 
-    <!-- Notify -->
+    <!-- Notification -->
     <integer name="activity_color_picker_vibration_duration">200</integer>
     <integer name="activity_color_picker_notification_interval_border_reaches">1000</integer>
-
-    <!-- Palette box -->
-    <integer name="activity_color_picker_palette_boxes_number">16</integer>
-    <integer name="activity_color_picker_palette_box_anim_elevation_duration">100</integer>
+    <integer name="activity_list_notification_delay">500</integer>
+    <integer name="activity_list_notification_delay_auto_close">2000</integer>
 
     <!-- Result box -->
     <integer name="activity_color_picker_result_box_outer_alpha_percent">10</integer>
     <integer name="activity_color_picker_result_box_animation_change_color_duration">300</integer>
+
+    <!-- Palette box -->
+    <integer name="activity_color_picker_palette_boxes_number">16</integer>
+    <integer name="activity_color_picker_palette_box_anim_elevation_duration">100</integer>
 
     <!-- Favorite box -->
     <integer name="activity_color_picker_favorite_boxes_number">16</integer>
@@ -23,14 +30,32 @@
     <integer name="activity_color_picker_favorite_box_anim_scale_on">140</integer>
     <integer name="activity_color_picker_favorite_box_anim_scale_off">100</integer>
 
-    <!-- Material -->
-    <integer name="activity_list_item_title_material_lines">1</integer>
-    <integer name="activity_list_item_description_material_lines">2</integer>
 
-    <!-- Mock -->
-    <integer name="mock_items_number">20</integer>
+    <!--                    -->
+    <!-- Activity ListItem  -->
+    <!--                    -->
 
     <!-- Other -->
+    <integer name="activity_list_smooth_scroll_delay">200</integer>
+
+
+    <!--                    -->
+    <!-- Activity ListItem  -->
+    <!--                    -->
+
+    <!-- Other -->
+    <integer name="activity_list_item_title_lines">1</integer>
+    <integer name="activity_list_item_description_lines">2</integer>
+
+
+    <!--        -->
+    <!-- Other  -->
+    <!--        -->
+
+    <!-- Mock entries -->
+    <integer name="mock_items_number">20</integer>
+
+    <!-- Shared transition -->
     <integer name="shared_transition_animation_duration">200</integer>
     <integer name="shared_transition_animation_start_delay">100</integer>
 

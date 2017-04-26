@@ -40,9 +40,9 @@ public final class CommonUtils {
      * Animates the elevation of the received view.<br>
      * Work only with API level 21 and more.<br>
      * See also: {@link android.view.ViewPropertyAnimator#z}
-     * @param view      view, whose elevation is changes.
-     * @param duration  duration of animation.
-     * @param valueTo   the value to be animated to, in px.
+     * @param view      View, whose elevation is changes.
+     * @param duration  Duration of animation.
+     * @param valueTo   The value to be animated to, in px.
      */
     public static void animateElevation(
             @NonNull final View view,
@@ -58,9 +58,9 @@ public final class CommonUtils {
 
     /**
      * Animates the scale of the received view.
-     * @param view      view, whose scale is changes.
-     * @param valueTo   the value to be animated to.
-     * @param duration  duration of animation.
+     * @param view      View, whose scale is changes.
+     * @param valueTo   The value to be animated to.
+     * @param duration  Duration of animation.
      */
     public static void animateScaleXY(
             @NonNull final View view,
@@ -77,11 +77,11 @@ public final class CommonUtils {
     /**
      * Smoothly changes background color from one to another of the received view.<br>
      * See also: {@link #adjustColorAlpha(int, float)}
-     * @param view      view, whose background color is changes.
-     * @param from      color from.
-     * @param to        color to.
-     * @param factor    factor of alpha (0.0-1.0 as 0-100%).
-     * @param duration  duration of animation.
+     * @param view      View, whose background color is changes.
+     * @param from      Color from.
+     * @param to        Color to.
+     * @param factor    Factor of alpha (0.0-1.0 as 0-100%).
+     * @param duration  Duration of animation.
      */
     public static void shiftColor(
             @NonNull final View view,
@@ -104,9 +104,9 @@ public final class CommonUtils {
 
     /**
      * Adjust alpha parameter of the received color.
-     * @param color     color, whose alpha parameter is changes.
-     * @param factor    factor of alpha (0.0-1.0 as 0-100%).
-     * @return          color with adjusted alpha parameter.
+     * @param color     Color, whose alpha parameter is changes.
+     * @param factor    Factor of alpha (0.0-1.0 as 0-100%).
+     * @return          Color with adjusted alpha parameter.
      */
     public static int adjustColorAlpha(final int color, final float factor) {
         final int a = Math.round(Color.alpha(color) * factor);
@@ -123,51 +123,51 @@ public final class CommonUtils {
 
     /**
      * Animate show circular reveal effect on given view. Work if API >= 21.
-     * @param view previously invisible view.
+     * @param view Previously invisible view.
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static void circularRevealEffectOn(@NonNull final View view) {
-        // get the center for the clipping circle
+    public static void circularRevealAnimationOn(@NonNull final View view) {
+        // Get the center for the clipping circle.
         int cx = view.getWidth() / 2;
         int cy = view.getHeight() / 2;
 
-        // get the final radius for the clipping circle
+        // Get the final radius for the clipping circle.
         float finalRadius = (float) Math.hypot(cx, cy);
 
-        // create the animator for this view (the start radius is zero)
+        // Create the animator for this view (the start radius is zero).
         Animator anim =
                 ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, finalRadius);
 
-        // make the view visible and start the animation
+        // Make the view visible and start the animation.
         view.setVisibility(View.VISIBLE);
         anim.start();
     }
 
     /**
      * Animate hide circular reveal effect on given view. Work if API >= 21.
-     * @param view previously visible view.
+     * @param view Previously visible view.
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static void circularRevealEffectOff(@NonNull final View view) {
+    public static void circularRevealAnimationOff(@NonNull final View view) {
 
         /*
             Why the condition? Fix bug with change orientation.
-            Cannot start animation with detached view.
+            [FATAL ERROR] Cannot start animation with detached view.
         */
         if (view.isAttachedToWindow()) {
 
-            // get the center for the clipping circle
+            // Get the center for the clipping circle.
             int cx = view.getWidth() / 2;
             int cy = view.getHeight() / 2;
 
-            // get the initial radius for the clipping circle
+            // Get the initial radius for the clipping circle.
             float initialRadius = (float) Math.hypot(cx, cy);
 
-            // create the animation (the final radius is zero)
+            // Create the animation (the final radius is zero).
             Animator anim =
                     ViewAnimationUtils.createCircularReveal(view, cx, cy, initialRadius, 0);
 
-            // make the view invisible when the animation is done
+            // Make the view invisible when the animation is done.
             anim.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
@@ -176,7 +176,7 @@ public final class CommonUtils {
                 }
             });
 
-            // start the animation
+            // Start the animation.
             anim.start();
         }
     }
@@ -192,8 +192,8 @@ public final class CommonUtils {
      * {@link RingtoneManager#getDefaultUri(int)}<br>
      * {@link RingtoneManager#getRingtone(Context, Uri)}
      *
-     * @param context   context.
-     * @param type      the ringtone type whose default should be returned.
+     * @param context   Context.
+     * @param type      The ringtone type whose default should be returned.
      */
     public static void playSound(@NonNull final Context context, final int type) {
         final Uri uri = RingtoneManager.getDefaultUri(type);
@@ -206,8 +206,8 @@ public final class CommonUtils {
      * Makes a vibration.<br>
      * See also: {@link Vibrator#vibrate(long)}<br>
      *
-     * @param context   context.
-     * @param duration  duration of vibration.
+     * @param context   Context.
+     * @param duration  Duration of vibration.
      */
     public static void makeVibrate(@NonNull final Context context, final int duration) {
         final Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
@@ -218,9 +218,9 @@ public final class CommonUtils {
      * Shows a toast-message.<br>
      * See also: {@link Toast#makeText(Context, CharSequence, int)}<br>
      *
-     * @param context   context.
-     * @param message   message to show.
-     * @param duration  duration of shows.
+     * @param context   Context.
+     * @param message   Message to show.
+     * @param duration  Duration of shows.
      */
     public static void showToast(
             @NonNull final Context context,
@@ -237,10 +237,10 @@ public final class CommonUtils {
      * {@link #playSound(Context, int)}<br>
      * {@link #showToast(Context, String, int)}<br>
      *
-     * @param context   context.
-     * @param type      the ringtone type whose default should be returned.
-     * @param message   message to show.
-     * @param duration  duration of shows.
+     * @param context   Context.
+     * @param type      The ringtone type whose default should be returned.
+     * @param message   Message to show.
+     * @param duration  Duration of shows.
      */
     public static void playSoundAndShowToast(
             @NonNull final Context context,
@@ -261,9 +261,9 @@ public final class CommonUtils {
      * Sets a background color to the received view.<br>
      * With border or not, depending on the version of the API
      *
-     * @param context   context.
-     * @param view      view, whose background color is set.
-     * @param color     color.
+     * @param context   Context.
+     * @param view      View, whose background color is set.
+     * @param color     Color.
      */
     public static void setBackgroundColorRectangleAPI(
             @NonNull final Context context,
@@ -290,8 +290,8 @@ public final class CommonUtils {
      * Sets a background color to the received view.<br>
      * See also: {@link android.graphics.drawable.Drawable#setColorFilter(int, PorterDuff.Mode)}
      *
-     * @param view      view, whose background color is set.
-     * @param color     color.
+     * @param view  View, whose background color is set.
+     * @param color Color.
      */
     public static void setBackgroundColor(@NonNull final View view, final int color) {
         view.getBackground().setColorFilter(color, PorterDuff.Mode.SRC);
@@ -299,9 +299,9 @@ public final class CommonUtils {
 
     /**
      * Get color from resources, depending on the api.
-     * @param context       context.
-     * @param resourceColor resource of color.
-     * @return color.
+     * @param context       Context.
+     * @param resourceColor Resource of color.
+     * @return Color, associated with given resource.
      */
     public static int getResourceColorApi(
             @NonNull final Context context,
@@ -317,7 +317,7 @@ public final class CommonUtils {
     }
 
     /**
-     * @return default color. See color resource with name "color_picker_default".
+     * @return Default color. See color resource with name "color_picker_default".
      */
     public static int getDefaultColor(@NonNull final Context context) {
         return getResourceColorApi(context, R.color.color_picker_default);

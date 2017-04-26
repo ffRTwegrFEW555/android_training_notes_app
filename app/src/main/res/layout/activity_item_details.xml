@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
-        android:elevation="@dimen/activity_item_details_ff_title_material_elevation"
+        android:elevation="@dimen/activity_item_details_ff_title_elevation"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <LinearLayout
@@ -22,8 +22,8 @@
                 android:id="@+id/activity_item_details_color"
                 android:layout_width="@dimen/activity_item_details_ff_color_radius"
                 android:layout_height="@dimen/activity_item_details_ff_color_radius"
-                android:layout_marginStart="@dimen/activity_list_item_icon_material_margin_start"
-                android:layout_marginBottom="@dimen/activity_list_item_icon_material_margin_bottom"
+                android:layout_marginStart="@dimen/activity_list_item_color_margin_start"
+                android:layout_marginBottom="@dimen/activity_list_item_color_margin_bottom"
                 android:layout_gravity="bottom"
                 android:transitionName="@string/shared_transition_name_color_box"/>
 
@@ -32,7 +32,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:layout_margin="16dp">
+                android:layout_margin="@dimen/activity_item_details_text_layout_name_margin">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/activity_item_details_text_view_title"
@@ -52,7 +52,7 @@
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="16dp">
+        android:layout_margin="@dimen/activity_item_details_text_layout_description_margin">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/activity_item_details_text_view_description"

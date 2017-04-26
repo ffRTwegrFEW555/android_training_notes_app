@@ -1,6 +1,5 @@
 package com.gamaliev.list.common;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.DatabaseErrorHandler;
@@ -13,9 +12,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.gamaliev.list.R;
+import com.gamaliev.list.colorpicker.ColorPickerDatabaseHelper;
 import com.gamaliev.list.list.ListDatabaseHelper;
-
-import java.util.Locale;
 
 import static com.gamaliev.list.common.CommonUtils.showToast;
 
@@ -25,18 +23,23 @@ import static com.gamaliev.list.common.CommonUtils.showToast;
  */
 
 public class DatabaseHelper extends SQLiteOpenHelper {
+    /* Logger */
     private static final String TAG = DatabaseHelper.class.getSimpleName();
 
-    private static final String DB_NAME     = "ya_school_app";
-    private static final int DB_VERSION_A   = 1;
-    private static final int DB_VERSION     = DB_VERSION_A;
+    /* Basic */
+    private static final String DB_NAME                     = "ya_school_app";
+    private static final int DB_VERSION_A                   = 1;
+    private static final int DB_VERSION                     = DB_VERSION_A;
+    protected static final String ORDER_ASCENDING           = " ASC";
+    protected static final String ORDER_DESCENDING          = " DESC";
+    public static final String BASE_COLUMN_ID               = BaseColumns._ID;
 
-    protected static final String BASE_COLUMN_ID            = BaseColumns._ID;
-
+    /* Favorite table */
     protected static final String FAVORITE_TABLE_NAME       = "favorite_colors";
     protected static final String FAVORITE_COLUMN_INDEX     = "tbl_index";
     protected static final String FAVORITE_COLUMN_COLOR     = "color";
 
+    /* List items table */
     protected static final String LIST_ITEMS_TABLE_NAME     = "list_items";
     public static final String LIST_ITEMS_COLUMN_TITLE      = "title";
     public static final String LIST_ITEMS_COLUMN_DESCRIPTION = "description";
@@ -45,6 +48,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String LIST_ITEMS_COLUMN_EDITED     = "edited";
     public static final String LIST_ITEMS_COLUMN_VIEWED     = "viewed";
 
+    /* Queries */
     protected static final String SQL_FAVORITE_CREATE_TABLE =
             "CREATE TABLE " + FAVORITE_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -56,14 +60,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     LIST_ITEMS_COLUMN_TITLE +               " TEXT, " +
                     LIST_ITEMS_COLUMN_DESCRIPTION +         " TEXT, " +
-                    LIST_ITEMS_COLUMN_COLOR +               " INTEGER NOT NULL, " +
-                    LIST_ITEMS_COLUMN_CREATED +             " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
-                    LIST_ITEMS_COLUMN_EDITED +              " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
-                    LIST_ITEMS_COLUMN_VIEWED +              " DATETIME DEFAULT CURRENT_TIMESTAMP); ";
+                    LIST_ITEMS_COLUMN_COLOR +               " INTEGER, " +
+                    LIST_ITEMS_COLUMN_CREATED +             " DATETIME DEFAULT (datetime('now','utc')), " +
+                    LIST_ITEMS_COLUMN_EDITED +              " DATETIME DEFAULT (datetime('now','utc')), " +
+                    LIST_ITEMS_COLUMN_VIEWED +              " DATETIME DEFAULT (datetime('now','utc'))); ";
 
     protected static final String SQL_LIST_ITEMS_DROP_TABLE =
             "DROP TABLE " + LIST_ITEMS_TABLE_NAME + ";";
 
+    /* Local */
     @NonNull protected Context context;
     @NonNull protected Resources resources;
     @NonNull protected String dbFailMessage;
@@ -118,9 +123,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Creating a new table and populating with default values, or update if database exist
-     * @param db database.
-     * @param oldVersion old version of database.
-     * @param newVersion new version of database.
+     * @param db            Database.
+     * @param oldVersion    Old version of database.
+     * @param newVersion    New version of database.
      */
     private void updateDatabase(
             @NonNull final SQLiteDatabase db,
@@ -131,6 +136,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion == 0) {
             db.beginTransaction();
             try {
+                // Create tables
                 db.execSQL(SQL_FAVORITE_CREATE_TABLE);
                 db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
 
@@ -138,7 +144,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 final int boxesNumber = resources.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
                 final int defaultColor = CommonUtils.getDefaultColor(context);
                 for (int i = 0; i < boxesNumber; i++) {
-                    insertFavoriteColor(db, i, defaultColor);
+                    ColorPickerDatabaseHelper.insertFavoriteColor(db, i, defaultColor);
                 }
 
                 // Adding mock entries in list activity.
@@ -148,34 +154,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 db.setTransactionSuccessful();
 
             } catch (SQLiteException e) {
-                Log.e(TAG, e.getMessage());
+                Log.e(TAG, e.toString());
                 showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
 
             } finally {
                 db.endTransaction();
             }
-        }
-    }
-
-    /**
-     * Insert row (color with index) in database.
-     * @param db database.
-     * @param index index of color.
-     * @param color color.
-     */
-    private void insertFavoriteColor(
-            @NonNull final SQLiteDatabase db,
-            final int index,
-            final int color) {
-
-        final ContentValues cv = new ContentValues();
-        cv.put(FAVORITE_COLUMN_INDEX, index);
-        cv.put(FAVORITE_COLUMN_COLOR, color);
-        if (db.insert(FAVORITE_TABLE_NAME, null, cv) == -1) {
-            throw new SQLiteException(String.format(
-                    Locale.ENGLISH,
-                    "[ERROR] Insert favorite color {%s: %d, %s: %d}",
-                    FAVORITE_COLUMN_INDEX, index, FAVORITE_COLUMN_COLOR, color));
         }
     }
 }

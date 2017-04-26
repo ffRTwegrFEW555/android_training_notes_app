@@ -26,12 +26,18 @@ import static com.gamaliev.list.common.CommonUtils.getResourceColorApi;
 
 public class ItemDetailsActivity extends AppCompatActivity {
 
+    /* Action */
     private static final String ACTION_ADD      = "ItemDetailsActivity.ACTION_ADD";
     private static final String ACTION_EDIT     = "ItemDetailsActivity.ACTION_EDIT";
+
+    /* Extra */
     private static final String EXTRA_ID        = "ItemDetailsActivity.EXTRA_ID";
     private static final String EXTRA_ENTRY     = "ItemDetailsActivity.EXTRA_ENTRY";
+
+    /* Request code */
     private static final int REQUEST_CODE_COLOR = 1;
 
+    /* */
     @NonNull private ListDatabaseHelper dbHelper;
     @NonNull private ActionBar actionBar;
     @NonNull private View colorView;
@@ -40,6 +46,11 @@ public class ItemDetailsActivity extends AppCompatActivity {
     @NonNull private ListEntry entry;
     @Nullable private Bundle savedInstanceState;
     private int color;
+
+
+    /*
+        Init
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,28 +90,45 @@ public class ItemDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Start choosing color on click.<br>
+     * Set color box listener.<br>
+     * Start choosing color activity on click.<br>
      * If API >= 21, then enable shared transition color box.
      */
     private void setColorBoxListener() {
         colorView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // After start another activity - refreshed entry will be use in
+                // onSaveInstanceState()-method.
                 refreshEntry();
+
+                // Start activity for result.
+                // If API >= 21, then use shared transition animation.
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    View iconView = findViewById(R.id.activity_item_details_color);
-                    iconView.setTransitionName(
+
+                    // Prepare.
+                    View colorBox = findViewById(R.id.activity_item_details_color);
+                    colorBox.setTransitionName(
                             getString(R.string.shared_transition_name_color_box));
-                    Pair<View, String> icon = new Pair<>(iconView, iconView.getTransitionName());
+                    Pair<View, String> icon = new Pair<>(colorBox, colorBox.getTransitionName());
                     ActivityOptionsCompat aoc =
                             ActivityOptionsCompat.makeSceneTransitionAnimation(
                                     ItemDetailsActivity.this, icon);
-                    Intent intent = ColorPickerActivity.getStartIntent(ItemDetailsActivity.this, color);
-                    startActivityForResult(intent, REQUEST_CODE_COLOR, aoc.toBundle());
+
+                    // Start activity for result with shared transition animation.
+                    ColorPickerActivity.startIntent(
+                            ItemDetailsActivity.this,
+                            color,
+                            REQUEST_CODE_COLOR,
+                            aoc.toBundle());
 
                 } else {
-                    Intent intent = ColorPickerActivity.getStartIntent(ItemDetailsActivity.this, color);
-                    startActivityForResult(intent, REQUEST_CODE_COLOR);
+                    // Start activity for result without shared transition animation.
+                    ColorPickerActivity.startIntent(
+                            ItemDetailsActivity.this,
+                            color,
+                            REQUEST_CODE_COLOR,
+                            null);
                 }
             }
         });
@@ -114,37 +142,53 @@ public class ItemDetailsActivity extends AppCompatActivity {
     private void processAction() {
         switch (getIntent().getAction()) {
 
+            // Start activity with Add action.
             case ACTION_ADD:
                 actionBar.setTitle(getResources().getString(R.string.activity_item_details_title_add));
+
                 if (savedInstanceState == null) {
-                    // On first start activity
+
+                    // On first start activity.
+                    // Set color box with default color, and create new entry.
                     refreshColorBox(getDefaultColor(this));
                     entry = new ListEntry();
                     refreshEntry();
                 } else {
-                    // On restart activity
+
+                    // On restart activity.
+                    // Fill activity views values with restored entry-values.
                     entry = savedInstanceState.getParcelable(EXTRA_ENTRY);
                     fillActivityViews();
                 }
                 break;
 
+            // Start activity with Edit action.
             case ACTION_EDIT:
                 actionBar.setTitle(getResources().getString(R.string.activity_item_details_title_edit));
+
                 if (savedInstanceState == null) {
+
                     // On first start activity. Get entry from database, with given id.
                     long id     = getIntent().getLongExtra(EXTRA_ID, -1);
                     dbHelper    = new ListDatabaseHelper(this);
                     entry       = dbHelper.getEntry(id);
                     dbHelper.close();
+
                     if (entry != null) {
+                        // Fill activity views values with received values.
                         fillActivityViews();
+
                     } else {
+                        // If received object is null, then fill by default values.
                         refreshColorBox(getDefaultColor(this));
                         entry = new ListEntry();
                         refreshEntry();
                     }
+
                 } else {
-                    // On restart activity
+
+                    // On restart activity.
+                    // Fill activity views values with restored entry-values.
                     entry = savedInstanceState.getParcelable(EXTRA_ENTRY);
                     fillActivityViews();
                 }
@@ -174,8 +218,8 @@ public class ItemDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Refresh color box, with given color.
-     * @param color new color.
+     * Refresh color box, with given color, and color-variable of object.
+     * @param color New color.
      */
     private void refreshColorBox(final int color) {
         this.color = color;
@@ -184,8 +228,8 @@ public class ItemDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * @param color color of drawable.
-     * @return new gradient drawable, circle, with border.
+     * @param color Color of drawable.
+     * @return New gradient drawable, circle, with border.
      */
     @NonNull
     private GradientDrawable getGradientDrawableCircleWithBorder(final int color) {
@@ -205,11 +249,14 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
     /**
      * Start intent with Add action.
-     * @param context       context.
-     * @param requestCode   this code will be returned in onActivityResult() when the activity exits.
+     * @param context       Context.
+     * @param requestCode   This code will be returned in onActivityResult() when the activity exits.
      * See {@link #ACTION_ADD}.
      */
-    public static void startAdd(@NonNull final Context context, final int requestCode) {
+    public static void startAdd(
+            @NonNull final Context context,
+            final int requestCode) {
+
         Intent starter = new Intent(context, ItemDetailsActivity.class);
         starter.setAction(ACTION_ADD);
         ((Activity) context).startActivityForResult(starter, requestCode);
@@ -217,10 +264,12 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
     /**
      * Start intent with Edit action.
-     * @param context       context.
-     * @param id            id of entry, that link with intent, see: {@link #EXTRA_ID}.
-     * @param requestCode   this code will be returned in onActivityResult() when the activity exits.
+     * @param context       Context.
+     * @param id            Id of entry, that link with intent, see: {@link #EXTRA_ID}.
+     * @param requestCode   This code will be returned in onActivityResult() when the activity exits.
      * @param bundle        Additional options for how the Activity should be started.
+     *                      If null, then start {@link android.app.Activity#startActivityForResult(Intent, int)},
+     *                      otherwise start {@link android.app.Activity#startActivityForResult(Intent, int, Bundle)},
      * See also: {@link #ACTION_EDIT}.
      */
     public static void startEdit(
@@ -240,8 +289,8 @@ public class ItemDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * @param color color.
-     * @return intent, with given color.
+     * @param color Color.
+     * @return Intent, with given color.
      * See {@link com.gamaliev.list.colorpicker.ColorPickerActivity#EXTRA_COLOR}
      */
     @NonNull
@@ -252,15 +301,19 @@ public class ItemDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * If color was selected, then refresh color box.
+     * If color was selected, then refresh activity views.
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_COLOR && resultCode == RESULT_OK) {
             if (data != null) {
+
+                // Get selected color. If null, using default color.
                 int color = data.getIntExtra(
                         ColorPickerActivity.EXTRA_COLOR,
                         getDefaultColor(ItemDetailsActivity.this));
+
+                // Update entry, then activity views.
                 entry.setColor(color);
                 fillActivityViews();
             }
@@ -289,12 +342,13 @@ public class ItemDetailsActivity extends AppCompatActivity {
         switch (item.getItemId()) {
 
             // On save action.
+            // Create database -> process action -> close database.
             case R.id.menu_list_item_details_done:
                 dbHelper = new ListDatabaseHelper(this);
 
                 switch (getIntent().getAction()) {
 
-                    // If new, then add to database, and finish activity.
+                    // If new, then add to database, and finish activity with RESULT_OK.
                     // TODO: return result with notify;
                     case ACTION_ADD:
                         refreshEntry();
@@ -303,7 +357,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                         finish();
                         break;
 
-                    // If edit, then update entry in database, and finish activity.
+                    // If edit, then update entry in database, and finish activity with RESULT_OK.
                     // TODO: return result with notify;
                     case ACTION_EDIT:
                         refreshEntry();
@@ -319,7 +373,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                 dbHelper.close();
                 break;
 
-            // On cancel action.
+            // On cancel action. Finish activity.
             case R.id.menu_list_item_details_cancel:
                 finish();
                 break;

@@ -29,12 +29,12 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
 
     @NonNull private final ColorPickerActivity context;
     @NonNull private final Resources resources;
-    @NonNull private final SwitchableHorizontalScrollView paletteHsv;
+    @NonNull private final SwitchableHorizontalScrollView paletteHsvSv;
     @NonNull private final PopupWindow editPw;
     @NonNull private final GestureDetector gestureDetector;
     @NonNull private final View view;
     @NonNull private final int[] hsvColors;
-    @NonNull private final int[] hsvColorsOverride;
+    @NonNull private final int[] hsvColorsOverridden;
     private final int index;
     private final float hsvDegree;
     private boolean editable;
@@ -54,10 +54,10 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
 
         resources   = context.getResources();
         gestureDetector = new GestureDetector(context, getSimpleOnGestureListener());
-        paletteHsv  = context.getPaletteHsv();
+        paletteHsvSv = context.getPaletteHsvSv();
         editPw      = context.getEditPw();
         hsvColors   = context.getHsvColors();
-        hsvColorsOverride = context.getHsvColorsOverride();
+        hsvColorsOverridden = context.getHsvColorsOverridden();
         hsvDegree   = context.getHsvDegree();
     }
 
@@ -74,18 +74,19 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
 
         switch (e.getAction()) {
 
-            // Animation
+            // Elevation animation on.
             case MotionEvent.ACTION_DOWN:
                 animateElevation(view,
                         resources.getInteger(R.integer.activity_color_picker_palette_box_anim_elevation_duration),
                         resources.getDimensionPixelSize(R.dimen.activity_color_picker_palette_box_anim_elevation_on));
                 return true;
 
-            // Enable scrolling and turn off "Edit mode", and animation
+            // Enable scrolling and turn off "Edit mode". Notify.
+            // Elevation animation off.
             case MotionEvent.ACTION_UP:
-                if (!paletteHsv.isEnableScrolling()) {
+                if (!paletteHsvSv.isEnableScrolling()) {
                     editable = false;
-                    paletteHsv.setEnableScrolling(true);
+                    paletteHsvSv.setEnableScrolling(true);
                     editPw.dismiss();
                     showToast(context,
                             resources.getString(R.string.activity_color_picker_toast_edit_mode_off),
@@ -97,7 +98,7 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
                         resources.getDimensionPixelSize(R.dimen.activity_color_picker_palette_box_anim_elevation_off));
                 return true;
 
-            // Animation
+            // Elevation animation off.
             case MotionEvent.ACTION_CANCEL:
                 editable = false;
                 animateElevation(view,
@@ -107,12 +108,14 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
 
             // Edit mode: Change color
             case MotionEvent.ACTION_MOVE:
+                // Check.
                 if (editable) {
-                    if (paletteHsv.isEnableScrolling()) {
+                    if (paletteHsvSv.isEnableScrolling()) {
                         editable = false;
                         break;
                     }
 
+                    // Change color.
                     final float size  = v.getWidth();
                     final float start = (index - 1) * hsvDegree;
                     final float end   = (index + 1) * hsvDegree;
@@ -124,7 +127,7 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
                     final float hue   = ((x / size) * range) + start;
                     final float value = y / size;
                     final int newColor = Color.HSVToColor(new float[] {hue, 1f, value});
-                    context.setColorOnMove(newColor, view, index);
+                    context.setColorOnMove(view, newColor, index);
 
                     // Notify when border reaches
                     if (!pauseNotify && (x0 > size || x0 < 0 || y0 > size || y0 < 0)) {
@@ -142,7 +145,7 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
                     }
 
                 } else {
-                    // Detector, when change HSV color turn on
+                    // Check condition to start change color.
                     if (longPressed) {
                         int delta = (int) resources.getDimension(R.dimen.activity_color_picker_delta_to_enable_change_color);
                         if (Math.abs(e.getX() - x1) > delta
@@ -175,33 +178,40 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
             // Disable scrolling and turn on "Edit mode"
             @Override
             public void onLongPress(MotionEvent e) {
+                // Notification
                 playSoundAndShowToast(
                         context,
                         RingtoneManager.TYPE_NOTIFICATION,
                         resources.getString(R.string.activity_color_picker_toast_edit_mode_on),
                         Toast.LENGTH_SHORT);
 
-                paletteHsv.setEnableScrolling(false);
+                // Enable scrolling
+                paletteHsvSv.setEnableScrolling(false);
+
+                //
                 longPressed = true;
                 x1 = e.getX();
                 y1 = e.getY();
+
+                // Show popup window, and set current color.
                 context.showPopupWindow();
-                context.setColorOnMove(-1, view, index);
+                context.setColorOnMove(view, -1, index);
             }
 
             // Set default color back to palette box
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 setBackgroundColorRectangleAPI(context, view, hsvColors[index]);
-                hsvColorsOverride[index] = -1;
+                // Update overridden array.
+                hsvColorsOverridden[index] = -1;
                 return true;
             }
 
             // Set palette color to result box
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
-                int result = hsvColorsOverride[index] != -1
-                        ? hsvColorsOverride[index] : hsvColors[index];
+                int result = hsvColorsOverridden[index] != -1
+                        ? hsvColorsOverridden[index] : hsvColors[index];
                 context.setResultBoxColor(result);
                 return true;
             }

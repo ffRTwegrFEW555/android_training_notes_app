@@ -1,8 +1,19 @@
 <resources>
 
-    <string name="app_name">List</string>
-    <string name="activity_list_name">List</string>
-    <string name="activity_list_details_name">Details</string>
+
+    <!--                -->
+    <!-- Application    -->
+    <!--                -->
+
+    <!-- Activity -->
+    <string name="app_name">Notes</string>
+
+
+    <!--                        -->
+    <!-- Activity ColorPicker   -->
+    <!--                        -->
+
+    <!-- Activity -->
     <string name="activity_color_picker_name">Color Picker</string>
 
     <!-- Toast -->
@@ -10,10 +21,7 @@
     <string name="activity_color_picker_toast_edit_mode_off">Edit mode off</string>
     <string name="activity_color_picker_toast_favorite_color_added">Favorite color added</string>
 
-    <!-- SQL -->
-    <string name="sql_toast_fail">Database unavailable</string>
-
-    <!-- Color picker -->
+    <!-- Icons -->
     <string name="activity_color_picker_ic_helper_swipe">Swipe to left or right</string>
     <string name="activity_color_picker_ic_helper_touch">Single or double click</string>
     <string name="activity_color_picker_ic_helper_move">Swipe in edit mode</string>
@@ -21,12 +29,50 @@
     <string name="activity_color_picker_ic_done_description">Done</string>
     <string name="activity_color_picker_ic_cancel_description">Cancel</string>
 
-    <!-- Menu -->
+
+    <!--                        -->
+    <!-- Activity ItemDetails   -->
+    <!--                        -->
+
+    <!-- Activity -->
+    <string name="activity_list_details_name">Details</string>
+
+    <!-- Other -->
+    <string name="activity_item_details_title_add">Add entry</string>
+    <string name="activity_item_details_title_edit">Edit entry</string>
+    <string name="activity_item_details_text_view_title">Title</string>
+    <string name="activity_item_details_text_view_description">Description</string>
+
+
+    <!--                -->
+    <!-- Activity List  -->
+    <!--                -->
+
+    <!-- Activity -->
+    <string name="activity_list_name">Notes</string>
+
+    <!-- Other -->
+    <string name="activity_list_notification_found_text">Found:</string>
+
+
+    <!--            -->
+    <!-- Menu List  -->
+    <!--            -->
+
+    <!-- Other -->
     <string name="menu_list_search_title">Search</string>
     <string name="menu_list_action_delete_all_entries_title">Delete all</string>
     <string name="menu_list_action_fill_mock_title">Fill example</string>
     <string name="menu_list_item_details_action_done">Save</string>
     <string name="menu_list_item_details_action_cancel">Cancel</string>
+
+
+    <!--        -->
+    <!-- Other  -->
+    <!--        -->
+
+    <!-- SQL -->
+    <string name="sql_toast_fail">Database unavailable</string>
 
     <!-- Mock entries -->
     <string name="mock_title">The quick brown fox jumps over the lazy dog.</string>
@@ -37,13 +83,7 @@
         The quick brown fox jumps over the lazy dog.
     </string>
 
-    <!-- Activity item details -->
-    <string name="activity_item_details_title_add">Add entry</string>
-    <string name="activity_item_details_title_edit">Edit entry</string>
-    <string name="activity_item_details_text_view_title">Title</string>
-    <string name="activity_item_details_text_view_description">Description</string>
-
-    <!-- Other -->
+    <!-- Transition -->
     <string name="shared_transition_name_color_box">color_box</string>
 
 </resources>

@@ -14,14 +14,14 @@ public class SwitchableHorizontalScrollView extends HorizontalScrollView {
     private boolean enableScrolling = true;
 
     /**
-     * @return on/off scroll status
+     * @return On/Off scroll status
      */
     public boolean isEnableScrolling() {
         return enableScrolling;
     }
 
     /**
-     * @param enableScrolling true to enable scrolling, false to disable.
+     * @param enableScrolling True to enable scrolling, false to disable.
      */
     public void setEnableScrolling(final boolean enableScrolling) {
         this.enableScrolling = enableScrolling;

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Theme -->
     <color name="colorPrimary">#0277BD</color>
     <color name="colorPrimaryDark">#0277BD</color>
     <color name="colorAccent">#E0E0E0</color>
 
+    <!-- Other -->
     <color name="color_picker_default">#bdbdbd</color>
     <color name="color_black">#000000</color>
     <color name="color_white">#ffffff</color>
