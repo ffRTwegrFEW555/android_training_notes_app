@@ -7,13 +7,13 @@ import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.gamaliev.list.R;
+import com.gamaliev.list.colorpicker.ColorPickerDatabaseHelper;
 import com.gamaliev.list.common.DatabaseHelper;
 
 import java.util.Arrays;
@@ -40,6 +40,29 @@ public final class ListDatabaseHelper extends DatabaseHelper {
     public static final String LIST_ORDER_EDITED    = LIST_ITEMS_COLUMN_EDITED;
     public static final String LIST_ORDER_VIEWED    = LIST_ITEMS_COLUMN_EDITED;
     public static final String LIST_ORDER_DEFAULT   = LIST_ORDER_ADDED;
+
+    /* Mock data */
+    public static final String[] LIST_MOCK_NAMES = {
+            "Anastasia Aleksandrova", "Boris Babushkin", "Viktor Vasilyev", "Gennady Georgiyev",
+            "Dmitry Dudinsky", "Yelena Yeremeyeva", "Pyotr Vorobyov", "Tatyana Terentyeva",
+            "Svetlana Stasova", "Maria Timmerman"};
+
+    public static final String[] LIST_MOCK_DESCRIPTION = {
+            "Passion", "Smile", "Love", "Eternity", "Fantastic", "Destiny", "Freedom", "Liberty",
+            "Tranquillity", "Peace", "Sunshine", "Gorgeous", "Hope", "Grace", "Rainbow",
+            "Sunflower", "serendipity", "bliss", "cute", "hilarious", "aqua", "sentiment",
+            "bubble", "banana", "paradox", "Blossom", "Cherish", "Enthusiasm", "lullaby",
+            "renaissance", "cosy", "butterfly", "galaxy", "moment", "cosmopolitan", "lollipop"
+    };
+
+    public static final String[] LIST_MOCK_DATE = {
+            "2017-04-25T21:25:35+05:00",
+            "2017-04-24T21:25:35+05:00",
+            "2017-04-23T21:25:35+05:00",
+            "2017-04-22T21:25:35+05:00",
+            "2017-04-21T21:25:35+05:00",
+            "2017-04-20T21:25:35+05:00",
+    };
 
 
     /*
@@ -293,6 +316,50 @@ public final class ListDatabaseHelper extends DatabaseHelper {
     }
 
     /**
+     * Delete all rows from list table. See: {@link com.gamaliev.list.list.ListActivity}
+     * @return true if ok, otherwise false.
+     */
+    boolean removeAllEntries() {
+        SQLiteDatabase db = null;
+
+        // TODO: try-catch-with-resources and db.endTransaction?!
+        try {
+            // Open database.
+            db = getWritableDatabase();
+
+            // Begin transaction.
+            db.beginTransaction();
+
+            // Exec SQL queries.
+            db.execSQL(SQL_LIST_ITEMS_DROP_TABLE);
+            db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
+
+            // Success transaction.
+            db.setTransactionSuccessful();
+
+            // If ok
+            return true;
+
+        } catch (SQLiteException e) {
+            Log.e(TAG, e.toString());
+            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+            return false;
+
+        } finally {
+            if (db != null) {
+                // End transaction and close database.
+                db.endTransaction();
+                db.close();
+            }
+        }
+    }
+
+
+    /*
+        ====    Start Mock section.    ====
+     */
+
+    /**
      * Add mock entries in list activity. See: {@link com.gamaliev.list.list.ListActivity}
      * @return True if ok, otherwise false.
      */
@@ -348,13 +415,12 @@ public final class ListDatabaseHelper extends DatabaseHelper {
         for (int i = 0; i < itemNumbers; i++) {
             // Content values.
             final ContentValues cv = new ContentValues();
-            cv.put(LIST_ITEMS_COLUMN_TITLE,         resources.getString(R.string.mock_title));
-            cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   resources.getString(R.string.mock_body));
-            cv.put(LIST_ITEMS_COLUMN_COLOR,         Color.argb(
-                            255,
-                            random.nextInt(256),
-                            random.nextInt(256),
-                            random.nextInt(256)));
+            cv.put(LIST_ITEMS_COLUMN_TITLE,         getRandomMockName(random));
+            cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   getRandomMockDescription(random));
+            cv.put(LIST_ITEMS_COLUMN_COLOR,         getRandomFavoriteColor(random));
+            cv.put(LIST_ITEMS_COLUMN_CREATED,       getRandomMockDate(random));
+            cv.put(LIST_ITEMS_COLUMN_EDITED,        getRandomMockDate(random));
+            cv.put(LIST_ITEMS_COLUMN_VIEWED,        getRandomMockDate(random));
 
             // Insert query.
             if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
@@ -363,42 +429,29 @@ public final class ListDatabaseHelper extends DatabaseHelper {
         }
     }
 
-    /**
-     * Delete all rows from list table. See: {@link com.gamaliev.list.list.ListActivity}
-     * @return true if ok, otherwise false.
-     */
-    boolean removeAllEntries() {
-        SQLiteDatabase db = null;
-
-        // TODO: try-catch-with-resources and db.endTransaction?!
-        try {
-            // Open database.
-            db = getWritableDatabase();
-
-            // Begin transaction.
-            db.beginTransaction();
-
-            // Exec SQL queries.
-            db.execSQL(SQL_LIST_ITEMS_DROP_TABLE);
-            db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
-
-            // Success transaction.
-            db.setTransactionSuccessful();
-
-            // If ok
-            return true;
-
-        } catch (SQLiteException e) {
-            Log.e(TAG, e.toString());
-            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
-            return false;
-
-        } finally {
-            if (db != null) {
-                // End transaction and close database.
-                db.endTransaction();
-                db.close();
-            }
-        }
+    private static String getRandomMockName(@NonNull final Random random) {
+        return LIST_MOCK_NAMES[random.nextInt(LIST_MOCK_NAMES.length)];
     }
+
+    private static String getRandomMockDescription(@NonNull final Random random) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 8; i++) {
+            sb.append(LIST_MOCK_DESCRIPTION[random.nextInt(LIST_MOCK_DESCRIPTION.length)]);
+            sb.append(" ");
+        }
+        return sb.toString();
+    }
+
+    private static String getRandomFavoriteColor(@NonNull final Random random) {
+        int[] colors = ColorPickerDatabaseHelper.FAVORITE_COLORS_DEFAULT;
+        return String.valueOf(colors[random.nextInt(colors.length)]);
+    }
+
+    private static String getRandomMockDate(@NonNull final Random random) {
+        return LIST_MOCK_DATE[random.nextInt(LIST_MOCK_DATE.length)];
+    }
+
+    /*
+        ====    End Mock section.    ====
+     */
 }

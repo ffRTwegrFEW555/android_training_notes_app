@@ -74,15 +74,6 @@
     <!-- SQL -->
     <string name="sql_toast_fail">Database unavailable</string>
 
-    <!-- Mock entries -->
-    <string name="mock_title">The quick brown fox jumps over the lazy dog.</string>
-    <string name="mock_body">
-        The quick brown fox jumps over the lazy dog.
-        The quick brown fox jumps over the lazy dog.
-        The quick brown fox jumps over the lazy dog.
-        The quick brown fox jumps over the lazy dog.
-    </string>
-
     <!-- Transition -->
     <string name="shared_transition_name_color_box">color_box</string>
 

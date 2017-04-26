@@ -23,7 +23,16 @@ import static com.gamaliev.list.common.CommonUtils.showToast;
 
 public final class ColorPickerDatabaseHelper extends DatabaseHelper {
 
+    /* Logger */
     private static final String TAG = ColorPickerDatabaseHelper.class.getSimpleName();
+
+    /* */
+    public static final int[] FAVORITE_COLORS_DEFAULT = {
+            -53248,     -28672,     -4096,      -5177600,
+            -11469056,  -16711920,  -16711824,  -16711728,
+            -16723713,  -16748289,  -16772865,  -11534081,
+            -5242625,   -65296,     -65392,     -65488
+    };
 
 
     /*

@@ -142,9 +142,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                 // Adding default favorite colors;
                 final int boxesNumber = resources.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
-                final int defaultColor = CommonUtils.getDefaultColor(context);
                 for (int i = 0; i < boxesNumber; i++) {
-                    ColorPickerDatabaseHelper.insertFavoriteColor(db, i, defaultColor);
+                    ColorPickerDatabaseHelper.insertFavoriteColor(
+                            db,
+                            i,
+                            ColorPickerDatabaseHelper.FAVORITE_COLORS_DEFAULT[i]);
                 }
 
                 // Adding mock entries in list activity.

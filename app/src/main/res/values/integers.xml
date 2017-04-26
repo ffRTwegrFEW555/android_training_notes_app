@@ -31,9 +31,9 @@
     <integer name="activity_color_picker_favorite_box_anim_scale_off">100</integer>
 
 
-    <!--                    -->
-    <!-- Activity ListItem  -->
-    <!--                    -->
+    <!--                -->
+    <!-- Activity List  -->
+    <!--                -->
 
     <!-- Other -->
     <integer name="activity_list_smooth_scroll_delay">200</integer>
