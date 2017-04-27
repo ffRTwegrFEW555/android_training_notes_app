@@ -30,8 +30,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME                     = "ya_school_app";
     private static final int DB_VERSION_A                   = 1;
     private static final int DB_VERSION                     = DB_VERSION_A;
-    protected static final String ORDER_ASCENDING           = " ASC";
-    protected static final String ORDER_DESCENDING          = " DESC";
+    public static final String ORDER_ASCENDING              = " ASC";
+    public static final String ORDER_DESCENDING             = " DESC";
     public static final String BASE_COLUMN_ID               = BaseColumns._ID;
 
     /* Favorite table */

@@ -13,8 +13,8 @@ import android.widget.Toast;
 
 import com.gamaliev.list.R;
 import com.gamaliev.list.common.DatabaseHelper;
+import com.gamaliev.list.common.DatabaseQueryBuilder;
 
-import java.util.Arrays;
 import java.util.Locale;
 
 import static com.gamaliev.list.common.CommonUtils.getDefaultColor;
@@ -29,14 +29,6 @@ public final class ListDatabaseHelper extends DatabaseHelper {
 
     /* Logger */
     private static final String TAG = ListDatabaseHelper.class.getSimpleName();
-
-    /* SQL */
-    public static final String LIST_ORDER_ADDED     = BASE_COLUMN_ID;
-    public static final String LIST_ORDER_TITLE     = LIST_ITEMS_COLUMN_TITLE;
-    public static final String LIST_ORDER_CREATED   = LIST_ITEMS_COLUMN_CREATED;
-    public static final String LIST_ORDER_EDITED    = LIST_ITEMS_COLUMN_EDITED;
-    public static final String LIST_ORDER_VIEWED    = LIST_ITEMS_COLUMN_EDITED;
-    public static final String LIST_ORDER_DEFAULT   = LIST_ORDER_ADDED;
 
 
     /*
@@ -113,7 +105,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
         try (SQLiteDatabase db = getWritableDatabase()) {
 
             // Variables
-            final int id                = entry.getId();
+            final long id               = entry.getId();
             final String title          = entry.getTitle();
             final String description    = entry.getDescription();
             final int color             = entry.getColor() == null
@@ -132,7 +124,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
                     LIST_ITEMS_TABLE_NAME,
                     cv,
                     BASE_COLUMN_ID + " = ?",
-                    new String[]{Integer.toString(id)});
+                    new String[]{Long.toString(id)});
 
             if (updateResult == 0) {
                 throw new SQLiteException("[ERROR] The number of rows affected is 0");
@@ -156,41 +148,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      * @return Result cursor.
      */
     @Nullable
-    Cursor getEntries(
-            @Nullable final String searchText,
-            @Nullable final String[] searchColumns,
-            @Nullable String order,
-            final boolean asc) {
-
-        // Local variables
-        String[] searchTextConvert = null;
-        String searchColumnsConvert = null;
-        final String ascDesc = asc ? ORDER_ASCENDING : ORDER_DESCENDING;
-
-        // Order formation
-        if (order == null) {
-            order = LIST_ORDER_DEFAULT + ascDesc;
-        } else {
-            order += ascDesc;
-        }
-
-        if (searchText != null && searchColumns != null) {
-
-            // Convert searchColumns array to String selection query.
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < searchColumns.length; i++) {
-                if (i != 0) {
-                    sb.append(" OR ");
-                }
-                sb.append(searchColumns[i]);
-                sb.append(" LIKE ?");
-            }
-            searchColumnsConvert = sb.toString();
-
-            // Convert searchText string to args array.
-            searchTextConvert = new String[searchColumns.length];
-            Arrays.fill(searchTextConvert, "%" + searchText + "%");
-        }
+    Cursor getEntries(@NonNull DatabaseQueryBuilder queryBuilder) {
 
         try {
             // Open database.
@@ -200,11 +158,11 @@ public final class ListDatabaseHelper extends DatabaseHelper {
             return db.query(
                     LIST_ITEMS_TABLE_NAME,
                     null,
-                    searchColumns == null ? null : searchColumnsConvert,
-                    searchText == null ? null : searchTextConvert,
+                    queryBuilder.getSelectionResult(),
+                    queryBuilder.getSelectionArgs(),
                     null,
                     null,
-                    order);
+                    queryBuilder.getSortOrder());
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
@@ -244,7 +202,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
                 final int indexDescription  = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION);
                 final int indexColor        = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_COLOR);
 
-                entry.setId(            cursor.getInt(      indexId));
+                entry.setId(            cursor.getLong(     indexId));
                 entry.setTitle(         cursor.getString(   indexTitle));
                 entry.setDescription(   cursor.getString(   indexDescription));
                 entry.setColor(         cursor.getInt(      indexColor));
@@ -265,7 +223,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      * @param id    Id of entry to be deleted.
      * @return      True if success, otherwise false.
      */
-    boolean deleteEntry(@NonNull final Integer id) {
+    boolean deleteEntry(@NonNull final Long id) {
         try (SQLiteDatabase db = getWritableDatabase()) {
 
             // Delete query.

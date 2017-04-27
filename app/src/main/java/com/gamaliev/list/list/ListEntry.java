@@ -14,7 +14,7 @@ import java.util.Date;
 
 class ListEntry implements Parcelable {
 
-    @Nullable private Integer   id;
+    @Nullable private Long      id;
     @Nullable private String    title;
     @Nullable private String    description;
     @Nullable private Integer   color;
@@ -41,7 +41,7 @@ class ListEntry implements Parcelable {
     protected ListEntry(Parcel in) {
 
         int whatToRead = in.readInt();
-        if ((whatToRead & RW_ID) > 0)           id          = in.readInt();
+        if ((whatToRead & RW_ID) > 0)           id          = in.readLong();
         if ((whatToRead & RW_TITLE) > 0)        title       = in.readString();
         if ((whatToRead & RW_DESCRIPTION) > 0)  description = in.readString();
         if ((whatToRead & RW_COLOR) > 0)        color       = in.readInt();
@@ -65,7 +65,7 @@ class ListEntry implements Parcelable {
 
         // Write computed to parcel.
         dest.writeInt(whatToWrite);
-        if (id != null)             dest.writeInt(id);
+        if (id != null)             dest.writeLong(id);
         if (title != null)          dest.writeString(title);
         if (description != null)    dest.writeString(description);
         if (color != null)          dest.writeInt(color);
@@ -96,7 +96,7 @@ class ListEntry implements Parcelable {
         Setters
      */
 
-    public void setId(@NonNull Integer id) {
+    public void setId(@NonNull Long id) {
         this.id = id;
     }
 
@@ -130,7 +130,7 @@ class ListEntry implements Parcelable {
      */
 
     @Nullable
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 

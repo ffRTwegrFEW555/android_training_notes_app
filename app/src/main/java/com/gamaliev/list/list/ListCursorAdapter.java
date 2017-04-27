@@ -46,7 +46,7 @@ final class ListCursorAdapter extends CursorAdapter {
         final int indexDescription  = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION);
         final int indexColor        = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_COLOR);
 
-        final int id                = cursor.getInt(    indexId);
+        final long id               = cursor.getLong(   indexId);
         final String title          = cursor.getString( indexTitle);
         final String description    = cursor.getString( indexDescription);
         final int color             = cursor.getInt(    indexColor);
@@ -62,7 +62,7 @@ final class ListCursorAdapter extends CursorAdapter {
 
     // View holder, associated with activity_list_item.xml
     private static class ViewHolder {
-        private Integer         id;
+        private Long            id;
         private final TextView  titleView;
         private final TextView  descriptionView;
         private final View      iconView;

@@ -20,6 +20,7 @@ import android.widget.ListView;
 
 import com.gamaliev.list.R;
 import com.gamaliev.list.common.DatabaseHelper;
+import com.gamaliev.list.common.DatabaseQueryBuilder;
 
 import java.util.Locale;
 import java.util.Timer;
@@ -27,6 +28,9 @@ import java.util.TimerTask;
 
 import static com.gamaliev.list.common.CommonUtils.circularRevealAnimationOff;
 import static com.gamaliev.list.common.CommonUtils.circularRevealAnimationOn;
+import static com.gamaliev.list.common.DatabaseHelper.BASE_COLUMN_ID;
+import static com.gamaliev.list.common.DatabaseHelper.ORDER_ASCENDING;
+import static com.gamaliev.list.common.DatabaseQueryBuilder.OPERATOR_LIKE;
 
 public class ListActivity extends AppCompatActivity {
 
@@ -42,13 +46,9 @@ public class ListActivity extends AppCompatActivity {
             DatabaseHelper.LIST_ITEMS_COLUMN_TITLE,
             DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION};
 
-    @NonNull private String selectionOrder = ListDatabaseHelper.LIST_ORDER_DEFAULT;
     @NonNull private ListDatabaseHelper dbHelper;
     @NonNull private ListCursorAdapter adapter;
-    @NonNull private FilterQueryProvider fqp;
-
-    /** Ascending - true, Descending - false. */
-    private boolean sortingType = true;
+    @NonNull private FilterQueryProvider queryProvider;
 
     /* */
     @NonNull private ListView listView;
@@ -68,7 +68,7 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void init() {
-        fqp = getFilterQueryProvider();
+        queryProvider = getFilterQueryProvider();
         foundView = (Button) findViewById(R.id.activity_list_button_found);
 
         setFabOnClickListener();
@@ -152,7 +152,7 @@ public class ListActivity extends AppCompatActivity {
         if (dbHelper == null) {
             dbHelper = new ListDatabaseHelper(this);
         }
-        Cursor cursor   = dbHelper.getEntries(null, null, null, true);
+        Cursor cursor   = dbHelper.getEntries(new DatabaseQueryBuilder(this));
         adapter         = new ListCursorAdapter(this, cursor, 0);
         listView        = (ListView) findViewById(R.id.activity_list_listview);
         listView.setAdapter(adapter);
@@ -181,7 +181,7 @@ public class ListActivity extends AppCompatActivity {
         });
 
         // SearchView filter query provider.
-        adapter.setFilterQueryProvider(fqp);
+        adapter.setFilterQueryProvider(queryProvider);
     }
 
 
@@ -334,20 +334,37 @@ public class ListActivity extends AppCompatActivity {
         });
     }
 
+
     /**
-     * Всё сложно.
+     * @return Query provider, with logic: Create query builder, setting user values, make query.
      */
-    // TODO: Handle
     @NonNull
     private FilterQueryProvider getFilterQueryProvider() {
         return new FilterQueryProvider() {
             @Override
             public Cursor runQuery(CharSequence constraint) {
-                return dbHelper.getEntries(
-                        constraint.toString(),
-                        SEARCH_COLUMNS,
-                        selectionOrder,
-                        sortingType);
+
+                // Create and fill query builder.
+                DatabaseQueryBuilder queryBuilder = new DatabaseQueryBuilder(ListActivity.this);
+
+                // Add text for search in 'Name' and 'Description' columns.
+                queryBuilder
+                        .addOr(
+                                SEARCH_COLUMNS[0],
+                                OPERATOR_LIKE,
+                                new String[] {constraint.toString()})
+
+                        .addOr(
+                                SEARCH_COLUMNS[1],
+                                OPERATOR_LIKE,
+                                new String[] {constraint.toString()});
+
+                // Set sort order.
+                queryBuilder.setOrder(BASE_COLUMN_ID);
+                queryBuilder.setAscDesc(ORDER_ASCENDING);
+
+                // Go-go-go.
+                return dbHelper.getEntries(queryBuilder);
             }
         };
     }
