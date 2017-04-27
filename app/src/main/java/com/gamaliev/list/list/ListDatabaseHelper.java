@@ -2,7 +2,6 @@ package com.gamaliev.list.list;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,12 +12,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.gamaliev.list.R;
-import com.gamaliev.list.colorpicker.ColorPickerDatabaseHelper;
 import com.gamaliev.list.common.DatabaseHelper;
 
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.Random;
 
 import static com.gamaliev.list.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.list.common.CommonUtils.showToast;
@@ -40,29 +37,6 @@ public final class ListDatabaseHelper extends DatabaseHelper {
     public static final String LIST_ORDER_EDITED    = LIST_ITEMS_COLUMN_EDITED;
     public static final String LIST_ORDER_VIEWED    = LIST_ITEMS_COLUMN_EDITED;
     public static final String LIST_ORDER_DEFAULT   = LIST_ORDER_ADDED;
-
-    /* Mock data */
-    public static final String[] LIST_MOCK_NAMES = {
-            "Anastasia Aleksandrova", "Boris Babushkin", "Viktor Vasilyev", "Gennady Georgiyev",
-            "Dmitry Dudinsky", "Yelena Yeremeyeva", "Pyotr Vorobyov", "Tatyana Terentyeva",
-            "Svetlana Stasova", "Maria Timmerman"};
-
-    public static final String[] LIST_MOCK_DESCRIPTION = {
-            "Passion", "Smile", "Love", "Eternity", "Fantastic", "Destiny", "Freedom", "Liberty",
-            "Tranquillity", "Peace", "Sunshine", "Gorgeous", "Hope", "Grace", "Rainbow",
-            "Sunflower", "serendipity", "bliss", "cute", "hilarious", "aqua", "sentiment",
-            "bubble", "banana", "paradox", "Blossom", "Cherish", "Enthusiasm", "lullaby",
-            "renaissance", "cosy", "butterfly", "galaxy", "moment", "cosmopolitan", "lollipop"
-    };
-
-    public static final String[] LIST_MOCK_DATE = {
-            "2017-04-25T21:25:35+05:00",
-            "2017-04-24T21:25:35+05:00",
-            "2017-04-23T21:25:35+05:00",
-            "2017-04-22T21:25:35+05:00",
-            "2017-04-21T21:25:35+05:00",
-            "2017-04-20T21:25:35+05:00",
-    };
 
 
     /*
@@ -354,11 +328,6 @@ public final class ListDatabaseHelper extends DatabaseHelper {
         }
     }
 
-
-    /*
-        ====    Start Mock section.    ====
-     */
-
     /**
      * Add mock entries in list activity. See: {@link com.gamaliev.list.list.ListActivity}
      * @return True if ok, otherwise false.
@@ -375,7 +344,9 @@ public final class ListDatabaseHelper extends DatabaseHelper {
             db.beginTransaction();
 
             // Helper method for add entries.
-            addMockEntries(resources, db);
+            ListDatabaseMockHelper.addMockEntries(
+                    resources.getInteger(R.integer.mock_items_number),
+                    db);
 
             // Success transaction.
             db.setTransactionSuccessful();
@@ -396,62 +367,4 @@ public final class ListDatabaseHelper extends DatabaseHelper {
             }
         }
     }
-
-    /**
-     * Add mock entries in list activity, with given params.<br>
-     * See: {@link com.gamaliev.list.list.ListActivity}
-     *
-     * @param resources resources.
-     * @param db        database.
-     * @throws SQLiteException if insert error.
-     */
-    public static void addMockEntries(
-            @NonNull final Resources resources,
-            @NonNull final SQLiteDatabase db) throws SQLiteException {
-
-        final Random random = new Random();
-        final int itemNumbers = resources.getInteger(R.integer.mock_items_number);
-
-        for (int i = 0; i < itemNumbers; i++) {
-            // Content values.
-            final ContentValues cv = new ContentValues();
-            cv.put(LIST_ITEMS_COLUMN_TITLE,         getRandomMockName(random));
-            cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   getRandomMockDescription(random));
-            cv.put(LIST_ITEMS_COLUMN_COLOR,         getRandomFavoriteColor(random));
-            cv.put(LIST_ITEMS_COLUMN_CREATED,       getRandomMockDate(random));
-            cv.put(LIST_ITEMS_COLUMN_EDITED,        getRandomMockDate(random));
-            cv.put(LIST_ITEMS_COLUMN_VIEWED,        getRandomMockDate(random));
-
-            // Insert query.
-            if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
-                throw new SQLiteException("[ERROR] Add mock entries.");
-            }
-        }
-    }
-
-    private static String getRandomMockName(@NonNull final Random random) {
-        return LIST_MOCK_NAMES[random.nextInt(LIST_MOCK_NAMES.length)];
-    }
-
-    private static String getRandomMockDescription(@NonNull final Random random) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 8; i++) {
-            sb.append(LIST_MOCK_DESCRIPTION[random.nextInt(LIST_MOCK_DESCRIPTION.length)]);
-            sb.append(" ");
-        }
-        return sb.toString();
-    }
-
-    private static String getRandomFavoriteColor(@NonNull final Random random) {
-        int[] colors = ColorPickerDatabaseHelper.FAVORITE_COLORS_DEFAULT;
-        return String.valueOf(colors[random.nextInt(colors.length)]);
-    }
-
-    private static String getRandomMockDate(@NonNull final Random random) {
-        return LIST_MOCK_DATE[random.nextInt(LIST_MOCK_DATE.length)];
-    }
-
-    /*
-        ====    End Mock section.    ====
-     */
 }

@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import com.gamaliev.list.R;
 import com.gamaliev.list.colorpicker.ColorPickerDatabaseHelper;
-import com.gamaliev.list.list.ListDatabaseHelper;
+import com.gamaliev.list.list.ListDatabaseMockHelper;
 
 import static com.gamaliev.list.common.CommonUtils.showToast;
 
@@ -140,17 +140,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 db.execSQL(SQL_FAVORITE_CREATE_TABLE);
                 db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
 
-                // Adding default favorite colors;
-                final int boxesNumber = resources.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
-                for (int i = 0; i < boxesNumber; i++) {
-                    ColorPickerDatabaseHelper.insertFavoriteColor(
-                            db,
-                            i,
-                            ColorPickerDatabaseHelper.FAVORITE_COLORS_DEFAULT[i]);
-                }
-
-                // Adding mock entries in list activity.
-                ListDatabaseHelper.addMockEntries(resources, db);
+                // Populating.
+                populateDatabase(db);
 
                 // If ok
                 db.setTransactionSuccessful();
@@ -163,5 +154,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 db.endTransaction();
             }
         }
+    }
+
+    /**
+     * Populating database with default and mock values.
+     * @param db Opened database.
+     */
+    private void populateDatabase(@NonNull final SQLiteDatabase db) {
+        // Adding default favorite colors;
+        final int boxesNumber = resources.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
+        for (int i = 0; i < boxesNumber; i++) {
+            ColorPickerDatabaseHelper.insertFavoriteColor(
+                    db,
+                    i,
+                    ColorPickerDatabaseHelper.FAVORITE_COLORS_DEFAULT[i]);
+        }
+
+        // Adding mock entries in list activity.
+        ListDatabaseMockHelper.addMockEntries(
+                resources.getInteger(R.integer.mock_items_number),
+                db);
     }
 }
