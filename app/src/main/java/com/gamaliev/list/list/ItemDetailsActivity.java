@@ -12,6 +12,7 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.transition.TransitionInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -61,6 +62,8 @@ public class ItemDetailsActivity extends AppCompatActivity {
     }
 
     private void init(@Nullable final Bundle savedInstanceState) {
+        initToolbar();
+
         actionBar       = getSupportActionBar();
         colorView       = findViewById(R.id.activity_item_details_color);
         titleEditText   = (EditText) findViewById(R.id.activity_item_details_text_view_title);
@@ -72,10 +75,14 @@ public class ItemDetailsActivity extends AppCompatActivity {
         processAction();
     }
 
-
-    /*
-        Methods
+    /**
+     * Init toolbar.
      */
+    private void initToolbar() {
+        // Set toolbar.
+        Toolbar toolbar = (Toolbar) findViewById(R.id.activity_item_details_toolbar);
+        setSupportActionBar(toolbar);
+    }
 
     /**
      * Enable shared transition. Work if API >= 21.
@@ -203,6 +210,11 @@ public class ItemDetailsActivity extends AppCompatActivity {
                 break;
         }
     }
+
+
+    /*
+        Methods
+     */
 
     /**
      * Fill all activity views with values from the entry-object.

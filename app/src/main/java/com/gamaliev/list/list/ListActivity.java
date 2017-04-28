@@ -7,10 +7,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -97,7 +102,7 @@ public class ListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
+        setContentView(R.layout.activity_list_drawer_layout);
         init();
     }
 
@@ -106,9 +111,54 @@ public class ListActivity extends AppCompatActivity {
         foundView       = (Button) findViewById(R.id.activity_list_button_found);
         settings        = new HashMap<>();
 
+        initToolbarAndNavigationDrawer();
         initSharedPreferences();
         setFabOnClickListener();
         refreshDbConnectAndView();
+    }
+
+    /**
+     * Init toolbar and navigation drawer.
+     */
+    private void initToolbarAndNavigationDrawer() {
+        // Set toolbar.
+        Toolbar toolbar = (Toolbar) findViewById(R.id.activity_list_toolbar);
+        setSupportActionBar(toolbar);
+
+        // Init toggle.
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this,
+                drawer,
+                toolbar,
+                R.string.activity_list_nav_drawer_open,
+                R.string.activity_list_nav_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        // Set navigation view listener
+        NavigationView navigationView = (NavigationView) findViewById(R.id.activity_list_nav_view);
+        navigationView.setNavigationItemSelectedListener(null);
+
+        /*
+                switch (item.getItemId()) {
+
+            // Fill example entries
+            case R.id.menu_list_action_fill_mock:
+                dbHelper.addMockEntries();
+                refreshDbConnectAndView();
+                break;
+
+            // Remove all entries
+            case R.id.menu_list_action_delete_entry:
+                dbHelper.removeAllEntries();
+                refreshDbConnectAndView();
+                break;
+
+            default:
+                break;
+        }
+         */
     }
 
     /**
@@ -238,25 +288,23 @@ public class ListActivity extends AppCompatActivity {
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-
-            // Fill example entries
-            case R.id.menu_list_action_fill_mock:
-                dbHelper.addMockEntries();
-                refreshDbConnectAndView();
-                break;
-
-            // Remove all entries
-            case R.id.menu_list_action_delete_entry:
-                dbHelper.removeAllEntries();
-                refreshDbConnectAndView();
-                break;
-
-            default:
-                break;
-        }
-
         return super.onOptionsItemSelected(item);
+    }
+
+
+    /*
+        On back pressed.
+     */
+
+    @Override
+    public void onBackPressed() {
+        // Check navigation drawer. If open, then close.
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
 

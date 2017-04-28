@@ -51,6 +51,16 @@
     <!-- Activity -->
     <string name="activity_list_name">Notes</string>
 
+    <!-- Navigation drawer -->
+    <string name="activity_list_nav_drawer_open">Open navigation drawer</string>
+    <string name="activity_list_nav_drawer_close">Close navigation drawer</string>
+    <string name="activity_list_nav_drawer_text_mail">gamaliev-vadim@yandex.com</string>
+    <string name="activity_list_nav_drawer_item_filter_sort_title">Filter / sort profiles</string>
+    <string name="activity_list_nav_drawer_item_actions_title">Actions</string>
+    <string name="activity_list_nav_drawer_item_manage_profiles">Manage profiles</string>
+    <string name="activity_list_nav_drawer_item_add_mock_entries">Add example</string>
+    <string name="activity_list_nav_drawer_item_delete_all_entries">Delete all</string>
+
     <!-- Other -->
     <string name="activity_list_notification_found_text">Found:</string>
 
@@ -78,6 +88,6 @@
     <string name="shared_transition_name_color_box">color_box</string>
 
     <!-- ISO-8601 -->
-    <string name="pattern_iso_8601">yyyy-MM-dd\'T\'HH:mm:ssXXX</string>
+    <string name="pattern_iso_8601">yyyy-MM-dd\'T\'HH:mm:ssZ</string>
 
 </resources>

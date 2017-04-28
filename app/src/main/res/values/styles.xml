@@ -1,5 +1,6 @@
 <resources>
 
+
     <!-- App Theme -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -11,11 +12,6 @@
         <item name="elevation">0dp</item>
     </style>
 
-    <style name="AppTheme.ActionBarWithoutElevation">
-        <item name="actionBarStyle">@style/AppTheme.ActionBar</item>
-        <item name="android:windowContentOverlay">@null</item>
-    </style>
-
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -24,6 +20,11 @@
     <style name="AppTheme.NoActionBar.Fullscreen">
         <item name="android:windowFullscreen">true</item>
     </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 
     <!-- Activity Color Picker -->
     <style name="ColorPickerPopupWindowAnimation">

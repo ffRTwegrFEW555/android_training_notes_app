@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="@string/activity_list_nav_drawer_item_filter_sort_title">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_camera"
+                    android:title="Import" />
+                <item
+                    android:id="@+id/nav_gallery"
+                    android:title="Gallery" />
+                <item
+                    android:id="@+id/nav_slideshow"
+                    android:title="Slideshow" />
+                <item
+                    android:id="@+id/nav_manage"
+                    android:title="Tools" />
+            </group>
+        </menu>
+    </item>
+
+
+    <item android:title="@string/activity_list_nav_drawer_item_actions_title">
+        <menu>
+            <item
+                android:id="@+id/activity_list_nav_drawer_item_manage_profiles"
+                android:icon="@drawable/ic_mode_edit_black_24dp"
+                android:title="@string/activity_list_nav_drawer_item_manage_profiles" />
+            <item
+                android:id="@+id/activity_list_nav_drawer_item_add_mock_entries"
+                android:icon="@drawable/ic_add_white_24dp"
+                android:title="@string/activity_list_nav_drawer_item_add_mock_entries" />
+            <item
+                android:id="@+id/activity_list_nav_drawer_item_delete_all_entries"
+                android:icon="@drawable/ic_delete_forever_black_24dp"
+                android:title="@string/activity_list_nav_drawer_item_delete_all_entries" />
+        </menu>
+    </item>
+
+</menu>
