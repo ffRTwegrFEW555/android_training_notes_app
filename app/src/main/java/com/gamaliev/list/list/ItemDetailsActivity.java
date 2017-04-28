@@ -23,6 +23,7 @@ import com.gamaliev.list.colorpicker.ColorPickerActivity;
 
 import static com.gamaliev.list.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.list.common.CommonUtils.getResourceColorApi;
+import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
 
 public class ItemDetailsActivity extends AppCompatActivity {
 
@@ -172,6 +173,10 @@ public class ItemDetailsActivity extends AppCompatActivity {
                     long id     = getIntent().getLongExtra(EXTRA_ID, -1);
                     dbHelper    = new ListDatabaseHelper(this);
                     entry       = dbHelper.getEntry(id);
+
+                    // Update viewed date.
+                    dbHelper.updateEntry(entry, LIST_ITEMS_COLUMN_VIEWED);
+
                     dbHelper.close();
 
                     if (entry != null) {
@@ -361,7 +366,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                     // TODO: return result with notify;
                     case ACTION_EDIT:
                         refreshEntry();
-                        dbHelper.updateEntry(entry);
+                        dbHelper.updateEntry(entry, null);
                         setResult(RESULT_OK);
                         finish();
                         break;

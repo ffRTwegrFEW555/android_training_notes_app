@@ -61,9 +61,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     LIST_ITEMS_COLUMN_TITLE +               " TEXT, " +
                     LIST_ITEMS_COLUMN_DESCRIPTION +         " TEXT, " +
                     LIST_ITEMS_COLUMN_COLOR +               " INTEGER, " +
-                    LIST_ITEMS_COLUMN_CREATED +             " DATETIME DEFAULT (datetime('now','utc')), " +
-                    LIST_ITEMS_COLUMN_EDITED +              " DATETIME DEFAULT (datetime('now','utc')), " +
-                    LIST_ITEMS_COLUMN_VIEWED +              " DATETIME DEFAULT (datetime('now','utc'))); ";
+                    LIST_ITEMS_COLUMN_CREATED +             " DATETIME DEFAULT (datetime('now')), " +
+                    LIST_ITEMS_COLUMN_EDITED +              " DATETIME DEFAULT (datetime('now')), " +
+                    LIST_ITEMS_COLUMN_VIEWED +              " DATETIME DEFAULT (datetime('now'))); ";
 
     protected static final String SQL_LIST_ITEMS_DROP_TABLE =
             "DROP TABLE " + LIST_ITEMS_TABLE_NAME + ";";

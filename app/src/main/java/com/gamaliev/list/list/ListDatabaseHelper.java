@@ -15,6 +15,10 @@ import com.gamaliev.list.R;
 import com.gamaliev.list.common.DatabaseHelper;
 import com.gamaliev.list.common.DatabaseQueryBuilder;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import static com.gamaliev.list.common.CommonUtils.getDefaultColor;
@@ -77,6 +81,12 @@ public final class ListDatabaseHelper extends DatabaseHelper {
             cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
             cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
 
+            // Add dates in ISO-8601 format.
+            String currentDate = getNewDateISO8601(context);
+            cv.put(LIST_ITEMS_COLUMN_CREATED,       currentDate);
+            cv.put(LIST_ITEMS_COLUMN_EDITED,        currentDate);
+            cv.put(LIST_ITEMS_COLUMN_VIEWED,        currentDate);
+
             // Insert
             if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
                 final String error = String.format(Locale.ENGLISH,
@@ -99,9 +109,20 @@ public final class ListDatabaseHelper extends DatabaseHelper {
 
     /**
      * Update entry in database.
-     * @param entry Entry, must contains non-null id.
+     * @param entry                 Entry, must contains non-null id.
+     * @param editedViewedColumn    Which column should updated.
+     *                              {@link #LIST_ITEMS_COLUMN_EDITED} or
+     *                              {@link #LIST_ITEMS_COLUMN_VIEWED}.
+     *                              If null, then default is {@link #LIST_ITEMS_COLUMN_EDITED}.
      */
-    boolean updateEntry(@NonNull final ListEntry entry) {
+    boolean updateEntry(
+            @NonNull final ListEntry entry,
+            @Nullable String editedViewedColumn) {
+
+        if (editedViewedColumn == null) {
+            editedViewedColumn = LIST_ITEMS_COLUMN_EDITED;
+        }
+
         try (SQLiteDatabase db = getWritableDatabase()) {
 
             // Variables
@@ -117,7 +138,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
             cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
             cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
             cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
-            cv.put(LIST_ITEMS_COLUMN_EDITED,        "datetime('now', 'utc')");
+            cv.put(editedViewedColumn,              getNewDateISO8601(context));
 
             // Update
             final int updateResult = db.update(
@@ -184,6 +205,10 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      */
     @Nullable
     ListEntry getEntry(@NonNull final Long id) {
+
+        // Create new entry.
+        final ListEntry entry = new ListEntry();
+
         try (   SQLiteDatabase db = getReadableDatabase();
                 Cursor cursor = db.query(
                         LIST_ITEMS_TABLE_NAME,
@@ -195,27 +220,43 @@ public final class ListDatabaseHelper extends DatabaseHelper {
                         null)) {
 
             // Fill new entry.
-            final ListEntry entry = new ListEntry();
             if (cursor.moveToFirst()) {
                 final int indexId           = cursor.getColumnIndex(DatabaseHelper.BASE_COLUMN_ID);
                 final int indexTitle        = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_TITLE);
                 final int indexDescription  = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION);
                 final int indexColor        = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_COLOR);
+                final int indexCreated      = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_CREATED);
+                final int indexEdited       = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_EDITED);
+                final int indexViewed       = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED);
 
                 entry.setId(            cursor.getLong(     indexId));
                 entry.setTitle(         cursor.getString(   indexTitle));
                 entry.setDescription(   cursor.getString(   indexDescription));
                 entry.setColor(         cursor.getInt(      indexColor));
-                // TODO: add created date and edited date
-                return entry;
+
+                // Dates in ISO-8601 format.
+                DateFormat df = getDateFormatISO8601(context);
+                try {
+                    Date created    = df.parse(cursor.getString(indexCreated));
+                    Date edited     = df.parse(cursor.getString(indexEdited));
+                    Date viewed     = df.parse(cursor.getString(indexViewed));
+
+                    entry.setCreated(created);
+                    entry.setEdited(edited);
+                    entry.setViewed(viewed);
+
+                } catch (ParseException e) {
+                    Log.e(TAG, e.toString());
+                }
             }
+
+            return entry;
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+            return null;
         }
-
-        return null;
     }
 
     /**
@@ -324,5 +365,25 @@ public final class ListDatabaseHelper extends DatabaseHelper {
                 db.close();
             }
         }
+    }
+
+    /**
+     * @param context Context.
+     * @return  String, representing a date in ISO-8601 format.<br>
+     *          Example: "yyyy-MM-dd'T'HH:mm:ssXXX", "2017-04-22T21:25:35+05:00".
+     */
+    public static String getNewDateISO8601(@NonNull final Context context) {
+        return getDateFormatISO8601(context).format(new Date());
+    }
+
+    /**
+     * @param context Context.
+     * @return  DateFormat with ISO-8601 pattern.<br>
+     *          Example: "yyyy-MM-dd'T'HH:mm:ssXXX", "2017-04-22T21:25:35+05:00".
+     */
+    public static DateFormat getDateFormatISO8601(@NonNull final Context context) {
+        return new SimpleDateFormat(
+                context.getResources().getString(R.string.pattern_iso_8601),
+                Locale.ENGLISH);
     }
 }
