@@ -30,14 +30,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME                     = "ya_school_app";
     private static final int DB_VERSION_A                   = 1;
     private static final int DB_VERSION                     = DB_VERSION_A;
-    public static final String ORDER_ASCENDING              = " ASC";
-    public static final String ORDER_DESCENDING             = " DESC";
+    public static final String ORDER_ASCENDING              = "ASC";
+    public static final String ORDER_DESCENDING             = "DESC";
     public static final String BASE_COLUMN_ID               = BaseColumns._ID;
 
     /* Favorite table */
     protected static final String FAVORITE_TABLE_NAME       = "favorite_colors";
     protected static final String FAVORITE_COLUMN_INDEX     = "tbl_index";
-    protected static final String FAVORITE_COLUMN_COLOR     = "color";
+    public static final String FAVORITE_COLUMN_COLOR        = "color";
 
     /* List items table */
     protected static final String LIST_ITEMS_TABLE_NAME     = "list_items";

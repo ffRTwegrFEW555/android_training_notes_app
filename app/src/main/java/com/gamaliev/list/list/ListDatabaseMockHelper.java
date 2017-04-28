@@ -6,11 +6,25 @@ import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.gamaliev.list.colorpicker.ColorPickerDatabaseHelper;
 import com.gamaliev.list.common.DatabaseHelper;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
+
+import static com.gamaliev.list.list.ListActivity.SP_FILTER_COLOR;
+import static com.gamaliev.list.list.ListActivity.SP_FILTER_CREATED;
+import static com.gamaliev.list.list.ListActivity.SP_FILTER_EDITED;
+import static com.gamaliev.list.list.ListActivity.SP_FILTER_SORT_ID;
+import static com.gamaliev.list.list.ListActivity.SP_FILTER_VIEWED;
+import static com.gamaliev.list.list.ListActivity.SP_ORDER;
+import static com.gamaliev.list.list.ListActivity.SP_ORDER_ASC_DESC;
 
 /**
  * @author Vadim Gamaliev
@@ -45,6 +59,40 @@ public final class ListDatabaseMockHelper extends DatabaseHelper {
             "2017-04-20T21:25:35+05:00",
     };
 
+    private static final String[][] SP_MOCK_DATA = new String[][] {
+            {"0",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    ""},
+
+            {"1",
+                    "53248",
+                    "2017-04-20T21:25:35+05:00#2017-04-21T21:25:35+05:00",
+                    "2017-04-20T21:25:35+05:00#2017-04-21T21:25:35+05:00",
+                    "2017-04-20T21:25:35+05:00#2017-04-21T21:25:35+05:00",
+                    LIST_ITEMS_COLUMN_TITLE,
+                    ORDER_ASCENDING},
+
+            {"2",
+                    "-16711824",
+                    "2017-04-22T21:25:35+05:00#2017-04-23T21:25:35+05:00",
+                    "2017-04-22T21:25:35+05:00#2017-04-23T21:25:35+05:00",
+                    "2017-04-22T21:25:35+05:00#2017-04-23T21:25:35+05:00",
+                    LIST_ITEMS_COLUMN_CREATED,
+                    ORDER_DESCENDING},
+
+            {"3",
+                    "-4096",
+                    "2017-04-24T21:25:35+05:00#2017-04-25T21:25:35+05:00",
+                    "2017-04-24T21:25:35+05:00#2017-04-25T21:25:35+05:00",
+                    "2017-04-24T21:25:35+05:00#2017-04-25T21:25:35+05:00",
+                    LIST_ITEMS_COLUMN_EDITED,
+                    ORDER_ASCENDING}
+    };
+
 
     /*
         Init
@@ -71,7 +119,7 @@ public final class ListDatabaseMockHelper extends DatabaseHelper {
 
 
     /*
-        Methods
+        Mock entries
      */
 
     /**
@@ -105,12 +153,22 @@ public final class ListDatabaseMockHelper extends DatabaseHelper {
         }
     }
 
+    /**
+     * @param random Generator of pseudorandom numbers.
+     * @return Random name from {@link #LIST_MOCK_NAMES}
+     */
+    @NonNull
     private static String getRandomMockName(@NonNull final Random random) {
         return LIST_MOCK_NAMES[random.nextInt(LIST_MOCK_NAMES.length)];
     }
 
+    /**
+     * @param random Generator of pseudorandom numbers.
+     * @return Random description from {@link #LIST_MOCK_DESCRIPTION}
+     */
+    @NonNull
     private static String getRandomMockDescription(@NonNull final Random random) {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 8; i++) {
             sb.append(LIST_MOCK_DESCRIPTION[random.nextInt(LIST_MOCK_DESCRIPTION.length)]);
             sb.append(" ");
@@ -118,12 +176,56 @@ public final class ListDatabaseMockHelper extends DatabaseHelper {
         return sb.toString();
     }
 
+    /**
+     * @param random Generator of pseudorandom numbers.
+     * @return Random favorite color from
+     * {@link com.gamaliev.list.colorpicker.ColorPickerDatabaseHelper#FAVORITE_COLORS_DEFAULT}
+     */
+    @NonNull
     private static String getRandomFavoriteColor(@NonNull final Random random) {
-        int[] colors = ColorPickerDatabaseHelper.FAVORITE_COLORS_DEFAULT;
+        final int[] colors = ColorPickerDatabaseHelper.FAVORITE_COLORS_DEFAULT;
         return String.valueOf(colors[random.nextInt(colors.length)]);
     }
 
+    /**
+     * @param random Generator of pseudorandom numbers.
+     * @return Random date from {@link #LIST_MOCK_DATE}
+     */
+    @NonNull
     private static String getRandomMockDate(@NonNull final Random random) {
         return LIST_MOCK_DATE[random.nextInt(LIST_MOCK_DATE.length)];
+    }
+
+
+    /*
+        Mock shared preferences.
+     */
+
+    /**
+     * @return Set of mock profiles for shared preferences, in JSON-format.
+     */
+    @NonNull
+    public static Set<String> getMockProfiles() {
+        final Set<String> profiles = new HashSet<>();
+
+        for (String[] entry : SP_MOCK_DATA) {
+            try {
+                final JSONObject jsonObject = new JSONObject();
+                jsonObject.put(SP_FILTER_SORT_ID,   entry[0]);
+                jsonObject.put(SP_FILTER_COLOR,     entry[1]);
+                jsonObject.put(SP_FILTER_CREATED,   entry[2]);
+                jsonObject.put(SP_FILTER_EDITED,    entry[3]);
+                jsonObject.put(SP_FILTER_VIEWED,    entry[4]);
+                jsonObject.put(SP_ORDER,            entry[5]);
+                jsonObject.put(SP_ORDER_ASC_DESC,   entry[6]);
+
+                profiles.add(jsonObject.toString());
+
+            } catch (JSONException e) {
+                Log.e(TAG, e.toString());
+            }
+        }
+
+        return profiles;
     }
 }

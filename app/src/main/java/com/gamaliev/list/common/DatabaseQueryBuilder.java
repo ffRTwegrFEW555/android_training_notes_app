@@ -3,6 +3,7 @@ package com.gamaliev.list.common;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 /**
  * Helper for create select query, associated with
@@ -69,7 +70,7 @@ public final class DatabaseQueryBuilder {
             @NonNull final String[] operands) {
 
         return add(
-                selection == null ? null : OPERATOR_OR,
+                OPERATOR_OR,
                 column,
                 operator,
                 operands);
@@ -94,7 +95,7 @@ public final class DatabaseQueryBuilder {
             @NonNull final String[] operands) {
 
         return add(
-                selection == null ? null : OPERATOR_AND,
+                OPERATOR_AND,
                 column,
                 operator,
                 operands);
@@ -144,8 +145,8 @@ public final class DatabaseQueryBuilder {
         }
 
         // Example:
-        // if first in current query builder, then  "   (created BETWEEN '?' AND '?') ",
-        // else                                     "OR (created BETWEEN '?' AND '?') "
+        // if first in current query builder, then  "   (created BETWEEN ? AND ?) ",
+        // else                                     "OR (created BETWEEN ? AND ?) "
         sb      .append(" (")
                 .append(queryBuilder.getSelectionResult())
                 .append(") ");
@@ -182,20 +183,20 @@ public final class DatabaseQueryBuilder {
         }
 
         /*
-            Example: "OR (title LIKE '?') "
+            Example: "OR (title LIKE ?) "
             Example: "OR (color = ?) "
-            Example: "OR (created BETWEEN '?' AND '?') "
+            Example: "OR (created BETWEEN ? AND ?) "
 
-            Example: "OR (title LIKE '%Droid%') "
+            Example: "OR (title LIKE %Droid%) "
             Example: "OR (color = 12345) "
-            Example: "OR (created BETWEEN '2017-04-25T21:25:35+05:00' AND '2017-04-25T21:25:35+05:00') "
+            Example: "OR (created BETWEEN 2017-04-25T21:25:35+05:00 AND 2017-04-25T21:25:35+05:00) "
         */
 
         // Example: 'OR (title' or '(title'
         StringBuilder sb = new StringBuilder();
 
         // If clause is first in current query builder, then add without operator 'OR' or 'ADD'.
-        if (operatorPrimary != null) {
+        if (selection != null) {
             sb.append(operatorPrimary);
         }
 
@@ -204,8 +205,8 @@ public final class DatabaseQueryBuilder {
 
         switch (operatorSecondary) {
 
-            // Example: " LIKE '?'"
-            // Example: " LIKE '%Droid%'"
+            // Example: " LIKE ?"
+            // Example: " LIKE %Droid%"
             case OPERATOR_LIKE:
 
                 // Check exist one operand.
@@ -235,8 +236,8 @@ public final class DatabaseQueryBuilder {
                 }
                 break;
 
-            // Example: " BETWEEN '?' AND '?'"
-            // Example: " BETWEEN '2017-04-25T21:25:35+05:00' AND '2017-04-25T21:25:35+05:00'"
+            // Example: " BETWEEN ? AND ?"
+            // Example: " BETWEEN 2017-04-25T21:25:35+05:00 AND 2017-04-25T21:25:35+05:00"
             case OPERATOR_BETWEEN:
 
                 // Check exist two operands.
@@ -311,7 +312,8 @@ public final class DatabaseQueryBuilder {
      */
 
     /**
-     * Set sort order of query.<br>
+     * Set sort order of query. If null or Empty, then set default value
+     * {@link com.gamaliev.list.common.DatabaseHelper#BASE_COLUMN_ID}<br>
      *     See also: <br>
      *     {@link com.gamaliev.list.common.DatabaseHelper#BASE_COLUMN_ID}<br>
      *     {@link com.gamaliev.list.common.DatabaseHelper#LIST_ITEMS_COLUMN_TITLE}<br>
@@ -324,17 +326,22 @@ public final class DatabaseQueryBuilder {
      * @param order Column.
      */
     public void setOrder(@NonNull String order) {
-        this.order = order;
+        if (!TextUtils.isEmpty(order)) {
+            this.order = order;
+        }
     }
 
     /**
-     * Set ascending / descending of sorting order.
+     * Set ascending / descending of sorting order. If null or Empty, then set default value
+     * {@link com.gamaliev.list.common.DatabaseHelper#ORDER_ASCENDING}<br>
      * @param ascDesc <br>
      *     {@link com.gamaliev.list.common.DatabaseHelper#ORDER_ASCENDING}<br>
      *     {@link com.gamaliev.list.common.DatabaseHelper#ORDER_DESCENDING}<br>
      */
     public void setAscDesc(@NonNull String ascDesc) {
-        this.ascDesc = ascDesc;
+        if (!TextUtils.isEmpty(ascDesc)) {
+            this.ascDesc = ascDesc;
+        }
     }
 
 
@@ -373,6 +380,6 @@ public final class DatabaseQueryBuilder {
      */
     @NonNull
     public String getSortOrder() {
-        return order + ascDesc;
+        return order + " " + ascDesc;
     }
 }
