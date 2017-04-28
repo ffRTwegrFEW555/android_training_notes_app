@@ -33,6 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String ORDER_ASCENDING              = "ASC";
     public static final String ORDER_DESCENDING             = "DESC";
     public static final String BASE_COLUMN_ID               = BaseColumns._ID;
+    public static final String DATE_TIME_NOW_UTC            = "(datetime('now'))";
 
     /* Favorite table */
     protected static final String FAVORITE_TABLE_NAME       = "favorite_colors";
@@ -61,9 +62,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     LIST_ITEMS_COLUMN_TITLE +               " TEXT, " +
                     LIST_ITEMS_COLUMN_DESCRIPTION +         " TEXT, " +
                     LIST_ITEMS_COLUMN_COLOR +               " INTEGER, " +
-                    LIST_ITEMS_COLUMN_CREATED +             " DATETIME DEFAULT (datetime('now')), " +
-                    LIST_ITEMS_COLUMN_EDITED +              " DATETIME DEFAULT (datetime('now')), " +
-                    LIST_ITEMS_COLUMN_VIEWED +              " DATETIME DEFAULT (datetime('now'))); ";
+                    LIST_ITEMS_COLUMN_CREATED + " DATETIME DEFAULT " + DATE_TIME_NOW_UTC + ", " +
+                    LIST_ITEMS_COLUMN_EDITED +  " DATETIME DEFAULT " + DATE_TIME_NOW_UTC + ", " +
+                    LIST_ITEMS_COLUMN_VIEWED +  " DATETIME DEFAULT " + DATE_TIME_NOW_UTC + "); ";
 
     protected static final String SQL_LIST_ITEMS_DROP_TABLE =
             "DROP TABLE " + LIST_ITEMS_TABLE_NAME + ";";

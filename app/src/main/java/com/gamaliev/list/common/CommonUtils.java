@@ -22,6 +22,12 @@ import android.widget.Toast;
 
 import com.gamaliev.list.R;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
 /**
  * @author Vadim Gamaliev
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
@@ -321,5 +327,62 @@ public final class CommonUtils {
      */
     public static int getDefaultColor(@NonNull final Context context) {
         return getResourceColorApi(context, R.color.color_picker_default);
+    }
+
+
+    /*
+        Date. ISO-8601.
+     */
+
+    /**
+     * @param context   Context.
+     * @param date      Date, whose will be converted to String in ISO-8610 format.
+     * @return  String, representing a date in ISO-8601 format.<br>
+     *          Example: "yyyy-MM-dd'T'HH:mm:ssZ", "2017-04-22T21:25:35+05:00".
+     */
+    @NonNull
+    public static String getStringDateISO8601(
+            @NonNull final Context context,
+            @NonNull final Date date) {
+        return getDateFormatISO8601(context).format(date);
+    }
+
+    /**
+     * @param context Context.
+     * @return  DateFormat with ISO-8601 pattern.<br>
+     *          Example: "yyyy-MM-dd'T'HH:mm:ssZ", "2017-04-22T21:25:35+05:00".
+     */
+    @NonNull
+    public static DateFormat getDateFormatISO8601(@NonNull final Context context) {
+        return new SimpleDateFormat(
+                context.getResources().getString(R.string.pattern_iso_8601),
+                Locale.ENGLISH);
+    }
+
+    /**
+     * @param context   Context.
+     * @param date      Date, whose will be converted to String.
+     * @return  String, representing a date sqlite format.<br>
+     *          Example: "YYYY-MM-DD HH:MM:SS", "2017-04-22 21:25:35".
+     */
+    @NonNull
+    public static String getStringDateFormatSqlite(
+            @NonNull final Context context,
+            @NonNull final Date date) {
+        return getDateFormatSqlite(context).format(date);
+    }
+
+    /**
+     * @param context Context.
+     * @return  DateFormat with sqlite pattern, convert UTC to localtime.<br>
+     *          Example: "YYYY-MM-DD HH:MM:SS", "2017-04-22 21:25:35".
+     */
+    @NonNull
+    public static DateFormat getDateFormatSqlite(@NonNull final Context context) {
+        final DateFormat dateFormat = new SimpleDateFormat(
+                context.getResources().getString(R.string.pattern_date_time_sqlite_format),
+                Locale.ENGLISH);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return dateFormat;
     }
 }

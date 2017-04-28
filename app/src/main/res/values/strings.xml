@@ -89,5 +89,6 @@
 
     <!-- ISO-8601 -->
     <string name="pattern_iso_8601">yyyy-MM-dd\'T\'HH:mm:ssZ</string>
+    <string name="pattern_date_time_sqlite_format">yyyy-MM-dd HH:mm:ss</string>
 
 </resources>
