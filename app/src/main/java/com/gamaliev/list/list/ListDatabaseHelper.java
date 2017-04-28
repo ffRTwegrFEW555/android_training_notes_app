@@ -82,7 +82,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
             cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
             cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
 
-            String utcCurrentDate = getStringDateFormatSqlite(context, new Date());
+            String utcCurrentDate = getStringDateFormatSqlite(context, new Date(), true);
             cv.put(LIST_ITEMS_COLUMN_CREATED,       utcCurrentDate);
             cv.put(LIST_ITEMS_COLUMN_EDITED,        utcCurrentDate);
             cv.put(LIST_ITEMS_COLUMN_VIEWED,        utcCurrentDate);
@@ -138,7 +138,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
             cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
             cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
             cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
-            cv.put(editedViewedColumn,              getStringDateFormatSqlite(context, new Date()));
+            cv.put(editedViewedColumn,              getStringDateFormatSqlite(context, new Date(), true));
 
             // Update
             final int updateResult = db.update(
@@ -235,7 +235,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
                 entry.setColor(         cursor.getInt(      indexColor));
 
                 // Parse sqlite format, in localtime.
-                DateFormat df = CommonUtils.getDateFormatSqlite(context);
+                DateFormat df = CommonUtils.getDateFormatSqlite(context, true);
                 try {
                     Date created    = df.parse(cursor.getString(indexCreated));
                     Date edited     = df.parse(cursor.getString(indexEdited));

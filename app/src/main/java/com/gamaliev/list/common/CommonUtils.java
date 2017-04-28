@@ -338,7 +338,7 @@ public final class CommonUtils {
      * @param context   Context.
      * @param date      Date, whose will be converted to String in ISO-8610 format.
      * @return  String, representing a date in ISO-8601 format.<br>
-     *          Example: "yyyy-MM-dd'T'HH:mm:ssZ", "2017-04-22T21:25:35+05:00".
+     *          Example pattern: "yyyy-MM-dd'T'HH:mm:ssZ", "2017-04-22T21:25:35+05:00".
      */
     @NonNull
     public static String getStringDateISO8601(
@@ -350,7 +350,7 @@ public final class CommonUtils {
     /**
      * @param context Context.
      * @return  DateFormat with ISO-8601 pattern.<br>
-     *          Example: "yyyy-MM-dd'T'HH:mm:ssZ", "2017-04-22T21:25:35+05:00".
+     *          Example pattern: "yyyy-MM-dd'T'HH:mm:ssZ", "2017-04-22T21:25:35+05:00".
      */
     @NonNull
     public static DateFormat getDateFormatISO8601(@NonNull final Context context) {
@@ -362,27 +362,35 @@ public final class CommonUtils {
     /**
      * @param context   Context.
      * @param date      Date, whose will be converted to String.
-     * @return  String, representing a date sqlite format.<br>
-     *          Example: "YYYY-MM-DD HH:MM:SS", "2017-04-22 21:25:35".
+     * @param utc       If true, then set UTC time zone, otherwise original time zone.
+     * @return  String, representing a UTC date sqlite format.<br>
+     *          Example pattern: "YYYY-MM-DD HH:MM:SS", "2017-04-22 21:25:35".
      */
     @NonNull
     public static String getStringDateFormatSqlite(
             @NonNull final Context context,
-            @NonNull final Date date) {
-        return getDateFormatSqlite(context).format(date);
+            @NonNull final Date date,
+            final boolean utc) {
+        return getDateFormatSqlite(context, utc).format(date);
     }
 
     /**
-     * @param context Context.
+     * @param context   Context.
+     * @param utc       If true, then set UTC time zone, otherwise original time zone.
      * @return  DateFormat with sqlite pattern, convert UTC to localtime.<br>
-     *          Example: "YYYY-MM-DD HH:MM:SS", "2017-04-22 21:25:35".
+     *          Example pattern: "YYYY-MM-DD HH:MM:SS", "2017-04-22 21:25:35".
      */
     @NonNull
-    public static DateFormat getDateFormatSqlite(@NonNull final Context context) {
+    public static DateFormat getDateFormatSqlite(
+            @NonNull final Context context,
+            final boolean utc) {
+
         final DateFormat dateFormat = new SimpleDateFormat(
                 context.getResources().getString(R.string.pattern_date_time_sqlite_format),
                 Locale.ENGLISH);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        if (utc) {
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        }
         return dateFormat;
     }
 }

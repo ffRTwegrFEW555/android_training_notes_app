@@ -425,11 +425,16 @@ public class ItemDetailsActivity extends AppCompatActivity {
         final StringBuilder infoMessage = new StringBuilder();
         infoMessage
                 .append(res.getString(R.string.activity_item_details_info_dialog_title_created))
-                .append("\n").append(getStringDateFormatSqlite(this, entry.getCreated())).append("\n\n")
+                .append("\n")
+                .append(getStringDateFormatSqlite(this, entry.getCreated(), false))
+                .append("\n\n")
                 .append(res.getString(R.string.activity_item_details_info_dialog_title_edited))
-                .append("\n").append(getStringDateFormatSqlite(this, entry.getEdited())).append("\n\n")
+                .append("\n")
+                .append(getStringDateFormatSqlite(this, entry.getEdited(), false))
+                .append("\n\n")
                 .append(res.getString(R.string.activity_item_details_info_dialog_title_viewed))
-                .append("\n").append(getStringDateFormatSqlite(this, entry.getViewed()));
+                .append("\n")
+                .append(getStringDateFormatSqlite(this, entry.getViewed(), false));
 
         // Create alert dialog.
         final AlertDialog.Builder builder = new AlertDialog.Builder(ItemDetailsActivity.this);
