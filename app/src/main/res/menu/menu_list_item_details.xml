@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- Done -->
     <item
         android:id="@+id/menu_list_item_details_done"
         android:icon="@drawable/ic_done_white_24dp"
@@ -10,11 +11,21 @@
         android:orderInCategory="10"
         app:showAsAction="ifRoom"/>
 
+    <!-- Cancel -->
     <item
         android:id="@+id/menu_list_item_details_cancel"
         android:icon="@drawable/ic_clear_white_24dp"
         android:title="@string/menu_list_item_details_action_cancel"
         android:orderInCategory="20"
         app:showAsAction="ifRoom"/>
+
+    <!-- Info -->
+    <item
+        android:id="@+id/menu_list_item_details_info"
+        android:icon="@drawable/ic_info_outline_white_24dp"
+        android:title="@string/menu_list_item_details_action_info"
+        android:orderInCategory="30"
+        app:showAsAction="ifRoom"
+        android:visible="false"/>
 
 </menu>

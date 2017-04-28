@@ -2,7 +2,9 @@ package com.gamaliev.list.list;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.transition.TransitionInflater;
@@ -24,6 +27,7 @@ import com.gamaliev.list.colorpicker.ColorPickerActivity;
 
 import static com.gamaliev.list.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.list.common.CommonUtils.getResourceColorApi;
+import static com.gamaliev.list.common.CommonUtils.getStringDateFormatSqlite;
 import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
 
 public class ItemDetailsActivity extends AppCompatActivity {
@@ -348,6 +352,11 @@ public class ItemDetailsActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_list_item_details, menu);
+
+        // If "edit action", then set info button is visible.
+        if (ACTION_EDIT.equals(getIntent().getAction())) {
+            menu.findItem(R.id.menu_list_item_details_info).setVisible(true);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -395,11 +404,58 @@ public class ItemDetailsActivity extends AppCompatActivity {
                 finish();
                 break;
 
+            case R.id.menu_list_item_details_info:
+                showInfoDialog();
+                break;
+
             default:
                 break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Show info dialog with next info: created, edited, viewed dates.
+     */
+    private void showInfoDialog() {
+        final Resources res = getResources();
+
+        // Create message.
+        final StringBuilder infoMessage = new StringBuilder();
+        infoMessage
+                .append(res.getString(R.string.activity_item_details_info_dialog_title_created))
+                .append("\n").append(getStringDateFormatSqlite(this, entry.getCreated())).append("\n\n")
+                .append(res.getString(R.string.activity_item_details_info_dialog_title_edited))
+                .append("\n").append(getStringDateFormatSqlite(this, entry.getEdited())).append("\n\n")
+                .append(res.getString(R.string.activity_item_details_info_dialog_title_viewed))
+                .append("\n").append(getStringDateFormatSqlite(this, entry.getViewed()));
+
+        // Create alert dialog.
+        final AlertDialog.Builder builder = new AlertDialog.Builder(ItemDetailsActivity.this);
+        builder .setTitle("Info")
+                .setMessage(infoMessage)
+                .setIcon(R.drawable.ic_info_outline_black_36dp)
+                .setNegativeButton("Ok",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        final AlertDialog alert = builder.create();
+
+        // Show
+        alert.show();
+
+        // Change color of button.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alert   .getButton(AlertDialog.BUTTON_NEGATIVE)
+                    .setTextColor(getResources().getColor(R.color.colorPrimary, null));
+        } else {
+            alert   .getButton(AlertDialog.BUTTON_NEGATIVE)
+                    .setTextColor(getResources().getColor(R.color.colorPrimary));
+        }
     }
 
 

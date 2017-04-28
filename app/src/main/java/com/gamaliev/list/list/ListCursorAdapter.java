@@ -44,17 +44,20 @@ final class ListCursorAdapter extends CursorAdapter {
         final int indexId           = cursor.getColumnIndex(DatabaseHelper.BASE_COLUMN_ID);
         final int indexTitle        = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_TITLE);
         final int indexDescription  = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION);
+        final int indexEdited       = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_EDITED);
         final int indexColor        = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_COLOR);
 
         final long id               = cursor.getLong(   indexId);
         final String title          = cursor.getString( indexTitle);
         final String description    = cursor.getString( indexDescription);
+        final String edited         = cursor.getString( indexEdited).split(" ")[0];
         final int color             = cursor.getInt(    indexColor);
 
         // Fill view holder values.
         viewHolder.id = id;
-        viewHolder.titleView.setText(title);
-        viewHolder.descriptionView.setText(description);
+        viewHolder.titleView        .setText(title);
+        viewHolder.descriptionView  .setText(description);
+        viewHolder.editedView       .setText(edited);
         viewHolder.iconView
                 .getBackground()
                 .setColorFilter(color, PorterDuff.Mode.SRC);
@@ -65,11 +68,13 @@ final class ListCursorAdapter extends CursorAdapter {
         private Long            id;
         private final TextView  titleView;
         private final TextView  descriptionView;
+        private final TextView  editedView;
         private final View      iconView;
 
         ViewHolder(View view) {
             titleView       = (TextView) view.findViewById(R.id.activity_list_item_title);
             descriptionView = (TextView) view.findViewById(R.id.activity_list_item_description);
+            editedView      = (TextView) view.findViewById(R.id.activity_list_item_edited);
             iconView        = view.findViewById(R.id.activity_list_item_color);
         }
     }

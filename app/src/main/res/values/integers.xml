@@ -46,6 +46,7 @@
     <!-- Other -->
     <integer name="activity_list_item_title_lines">1</integer>
     <integer name="activity_list_item_description_lines">2</integer>
+    <integer name="activity_list_item_edited_lines">1</integer>
 
 
     <!--        -->

@@ -43,6 +43,13 @@
     <string name="activity_item_details_text_view_title">Title</string>
     <string name="activity_item_details_text_view_description">Description</string>
 
+    <!-- Info alert dialog -->
+    <string name="activity_item_details_info_dialog_title">Info</string>
+    <string name="activity_item_details_info_dialog_title_created">Created:</string>
+    <string name="activity_item_details_info_dialog_title_edited">Last edited:</string>
+    <string name="activity_item_details_info_dialog_title_viewed">Last viewed:</string>
+
+
 
     <!--                -->
     <!-- Activity List  -->
@@ -75,6 +82,7 @@
     <string name="menu_list_action_fill_mock_title">Fill example</string>
     <string name="menu_list_item_details_action_done">Save</string>
     <string name="menu_list_item_details_action_cancel">Cancel</string>
+    <string name="menu_list_item_details_action_info">Info</string>
 
 
     <!--        -->
