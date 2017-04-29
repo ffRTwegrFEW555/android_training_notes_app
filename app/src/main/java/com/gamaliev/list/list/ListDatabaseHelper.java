@@ -234,7 +234,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
                 entry.setDescription(   cursor.getString(   indexDescription));
                 entry.setColor(         cursor.getInt(      indexColor));
 
-                // Parse sqlite format, in localtime.
+                // Parse sqlite format (yyyy-MM-dd HH:mm:ss, UTC), in localtime.
                 DateFormat df = CommonUtils.getDateFormatSqlite(context, true);
                 try {
                     Date created    = df.parse(cursor.getString(indexCreated));

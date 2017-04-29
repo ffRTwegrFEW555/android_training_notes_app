@@ -25,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FilterQueryProvider;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.gamaliev.list.R;
 import com.gamaliev.list.common.DatabaseHelper;
@@ -43,6 +44,7 @@ import java.util.TimerTask;
 
 import static com.gamaliev.list.common.CommonUtils.circularRevealAnimationOff;
 import static com.gamaliev.list.common.CommonUtils.circularRevealAnimationOn;
+import static com.gamaliev.list.common.CommonUtils.showToast;
 import static com.gamaliev.list.common.DatabaseHelper.BASE_COLUMN_ID;
 import static com.gamaliev.list.common.DatabaseHelper.FAVORITE_COLUMN_COLOR;
 import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_CREATED;
@@ -58,8 +60,12 @@ public class ListActivity extends AppCompatActivity {
     private static final String TAG = ListActivity.class.getSimpleName();
 
     /* Intents */
-    private static final int REQUEST_CODE_ADD = 1;
-    private static final int REQUEST_CODE_EDIT = 2;
+    private static final int REQUEST_CODE_ADD           = 1;
+    private static final int REQUEST_CODE_EDIT          = 2;
+    private static final String RESULT_CODE_EXTRA       = "resultCodeExtra";
+    public static final int RESULT_CODE_EXTRA_ADDED     = 1;
+    public static final int RESULT_CODE_EXTRA_EDITED    = 2;
+    public static final int RESULT_CODE_EXTRA_DELETED   = 3;
 
     /* SQLite */
     @NonNull private static final String[] SEARCH_COLUMNS = {
@@ -126,7 +132,7 @@ public class ListActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         // Init toggle.
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_list_drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this,
                 drawer,
@@ -138,27 +144,7 @@ public class ListActivity extends AppCompatActivity {
 
         // Set navigation view listener
         NavigationView navigationView = (NavigationView) findViewById(R.id.activity_list_nav_view);
-        navigationView.setNavigationItemSelectedListener(null);
-
-        /*
-                switch (item.getItemId()) {
-
-            // Fill example entries
-            case R.id.menu_list_action_fill_mock:
-                dbHelper.addMockEntries();
-                refreshDbConnectAndView();
-                break;
-
-            // Remove all entries
-            case R.id.menu_list_action_delete_entry:
-                dbHelper.removeAllEntries();
-                refreshDbConnectAndView();
-                break;
-
-            default:
-                break;
-        }
-         */
+        navigationView.setNavigationItemSelectedListener(getNavItemSelectedListener());
     }
 
     /**
@@ -299,7 +285,7 @@ public class ListActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         // Check navigation drawer. If open, then close.
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_list_drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -311,6 +297,21 @@ public class ListActivity extends AppCompatActivity {
     /*
         Intents
      */
+
+    /**
+     * @param resultCodeExtra   Result code extra.
+     *                          {@link #RESULT_CODE_EXTRA_ADDED},
+     *                          {@link #RESULT_CODE_EXTRA_EDITED},
+     *                          {@link #RESULT_CODE_EXTRA_DELETED}.
+     * @return Intent, with given result code extra.
+     * See {@link com.gamaliev.list.colorpicker.ColorPickerActivity#EXTRA_COLOR}
+     */
+    @NonNull
+    public static Intent getResultIntent(final int resultCodeExtra) {
+        Intent intent = new Intent();
+        intent.putExtra(RESULT_CODE_EXTRA, resultCodeExtra);
+        return intent;
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -324,8 +325,29 @@ public class ListActivity extends AppCompatActivity {
                         adapter.getCount(),
                         getResources().getInteger(R.integer.activity_list_smooth_scroll_delay));
 
+                // Notification if added.
+                showToast(
+                        this,
+                        getResources().getString(R.string.activity_list_notification_entry_added),
+                        Toast.LENGTH_SHORT);
+
             } else if (requestCode == REQUEST_CODE_EDIT) {
                 refreshDbConnectAndView();
+
+                if (data.getIntExtra(RESULT_CODE_EXTRA, -1) == RESULT_CODE_EXTRA_EDITED) {
+                    // Notification if edited.
+                    showToast(
+                            this,
+                            getResources().getString(R.string.activity_list_notification_entry_updated),
+                            Toast.LENGTH_SHORT);
+
+                } else if (data.getIntExtra(RESULT_CODE_EXTRA, -1) == RESULT_CODE_EXTRA_DELETED) {
+                    // Notification if deleted.
+                    showToast(
+                            this,
+                            getResources().getString(R.string.activity_list_notification_entry_deleted),
+                            Toast.LENGTH_SHORT);
+                }
             }
         }
     }
@@ -591,6 +613,66 @@ public class ListActivity extends AppCompatActivity {
 
                 // Go-go-go.
                 return dbHelper.getEntries(resultQueryBuilder);
+            }
+        };
+    }
+
+    /**
+     * @return Navigation bar listener object.
+     */
+    @NonNull
+    private NavigationView.OnNavigationItemSelectedListener getNavItemSelectedListener() {
+        return new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                // Handle navigation view item clicks here.
+                final int id = item.getItemId();
+
+                switch (id) {
+                    // Filter / Sort list.
+                    case R.id.activity_list_nav_drawer_item_filter_sort:
+                        break;
+
+                    // Import entries.
+                    case R.id.activity_list_nav_drawer_item_import_entries:
+                        break;
+
+                    // Export entries.
+                    case R.id.activity_list_nav_drawer_item_export_entries:
+                        break;
+
+                    // Add mock entries.
+                    case R.id.activity_list_nav_drawer_item_add_mock_entries:
+                        dbHelper.addMockEntries();
+                        refreshDbConnectAndView();
+                        // Notification.
+                        showToast(
+                                ListActivity.this,
+                                getResources().getString(R.string.activity_list_notification_add_mock_entries),
+                                Toast.LENGTH_SHORT);
+                        break;
+
+                    // Remove all entries.
+                    case R.id.activity_list_nav_drawer_item_delete_all_entries:
+                        dbHelper.removeAllEntries();
+                        refreshDbConnectAndView();
+                        // Notification.
+                        showToast(
+                                ListActivity.this,
+                                getResources().getString(R.string.activity_list_notification_delete_all_entries),
+                                Toast.LENGTH_SHORT);
+                        break;
+
+                    // Default.
+                    default:
+                        break;
+
+                }
+
+                // Close nav drawer after click.
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_list_drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
             }
         };
     }

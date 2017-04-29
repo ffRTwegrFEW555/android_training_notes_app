@@ -45,9 +45,17 @@
 
     <!-- Info alert dialog -->
     <string name="activity_item_details_info_dialog_title">Info</string>
-    <string name="activity_item_details_info_dialog_title_created">Created:</string>
-    <string name="activity_item_details_info_dialog_title_edited">Last edited:</string>
-    <string name="activity_item_details_info_dialog_title_viewed">Last viewed:</string>
+    <string name="activity_item_details_info_dialog_message_created">Created:</string>
+    <string name="activity_item_details_info_dialog_message_edited">Last edited:</string>
+    <string name="activity_item_details_info_dialog_message_viewed">Last viewed:</string>
+    <string name="activity_item_details_info_dialog_button_ok">OK</string>
+
+    <!-- Delete alert dialog -->
+    <string name="activity_item_details_delete_dialog_title">Delete</string>
+    <string name="activity_item_details_delete_dialog_message">Do you really want to delete this entry?</string>
+    <string name="activity_item_details_delete_dialog_button_ok">OK</string>
+    <string name="activity_item_details_delete_dialog_button_cancel">Cancel</string>
+
 
 
 
@@ -64,12 +72,19 @@
     <string name="activity_list_nav_drawer_text_mail">gamaliev-vadim@yandex.com</string>
     <string name="activity_list_nav_drawer_item_filter_sort_title">Filter / sort profiles</string>
     <string name="activity_list_nav_drawer_item_actions_title">Actions</string>
-    <string name="activity_list_nav_drawer_item_manage_profiles">Manage profiles</string>
+    <string name="activity_list_nav_drawer_item_filter_sort">Filter / Sort</string>
     <string name="activity_list_nav_drawer_item_add_mock_entries">Add example</string>
     <string name="activity_list_nav_drawer_item_delete_all_entries">Delete all</string>
+    <string name="activity_list_nav_drawer_item_import_entries">Import notes</string>
+    <string name="activity_list_nav_drawer_item_export_entries">Export notes</string>
 
     <!-- Other -->
     <string name="activity_list_notification_found_text">Found:</string>
+    <string name="activity_list_notification_entry_added">Entry added</string>
+    <string name="activity_list_notification_entry_updated">Entry updated</string>
+    <string name="activity_list_notification_entry_deleted">Entry deleted</string>
+    <string name="activity_list_notification_add_mock_entries">Mock entries added</string>
+    <string name="activity_list_notification_delete_all_entries">All entries deleted</string>
 
 
     <!--            -->
@@ -82,6 +97,7 @@
     <string name="menu_list_action_fill_mock_title">Fill example</string>
     <string name="menu_list_item_details_action_done">Save</string>
     <string name="menu_list_item_details_action_cancel">Cancel</string>
+    <string name="menu_list_item_details_action_delete">Delete</string>
     <string name="menu_list_item_details_action_info">Info</string>
 
 

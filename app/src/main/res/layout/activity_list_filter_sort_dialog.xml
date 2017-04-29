@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:columnCount="2">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_columnWeight="1"
+            app:layout_gravity="fill_horizontal"
+            android:text="Sorting by:" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_columnWeight="1"
+            app:layout_gravity="fill_horizontal"
+            android:text="" />
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_columnWeight="1"
+            app:layout_gravity="fill_horizontal">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="title" />
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="created" />
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="edited" />
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="viewed" />
+        </RadioGroup>
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_columnWeight="1"
+            app:layout_gravity="fill_horizontal">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ascending" />
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="descending" />
+        </RadioGroup>
+
+    </android.support.v7.widget.GridLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Filter by:"
+        app:layout_columnSpan="3"/>
+
+    <android.support.v7.widget.GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:columnCount="3">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_columnWeight="1"
+            app:layout_gravity="fill_horizontal"
+            android:text="Created:"
+            app:layout_columnSpan="3"/>
+
+        <android.support.v7.widget.AppCompatCheckBox/>
+
+        <Button
+            android:text="01-02-2017" />
+        <Button
+            android:text="01-02-2017" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_columnWeight="1"
+            app:layout_gravity="fill_horizontal"
+            android:text="Edited:"
+            app:layout_columnSpan="3"/>
+
+        <android.support.v7.widget.AppCompatCheckBox/>
+
+        <Button
+            android:text="01-02-2017" />
+        <Button
+            android:text="01-02-2017" />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_columnWeight="1"
+            app:layout_gravity="fill_horizontal"
+            android:text="Viewed:"
+            app:layout_columnSpan="3"/>
+
+        <android.support.v7.widget.AppCompatCheckBox/>
+
+        <Button
+            android:text="01-02-2017" />
+        <Button
+            android:text="01-02-2017" />
+
+    </android.support.v7.widget.GridLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Color:"/>
+
+        <android.support.v7.widget.GridLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            app:columnCount="4"
+            app:useDefaultMargins="true">
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color" />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color"
+                android:src="@drawable/ic_done_white_24dp" />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color" />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color" />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color" />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color" />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color" />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color" />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color" />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color" />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color" />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color" />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color" />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color" />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color" />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_oval"
+                android:backgroundTint="@color/activity_list_fab_color" />
+
+        </android.support.v7.widget.GridLayout>
+
+</LinearLayout>

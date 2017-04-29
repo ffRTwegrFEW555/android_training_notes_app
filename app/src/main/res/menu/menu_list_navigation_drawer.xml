@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="@string/activity_list_nav_drawer_item_filter_sort_title">
+    <item
+        android:id="@+id/menu_list_filter_sort_profiles_item"
+        android:title="@string/activity_list_nav_drawer_item_filter_sort_title">
         <menu>
-            <group android:checkableBehavior="single">
+            <group
+                android:id="@+id/menu_list_filter_sort_profiles_group"
+                android:checkableBehavior="single">
                 <item
                     android:id="@+id/nav_camera"
                     android:title="Import" />
@@ -20,22 +24,39 @@
         </menu>
     </item>
 
+    <group
+        android:id="@+id/menu_list_filter_sort_group"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/activity_list_nav_drawer_item_filter_sort"
+            android:icon="@drawable/ic_sort_black_24dp"
+            android:title="@string/activity_list_nav_drawer_item_filter_sort" />
+    </group>
 
-    <item android:title="@string/activity_list_nav_drawer_item_actions_title">
-        <menu>
-            <item
-                android:id="@+id/activity_list_nav_drawer_item_manage_profiles"
-                android:icon="@drawable/ic_mode_edit_black_24dp"
-                android:title="@string/activity_list_nav_drawer_item_manage_profiles" />
-            <item
-                android:id="@+id/activity_list_nav_drawer_item_add_mock_entries"
-                android:icon="@drawable/ic_add_white_24dp"
-                android:title="@string/activity_list_nav_drawer_item_add_mock_entries" />
-            <item
-                android:id="@+id/activity_list_nav_drawer_item_delete_all_entries"
-                android:icon="@drawable/ic_delete_forever_black_24dp"
-                android:title="@string/activity_list_nav_drawer_item_delete_all_entries" />
-        </menu>
-    </item>
+    <group
+        android:id="@+id/menu_list_import_export_group"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/activity_list_nav_drawer_item_import_entries"
+            android:icon="@drawable/ic_import_export_black_24dp"
+            android:title="@string/activity_list_nav_drawer_item_import_entries" />
+        <item
+            android:id="@+id/activity_list_nav_drawer_item_export_entries"
+            android:icon="@drawable/ic_import_export_black_24dp"
+            android:title="@string/activity_list_nav_drawer_item_export_entries" />
+    </group>
+
+    <group
+        android:id="@+id/menu_list_add_delete_group"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/activity_list_nav_drawer_item_add_mock_entries"
+            android:icon="@drawable/ic_add_black_24dp"
+            android:title="@string/activity_list_nav_drawer_item_add_mock_entries" />
+        <item
+            android:id="@+id/activity_list_nav_drawer_item_delete_all_entries"
+            android:icon="@drawable/ic_delete_forever_black_24dp"
+            android:title="@string/activity_list_nav_drawer_item_delete_all_entries" />
+    </group>
 
 </menu>

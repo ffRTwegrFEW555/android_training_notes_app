@@ -25,6 +25,12 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="Base.TextAppearance.AppCompat.Title.WhiteAccent" parent="@style/Base.TextAppearance.AppCompat.Title">
+        <item name="colorAccent">?android:colorBackgroundFloating</item>
+        <item name="colorControlNormal">?android:colorBackgroundFloating</item>
+        <item name="colorControlActivated">?android:colorBackgroundFloating</item>
+        <item name="android:textColorHint">?android:colorBackgroundFloating</item>
+    </style>
 
     <!-- Activity Color Picker -->
     <style name="ColorPickerPopupWindowAnimation">
