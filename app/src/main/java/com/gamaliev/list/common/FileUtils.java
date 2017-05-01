@@ -3,6 +3,7 @@ package com.gamaliev.list.common;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -19,8 +20,8 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -146,8 +147,8 @@ public class FileUtils {
                 // Notification success.
                 showToast(
                         context,
-                        context.getString(R.string.file_utils_export_toast_message_success),
-                        Toast.LENGTH_SHORT);
+                        context.getString(R.string.file_utils_export_toast_message_success) + " : " + file.getPath(),
+                        Toast.LENGTH_LONG);
 
             } catch (IOException e) {
                 Log.e(TAG, e.toString());
@@ -160,7 +161,14 @@ public class FileUtils {
         }
     }
 
-    public static void importEntries(@NonNull final Context context) {
+    /**
+     * Import entries from given file path.
+     * @param context       Context.
+     * @param selectedFile  Path to file.
+     */
+    public static void importEntries(
+            @NonNull final Context context,
+            @NonNull final Uri selectedFile) {
 
         // Get input string.
         String inputJson = null;
@@ -169,14 +177,15 @@ public class FileUtils {
         if (isExternalStorageReadable() && isExternalStorageWritable()) {
 
             try {
-                // Create file
-                final File file = new File(Environment.getExternalStorageDirectory(), FILE_NAME);
-
                 //
                 StringBuilder sb = new StringBuilder();
 
                 // Read from file
-                final BufferedReader reader = new BufferedReader(new FileReader(file));
+                final BufferedReader reader =
+                        new BufferedReader(
+                                new InputStreamReader(
+                                        context.getContentResolver().openInputStream(selectedFile)));
+
                 String line = null;
                 while ((line = reader.readLine()) != null) {
                     sb.append(line);

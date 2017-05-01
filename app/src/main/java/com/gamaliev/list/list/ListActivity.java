@@ -2,6 +2,7 @@ package com.gamaliev.list.list;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -302,6 +303,11 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                             getString(R.string.activity_list_notification_entry_deleted),
                             Toast.LENGTH_SHORT);
                 }
+            } else if (requestCode == REQUEST_CODE_IMPORT) {
+
+                // If file selected, then start import.
+                Uri selectedFile = data.getData();
+                importEntries(ListActivity.this, selectedFile);
             }
         }
     }
@@ -446,7 +452,14 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
 
                     // Import entries.
                     case R.id.activity_list_nav_drawer_item_import_entries:
-                        importEntries(ListActivity.this);
+
+                        // Start file chooser.
+                        Intent intent = new Intent();
+                        intent.setType("*/*");
+                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        startActivityForResult(
+                                Intent.createChooser(intent, "Choose import-file, *.ili"),
+                                REQUEST_CODE_IMPORT);
                         break;
 
                     // Export entries.
