@@ -364,7 +364,7 @@ public final class CommonUtils {
      * @param context   Context.
      * @param date      Date, whose will be converted to String in ISO-8610 format.
      * @return  String, representing a date in ISO-8601 format.<br>
-     *          Example pattern: "yyyy-MM-dd'T'HH:mm:ssZ", "2017-04-22T21:25:35+05:00".
+     *          Example pattern: "yyyy-MM-dd'T'HH:mm:ssZZZZZ", "2017-04-22T21:25:35+05:00".
      */
     @NonNull
     public static String getStringDateISO8601(
@@ -374,9 +374,52 @@ public final class CommonUtils {
     }
 
     /**
+     * @param context   Context.
+     * @param utcDate   Date, whose will be converted to String in ISO-8610 format.
+     * @return  String, representing a date in ISO-8601 format.<br>
+     *          Example pattern: "yyyy-MM-dd'T'HH:mm:ssZZZZZ", "2017-04-22T21:25:35+05:00".
+     */
+    @Nullable
+    public static String getStringDateISO8601(
+            @NonNull final Context context,
+            @NonNull final String utcDate) {
+
+        final DateFormat df = getDateFormatSqlite(context, true);
+        Date date = null;
+        try {
+            date = df.parse(utcDate);
+        } catch (ParseException e) {
+            Log.e(TAG, e.toString());
+        }
+
+        return getDateFormatISO8601(context).format(date);
+    }
+
+    /**
+     * @param context   Context.
+     * @param iso8601   String in ISO 8601 format.
+     * @return          Date.
+     */
+    @Nullable
+    public static Date getDateFromISO8601String(
+            @NonNull final Context context,
+            @NonNull final String iso8601) {
+
+        final DateFormat df = getDateFormatISO8601(context);
+        Date date = null;
+        try {
+            date = df.parse(iso8601);
+        } catch (ParseException e) {
+            Log.e(TAG, e.toString());
+        }
+
+        return date;
+    }
+
+    /**
      * @param context Context.
      * @return  DateFormat with ISO-8601 pattern.<br>
-     *          Example pattern: "yyyy-MM-dd'T'HH:mm:ssZ", "2017-04-22T21:25:35+05:00".
+     *          Example pattern: "yyyy-MM-dd'T'HH:mm:ssZZZZZ", "2017-04-22T21:25:35+05:00".
      */
     @NonNull
     public static DateFormat getDateFormatISO8601(@NonNull final Context context) {

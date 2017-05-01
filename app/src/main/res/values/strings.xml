@@ -135,7 +135,13 @@
     <string name="shared_transition_name_color_box">color_box</string>
 
     <!-- ISO-8601 -->
-    <string name="pattern_iso_8601">yyyy-MM-dd\'T\'HH:mm:ssZ</string>
+    <string name="pattern_iso_8601">yyyy-MM-dd\'T\'HH:mm:ssZZZZZ</string>
     <string name="pattern_date_time_sqlite_format">yyyy-MM-dd HH:mm:ss</string>
+
+    <!-- File utils -->
+    <string name="file_utils_export_toast_message_success">Export successfully</string>
+    <string name="file_utils_export_toast_message_failed">Export failed</string>
+    <string name="file_utils_import_toast_message_success">Import successfully</string>
+    <string name="file_utils_import_toast_message_failed">Import failed</string>
 
 </resources>

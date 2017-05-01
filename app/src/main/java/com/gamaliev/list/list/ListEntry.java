@@ -12,7 +12,7 @@ import java.util.Date;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-class ListEntry implements Parcelable {
+public class ListEntry implements Parcelable {
 
     @Nullable private Long      id;
     @Nullable private String    title;
@@ -31,7 +31,7 @@ class ListEntry implements Parcelable {
     private static final int RW_EDITED      = 32;
     private static final int RW_VIEWED      = 64;
 
-    ListEntry() {}
+    public ListEntry() {}
 
 
     /*

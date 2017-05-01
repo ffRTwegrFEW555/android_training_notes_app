@@ -37,6 +37,8 @@ import java.util.TimerTask;
 import static com.gamaliev.list.common.CommonUtils.circularRevealAnimationOff;
 import static com.gamaliev.list.common.CommonUtils.circularRevealAnimationOn;
 import static com.gamaliev.list.common.CommonUtils.showToast;
+import static com.gamaliev.list.common.FileUtils.exportEntries;
+import static com.gamaliev.list.common.FileUtils.importEntries;
 import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.convertProfileJsonToMap;
 import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.getSelectedProfileJson;
 import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.initSharedPreferences;
@@ -49,7 +51,8 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
     /* Intents */
     private static final int REQUEST_CODE_ADD           = 1;
     private static final int REQUEST_CODE_EDIT          = 2;
-    public static final int REQUEST_CODE_DIALOG_FRAGMENT_RETURN_PROFILE = 3;
+    private static final int REQUEST_CODE_IMPORT        = 3;
+    public static final int REQUEST_CODE_DIALOG_FRAGMENT_RETURN_PROFILE = 4;
 
     private static final String RESULT_CODE_EXTRA       = "resultCodeExtra";
     public static final int RESULT_CODE_EXTRA_ADDED     = 1;
@@ -443,10 +446,12 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
 
                     // Import entries.
                     case R.id.activity_list_nav_drawer_item_import_entries:
+                        importEntries(ListActivity.this);
                         break;
 
                     // Export entries.
                     case R.id.activity_list_nav_drawer_item_export_entries:
+                        exportEntries(ListActivity.this);
                         break;
 
                     // Add mock entries.

@@ -58,7 +58,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
         Init
      */
 
-    ListDatabaseHelper(@NonNull final Context context) {
+    public ListDatabaseHelper(@NonNull final Context context) {
         super(context);
     }
 
@@ -86,7 +86,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      * Insert new entry in database.
      * @param entry Entry, contains title, description, color.
      */
-    boolean insertEntry(@NonNull final ListEntry entry) {
+    public boolean insertEntry(@NonNull final ListEntry entry) {
         try (SQLiteDatabase db = getWritableDatabase()) {
 
             // Variables
@@ -100,10 +100,25 @@ public final class ListDatabaseHelper extends DatabaseHelper {
             cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
             cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
 
-            String utcCurrentDate = getStringDateFormatSqlite(context, new Date(), true);
-            cv.put(LIST_ITEMS_COLUMN_CREATED,       utcCurrentDate);
-            cv.put(LIST_ITEMS_COLUMN_EDITED,        utcCurrentDate);
-            cv.put(LIST_ITEMS_COLUMN_VIEWED,        utcCurrentDate);
+            String utcCreatedDate =
+                    getStringDateFormatSqlite(
+                            context,
+                            entry.getCreated() == null ? new Date() : entry.getCreated(),
+                            true);
+            String utcEditedDate =
+                    getStringDateFormatSqlite(
+                            context,
+                            entry.getEdited() == null ? new Date() : entry.getEdited(),
+                            true);
+            String utcViewedDate =
+                    getStringDateFormatSqlite(
+                            context,
+                            entry.getViewed() == null ? new Date() : entry.getViewed(),
+                            true);
+
+            cv.put(LIST_ITEMS_COLUMN_CREATED,   utcCreatedDate);
+            cv.put(LIST_ITEMS_COLUMN_EDITED,    utcEditedDate);
+            cv.put(LIST_ITEMS_COLUMN_VIEWED,    utcViewedDate);
 
             // Insert
             if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
@@ -187,7 +202,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      * @return Result cursor.
      */
     @Nullable
-    Cursor getEntries(@NonNull final DatabaseQueryBuilder queryBuilder) {
+    public Cursor getEntries(@NonNull final DatabaseQueryBuilder queryBuilder) {
 
         try {
             // Open database.
