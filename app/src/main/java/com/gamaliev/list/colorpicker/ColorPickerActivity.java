@@ -140,14 +140,14 @@ public final class ColorPickerActivity extends AppCompatActivity {
         final ViewGroup paletteBarVg =
                 (ViewGroup) findViewById(R.id.activity_color_picker_ll_palette_bar);
 
-        for (int i = 1; i < hsvColors.length; i += 2) {
-            // Params
-            final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    (int) resources.getDimension(R.dimen.activity_color_picker_palette_box_width),
-                    (int) resources.getDimension(R.dimen.activity_color_picker_palette_box_height));
-            final int m = (int) resources.getDimension(R.dimen.activity_color_picker_palette_box_margin);
-            params.setMargins(m, m, m, m);
+        // Params
+        final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                (int) resources.getDimension(R.dimen.activity_color_picker_palette_box_width),
+                (int) resources.getDimension(R.dimen.activity_color_picker_palette_box_height));
+        final int m = (int) resources.getDimension(R.dimen.activity_color_picker_palette_box_margin);
+        params.setMargins(m, m, m, m);
 
+        for (int i = 1; i < hsvColors.length; i += 2) {
             // Create color box with default or overridden color.
             final int color = hsvColorsOverridden[i] != -1 ? hsvColorsOverridden[i] : hsvColors[i];
             final View colorBox = new FrameLayout(this);
@@ -178,14 +178,14 @@ public final class ColorPickerActivity extends AppCompatActivity {
                 (ViewGroup) findViewById(R.id.activity_color_picker_ll_favorite_bar);
         final int boxesNumber = resources.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
 
-        for (int i = 0; i < boxesNumber; i++) {
-            // Params
-            final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    (int) resources.getDimension(R.dimen.activity_color_picker_favorite_box_width),
-                    (int) resources.getDimension(R.dimen.activity_color_picker_favorite_box_height));
-            final int m = (int) resources.getDimension(R.dimen.activity_color_picker_favorite_box_margin);
-            params.setMargins(m, m, m, m);
+        // Params
+        final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                (int) resources.getDimension(R.dimen.activity_color_picker_favorite_box_width),
+                (int) resources.getDimension(R.dimen.activity_color_picker_favorite_box_height));
+        final int m = (int) resources.getDimension(R.dimen.activity_color_picker_favorite_box_margin);
+        params.setMargins(m, m, m, m);
 
+        for (int i = 0; i < boxesNumber; i++) {
             // Create color box with color from database.
             final View button = new Button(this);
 

@@ -19,32 +19,27 @@ public final class DatabaseQueryBuilder {
     private static final String TAG = DatabaseQueryBuilder.class.getSimpleName();
 
     /* SQL */
-    public static final String OPERATOR_OR              = " OR ";
-    public static final String OPERATOR_AND             = " AND ";
-    public static final String OPERATOR_EQUALS          = " = ";
-    public static final String OPERATOR_BETWEEN         = " BETWEEN ";
-    public static final String OPERATOR_LIKE            = " LIKE ";
+    public static final String OPERATOR_OR      = " OR ";
+    public static final String OPERATOR_AND     = " AND ";
+    public static final String OPERATOR_EQUALS  = " = ";
+    public static final String OPERATOR_BETWEEN = " BETWEEN ";
+    public static final String OPERATOR_LIKE    = " LIKE ";
 
-    private static final String SYMBOL_MASK             = " ? ";
-    private static final String SYMBOL_PERCENT          = "%";
+    private static final String SYMBOL_MASK     = " ? ";
+    private static final String SYMBOL_PERCENT  = "%";
 
     @Nullable private String[] selection;
     @Nullable private String[] selectionArgs;
 
-    @NonNull private String order   = DatabaseHelper.BASE_COLUMN_ID;
-    @NonNull private String ascDesc = DatabaseHelper.ORDER_ASCENDING;
-
-    /* */
-    @NonNull private final Context context;
+    @NonNull private String order   = DatabaseHelper.ORDER_COLUMN_DEFAULT;
+    @NonNull private String ascDesc = DatabaseHelper.ORDER_ASC_DESC_DEFAULT;
 
 
     /*
         Init
      */
 
-    public DatabaseQueryBuilder(@NonNull final Context context) {
-        this.context = context;
-    }
+    public DatabaseQueryBuilder() {}
 
 
     /*
@@ -313,7 +308,7 @@ public final class DatabaseQueryBuilder {
 
     /**
      * Set sort order of query. If null or Empty, then set default value
-     * {@link com.gamaliev.list.common.DatabaseHelper#BASE_COLUMN_ID}<br>
+     * {@link com.gamaliev.list.common.DatabaseHelper#ORDER_COLUMN_DEFAULT}<br>
      *     See also: <br>
      *     {@link com.gamaliev.list.common.DatabaseHelper#BASE_COLUMN_ID}<br>
      *     {@link com.gamaliev.list.common.DatabaseHelper#LIST_ITEMS_COLUMN_TITLE}<br>
@@ -333,7 +328,7 @@ public final class DatabaseQueryBuilder {
 
     /**
      * Set ascending / descending of sorting order. If null or Empty, then set default value
-     * {@link com.gamaliev.list.common.DatabaseHelper#ORDER_ASCENDING}<br>
+     * {@link com.gamaliev.list.common.DatabaseHelper#ORDER_ASC_DESC_DEFAULT}<br>
      * @param ascDesc <br>
      *     {@link com.gamaliev.list.common.DatabaseHelper#ORDER_ASCENDING}<br>
      *     {@link com.gamaliev.list.common.DatabaseHelper#ORDER_DESCENDING}<br>

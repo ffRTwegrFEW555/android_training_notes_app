@@ -18,13 +18,14 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-import static com.gamaliev.list.list.ListActivity.SP_FILTER_COLOR;
-import static com.gamaliev.list.list.ListActivity.SP_FILTER_CREATED;
-import static com.gamaliev.list.list.ListActivity.SP_FILTER_EDITED;
-import static com.gamaliev.list.list.ListActivity.SP_FILTER_SORT_ID;
-import static com.gamaliev.list.list.ListActivity.SP_FILTER_VIEWED;
-import static com.gamaliev.list.list.ListActivity.SP_ORDER;
-import static com.gamaliev.list.list.ListActivity.SP_ORDER_ASC_DESC;
+import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_COLOR;
+import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_CREATED;
+import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_EDITED;
+import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_ID;
+import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_ORDER;
+import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_ORDER_ASC;
+import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_TITLE;
+import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_VIEWED;
 
 /**
  * @author Vadim Gamaliev
@@ -37,12 +38,12 @@ public final class ListDatabaseMockHelper extends DatabaseHelper {
     private static final String TAG = ListDatabaseMockHelper.class.getSimpleName();
 
     /* Mock data */
-    public static final String[] LIST_MOCK_NAMES = {
+    private static final String[] LIST_MOCK_NAMES = {
             "Anastasia Aleksandrova", "Boris Babushkin", "Viktor Vasilyev", "Gennady Georgiyev",
             "Dmitry Dudinsky", "Yelena Yeremeyeva", "Pyotr Vorobyov", "Tatyana Terentyeva",
             "Svetlana Stasova", "Maria Timmerman"};
 
-    public static final String[] LIST_MOCK_DESCRIPTION = {
+    private static final String[] LIST_MOCK_DESCRIPTION = {
             "Passion", "Smile", "Love", "Eternity", "Fantastic", "Destiny", "Freedom", "Liberty",
             "Tranquillity", "Peace", "Sunshine", "Gorgeous", "Hope", "Grace", "Rainbow",
             "Sunflower", "serendipity", "bliss", "cute", "hilarious", "aqua", "sentiment",
@@ -50,7 +51,11 @@ public final class ListDatabaseMockHelper extends DatabaseHelper {
             "renaissance", "cosy", "butterfly", "galaxy", "moment", "cosmopolitan", "lollipop"
     };
 
-    public static final String[] LIST_MOCK_DATE = {
+    private static final String[] LIST_MOCK_DATE = {
+            "2017-04-29 21:25:35",
+            "2017-04-28 21:25:35",
+            "2017-04-27 21:25:35",
+            "2017-04-26 21:25:35",
             "2017-04-25 21:25:35",
             "2017-04-24 21:25:35",
             "2017-04-23 21:25:35",
@@ -61,36 +66,48 @@ public final class ListDatabaseMockHelper extends DatabaseHelper {
 
     private static final String[][] SP_MOCK_DATA = new String[][] {
             {"0",
+                    "Without filter, title asc",
                     "",
                     "",
                     "",
                     "",
-                    "",
-                    ""},
+                    LIST_ITEMS_COLUMN_TITLE,
+                    ORDER_ASC_DESC_DEFAULT},
 
             {"1",
-                    "53248",
-                    "2017-04-20 21:25:35#2017-04-21 21:25:35",
-                    "2017-04-20 21:25:35#2017-04-21 21:25:35",
-                    "2017-04-20 21:25:35#2017-04-21 21:25:35",
+                    "Dates, color, title asc",
+                    "-53248",
+                    "2017-04-20 00:00:00#2017-04-29 00:00:00",
+                    "2017-04-20 00:00:00#2017-04-26 00:00:00",
+                    "2017-04-23 00:00:00#2017-04-29 00:00:00",
                     LIST_ITEMS_COLUMN_TITLE,
                     ORDER_ASCENDING},
 
             {"2",
+                    "Created desc, color",
                     "-16711824",
-                    "2017-04-22 21:25:35#2017-04-23 21:25:35",
-                    "2017-04-22 21:25:35#2017-04-23 21:25:35",
-                    "2017-04-22 21:25:35#2017-04-23 21:25:35",
+                    "2017-04-24 00:00:00#2017-04-29 00:00:00",
+                    "",
+                    "2017-04-20 00:00:00#2017-04-29 00:00:00",
                     LIST_ITEMS_COLUMN_CREATED,
                     ORDER_DESCENDING},
 
             {"3",
+                    "Color, edited filter, edit asc.",
                     "-4096",
-                    "2017-04-24 21:25:35#2017-04-25 21:25:35",
-                    "2017-04-24 21:25:35#2017-04-25 21:25:35",
-                    "2017-04-24 21:25:35#2017-04-25 21:25:35",
+                    "",
+                    "2017-04-23 00:00:00#2017-04-29 00:00:00",
+                    "",
                     LIST_ITEMS_COLUMN_EDITED,
-                    ORDER_ASCENDING}
+                    ORDER_ASCENDING},
+            {"4",
+                    "No color, title desc, edit.",
+                    "",
+                    "",
+                    "2017-04-23 00:00:00#2017-04-29 00:00:00",
+                    "",
+                    LIST_ITEMS_COLUMN_TITLE,
+                    ORDER_DESCENDING}
     };
 
 
@@ -208,16 +225,18 @@ public final class ListDatabaseMockHelper extends DatabaseHelper {
     public static Set<String> getMockProfiles() {
         final Set<String> profiles = new HashSet<>();
 
+        JSONObject jsonObject;
         for (String[] entry : SP_MOCK_DATA) {
             try {
-                final JSONObject jsonObject = new JSONObject();
-                jsonObject.put(SP_FILTER_SORT_ID,   entry[0]);
-                jsonObject.put(SP_FILTER_COLOR,     entry[1]);
-                jsonObject.put(SP_FILTER_CREATED,   entry[2]);
-                jsonObject.put(SP_FILTER_EDITED,    entry[3]);
-                jsonObject.put(SP_FILTER_VIEWED,    entry[4]);
-                jsonObject.put(SP_ORDER,            entry[5]);
-                jsonObject.put(SP_ORDER_ASC_DESC,   entry[6]);
+                jsonObject = new JSONObject();
+                jsonObject.put(SP_FILTER_ID,        entry[0]);
+                jsonObject.put(SP_FILTER_TITLE,     entry[1]);
+                jsonObject.put(SP_FILTER_COLOR,     entry[2]);
+                jsonObject.put(SP_FILTER_CREATED,   entry[3]);
+                jsonObject.put(SP_FILTER_EDITED,    entry[4]);
+                jsonObject.put(SP_FILTER_VIEWED,    entry[5]);
+                jsonObject.put(SP_FILTER_ORDER,     entry[6]);
+                jsonObject.put(SP_FILTER_ORDER_ASC, entry[7]);
 
                 profiles.add(jsonObject.toString());
 

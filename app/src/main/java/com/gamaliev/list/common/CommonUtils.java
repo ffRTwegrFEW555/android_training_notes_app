@@ -15,7 +15,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.widget.Toast;
@@ -23,10 +26,14 @@ import android.widget.Toast;
 import com.gamaliev.list.R;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
+
+import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_SYMBOL_DATE_SPLIT;
 
 /**
  * @author Vadim Gamaliev
@@ -34,6 +41,25 @@ import java.util.TimeZone;
  */
 
 public final class CommonUtils {
+
+    /* Logger */
+    private static final String TAG = CommonUtils.class.getSimpleName();
+
+    /* Extra */
+    public static final int EXTRA_DATES_FROM_DATETIME              = 0;
+    public static final int EXTRA_DATES_FROM_DATE_UTC_TO_LOCALTIME = 1;
+    public static final int EXTRA_DATES_FROM_DATE_LOCALTIME_TO_UTC = 2;
+    public static final int EXTRA_DATES_FROM_DATE                  = 3;
+    public static final int EXTRA_DATES_TO_DATETIME                = 4;
+    public static final int EXTRA_DATES_TO_DATE_UTC_TO_LOCALTIME   = 5;
+    public static final int EXTRA_DATES_TO_DATE_LOCALTIME_TO_UTC   = 6;
+    public static final int EXTRA_DATES_TO_DATE                    = 7;
+    public static final int EXTRA_DATES_BOTH                       = 8;
+
+
+    /*
+        Init
+     */
 
     private CommonUtils() {}
 
@@ -313,7 +339,7 @@ public final class CommonUtils {
             @NonNull final Context context,
             final int resourceColor) {
 
-        int color = 0;
+        int color;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             color = context.getResources().getColor(resourceColor, null);
         } else {
@@ -359,6 +385,11 @@ public final class CommonUtils {
                 Locale.ENGLISH);
     }
 
+
+    /*
+        UTC <- -> Localtime
+     */
+
     /**
      * @param context   Context.
      * @param date      Date, whose will be converted to String.
@@ -392,5 +423,119 @@ public final class CommonUtils {
             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         }
         return dateFormat;
+    }
+
+    /**
+     * Convert string from UTC-format to Localtime-format.
+     * @param context   Context.
+     * @param utcString String with UTC format.
+     * @return          String with Localtime format.
+     */
+    @Nullable
+    public static String convertUtcToLocal(
+            @NonNull final Context context,
+            @NonNull final String utcString) {
+
+        try {
+            // Parse UTC string to date.
+            final Date parsedUtcDate = getDateFormatSqlite(context, true).parse(utcString);
+
+            // Get localtime string from date and return.
+            return getDateFormatSqlite(context, false).format(parsedUtcDate);
+
+        } catch (ParseException e) {
+            Log.e(TAG, e.toString());
+        }
+
+        return null;
+    }
+
+    /**
+     * Convert string from Localtime-format to UTC-format.
+     * @param context           Context.
+     * @param localtimeString   String with Localtime format.
+     * @return                  String with UTC format.
+     */
+    @Nullable
+    public static String convertLocalToUtc(
+            @NonNull final Context context,
+            @NonNull final String localtimeString) {
+
+        try {
+            // Parse Localtime string to date.
+            final Date parsedLocaltimeDate = getDateFormatSqlite(context, false).parse(localtimeString);
+
+            // Get UTC string from date and return.
+            return getDateFormatSqlite(context, true).format(parsedLocaltimeDate);
+
+        } catch (ParseException e) {
+            Log.e(TAG, e.toString());
+        }
+
+        return null;
+    }
+
+    /**
+     * Get date in different formats.
+     *
+     * @param context           Context.
+     * @param profileMap        Profile.
+     * @param filterCategory    {@link com.gamaliev.list.list.ListActivitySharedPreferencesUtils#SP_FILTER_CREATED},
+     *                          {@link com.gamaliev.list.list.ListActivitySharedPreferencesUtils#SP_FILTER_EDITED},
+     *                          {@link com.gamaliev.list.list.ListActivitySharedPreferencesUtils#SP_FILTER_VIEWED}.
+     * @param fromToBothResult  EXTRA_DATES_*.
+     * @return                  date in different formats.
+     */
+    @Nullable
+    public static String getDateFromProfileMap(
+            @NonNull final Context context,
+            @NonNull final Map<String, String> profileMap,
+            @NonNull final String filterCategory,
+            final int fromToBothResult) {
+
+        // Init.
+        final String dates = profileMap.get(filterCategory);
+
+        // Check
+        if (TextUtils.isEmpty(dates)) {
+            return null;
+        }
+
+        // Get both dates.
+        final String[] datesBoth = dates.split(SP_FILTER_SYMBOL_DATE_SPLIT);
+        final String dateFrom = datesBoth[0];
+        final String dateTo = datesBoth[1];
+
+        switch (fromToBothResult) {
+            case EXTRA_DATES_FROM_DATETIME:
+                return dateFrom;
+
+            case EXTRA_DATES_FROM_DATE:
+                return dateFrom.split(" ")[0];
+
+            case EXTRA_DATES_FROM_DATE_UTC_TO_LOCALTIME:
+                return convertUtcToLocal(context, dateFrom).split(" ")[0];
+
+            case EXTRA_DATES_FROM_DATE_LOCALTIME_TO_UTC:
+                return convertLocalToUtc(context, dateFrom).split(" ")[1];
+
+            case EXTRA_DATES_TO_DATETIME:
+                return dateTo;
+
+            case EXTRA_DATES_TO_DATE:
+                return dateTo.split(" ")[0];
+
+            case EXTRA_DATES_TO_DATE_UTC_TO_LOCALTIME:
+                return convertUtcToLocal(context, dateTo).split(" ")[0];
+
+            case EXTRA_DATES_TO_DATE_LOCALTIME_TO_UTC:
+                return convertLocalToUtc(context, dateTo).split(" ")[1];
+
+            case EXTRA_DATES_BOTH:
+                return dates;
+
+            default:
+                return null;
+        }
     }
 }

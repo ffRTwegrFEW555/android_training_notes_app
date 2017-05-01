@@ -11,4 +11,11 @@
         app:showAsAction="always|collapseActionView"
         app:actionViewClass="android.support.v7.widget.SearchView" />
 
+    <!-- Filter / Sort menu item -->
+    <item android:id="@+id/menu_list_filter_sort"
+        android:title="@string/menu_list_action_filter_sort_title"
+        android:icon="@drawable/ic_sort_white_24dp"
+        android:orderInCategory="20"
+        app:showAsAction="always"/>
+
 </menu>

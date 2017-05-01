@@ -53,10 +53,8 @@
     <!-- Delete alert dialog -->
     <string name="activity_item_details_delete_dialog_title">Delete</string>
     <string name="activity_item_details_delete_dialog_message">Do you really want to delete this entry?</string>
-    <string name="activity_item_details_delete_dialog_button_ok">OK</string>
+    <string name="activity_item_details_delete_dialog_button_ok">Delete</string>
     <string name="activity_item_details_delete_dialog_button_cancel">Cancel</string>
-
-
 
 
     <!--                -->
@@ -70,21 +68,47 @@
     <string name="activity_list_nav_drawer_open">Open navigation drawer</string>
     <string name="activity_list_nav_drawer_close">Close navigation drawer</string>
     <string name="activity_list_nav_drawer_text_mail">gamaliev-vadim@yandex.com</string>
-    <string name="activity_list_nav_drawer_item_filter_sort_title">Filter / sort profiles</string>
-    <string name="activity_list_nav_drawer_item_actions_title">Actions</string>
-    <string name="activity_list_nav_drawer_item_filter_sort">Filter / Sort</string>
     <string name="activity_list_nav_drawer_item_add_mock_entries">Add example</string>
     <string name="activity_list_nav_drawer_item_delete_all_entries">Delete all</string>
     <string name="activity_list_nav_drawer_item_import_entries">Import notes</string>
     <string name="activity_list_nav_drawer_item_export_entries">Export notes</string>
+    <string name="activity_list_nav_drawable_header_image_view_description">Notes</string>
 
     <!-- Other -->
     <string name="activity_list_notification_found_text">Found:</string>
     <string name="activity_list_notification_entry_added">Entry added</string>
     <string name="activity_list_notification_entry_updated">Entry updated</string>
     <string name="activity_list_notification_entry_deleted">Entry deleted</string>
+    <string name="activity_list_notification_filtered">Filtered</string>
     <string name="activity_list_notification_add_mock_entries">Mock entries added</string>
     <string name="activity_list_notification_delete_all_entries">All entries deleted</string>
+
+    <!-- Filter / sort dialog -->
+    <string name="activity_item_details_delete_dialog_date_text_default">---</string>
+    <string name="activity_item_details_delete_dialog_date_text_from">From</string>
+    <string name="activity_item_details_delete_dialog_date_text_to">To</string>
+    <string name="activity_list_filter_dialog_action_button_cancel_text">Cancel</string>
+    <string name="activity_list_filter_dialog_action_button_filter_text">Filter</string>
+    <string name="activity_list_filter_dialog_profiles_title_text">Profiles:</string>
+    <string name="activity_list_filter_dialog_sorting_by_title_text">Sorting by:</string>
+    <string name="activity_list_filter_dialog_filter_by_title_text">Filter by:</string>
+    <string name="activity_list_filter_dialog_color_by_title_text">Color:</string>
+    <string name="activity_list_filter_dialog_color_by_default_text">All colors</string>
+    <string name="activity_list_filter_dialog_filter_by_created_title_text">Created:</string>
+    <string name="activity_list_filter_dialog_filter_by_edited_title_text">Edited:</string>
+    <string name="activity_list_filter_dialog_filter_by_viewed_title_text">Viewed:</string>
+    <string name="activity_list_filter_dialog_profiles_save_current_button_text">Add current</string>
+    <string name="activity_list_filter_dialog_order_title_text">title</string>
+    <string name="activity_list_filter_dialog_order_created_text">created</string>
+    <string name="activity_list_filter_dialog_order_edited_text">edited</string>
+    <string name="activity_list_filter_dialog_order_viewed_text">viewed</string>
+    <string name="activity_list_filter_dialog_order_asc_text">ascending</string>
+    <string name="activity_list_filter_dialog_order_desc_text">descending</string>
+    <string name="activity_list_filter_dialog_profile_delete_text">Delete profile</string>
+    <string name="activity_list_filter_dialog_profile_input_text_title">Enter your title:</string>
+    <string name="activity_list_filter_dialog_profile_input_text_save_title">Save</string>
+    <string name="activity_list_filter_dialog_profile_input_text_cancel_title">Cancel</string>
+    <string name="activity_list_filter_dialog_profile_found_text">Found:</string>
 
 
     <!--            -->
@@ -93,8 +117,7 @@
 
     <!-- Other -->
     <string name="menu_list_search_title">Search</string>
-    <string name="menu_list_action_delete_all_entries_title">Delete all</string>
-    <string name="menu_list_action_fill_mock_title">Fill example</string>
+    <string name="menu_list_action_filter_sort_title">Filter / sort</string>
     <string name="menu_list_item_details_action_done">Save</string>
     <string name="menu_list_item_details_action_cancel">Cancel</string>
     <string name="menu_list_item_details_action_delete">Delete</string>

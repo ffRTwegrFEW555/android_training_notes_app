@@ -1,12 +1,12 @@
 package com.gamaliev.list.list;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
@@ -16,8 +16,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,30 +29,19 @@ import com.gamaliev.list.R;
 import com.gamaliev.list.common.DatabaseHelper;
 import com.gamaliev.list.common.DatabaseQueryBuilder;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.gamaliev.list.common.CommonUtils.circularRevealAnimationOff;
 import static com.gamaliev.list.common.CommonUtils.circularRevealAnimationOn;
 import static com.gamaliev.list.common.CommonUtils.showToast;
-import static com.gamaliev.list.common.DatabaseHelper.BASE_COLUMN_ID;
-import static com.gamaliev.list.common.DatabaseHelper.FAVORITE_COLUMN_COLOR;
-import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_CREATED;
-import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_EDITED;
-import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
-import static com.gamaliev.list.common.DatabaseQueryBuilder.OPERATOR_BETWEEN;
-import static com.gamaliev.list.common.DatabaseQueryBuilder.OPERATOR_EQUALS;
-import static com.gamaliev.list.common.DatabaseQueryBuilder.OPERATOR_LIKE;
+import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.convertProfileJsonToMap;
+import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.getSelectedProfileJson;
+import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.initSharedPreferences;
 
-public class ListActivity extends AppCompatActivity {
+public class ListActivity extends AppCompatActivity implements FilterSortDialogFragment.OnCompleteListener {
 
     /* Logger */
     private static final String TAG = ListActivity.class.getSimpleName();
@@ -62,13 +49,15 @@ public class ListActivity extends AppCompatActivity {
     /* Intents */
     private static final int REQUEST_CODE_ADD           = 1;
     private static final int REQUEST_CODE_EDIT          = 2;
+    public static final int REQUEST_CODE_DIALOG_FRAGMENT_RETURN_PROFILE = 3;
+
     private static final String RESULT_CODE_EXTRA       = "resultCodeExtra";
     public static final int RESULT_CODE_EXTRA_ADDED     = 1;
     public static final int RESULT_CODE_EXTRA_EDITED    = 2;
     public static final int RESULT_CODE_EXTRA_DELETED   = 3;
 
     /* SQLite */
-    @NonNull private static final String[] SEARCH_COLUMNS = {
+    @NonNull public static final String[] SEARCH_COLUMNS = {
             DatabaseHelper.LIST_ITEMS_COLUMN_TITLE,
             DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION};
 
@@ -76,28 +65,10 @@ public class ListActivity extends AppCompatActivity {
     @NonNull private ListCursorAdapter adapter;
     @NonNull private FilterQueryProvider queryProvider;
 
-    /* Shared Preferences */
-    private static final String SP_HAS_VISITED                  = "hasVisited";
-    private static final String SP_ACTION_LOAD                  = "load";
-    private static final String SP_ACTION_SAVE                  = "save";
-    private static final String SP_FILTER_SORT_PROFILE_SELECTED = "filterSortProfileSelected";
-    private static final String SP_FILTER_SORT_PROFILES_SET     = "filterSortProfilesSet";
-    private static final String SP_FILTER_SORT_ID_DEFAULT       = "0";
-
-    public static final String SP_FILTER_SORT_ID               = BASE_COLUMN_ID;
-    public static final String SP_FILTER_COLOR                 = FAVORITE_COLUMN_COLOR;
-    public static final String SP_FILTER_CREATED               = LIST_ITEMS_COLUMN_CREATED;
-    public static final String SP_FILTER_EDITED                = LIST_ITEMS_COLUMN_EDITED;
-    public static final String SP_FILTER_VIEWED                = LIST_ITEMS_COLUMN_VIEWED;
-    public static final String SP_FILTER_SYMBOL_DATE_SPLIT     = "#";
-
-    public static final String SP_ORDER                        = "order";
-    public static final String SP_ORDER_ASC_DESC               = "orderAscDesc";
-
     /* */
     @NonNull private ListView listView;
     @NonNull private Button foundView;
-    @NonNull private Map<String, String> settings;
+    @NonNull private Map<String, String> profileMap;
     private long timerFound;
 
 
@@ -108,17 +79,18 @@ public class ListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_drawer_layout);
-        init();
+            setContentView(R.layout.activity_list_drawer_layout);
+            init();
     }
 
     private void init() {
+        initSharedPreferences(this);
+
         queryProvider   = getFilterQueryProvider();
         foundView       = (Button) findViewById(R.id.activity_list_button_found);
-        settings        = new HashMap<>();
+        profileMap      = convertProfileJsonToMap(getSelectedProfileJson(this));
 
         initToolbarAndNavigationDrawer();
-        initSharedPreferences();
         setFabOnClickListener();
         refreshDbConnectAndView();
     }
@@ -148,31 +120,6 @@ public class ListActivity extends AppCompatActivity {
     }
 
     /**
-     * Load setting from shared preferences.<br>
-     * If activity start first time,
-     * then save default settings in shared preferences of this activity.
-     */
-    private void initSharedPreferences() {
-        final SharedPreferences sp = getPreferences(MODE_PRIVATE);
-
-        if(!sp.getBoolean(SP_HAS_VISITED, false)) {
-            // Get editor.
-            final SharedPreferences.Editor editor = sp.edit();
-
-            // Put mock and default values.
-            final Set<String> profiles = ListDatabaseMockHelper.getMockProfiles();
-            editor.putStringSet(SP_FILTER_SORT_PROFILES_SET, profiles);
-            editor.putString(SP_FILTER_SORT_PROFILE_SELECTED, SP_FILTER_SORT_ID_DEFAULT);
-
-            // Mark visited.
-            editor.putBoolean(SP_HAS_VISITED, true);
-            editor.apply();
-        }
-
-        loadSharedPreferences();
-    }
-
-    /**
      * Start {@link com.gamaliev.list.list.ItemDetailsActivity} activity for result,
      * with Add new entry action.
      */
@@ -189,13 +136,13 @@ public class ListActivity extends AppCompatActivity {
      * Open a new database helper, get cursor, create and set adapter,
      * set on click listener, set filter query provider.<br>
      * See also: {@link com.gamaliev.list.list.ListDatabaseHelper}
+     * See also: {@link com.gamaliev.list.list.ListDatabaseHelper}
      */
     private void refreshDbConnectAndView() {
         if (dbHelper == null) {
             dbHelper = new ListDatabaseHelper(this);
         }
-        // TODO: FILTERED CURSOR
-        Cursor cursor   = dbHelper.getEntries(new DatabaseQueryBuilder(this));
+        Cursor cursor   = dbHelper.getEntries(new DatabaseQueryBuilder());
         adapter         = new ListCursorAdapter(this, cursor, 0);
         listView        = (ListView) findViewById(R.id.activity_list_listview);
         listView.setAdapter(adapter);
@@ -225,6 +172,10 @@ public class ListActivity extends AppCompatActivity {
 
         // SearchView filter query provider.
         adapter.setFilterQueryProvider(queryProvider);
+
+        // Apply filter.
+        adapter.getFilter().filter("");
+        showFoundNotification();
     }
 
 
@@ -238,10 +189,10 @@ public class ListActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_list, menu);
-        setupSearchView(menu);
+        initSearchView(menu);
+        initFilterMenu(menu);
         return super.onCreateOptionsMenu(menu);
     }
-
 
     /**
      * Setting SearchView listener.<br>
@@ -249,7 +200,7 @@ public class ListActivity extends AppCompatActivity {
      * Also there is a notification about the number of positions found.
      * @param menu Action bar menu of activity.
      */
-    private void setupSearchView(@NonNull final Menu menu) {
+    private void initSearchView(@NonNull final Menu menu) {
         final SearchView searchView =
                 (SearchView) menu.findItem(R.id.menu_list_search).getActionView();
 
@@ -269,12 +220,19 @@ public class ListActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Action bar menu item selection handler.
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
+    private void initFilterMenu(@NonNull final Menu menu) {
+        // Filter / Sort list.
+        menu.findItem(R.id.menu_list_filter_sort)
+                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                // Launch dialog.
+                FilterSortDialogFragment df = new FilterSortDialogFragment();
+                df.show(getFragmentManager(), null);
+                return true;
+            }
+        });
     }
 
 
@@ -317,18 +275,11 @@ public class ListActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CODE_ADD) {
-                // If new position added, then update list and scroll to new position (to end).
-                // TODO: if sort by name?
-                refreshDbConnectAndView();
-                timerDelayRunForScroll(
-                        listView,
-                        adapter.getCount(),
-                        getResources().getInteger(R.integer.activity_list_smooth_scroll_delay));
 
                 // Notification if added.
                 showToast(
                         this,
-                        getResources().getString(R.string.activity_list_notification_entry_added),
+                        getString(R.string.activity_list_notification_entry_added),
                         Toast.LENGTH_SHORT);
 
             } else if (requestCode == REQUEST_CODE_EDIT) {
@@ -338,36 +289,31 @@ public class ListActivity extends AppCompatActivity {
                     // Notification if edited.
                     showToast(
                             this,
-                            getResources().getString(R.string.activity_list_notification_entry_updated),
+                            getString(R.string.activity_list_notification_entry_updated),
                             Toast.LENGTH_SHORT);
 
                 } else if (data.getIntExtra(RESULT_CODE_EXTRA, -1) == RESULT_CODE_EXTRA_DELETED) {
                     // Notification if deleted.
                     showToast(
                             this,
-                            getResources().getString(R.string.activity_list_notification_entry_deleted),
+                            getString(R.string.activity_list_notification_entry_deleted),
                             Toast.LENGTH_SHORT);
                 }
             }
         }
     }
 
-    /**
-     * Smooth scroll ListView object to given position, and delay time.
-     * @param listView  ListView object.
-     * @param position  Position to scroll.
-     * @param time      Delay before start scrolling.
-     */
-    private void timerDelayRunForScroll(
-            @NonNull final ListView listView,
-            final int position,
-            final long time) {
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                listView.smoothScrollToPosition(position);
-            }
-        }, time);
+    @Override
+    public void onComplete(final int code, @Nullable final Object object) {
+        if (code == REQUEST_CODE_DIALOG_FRAGMENT_RETURN_PROFILE && object != null) {
+            profileMap = convertProfileJsonToMap(getSelectedProfileJson(this));
+            adapter.getFilter().filter("");
+            showFoundNotification();
+            showToast(
+                    this,
+                    getString(R.string.activity_list_notification_filtered),
+                    Toast.LENGTH_SHORT);
+        }
     }
 
 
@@ -389,7 +335,6 @@ public class ListActivity extends AppCompatActivity {
     /*
         Found notification
      */
-
 
     /**
      * Show found notification.<br>
@@ -417,7 +362,7 @@ public class ListActivity extends AppCompatActivity {
 
                 // Set text.
                 foundView.setText(String.format(Locale.ENGLISH,
-                        getResources().getString(R.string.activity_list_notification_found_text) + "\n%d",
+                        getString(R.string.activity_list_notification_found_text) + "\n%d",
                         listView.getCount()));
 
                 // Set start time of the notification display.
@@ -463,84 +408,6 @@ public class ListActivity extends AppCompatActivity {
 
 
     /*
-        Shared preferences
-     */
-
-    /**
-     * Load settings from shared preferences of this activity
-     */
-    private void loadSharedPreferences() {
-        makeActionSharedPreferences(SP_ACTION_LOAD);
-    }
-
-    /**
-     * Save settings to shared preferences of this activity
-     */
-    private void saveSharedPreferences() {
-        makeActionSharedPreferences(SP_ACTION_SAVE);
-    }
-
-    /**
-     * Main logic for load/save settings from/to shared preferences of this activity.
-     * @param action {@link #SP_ACTION_LOAD}, {@link #SP_ACTION_SAVE}
-     */
-    private void makeActionSharedPreferences(@NonNull final String action) {
-        final SharedPreferences sp = getPreferences(MODE_PRIVATE);
-
-        // Get selected profile.
-        final String selectedProfile = sp.getString(
-                SP_FILTER_SORT_PROFILE_SELECTED,
-                SP_FILTER_SORT_ID_DEFAULT);
-
-        // Get all profiles.
-        final Set<String> profiles = sp.getStringSet(
-                SP_FILTER_SORT_PROFILES_SET,
-                new HashSet<String>());
-
-        // Seek profiles.
-        for (String profile : profiles) {
-
-            try {
-                JSONObject profileJson = new JSONObject(profile);
-
-                // Get id.
-                String id = profileJson.optString(SP_FILTER_SORT_ID, "-1");
-
-                // If found, process and break, else seek next;
-                if (selectedProfile.equals(id)) {
-
-                    if (SP_ACTION_SAVE.equals(action)) {
-                        // Update profile from map to shared preferences.
-                        JSONObject profileJsonFromMap = new JSONObject(settings);
-                        profile = profileJsonFromMap.toString();
-
-                        // Save profiles to shared preferences.
-                        final SharedPreferences.Editor editor = sp.edit();
-                        editor.putStringSet(SP_FILTER_SORT_PROFILES_SET, profiles);
-                        editor.apply();
-
-                    } else if (SP_ACTION_LOAD.equals(action)) {
-                        // Put key-value pairs to settings map.
-                        settings.put(SP_FILTER_SORT_ID, profileJson.optString(SP_FILTER_SORT_ID));
-                        settings.put(SP_FILTER_COLOR,   profileJson.optString(SP_FILTER_COLOR,  ""));
-                        settings.put(SP_FILTER_CREATED, profileJson.optString(SP_FILTER_CREATED,""));
-                        settings.put(SP_FILTER_EDITED,  profileJson.optString(SP_FILTER_EDITED, ""));
-                        settings.put(SP_FILTER_VIEWED,  profileJson.optString(SP_FILTER_VIEWED, ""));
-                        settings.put(SP_ORDER,          profileJson.optString(SP_ORDER,         ""));
-                        settings.put(SP_ORDER_ASC_DESC, profileJson.optString(SP_ORDER_ASC_DESC,""));
-                    }
-
-                    break;
-                }
-
-            } catch (JSONException e) {
-                Log.e(TAG, e.toString());
-            }
-        }
-    }
-
-
-    /*
         Methods
      */
 
@@ -553,66 +420,10 @@ public class ListActivity extends AppCompatActivity {
             @Override
             public Cursor runQuery(CharSequence constraint) {
 
-                // Create and fill query builder for text search.
-                final DatabaseQueryBuilder searchTextQueryBuilder = new DatabaseQueryBuilder(ListActivity.this);
-
-                // Add text for search in 'Name' and 'Description' columns.
-                searchTextQueryBuilder
-                        .addOr( SEARCH_COLUMNS[0],
-                                OPERATOR_LIKE,
-                                new String[] {constraint.toString()})
-
-                        .addOr( SEARCH_COLUMNS[1],
-                                OPERATOR_LIKE,
-                                new String[] {constraint.toString()});
-
-                // Create and fill query result builder.
-                final DatabaseQueryBuilder resultQueryBuilder = new DatabaseQueryBuilder(ListActivity.this);
-
-                // Add color filter, if not empty or null.
-                if (!TextUtils.isEmpty(settings.get(FAVORITE_COLUMN_COLOR))) {
-                    resultQueryBuilder.addAnd(
-                            FAVORITE_COLUMN_COLOR,
-                            OPERATOR_EQUALS,
-                            new String[]{settings.get(FAVORITE_COLUMN_COLOR)});
-                }
-
-                // Add created filter, if not empty or null.
-                if (!TextUtils.isEmpty(settings.get(LIST_ITEMS_COLUMN_CREATED))) {
-                    resultQueryBuilder.addAnd(
-                            LIST_ITEMS_COLUMN_CREATED,
-                            OPERATOR_BETWEEN,
-                            settings.get(LIST_ITEMS_COLUMN_CREATED)
-                                    .split(SP_FILTER_SYMBOL_DATE_SPLIT));
-                }
-
-                // Add edited filter, if not empty or null.
-                if (!TextUtils.isEmpty(settings.get(LIST_ITEMS_COLUMN_EDITED))) {
-                    resultQueryBuilder.addAnd(
-                            LIST_ITEMS_COLUMN_EDITED,
-                            OPERATOR_BETWEEN,
-                            settings.get(LIST_ITEMS_COLUMN_EDITED)
-                                    .split(SP_FILTER_SYMBOL_DATE_SPLIT));
-                }
-
-                // Add viewed filter, if not empty or null.
-                if (!TextUtils.isEmpty(settings.get(LIST_ITEMS_COLUMN_VIEWED))) {
-                    resultQueryBuilder.addAnd(
-                            LIST_ITEMS_COLUMN_VIEWED,
-                            OPERATOR_BETWEEN,
-                            settings.get(LIST_ITEMS_COLUMN_VIEWED)
-                                    .split(SP_FILTER_SYMBOL_DATE_SPLIT));
-                }
-
-                // Add search text inner filter
-                resultQueryBuilder.addAndInner(searchTextQueryBuilder);
-
-                // Set sort order.
-                resultQueryBuilder.setOrder(settings.get(SP_ORDER));
-                resultQueryBuilder.setAscDesc(settings.get(SP_ORDER_ASC_DESC));
-
-                // Go-go-go.
-                return dbHelper.getEntries(resultQueryBuilder);
+                return dbHelper.getCursorWithParams(
+                        ListActivity.this,
+                        constraint,
+                        profileMap);
             }
         };
     }
@@ -629,9 +440,6 @@ public class ListActivity extends AppCompatActivity {
                 final int id = item.getItemId();
 
                 switch (id) {
-                    // Filter / Sort list.
-                    case R.id.activity_list_nav_drawer_item_filter_sort:
-                        break;
 
                     // Import entries.
                     case R.id.activity_list_nav_drawer_item_import_entries:
@@ -648,7 +456,7 @@ public class ListActivity extends AppCompatActivity {
                         // Notification.
                         showToast(
                                 ListActivity.this,
-                                getResources().getString(R.string.activity_list_notification_add_mock_entries),
+                                getString(R.string.activity_list_notification_add_mock_entries),
                                 Toast.LENGTH_SHORT);
                         break;
 
@@ -659,7 +467,7 @@ public class ListActivity extends AppCompatActivity {
                         // Notification.
                         showToast(
                                 ListActivity.this,
-                                getResources().getString(R.string.activity_list_notification_delete_all_entries),
+                                getString(R.string.activity_list_notification_delete_all_entries),
                                 Toast.LENGTH_SHORT);
                         break;
 

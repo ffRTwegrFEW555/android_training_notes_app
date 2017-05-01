@@ -23,6 +23,7 @@ import static com.gamaliev.list.common.CommonUtils.showToast;
  */
 
 public class DatabaseHelper extends SQLiteOpenHelper {
+
     /* Logger */
     private static final String TAG = DatabaseHelper.class.getSimpleName();
 
@@ -30,9 +31,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME                     = "ya_school_app";
     private static final int DB_VERSION_A                   = 1;
     private static final int DB_VERSION                     = DB_VERSION_A;
+
+    public static final String BASE_COLUMN_ID               = BaseColumns._ID;
     public static final String ORDER_ASCENDING              = "ASC";
     public static final String ORDER_DESCENDING             = "DESC";
-    public static final String BASE_COLUMN_ID               = BaseColumns._ID;
+    public static final String ORDER_ASC_DESC_DEFAULT       = ORDER_ASCENDING;
+    public static final String ORDER_COLUMN_DEFAULT         = BASE_COLUMN_ID;
 
     /* Favorite table */
     protected static final String FAVORITE_TABLE_NAME       = "favorite_colors";
@@ -172,7 +176,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Adding mock entries in list activity.
         ListDatabaseMockHelper.addMockEntries(
-                resources.getInteger(R.integer.mock_items_number),
+                resources.getInteger(R.integer.mock_items_number_start),
                 db);
     }
 }

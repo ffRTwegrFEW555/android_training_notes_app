@@ -39,7 +39,7 @@ public final class ColorPickerDatabaseHelper extends DatabaseHelper {
         Init
      */
 
-    ColorPickerDatabaseHelper(@NonNull final Context context) {
+    public ColorPickerDatabaseHelper(@NonNull final Context context) {
         super(context);
     }
 
@@ -93,7 +93,7 @@ public final class ColorPickerDatabaseHelper extends DatabaseHelper {
      * @param index Index of color
      * @return Color number if success, otherwise "-1".
      */
-    int getFavoriteColor(final int index) {
+    public int getFavoriteColor(final int index) {
         int color = -1;
 
         try (   SQLiteDatabase db = getReadableDatabase();

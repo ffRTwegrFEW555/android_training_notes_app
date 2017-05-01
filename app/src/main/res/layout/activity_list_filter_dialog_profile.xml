@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_list_filter_sort_dialog_profile"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:background="?android:attr/selectableItemBackground">
+
+    <!-- Profile title -->
+    <TextView
+        android:id="@+id/activity_list_filter_sort_dialog_profile_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/activity_list_filter_sort_dialog_profile_found"
+        android:layout_centerVertical="true"
+        android:textSize="@dimen/activity_list_filter_dialog_title_small_size"
+        android:maxLines="1"
+        android:ellipsize="end"/>
+
+    <!-- Profile found text -->
+    <TextView
+        android:id="@+id/activity_list_filter_sort_dialog_profile_found"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@+id/activity_list_filter_sort_dialog_profile_delete"
+        android:layout_centerVertical="true"
+        android:textSize="@dimen/activity_list_filter_dialog_title_super_small_size"/>
+
+    <!-- Profile delete button -->
+    <ImageButton
+        android:id="@+id/activity_list_filter_sort_dialog_profile_delete"
+        android:layout_width="@dimen/activity_list_filter_sort_dialog_profile_delete_size"
+        android:layout_height="@dimen/activity_list_filter_sort_dialog_profile_delete_size"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:src="@drawable/ic_delete_forever_black_24dp"
+        android:tint="@color/colorPrimary"
+        android:contentDescription="@string/activity_list_filter_dialog_profile_delete_text" />
+
+</RelativeLayout>

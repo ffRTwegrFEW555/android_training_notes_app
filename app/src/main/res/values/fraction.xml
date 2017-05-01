@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <!--                -->
+    <!-- Activity List  -->
+    <!--                -->
+
+    <!-- Filter / sort dialog -->
+    <fraction name="activity_item_details_delete_dialog_date_alpha_on">100%</fraction>
+    <fraction name="activity_item_details_delete_dialog_date_alpha_off">30%</fraction>
+
+</resources>

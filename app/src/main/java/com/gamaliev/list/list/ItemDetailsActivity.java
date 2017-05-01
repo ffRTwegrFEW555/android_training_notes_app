@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,12 +32,12 @@ import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
 public class ItemDetailsActivity extends AppCompatActivity {
 
     /* Action */
-    private static final String ACTION_ADD      = "ItemDetailsActivity.ACTION_ADD";
-    private static final String ACTION_EDIT     = "ItemDetailsActivity.ACTION_EDIT";
+    private static final String ACTION_ADD  = "ItemDetailsActivity.ACTION_ADD";
+    private static final String ACTION_EDIT = "ItemDetailsActivity.ACTION_EDIT";
 
     /* Extra */
-    private static final String EXTRA_ID        = "ItemDetailsActivity.EXTRA_ID";
-    private static final String EXTRA_ENTRY     = "ItemDetailsActivity.EXTRA_ENTRY";
+    private static final String EXTRA_ID    = "ItemDetailsActivity.EXTRA_ID";
+    private static final String EXTRA_ENTRY = "ItemDetailsActivity.EXTRA_ENTRY";
 
     /* Request code */
     private static final int REQUEST_CODE_COLOR = 1;
@@ -156,7 +155,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
             // Start activity with Add action.
             case ACTION_ADD:
-                actionBar.setTitle(getResources().getString(R.string.activity_item_details_title_add));
+                actionBar.setTitle(getString(R.string.activity_item_details_title_add));
 
                 if (savedInstanceState == null) {
 
@@ -176,7 +175,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
             // Start activity with Edit action.
             case ACTION_EDIT:
-                actionBar.setTitle(getResources().getString(R.string.activity_item_details_title_edit));
+                actionBar.setTitle(getString(R.string.activity_item_details_title_edit));
 
                 if (savedInstanceState == null) {
 
@@ -428,30 +427,28 @@ public class ItemDetailsActivity extends AppCompatActivity {
      * Show info dialog with next info: created, edited, viewed dates.
      */
     private void showInfoDialog() {
-        final Resources res = getResources();
 
         // Create message.
         final StringBuilder infoMessage = new StringBuilder();
         infoMessage
-                .append(res.getString(R.string.activity_item_details_info_dialog_message_created))
+                .append(getString(R.string.activity_item_details_info_dialog_message_created))
                 .append("\n")
                 .append(getStringDateFormatSqlite(this, entry.getCreated(), false))
                 .append("\n\n")
-                .append(res.getString(R.string.activity_item_details_info_dialog_message_edited))
+                .append(getString(R.string.activity_item_details_info_dialog_message_edited))
                 .append("\n")
                 .append(getStringDateFormatSqlite(this, entry.getEdited(), false))
                 .append("\n\n")
-                .append(res.getString(R.string.activity_item_details_info_dialog_message_viewed))
+                .append(getString(R.string.activity_item_details_info_dialog_message_viewed))
                 .append("\n")
                 .append(getStringDateFormatSqlite(this, entry.getViewed(), false));
 
         // Create alert dialog.
         final AlertDialog.Builder builder = new AlertDialog.Builder(ItemDetailsActivity.this);
-        builder .setTitle(res.getString(R.string.activity_item_details_info_dialog_title))
+        builder .setTitle(getString(R.string.activity_item_details_info_dialog_title))
                 .setMessage(infoMessage)
-                .setIcon(R.drawable.ic_info_outline_black_36dp)
                 .setNegativeButton(
-                        res.getString(R.string.activity_item_details_info_dialog_button_ok),
+                        getString(R.string.activity_item_details_info_dialog_button_ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
@@ -468,25 +465,25 @@ public class ItemDetailsActivity extends AppCompatActivity {
      * Show confirm delete dialog with Ok, Cancel buttons.
      */
     private void showConfirmDeleteDialog() {
-        final Resources res = getResources();
 
         // Create alert dialog.
         final AlertDialog.Builder builder = new AlertDialog.Builder(ItemDetailsActivity.this);
-        builder .setTitle(res.getString(R.string.activity_item_details_delete_dialog_title))
-                .setMessage(res.getString(R.string.activity_item_details_delete_dialog_message))
-                .setIcon(R.drawable.ic_delete_forever_black_36dp)
-                .setPositiveButton(res.getString(R.string.activity_item_details_delete_dialog_button_ok),
+        builder .setTitle(getString(R.string.activity_item_details_delete_dialog_title))
+                .setMessage(getString(R.string.activity_item_details_delete_dialog_message))
+                .setPositiveButton(getString(R.string.activity_item_details_delete_dialog_button_ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
+                                dbHelper = new ListDatabaseHelper(ItemDetailsActivity.this);
                                 dbHelper.deleteEntry(entry.getId());
+                                dbHelper.close();
                                 setResult(
                                         RESULT_OK,
                                         ListActivity.getResultIntent(ListActivity.RESULT_CODE_EXTRA_DELETED));
                                 finish();
                             }
                         })
-                .setNegativeButton(res.getString(R.string.activity_item_details_delete_dialog_button_cancel),
+                .setNegativeButton(getString(R.string.activity_item_details_delete_dialog_button_cancel),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
