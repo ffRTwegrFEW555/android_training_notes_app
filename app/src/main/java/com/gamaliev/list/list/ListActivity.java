@@ -280,6 +280,10 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CODE_ADD) {
 
+                // Update
+                adapter.getFilter().filter("");
+                showFoundNotification();
+
                 // Notification if added.
                 showToast(
                         this,
@@ -308,6 +312,10 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                 // If file selected, then start import.
                 Uri selectedFile = data.getData();
                 importEntries(ListActivity.this, selectedFile);
+
+                // Update
+                adapter.getFilter().filter("");
+                showFoundNotification();
             }
         }
     }

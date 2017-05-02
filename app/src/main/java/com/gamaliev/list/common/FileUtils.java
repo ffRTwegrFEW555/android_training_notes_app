@@ -258,6 +258,8 @@ public class FileUtils {
                     context.getString(R.string.file_utils_import_toast_message_success),
                     Toast.LENGTH_SHORT);
 
+
+
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
             // Notification failed.
