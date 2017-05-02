@@ -55,7 +55,7 @@
     <dimen name="activity_list_nav_drawer_text_padding_top">16dp</dimen>
 
     <!-- Filter / sort dialog -->
-    <dimen name="activity_list_filter_dialog_date_button_size">100dp</dimen>
+    <dimen name="activity_list_filter_dialog_date_button_size">105dp</dimen>
     <dimen name="activity_list_filter_dialog_color_button_size">40dp</dimen>
     <dimen name="activity_list_filter_dialog_color_button_margin">5dp</dimen>
     <dimen name="activity_list_filter_dialog_input_title">20dp</dimen>
@@ -66,9 +66,9 @@
     <dimen name="activity_list_filter_dialog_divider_height">0.5dp</dimen>
     <dimen name="activity_list_filter_dialog_body_parent_padding">24dp</dimen>
     <dimen name="activity_list_filter_dialog_profiles_title_margin_bottom">8dp</dimen>
-    <dimen name="activity_list_filter_dialog_title_size">14sp</dimen>
-    <dimen name="activity_list_filter_dialog_title_small_size">12sp</dimen>
-    <dimen name="activity_list_filter_dialog_title_super_small_size">10sp</dimen>
+    <dimen name="activity_list_filter_dialog_title_size">16sp</dimen>
+    <dimen name="activity_list_filter_dialog_title_small_size">14sp</dimen>
+    <dimen name="activity_list_filter_dialog_title_super_small_size">14sp</dimen>
     <dimen name="activity_list_filter_dialog_profiles_save_current_button_padding">5dp</dimen>
     <dimen name="activity_list_filter_dialog_sorting_by_title_margin_bottom">8dp</dimen>
     <dimen name="activity_list_filter_dialog_sorting_by_title_margin_top">16dp</dimen>
