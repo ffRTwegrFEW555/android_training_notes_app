@@ -11,20 +11,20 @@ import android.widget.HorizontalScrollView;
  * <p>{@link #isEnableScrolling()}             - get on/off scroll status.
  */
 public class SwitchableHorizontalScrollView extends HorizontalScrollView {
-    private boolean enableScrolling = true;
+    private boolean mEnableScrolling = true;
 
     /**
      * @return On/Off scroll status
      */
     public boolean isEnableScrolling() {
-        return enableScrolling;
+        return mEnableScrolling;
     }
 
     /**
      * @param enableScrolling True to enable scrolling, false to disable.
      */
     public void setEnableScrolling(final boolean enableScrolling) {
-        this.enableScrolling = enableScrolling;
+        mEnableScrolling = enableScrolling;
     }
 
     public SwitchableHorizontalScrollView(Context context, AttributeSet attrs, int defStyle) {

@@ -73,9 +73,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "DROP TABLE " + LIST_ITEMS_TABLE_NAME + ";";
 
     /* Local */
-    @NonNull protected Context context;
-    @NonNull protected Resources resources;
-    @NonNull protected String dbFailMessage;
+    @NonNull protected Context mContext;
+    @NonNull protected Resources mRes;
+    @NonNull protected String mDbFailMessage;
 
 
     /*
@@ -105,9 +105,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private void init(@NonNull final Context context) {
-        this.context    = context;
-        resources       = context.getResources();
-        dbFailMessage   = resources.getString(R.string.sql_toast_fail);
+        mContext = context;
+        mRes = context.getResources();
+        mDbFailMessage = mRes.getString(R.string.sql_toast_fail);
     }
 
 
@@ -152,7 +152,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             } catch (SQLiteException e) {
                 Log.e(TAG, e.toString());
-                showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+                showToast(mContext, mDbFailMessage, Toast.LENGTH_SHORT);
 
             } finally {
                 db.endTransaction();
@@ -166,7 +166,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     private void populateDatabase(@NonNull final SQLiteDatabase db) {
         // Adding default favorite colors;
-        final int boxesNumber = resources.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
+        final int boxesNumber = mRes.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
         for (int i = 0; i < boxesNumber; i++) {
             ColorPickerDatabaseHelper.insertFavoriteColor(
                     db,
@@ -176,7 +176,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Adding mock entries in list activity.
         ListDatabaseMockHelper.addMockEntries(
-                resources.getInteger(R.integer.mock_items_number_start),
+                mRes.getInteger(R.integer.mock_items_number_start),
                 db);
     }
 }

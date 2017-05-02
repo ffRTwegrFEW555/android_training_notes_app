@@ -22,12 +22,12 @@ import static com.gamaliev.list.common.CommonUtils.setBackgroundColor;
 
 final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
 
-    @NonNull private final ColorPickerActivity context;
-    @NonNull private final Resources resources;
-    @NonNull private final GestureDetector gestureDetector;
-    @NonNull private final View view;
-    @NonNull private final ColorPickerDatabaseHelper dbHelper;
-    private final int index;
+    @NonNull private final ColorPickerActivity mContext;
+    @NonNull private final Resources mRes;
+    @NonNull private final GestureDetector mGestureDetector;
+    @NonNull private final View mView;
+    @NonNull private final ColorPickerDatabaseHelper mBbHelper;
+    private final int mIndex;
 
     FavoriteColorBoxOnTouchListener(
             @NonNull final ColorPickerActivity context,
@@ -35,13 +35,12 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
             @NonNull final ColorPickerDatabaseHelper dbHelper,
             final int index) {
 
-        this.index      = index;
-        this.context    = context;
-        this.view       = view;
-        this.dbHelper   = dbHelper;
-
-        resources       = context.getResources();
-        gestureDetector = new GestureDetector(context, getSimpleOnGestureListener());
+        mIndex      = index;
+        mContext    = context;
+        mView       = view;
+        mBbHelper   = dbHelper;
+        mRes        = context.getResources();
+        mGestureDetector = new GestureDetector(context, getSimpleOnGestureListener());
     }
 
     /**
@@ -52,27 +51,27 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
      */
     @Override
     public boolean onTouch(View v, MotionEvent e) {
-        gestureDetector.onTouchEvent(e);
+        mGestureDetector.onTouchEvent(e);
 
         // Elevation and scale animation.
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 // Elevation animation on.
                 animateElevation(v,
-                        resources.getInteger(R.integer.activity_color_picker_favorite_box_anim_elevation_duration),
-                        resources.getDimensionPixelOffset(R.dimen.activity_color_picker_favorite_box_anim_elevation_on));
+                        mRes.getInteger(R.integer.activity_color_picker_favorite_box_anim_elevation_duration),
+                        mRes.getDimensionPixelOffset(R.dimen.activity_color_picker_favorite_box_anim_elevation_on));
                 return true;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 // Elevation animation off.
                 animateElevation(v,
-                        resources.getInteger(R.integer.activity_color_picker_favorite_box_anim_elevation_duration),
-                        resources.getDimensionPixelOffset(R.dimen.activity_color_picker_favorite_box_anim_elevation_off));
+                        mRes.getInteger(R.integer.activity_color_picker_favorite_box_anim_elevation_duration),
+                        mRes.getDimensionPixelOffset(R.dimen.activity_color_picker_favorite_box_anim_elevation_off));
                 // Scale animation off.
                 animateScaleXY(v,
-                        resources.getInteger(R.integer.activity_color_picker_favorite_box_anim_scale_off) / 100.0f,
-                        resources.getInteger(R.integer.activity_color_picker_favorite_box_anim_scale_duration));
+                        mRes.getInteger(R.integer.activity_color_picker_favorite_box_anim_scale_off) / 100.0f,
+                        mRes.getInteger(R.integer.activity_color_picker_favorite_box_anim_scale_duration));
                 return true;
 
             default:
@@ -96,23 +95,23 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
             // Add result color to favorite box
             @Override
             public void onLongPress(MotionEvent e) {
-                final int resultColor = context.getResultColor();
+                final int resultColor = mContext.getResultColor();
                 // Update database entry.
-                if (dbHelper.updateFavoriteColor(index, resultColor)) {
+                if (mBbHelper.updateFavoriteColor(mIndex, resultColor)) {
                     // Notification
                     playSoundAndShowToast(
-                            context,
+                            mContext,
                             RingtoneManager.TYPE_NOTIFICATION,
-                            resources.getString(R.string.activity_color_picker_toast_favorite_color_added),
+                            mRes.getString(R.string.activity_color_picker_toast_favorite_color_added),
                             Toast.LENGTH_SHORT);
 
                     // Set new color to result box.
-                    setBackgroundColor(view, resultColor);
+                    setBackgroundColor(mView, resultColor);
 
                     // Scale animation on.
-                    animateScaleXY(view,
-                            resources.getInteger(R.integer.activity_color_picker_favorite_box_anim_scale_on) / 100.0f,
-                            resources.getInteger(R.integer.activity_color_picker_favorite_box_anim_scale_duration));
+                    animateScaleXY(mView,
+                            mRes.getInteger(R.integer.activity_color_picker_favorite_box_anim_scale_on) / 100.0f,
+                            mRes.getInteger(R.integer.activity_color_picker_favorite_box_anim_scale_duration));
                 }
             }
 
@@ -121,10 +120,10 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 // Refresh color from database.
                 // Update current color box and result box.
-                final int color = dbHelper.getFavoriteColor(index);
+                final int color = mBbHelper.getFavoriteColor(mIndex);
                 if (color != -1) {
-                    setBackgroundColor(view, color);
-                    context.setResultBoxColor(color);
+                    setBackgroundColor(mView, color);
+                    mContext.setResultBoxColor(color);
                 }
                 return true;
             }

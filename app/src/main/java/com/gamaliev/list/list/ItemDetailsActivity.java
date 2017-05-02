@@ -43,14 +43,14 @@ public class ItemDetailsActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_COLOR = 1;
 
     /* */
-    @NonNull private ListDatabaseHelper dbHelper;
-    @NonNull private ActionBar actionBar;
-    @NonNull private View colorView;
-    @NonNull private EditText titleEditText;
-    @NonNull private EditText descEditText;
-    @NonNull private ListEntry entry;
-    @Nullable private Bundle savedInstanceState;
-    private int color;
+    @NonNull private ListDatabaseHelper mDbHelper;
+    @NonNull private ActionBar mActionBar;
+    @NonNull private View mColorView;
+    @NonNull private EditText mTitleEditText;
+    @NonNull private EditText mDescEditText;
+    @NonNull private ListEntry mEntry;
+    @Nullable private Bundle mSavedInstanceState;
+    private int mColor;
 
 
     /*
@@ -67,11 +67,11 @@ public class ItemDetailsActivity extends AppCompatActivity {
     private void init(@Nullable final Bundle savedInstanceState) {
         initToolbar();
 
-        actionBar       = getSupportActionBar();
-        colorView       = findViewById(R.id.activity_item_details_color);
-        titleEditText   = (EditText) findViewById(R.id.activity_item_details_text_view_title);
-        descEditText    = (EditText) findViewById(R.id.activity_item_details_text_view_description);
-        this.savedInstanceState = savedInstanceState;
+        mActionBar      = getSupportActionBar();
+        mColorView      = findViewById(R.id.activity_item_details_color);
+        mTitleEditText  = (EditText) findViewById(R.id.activity_item_details_text_view_title);
+        mDescEditText   = (EditText) findViewById(R.id.activity_item_details_text_view_description);
+        mSavedInstanceState = savedInstanceState;
 
         enableEnterSharedTransition();
         setColorBoxListener();
@@ -106,7 +106,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
      * If API >= 21, then enable shared transition color box.
      */
     private void setColorBoxListener() {
-        colorView.setOnClickListener(new View.OnClickListener() {
+        mColorView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // After start another activity - refreshed entry will be use in
@@ -129,7 +129,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                     // Start activity for result with shared transition animation.
                     ColorPickerActivity.startIntent(
                             ItemDetailsActivity.this,
-                            color,
+                            mColor,
                             REQUEST_CODE_COLOR,
                             aoc.toBundle());
 
@@ -137,7 +137,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                     // Start activity for result without shared transition animation.
                     ColorPickerActivity.startIntent(
                             ItemDetailsActivity.this,
-                            color,
+                            mColor,
                             REQUEST_CODE_COLOR,
                             null);
                 }
@@ -155,48 +155,48 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
             // Start activity with Add action.
             case ACTION_ADD:
-                actionBar.setTitle(getString(R.string.activity_item_details_title_add));
+                mActionBar.setTitle(getString(R.string.activity_item_details_title_add));
 
-                if (savedInstanceState == null) {
+                if (mSavedInstanceState == null) {
 
                     // On first start activity.
                     // Set color box with default color, and create new entry.
                     refreshColorBox(getDefaultColor(this));
-                    entry = new ListEntry();
+                    mEntry = new ListEntry();
                     refreshEntry();
                 } else {
 
                     // On restart activity.
                     // Fill activity views values with restored entry-values.
-                    entry = savedInstanceState.getParcelable(EXTRA_ENTRY);
+                    mEntry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
                     fillActivityViews();
                 }
                 break;
 
             // Start activity with Edit action.
             case ACTION_EDIT:
-                actionBar.setTitle(getString(R.string.activity_item_details_title_edit));
+                mActionBar.setTitle(getString(R.string.activity_item_details_title_edit));
 
-                if (savedInstanceState == null) {
+                if (mSavedInstanceState == null) {
 
                     // On first start activity. Get entry from database, with given id.
                     long id     = getIntent().getLongExtra(EXTRA_ID, -1);
-                    dbHelper    = new ListDatabaseHelper(this);
-                    entry       = dbHelper.getEntry(id);
+                    mDbHelper = new ListDatabaseHelper(this);
+                    mEntry = mDbHelper.getEntry(id);
 
                     // Update viewed date.
-                    dbHelper.updateEntry(entry, LIST_ITEMS_COLUMN_VIEWED);
+                    mDbHelper.updateEntry(mEntry, LIST_ITEMS_COLUMN_VIEWED);
 
-                    dbHelper.close();
+                    mDbHelper.close();
 
-                    if (entry != null) {
+                    if (mEntry != null) {
                         // Fill activity views values with received values.
                         fillActivityViews();
 
                     } else {
                         // If received object is null, then fill by default values.
                         refreshColorBox(getDefaultColor(this));
-                        entry = new ListEntry();
+                        mEntry = new ListEntry();
                         refreshEntry();
                     }
 
@@ -204,7 +204,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
                     // On restart activity.
                     // Fill activity views values with restored entry-values.
-                    entry = savedInstanceState.getParcelable(EXTRA_ENTRY);
+                    mEntry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
                     fillActivityViews();
                 }
                 break;
@@ -223,18 +223,18 @@ public class ItemDetailsActivity extends AppCompatActivity {
      * Fill all activity views with values from the entry-object.
      */
     private void fillActivityViews() {
-        titleEditText.setText(entry.getTitle());
-        descEditText.setText(entry.getDescription());
-        refreshColorBox(entry.getColor());
+        mTitleEditText.setText(mEntry.getTitle());
+        mDescEditText.setText(mEntry.getDescription());
+        refreshColorBox(mEntry.getColor());
     }
 
     /**
      * Fill entry-fields with values from all activity views.
      */
     private void refreshEntry() {
-        entry.setTitle(titleEditText.getText().toString());
-        entry.setDescription(descEditText.getText().toString());
-        entry.setColor(color);
+        mEntry.setTitle(mTitleEditText.getText().toString());
+        mEntry.setDescription(mDescEditText.getText().toString());
+        mEntry.setColor(mColor);
     }
 
     /**
@@ -242,8 +242,8 @@ public class ItemDetailsActivity extends AppCompatActivity {
      * @param color New color.
      */
     private void refreshColorBox(final int color) {
-        this.color = color;
-        colorView.setBackground(
+        mColor = color;
+        mColorView.setBackground(
                 getGradientDrawableCircleWithBorder(color));
     }
 
@@ -334,7 +334,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                         getDefaultColor(ItemDetailsActivity.this));
 
                 // Update entry, then activity views.
-                entry.setColor(color);
+                mEntry.setColor(color);
                 fillActivityViews();
             }
         }
@@ -370,14 +370,14 @@ public class ItemDetailsActivity extends AppCompatActivity {
             // On save action.
             // Create database -> process action -> close database.
             case R.id.menu_list_item_details_done:
-                dbHelper = new ListDatabaseHelper(this);
+                mDbHelper = new ListDatabaseHelper(this);
 
                 switch (getIntent().getAction()) {
 
                     // If new, then add to database, and finish activity with RESULT_OK.
                     case ACTION_ADD:
                         refreshEntry();
-                        dbHelper.insertEntry(entry);
+                        mDbHelper.insertEntry(mEntry);
                         setResult(
                                 RESULT_OK,
                                 ListActivity.getResultIntent(ListActivity.RESULT_CODE_EXTRA_ADDED));
@@ -387,7 +387,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                     // If edit, then update entry in database, and finish activity with RESULT_OK.
                     case ACTION_EDIT:
                         refreshEntry();
-                        dbHelper.updateEntry(entry, null);
+                        mDbHelper.updateEntry(mEntry, null);
                         setResult(
                                 RESULT_OK,
                                 ListActivity.getResultIntent(ListActivity.RESULT_CODE_EXTRA_EDITED));
@@ -398,7 +398,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                         break;
                 }
 
-                dbHelper.close();
+                mDbHelper.close();
                 break;
 
             // On cancel action. Finish activity.
@@ -433,15 +433,15 @@ public class ItemDetailsActivity extends AppCompatActivity {
         infoMessage
                 .append(getString(R.string.activity_item_details_info_dialog_message_created))
                 .append("\n")
-                .append(getStringDateFormatSqlite(this, entry.getCreated(), false))
+                .append(getStringDateFormatSqlite(this, mEntry.getCreated(), false))
                 .append("\n\n")
                 .append(getString(R.string.activity_item_details_info_dialog_message_edited))
                 .append("\n")
-                .append(getStringDateFormatSqlite(this, entry.getEdited(), false))
+                .append(getStringDateFormatSqlite(this, mEntry.getEdited(), false))
                 .append("\n\n")
                 .append(getString(R.string.activity_item_details_info_dialog_message_viewed))
                 .append("\n")
-                .append(getStringDateFormatSqlite(this, entry.getViewed(), false));
+                .append(getStringDateFormatSqlite(this, mEntry.getViewed(), false));
 
         // Create alert dialog.
         final AlertDialog.Builder builder = new AlertDialog.Builder(ItemDetailsActivity.this);
@@ -474,9 +474,9 @@ public class ItemDetailsActivity extends AppCompatActivity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
-                                dbHelper = new ListDatabaseHelper(ItemDetailsActivity.this);
-                                dbHelper.deleteEntry(entry.getId());
-                                dbHelper.close();
+                                mDbHelper = new ListDatabaseHelper(ItemDetailsActivity.this);
+                                mDbHelper.deleteEntry(mEntry.getId());
+                                mDbHelper.close();
                                 setResult(
                                         RESULT_OK,
                                         ListActivity.getResultIntent(ListActivity.RESULT_CODE_EXTRA_DELETED));
@@ -503,7 +503,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(EXTRA_ENTRY, entry);
+        outState.putParcelable(EXTRA_ENTRY, mEntry);
         super.onSaveInstanceState(outState);
     }
 }

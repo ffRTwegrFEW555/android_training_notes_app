@@ -54,28 +54,28 @@ final class ListCursorAdapter extends CursorAdapter {
         final int color             = cursor.getInt(    indexColor);
 
         // Fill view holder values.
-        viewHolder.id = id;
-        viewHolder.titleView        .setText(title);
-        viewHolder.descriptionView  .setText(description);
-        viewHolder.editedView       .setText(edited);
-        viewHolder.iconView
+        viewHolder.mId = id;
+        viewHolder.mTitleView.setText(title);
+        viewHolder.mDescriptionView.setText(description);
+        viewHolder.mEditedView.setText(edited);
+        viewHolder.mIconView
                 .getBackground()
                 .setColorFilter(color, PorterDuff.Mode.SRC);
     }
 
     // View holder, associated with activity_list_item.xml
     private static class ViewHolder {
-        private Long            id;
-        private final TextView  titleView;
-        private final TextView  descriptionView;
-        private final TextView  editedView;
-        private final View      iconView;
+        private Long            mId;
+        private final TextView  mTitleView;
+        private final TextView  mDescriptionView;
+        private final TextView  mEditedView;
+        private final View      mIconView;
 
         ViewHolder(View view) {
-            titleView       = (TextView) view.findViewById(R.id.activity_list_item_title);
-            descriptionView = (TextView) view.findViewById(R.id.activity_list_item_description);
-            editedView      = (TextView) view.findViewById(R.id.activity_list_item_edited);
-            iconView        = view.findViewById(R.id.activity_list_item_color);
+            mTitleView          = (TextView) view.findViewById(R.id.activity_list_item_title);
+            mDescriptionView    = (TextView) view.findViewById(R.id.activity_list_item_description);
+            mEditedView         = (TextView) view.findViewById(R.id.activity_list_item_edited);
+            mIconView           = view.findViewById(R.id.activity_list_item_color);
         }
     }
 }

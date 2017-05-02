@@ -48,17 +48,17 @@ public final class ColorPickerActivity extends AppCompatActivity {
     private static final String EXTRA_RESULT_COLOR          = "ColorPickerActivity.EXTRA_RESULT_COLOR";
     private static final String EXTRA_HSV_COLOR_OVERRIDDEN  = "ColorPickerActivity.EXTRA_HSV_COLOR_OVERRIDDEN";
 
-    @NonNull private Resources resources;
-    @NonNull private SwitchableHorizontalScrollView paletteHsvSv;
-    @NonNull private ColorPickerDatabaseHelper dbHelper;
-    @NonNull private View resultView;
-    @NonNull private View resultParentView;
-    @NonNull private PopupWindow editPw;
-    @NonNull private int[] hsvColors;
-    @NonNull private int[] hsvColorsOverridden;
-    private int boxesNumber;
-    private int resultColor;
-    private float hsvDegree;
+    @NonNull private Resources mRes;
+    @NonNull private SwitchableHorizontalScrollView mPaletteHsvSv;
+    @NonNull private ColorPickerDatabaseHelper mDbHelper;
+    @NonNull private View mResultView;
+    @NonNull private View mResultParentView;
+    @NonNull private PopupWindow mEditPw;
+    @NonNull private int[] mHsvColors;
+    @NonNull private int[] mHsvColorsOverridden;
+    private int mBoxesNumber;
+    private int mResultColor;
+    private float mHsvDegree;
 
 
     /*
@@ -73,37 +73,37 @@ public final class ColorPickerActivity extends AppCompatActivity {
     }
 
     private void init(@Nullable final Bundle savedInstanceState) {
-        resources   = getResources();
-        paletteHsvSv = (SwitchableHorizontalScrollView)
+        mRes            = getResources();
+        mPaletteHsvSv   = (SwitchableHorizontalScrollView)
                 findViewById(R.id.activity_color_picker_scroll_palette_bar);
 
-        dbHelper    = new ColorPickerDatabaseHelper(this);
-        resultView  = findViewById(R.id.activity_color_picker_ff_result_box);
-        resultParentView = findViewById(R.id.activity_color_picker_ff_result_outer);
-        editPw      = getPopupWindow();
-        boxesNumber = resources.getInteger(R.integer.activity_color_picker_palette_boxes_number);
-        hsvDegree   = 360f / (boxesNumber * 2);
+        mDbHelper       = new ColorPickerDatabaseHelper(this);
+        mResultView     = findViewById(R.id.activity_color_picker_ff_result_box);
+        mResultParentView = findViewById(R.id.activity_color_picker_ff_result_outer);
+        mEditPw         = getPopupWindow();
+        mBoxesNumber    = mRes.getInteger(R.integer.activity_color_picker_palette_boxes_number);
+        mHsvDegree      = 360f / (mBoxesNumber * 2);
 
         // Set result color on start activity. Either by default, or from the Intent.
         if (savedInstanceState == null) {
             Intent intent = getIntent();
-            resultColor = intent == null
+            mResultColor = intent == null
                     ? getDefaultColor(this)
                     : intent.getIntExtra(EXTRA_COLOR, getDefaultColor(this));
 
             // Create and fill overridden colors array.
-            hsvColorsOverridden = new int[boxesNumber * 2 + 1];
-            Arrays.fill(hsvColorsOverridden, -1);
+            mHsvColorsOverridden = new int[mBoxesNumber * 2 + 1];
+            Arrays.fill(mHsvColorsOverridden, -1);
 
         } else {
-            resultColor = savedInstanceState.getInt(EXTRA_RESULT_COLOR);
-            hsvColorsOverridden = savedInstanceState.getIntArray(EXTRA_HSV_COLOR_OVERRIDDEN);
+            mResultColor = savedInstanceState.getInt(EXTRA_RESULT_COLOR);
+            mHsvColorsOverridden = savedInstanceState.getIntArray(EXTRA_HSV_COLOR_OVERRIDDEN);
         }
 
         setGradient();
         addColorBoxesAndSetListeners();
         addFavoriteColorBoxesAndSetListeners();
-        setResultBoxColor(resultColor);
+        setResultBoxColor(mResultColor);
         setDoneCancelListeners();
         enableEnterSharedTransition();
     }
@@ -120,14 +120,14 @@ public final class ColorPickerActivity extends AppCompatActivity {
         final View view = findViewById(R.id.activity_color_picker_ll_palette_bar);
 
         // Create and fill default colors array.
-        hsvColors = new int[boxesNumber * 2 + 1];
-        for (int i = 0; i < hsvColors.length; i++) {
-            hsvColors[i] = Color.HSVToColor(new float[] {hsvDegree * i, 1f, 1f});
+        mHsvColors = new int[mBoxesNumber * 2 + 1];
+        for (int i = 0; i < mHsvColors.length; i++) {
+            mHsvColors[i] = Color.HSVToColor(new float[] {mHsvDegree * i, 1f, 1f});
         }
 
         // Set gradient.
         final GradientDrawable g =
-                new GradientDrawable(GradientDrawable.Orientation.TL_BR, hsvColors);
+                new GradientDrawable(GradientDrawable.Orientation.TL_BR, mHsvColors);
         g.setGradientType(GradientDrawable.LINEAR_GRADIENT);
         view.setBackground(g);
     }
@@ -142,21 +142,21 @@ public final class ColorPickerActivity extends AppCompatActivity {
 
         // Params
         final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                (int) resources.getDimension(R.dimen.activity_color_picker_palette_box_width),
-                (int) resources.getDimension(R.dimen.activity_color_picker_palette_box_height));
-        final int m = (int) resources.getDimension(R.dimen.activity_color_picker_palette_box_margin);
+                (int) mRes.getDimension(R.dimen.activity_color_picker_palette_box_width),
+                (int) mRes.getDimension(R.dimen.activity_color_picker_palette_box_height));
+        final int m = (int) mRes.getDimension(R.dimen.activity_color_picker_palette_box_margin);
         params.setMargins(m, m, m, m);
 
-        for (int i = 1; i < hsvColors.length; i += 2) {
+        for (int i = 1; i < mHsvColors.length; i += 2) {
             // Create color box with default or overridden color.
-            final int color = hsvColorsOverridden[i] != -1 ? hsvColorsOverridden[i] : hsvColors[i];
+            final int color = mHsvColorsOverridden[i] != -1 ? mHsvColorsOverridden[i] : mHsvColors[i];
             final View colorBox = new FrameLayout(this);
 
             // Set start color and elevation (if API >= 21).
             colorBox.setBackground(new ColorDrawable(color));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 colorBox.setElevation(
-                        resources.getDimensionPixelSize(R.dimen.activity_color_picker_palette_box_anim_elevation_off));
+                        mRes.getDimensionPixelSize(R.dimen.activity_color_picker_palette_box_anim_elevation_off));
             }
             setBackgroundColorRectangleAPI(this, colorBox, color);
 
@@ -176,13 +176,13 @@ public final class ColorPickerActivity extends AppCompatActivity {
     private void addFavoriteColorBoxesAndSetListeners() {
         final ViewGroup favoriteBarVg =
                 (ViewGroup) findViewById(R.id.activity_color_picker_ll_favorite_bar);
-        final int boxesNumber = resources.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
+        final int boxesNumber = mRes.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
 
         // Params
         final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                (int) resources.getDimension(R.dimen.activity_color_picker_favorite_box_width),
-                (int) resources.getDimension(R.dimen.activity_color_picker_favorite_box_height));
-        final int m = (int) resources.getDimension(R.dimen.activity_color_picker_favorite_box_margin);
+                (int) mRes.getDimension(R.dimen.activity_color_picker_favorite_box_width),
+                (int) mRes.getDimension(R.dimen.activity_color_picker_favorite_box_height));
+        final int m = (int) mRes.getDimension(R.dimen.activity_color_picker_favorite_box_margin);
         params.setMargins(m, m, m, m);
 
         for (int i = 0; i < boxesNumber; i++) {
@@ -191,19 +191,19 @@ public final class ColorPickerActivity extends AppCompatActivity {
 
             // Set oval shape.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                button.setBackground(resources.getDrawable(R.drawable.btn_oval, null));
+                button.setBackground(mRes.getDrawable(R.drawable.btn_oval, null));
             } else {
-                button.setBackground(resources.getDrawable(R.drawable.btn_oval));
+                button.setBackground(mRes.getDrawable(R.drawable.btn_oval));
             }
 
             // Get and set color.
             button.getBackground()
-                    .setColorFilter(dbHelper.getFavoriteColor(i), PorterDuff.Mode.SRC);
+                    .setColorFilter(mDbHelper.getFavoriteColor(i), PorterDuff.Mode.SRC);
 
             // Set on touch listener.
             // Handles single, long clicks; down, up, cancel actions.
             button.setOnTouchListener(
-                    new FavoriteColorBoxOnTouchListener(this, button, dbHelper, i));
+                    new FavoriteColorBoxOnTouchListener(this, button, mDbHelper, i));
 
             // Add color box to favorite bar.
             favoriteBarVg.addView(button, params);
@@ -217,15 +217,15 @@ public final class ColorPickerActivity extends AppCompatActivity {
     void setResultBoxColor(final int color) {
         // Change color of result-box, and result-box-parent,
         // with shift color animation.
-        shiftColor(resultView, resultColor, color,
+        shiftColor(mResultView, mResultColor, color,
                 -1,
-                resources.getInteger(R.integer.activity_color_picker_result_box_animation_change_color_duration));
-        shiftColor(resultParentView, resultColor, color,
-                resources.getInteger(R.integer.activity_color_picker_result_box_outer_alpha_percent) / 100.0f,
-                resources.getInteger(R.integer.activity_color_picker_result_box_animation_change_color_duration));
+                mRes.getInteger(R.integer.activity_color_picker_result_box_animation_change_color_duration));
+        shiftColor(mResultParentView, mResultColor, color,
+                mRes.getInteger(R.integer.activity_color_picker_result_box_outer_alpha_percent) / 100.0f,
+                mRes.getInteger(R.integer.activity_color_picker_result_box_animation_change_color_duration));
 
         // Update value.
-        resultColor = color;
+        mResultColor = color;
 
         // Get rgb string.
         final int r = color >> 16 & 0xFF;
@@ -261,7 +261,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         // Return RESULT_OK and selected color.
-                        setResult(RESULT_OK, ItemDetailsActivity.getResultColorIntent(resultColor));
+                        setResult(RESULT_OK, ItemDetailsActivity.getResultColorIntent(mResultColor));
                         finish();
                     }
                 });
@@ -307,7 +307,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
         // If color is not specified, then get color from hsv-colors-arrays.
         // If override-color is not specified, then get default color.
         if (newColor == -1) {
-            color = hsvColorsOverridden[index] != -1 ? hsvColorsOverridden[index] : hsvColors[index];
+            color = mHsvColorsOverridden[index] != -1 ? mHsvColorsOverridden[index] : mHsvColors[index];
         } else {
             color = newColor;
         }
@@ -316,10 +316,10 @@ public final class ColorPickerActivity extends AppCompatActivity {
         setBackgroundColorRectangleAPI(this, view, color);
 
         // Set color to popupWindow.
-        editPw.getContentView().setBackgroundColor(color);
+        mEditPw.getContentView().setBackgroundColor(color);
 
         // Update overridden array.
-        hsvColorsOverridden[index] = color;
+        mHsvColorsOverridden[index] = color;
     }
 
 
@@ -336,12 +336,12 @@ public final class ColorPickerActivity extends AppCompatActivity {
         final FrameLayout fl = new FrameLayout(this);
         final PopupWindow popupWindow = new PopupWindow(
                 fl,
-                (int) resources.getDimension(R.dimen.activity_color_picker_popupwindow_width),
-                (int) resources.getDimension(R.dimen.activity_color_picker_popupwindow_height),
+                (int) mRes.getDimension(R.dimen.activity_color_picker_popupwindow_width),
+                (int) mRes.getDimension(R.dimen.activity_color_picker_popupwindow_height),
                 true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            popupWindow.setElevation(resources.getDimension(R.dimen.activity_color_picker_popupwindow_elevation));
+            popupWindow.setElevation(mRes.getDimension(R.dimen.activity_color_picker_popupwindow_elevation));
         }
         return popupWindow;
     }
@@ -351,11 +351,11 @@ public final class ColorPickerActivity extends AppCompatActivity {
      * See also: {@link #getPopupWindow()}
      */
     void showPopupWindow() {
-        editPw.setAnimationStyle(R.style.ColorPickerPopupWindowAnimation);
-        editPw.showAtLocation(findViewById(android.R.id.content),
-                resources.getInteger(R.integer.activity_color_picker_popupwindow_gravity),
-                (int) resources.getDimension(R.dimen.activity_color_picker_popupwindow_offset_x),
-                (int) resources.getDimension(R.dimen.activity_color_picker_popupwindow_offset_y));
+        mEditPw.setAnimationStyle(R.style.ColorPickerPopupWindowAnimation);
+        mEditPw.showAtLocation(findViewById(android.R.id.content),
+                mRes.getInteger(R.integer.activity_color_picker_popupwindow_gravity),
+                (int) mRes.getDimension(R.dimen.activity_color_picker_popupwindow_offset_x),
+                (int) mRes.getDimension(R.dimen.activity_color_picker_popupwindow_offset_y));
     }
 
 
@@ -368,8 +368,8 @@ public final class ColorPickerActivity extends AppCompatActivity {
      */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putInt(EXTRA_RESULT_COLOR, resultColor);
-        outState.putIntArray(EXTRA_HSV_COLOR_OVERRIDDEN, hsvColorsOverridden);
+        outState.putInt(EXTRA_RESULT_COLOR, mResultColor);
+        outState.putIntArray(EXTRA_HSV_COLOR_OVERRIDDEN, mHsvColorsOverridden);
         super.onSaveInstanceState(outState);
     }
 
@@ -384,8 +384,8 @@ public final class ColorPickerActivity extends AppCompatActivity {
      */
     @Override
     protected void onResume() {
-        if (dbHelper == null) {
-            dbHelper = new ColorPickerDatabaseHelper(this);
+        if (mDbHelper == null) {
+            mDbHelper = new ColorPickerDatabaseHelper(this);
         }
         super.onResume();
     }
@@ -397,7 +397,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         try {
-            dbHelper.close();
+            mDbHelper.close();
         } catch (Exception e) {
             Log.e(TAG, e.toString());
         }
@@ -410,31 +410,31 @@ public final class ColorPickerActivity extends AppCompatActivity {
      */
 
     int getResultColor() {
-        return resultColor;
+        return mResultColor;
     }
 
     @NonNull
     SwitchableHorizontalScrollView getPaletteHsvSv() {
-        return paletteHsvSv;
+        return mPaletteHsvSv;
     }
 
     @NonNull
     PopupWindow getEditPw() {
-        return editPw;
+        return mEditPw;
     }
 
     @NonNull
     int[] getHsvColors() {
-        return hsvColors;
+        return mHsvColors;
     }
 
     @NonNull
     int[] getHsvColorsOverridden() {
-        return hsvColorsOverridden;
+        return mHsvColorsOverridden;
     }
 
     float getHsvDegree() {
-        return hsvDegree;
+        return mHsvDegree;
     }
 
 

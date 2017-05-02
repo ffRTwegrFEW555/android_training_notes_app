@@ -83,7 +83,7 @@ public final class ColorPickerDatabaseHelper extends DatabaseHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+            showToast(mContext, mDbFailMessage, Toast.LENGTH_SHORT);
             return false;
         }
     }
@@ -112,7 +112,7 @@ public final class ColorPickerDatabaseHelper extends DatabaseHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+            showToast(mContext, mDbFailMessage, Toast.LENGTH_SHORT);
             return color;
         }
     }

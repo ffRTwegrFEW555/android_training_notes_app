@@ -1,6 +1,5 @@
 package com.gamaliev.list.common;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -28,11 +27,11 @@ public final class DatabaseQueryBuilder {
     private static final String SYMBOL_MASK     = " ? ";
     private static final String SYMBOL_PERCENT  = "%";
 
-    @Nullable private String[] selection;
-    @Nullable private String[] selectionArgs;
+    @Nullable private String[] mSelection;
+    @Nullable private String[] mSelectionArgs;
 
-    @NonNull private String order   = DatabaseHelper.ORDER_COLUMN_DEFAULT;
-    @NonNull private String ascDesc = DatabaseHelper.ORDER_ASC_DESC_DEFAULT;
+    @NonNull private String mOrder = DatabaseHelper.ORDER_COLUMN_DEFAULT;
+    @NonNull private String mAscDesc = DatabaseHelper.ORDER_ASC_DESC_DEFAULT;
 
 
     /*
@@ -135,7 +134,7 @@ public final class DatabaseQueryBuilder {
         StringBuilder sb = new StringBuilder();
 
         // If clause is first in current query builder, then add without operator 'OR' or 'ADD'.
-        if(selection != null) {
+        if(mSelection != null) {
             sb.append(operator);
         }
 
@@ -191,7 +190,7 @@ public final class DatabaseQueryBuilder {
         StringBuilder sb = new StringBuilder();
 
         // If clause is first in current query builder, then add without operator 'OR' or 'ADD'.
-        if (selection != null) {
+        if (mSelection != null) {
             sb.append(operatorPrimary);
         }
 
@@ -263,7 +262,7 @@ public final class DatabaseQueryBuilder {
 
     /**
      * Update selection clauses.<br>
-     * See: {@link #selection}, {@link #selectionArgs}.
+     * See: {@link #mSelection}, {@link #mSelectionArgs}.
      *
      * @param newSelectionString    New selection clause with mask.
      * @param newOperands           New operands.
@@ -276,15 +275,15 @@ public final class DatabaseQueryBuilder {
         String[] newSelectionArgs   = newOperands;
 
         // Update if clauses exists.
-        if (selection != null && selectionArgs != null) {
+        if (mSelection != null && mSelectionArgs != null) {
 
             // Create new selection, and selectionArgs clauses.
-            newSelection        = new String[selection.length       + 1];
-            newSelectionArgs    = new String[selectionArgs.length   + newOperands.length];
+            newSelection        = new String[mSelection.length       + 1];
+            newSelectionArgs    = new String[mSelectionArgs.length   + newOperands.length];
 
             // Copy old array to new array.
-            System.arraycopy(selection,     0, newSelection,        0, selection.length);
-            System.arraycopy(selectionArgs, 0, newSelectionArgs,    0, selectionArgs.length);
+            System.arraycopy(mSelection,     0, newSelection,        0, mSelection.length);
+            System.arraycopy(mSelectionArgs, 0, newSelectionArgs,    0, mSelectionArgs.length);
 
             // Add new data to new array.
             newSelection[newSelection.length - 1] = newSelectionString;
@@ -297,8 +296,8 @@ public final class DatabaseQueryBuilder {
         }
 
         // Replacing old clauses with new.
-        selection = newSelection;
-        selectionArgs = newSelectionArgs;
+        mSelection = newSelection;
+        mSelectionArgs = newSelectionArgs;
     }
 
 
@@ -322,7 +321,7 @@ public final class DatabaseQueryBuilder {
      */
     public void setOrder(@NonNull String order) {
         if (!TextUtils.isEmpty(order)) {
-            this.order = order;
+            mOrder = order;
         }
     }
 
@@ -335,7 +334,7 @@ public final class DatabaseQueryBuilder {
      */
     public void setAscDesc(@NonNull String ascDesc) {
         if (!TextUtils.isEmpty(ascDesc)) {
-            this.ascDesc = ascDesc;
+            mAscDesc = ascDesc;
         }
     }
 
@@ -349,13 +348,13 @@ public final class DatabaseQueryBuilder {
      */
     @Nullable
     public String getSelectionResult() {
-        if (selection == null) {
+        if (mSelection == null) {
             return null;
         }
 
         // Convert clauses array to one string clauses.
         StringBuilder sb = new StringBuilder();
-        for (String cause : selection) {
+        for (String cause : mSelection) {
             sb      .append(cause)
                     .append(" ");
         }
@@ -367,14 +366,14 @@ public final class DatabaseQueryBuilder {
      */
     @Nullable
     public String[] getSelectionArgs() {
-        return selectionArgs;
+        return mSelectionArgs;
     }
 
     /**
-     * @return Get formed sort order. {@link #order} + {@link #ascDesc}. Default value is "id ASC"
+     * @return Get formed sort order. {@link #mOrder} + {@link #mAscDesc}. Default value is "id ASC"
      */
     @NonNull
     public String getSortOrder() {
-        return order + " " + ascDesc;
+        return mOrder + " " + mAscDesc;
     }
 }

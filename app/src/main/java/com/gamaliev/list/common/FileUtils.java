@@ -2,6 +2,7 @@ package com.gamaliev.list.common;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
@@ -216,37 +217,46 @@ public class FileUtils {
             // Open database and start transaction.
             ListDatabaseHelper dbHelper = new ListDatabaseHelper(context);
 
-            // Seek.
-            for (int i = 0; i < jsonArray.length(); i++) {
+            try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
 
-                // Get string.
-                final String entryJson = jsonArray.getString(i);
+                // Begin transaction
+                db.beginTransaction();
 
-                // Init
-                jsonObject = new JSONObject(entryJson);
+                // Seek.
+                for (int i = 0; i < jsonArray.length(); i++) {
 
-                // Get strings
-                final String title      = jsonObject.optString(LIST_ITEMS_COLUMN_TITLE, null);
-                final int color         =
-                        Color.parseColor(jsonObject.optString(LIST_ITEMS_COLUMN_COLOR, null));
+                    // Get string.
+                    final String entryJson = jsonArray.getString(i);
 
-                final String description = jsonObject.optString(LIST_ITEMS_COLUMN_DESCRIPTION, null);
-                final String created    = jsonObject.optString(LIST_ITEMS_COLUMN_CREATED, null);
-                final String edited     = jsonObject.optString(LIST_ITEMS_COLUMN_EDITED, null);
-                final String viewed     = jsonObject.optString(LIST_ITEMS_COLUMN_VIEWED, null);
+                    // Init
+                    jsonObject = new JSONObject(entryJson);
 
-                // Create entry model.
-                ListEntry entry = new ListEntry();
-                entry.setTitle(title);
-                entry.setColor(color);
-                entry.setDescription(description);
-                entry.setCreated(getDateFromISO8601String(context , created));
-                entry.setEdited(getDateFromISO8601String(context , edited));
-                entry.setViewed(getDateFromISO8601String(context , viewed));
+                    // Get strings
+                    final String title      = jsonObject.optString(LIST_ITEMS_COLUMN_TITLE, null);
+                    final int color         =
+                            Color.parseColor(jsonObject.optString(LIST_ITEMS_COLUMN_COLOR, null));
 
-                // Insert
-                // TODO: add transaction.
-                dbHelper.insertEntry(entry);
+                    final String description = jsonObject.optString(LIST_ITEMS_COLUMN_DESCRIPTION, null);
+                    final String created    = jsonObject.optString(LIST_ITEMS_COLUMN_CREATED, null);
+                    final String edited     = jsonObject.optString(LIST_ITEMS_COLUMN_EDITED, null);
+                    final String viewed     = jsonObject.optString(LIST_ITEMS_COLUMN_VIEWED, null);
+
+                    // Create entry model.
+                    ListEntry entry = new ListEntry();
+                    entry.setTitle(title);
+                    entry.setColor(color);
+                    entry.setDescription(description);
+                    entry.setCreated(getDateFromISO8601String(context , created));
+                    entry.setEdited(getDateFromISO8601String(context , edited));
+                    entry.setViewed(getDateFromISO8601String(context , viewed));
+
+                    // Insert
+                    dbHelper.insertEntry(entry, db);
+                }
+
+                // Transaction success.
+                db.setTransactionSuccessful();
+                db.endTransaction();
             }
 
             // Close.

@@ -65,15 +65,15 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
             DatabaseHelper.LIST_ITEMS_COLUMN_TITLE,
             DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION};
 
-    @NonNull private ListDatabaseHelper dbHelper;
-    @NonNull private ListCursorAdapter adapter;
-    @NonNull private FilterQueryProvider queryProvider;
+    @NonNull private ListDatabaseHelper mDbHelper;
+    @NonNull private ListCursorAdapter mAdapter;
+    @NonNull private FilterQueryProvider mQueryProvider;
 
     /* */
-    @NonNull private ListView listView;
-    @NonNull private Button foundView;
-    @NonNull private Map<String, String> profileMap;
-    private long timerFound;
+    @NonNull private ListView mListView;
+    @NonNull private Button mFoundView;
+    @NonNull private Map<String, String> mProfileMap;
+    private long mTimerFound;
 
 
     /*
@@ -90,9 +90,9 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
     private void init() {
         initSharedPreferences(this);
 
-        queryProvider   = getFilterQueryProvider();
-        foundView       = (Button) findViewById(R.id.activity_list_button_found);
-        profileMap      = convertProfileJsonToMap(getSelectedProfileJson(this));
+        mQueryProvider = getFilterQueryProvider();
+        mFoundView = (Button) findViewById(R.id.activity_list_button_found);
+        mProfileMap = convertProfileJsonToMap(getSelectedProfileJson(this));
 
         initToolbarAndNavigationDrawer();
         setFabOnClickListener();
@@ -143,14 +143,14 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
      * See also: {@link com.gamaliev.list.list.ListDatabaseHelper}
      */
     private void refreshDbConnectAndView() {
-        if (dbHelper == null) {
-            dbHelper = new ListDatabaseHelper(this);
+        if (mDbHelper == null) {
+            mDbHelper = new ListDatabaseHelper(this);
         }
-        Cursor cursor   = dbHelper.getEntries(new DatabaseQueryBuilder());
-        adapter         = new ListCursorAdapter(this, cursor, 0);
-        listView        = (ListView) findViewById(R.id.activity_list_listview);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        Cursor cursor   = mDbHelper.getEntries(new DatabaseQueryBuilder());
+        mAdapter = new ListCursorAdapter(this, cursor, 0);
+        mListView = (ListView) findViewById(R.id.activity_list_listview);
+        mListView.setAdapter(mAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
@@ -175,10 +175,10 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
         });
 
         // SearchView filter query provider.
-        adapter.setFilterQueryProvider(queryProvider);
+        mAdapter.setFilterQueryProvider(mQueryProvider);
 
         // Apply filter.
-        adapter.getFilter().filter("");
+        mAdapter.getFilter().filter("");
         showFoundNotification();
     }
 
@@ -217,7 +217,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
             @Override
             public boolean onQueryTextChange(String newText) {
                 // Set filter text and show "Found" notification.
-                adapter.getFilter().filter(newText);
+                mAdapter.getFilter().filter(newText);
                 showFoundNotification();
                 return true;
             }
@@ -281,7 +281,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
             if (requestCode == REQUEST_CODE_ADD) {
 
                 // Update
-                adapter.getFilter().filter("");
+                mAdapter.getFilter().filter("");
                 showFoundNotification();
 
                 // Notification if added.
@@ -314,7 +314,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                 importEntries(ListActivity.this, selectedFile);
 
                 // Update
-                adapter.getFilter().filter("");
+                mAdapter.getFilter().filter("");
                 showFoundNotification();
             }
         }
@@ -323,8 +323,8 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
     @Override
     public void onComplete(final int code, @Nullable final Object object) {
         if (code == REQUEST_CODE_DIALOG_FRAGMENT_RETURN_PROFILE && object != null) {
-            profileMap = convertProfileJsonToMap(getSelectedProfileJson(this));
-            adapter.getFilter().filter("");
+            mProfileMap = convertProfileJsonToMap(getSelectedProfileJson(this));
+            mAdapter.getFilter().filter("");
             showFoundNotification();
             showToast(
                     this,
@@ -344,7 +344,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
      */
     @Override
     protected void onPause() {
-        dbHelper.close();
+        mDbHelper.close();
         super.onPause();
     }
 
@@ -378,19 +378,19 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                         .getInteger(R.integer.activity_list_notification_delay_auto_close);
 
                 // Set text.
-                foundView.setText(String.format(Locale.ENGLISH,
+                mFoundView.setText(String.format(Locale.ENGLISH,
                         getString(R.string.activity_list_notification_found_text) + "\n%d",
-                        listView.getCount()));
+                        mListView.getCount()));
 
                 // Set start time of the notification display.
-                timerFound = System.currentTimeMillis();
+                mTimerFound = System.currentTimeMillis();
 
-                if (foundView.getVisibility() == View.INVISIBLE) {
+                if (mFoundView.getVisibility() == View.INVISIBLE) {
                     // Show notification. If API >= 21, then with circular reveal animation.
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        circularRevealAnimationOn(foundView);
+                        circularRevealAnimationOn(mFoundView);
                     } else {
-                        foundView.setVisibility(View.VISIBLE);
+                        mFoundView.setVisibility(View.VISIBLE);
                     }
 
                     // Start notification close timer.
@@ -399,16 +399,16 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            if (System.currentTimeMillis() - timerFound >
+                            if (System.currentTimeMillis() - mTimerFound >
                                     delayClose) {
 
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                            circularRevealAnimationOff(foundView);
+                                            circularRevealAnimationOff(mFoundView);
                                         } else {
-                                            foundView.setVisibility(View.INVISIBLE);
+                                            mFoundView.setVisibility(View.INVISIBLE);
                                         }
                                     }
                                 });
@@ -437,10 +437,10 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
             @Override
             public Cursor runQuery(CharSequence constraint) {
 
-                return dbHelper.getCursorWithParams(
+                return mDbHelper.getCursorWithParams(
                         ListActivity.this,
                         constraint,
-                        profileMap);
+                        mProfileMap);
             }
         };
     }
@@ -477,7 +477,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
 
                     // Add mock entries.
                     case R.id.activity_list_nav_drawer_item_add_mock_entries:
-                        dbHelper.addMockEntries();
+                        mDbHelper.addMockEntries();
                         refreshDbConnectAndView();
                         // Notification.
                         showToast(
@@ -488,7 +488,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
 
                     // Remove all entries.
                     case R.id.activity_list_nav_drawer_item_delete_all_entries:
-                        dbHelper.removeAllEntries();
+                        mDbHelper.removeAllEntries();
                         refreshDbConnectAndView();
                         // Notification.
                         showToast(

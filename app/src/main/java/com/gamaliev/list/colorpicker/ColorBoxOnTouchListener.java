@@ -27,38 +27,38 @@ import static com.gamaliev.list.common.CommonUtils.showToast;
 
 final class ColorBoxOnTouchListener implements View.OnTouchListener {
 
-    @NonNull private final ColorPickerActivity context;
-    @NonNull private final Resources resources;
-    @NonNull private final SwitchableHorizontalScrollView paletteHsvSv;
-    @NonNull private final PopupWindow editPw;
-    @NonNull private final GestureDetector gestureDetector;
-    @NonNull private final View view;
-    @NonNull private final int[] hsvColors;
-    @NonNull private final int[] hsvColorsOverridden;
-    private final int index;
-    private final float hsvDegree;
-    private boolean editable;
-    private boolean longPressed;
-    private boolean pauseNotify;
-    private float x1;
-    private float y1;
+    @NonNull private final ColorPickerActivity mContext;
+    @NonNull private final Resources mResources;
+    @NonNull private final SwitchableHorizontalScrollView mPaletteHsvSv;
+    @NonNull private final PopupWindow mEditPw;
+    @NonNull private final GestureDetector mGestureDetector;
+    @NonNull private final View mView;
+    @NonNull private final int[] mHsvColors;
+    @NonNull private final int[] mHsvColorsOverridden;
+    private final int mIndex;
+    private final float mHsvDegree;
+    private boolean mEditable;
+    private boolean mLongPressed;
+    private boolean mPauseNotify;
+    private float mX1;
+    private float mY1;
 
     ColorBoxOnTouchListener(
             @NonNull final ColorPickerActivity context,
             @NonNull final View view,
             final int index) {
 
-        this.context = context;
-        this.view   = view;
-        this.index  = index;
+        mContext    = context;
+        mView       = view;
+        mIndex      = index;
 
-        resources   = context.getResources();
-        gestureDetector = new GestureDetector(context, getSimpleOnGestureListener());
-        paletteHsvSv = context.getPaletteHsvSv();
-        editPw      = context.getEditPw();
-        hsvColors   = context.getHsvColors();
-        hsvColorsOverridden = context.getHsvColorsOverridden();
-        hsvDegree   = context.getHsvDegree();
+        mResources          = context.getResources();
+        mGestureDetector    = new GestureDetector(context, getSimpleOnGestureListener());
+        mPaletteHsvSv       = context.getPaletteHsvSv();
+        mEditPw             = context.getEditPw();
+        mHsvColors          = context.getHsvColors();
+        mHsvColorsOverridden = context.getHsvColorsOverridden();
+        mHsvDegree          = context.getHsvDegree();
     }
 
     /**
@@ -70,55 +70,55 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
      */
     @Override
     public boolean onTouch(View v, MotionEvent e) {
-        gestureDetector.onTouchEvent(e);
+        mGestureDetector.onTouchEvent(e);
 
         switch (e.getAction()) {
 
             // Elevation animation on.
             case MotionEvent.ACTION_DOWN:
-                animateElevation(view,
-                        resources.getInteger(R.integer.activity_color_picker_palette_box_anim_elevation_duration),
-                        resources.getDimensionPixelSize(R.dimen.activity_color_picker_palette_box_anim_elevation_on));
+                animateElevation(mView,
+                        mResources.getInteger(R.integer.activity_color_picker_palette_box_anim_elevation_duration),
+                        mResources.getDimensionPixelSize(R.dimen.activity_color_picker_palette_box_anim_elevation_on));
                 return true;
 
             // Enable scrolling and turn off "Edit mode". Notify.
             // Elevation animation off.
             case MotionEvent.ACTION_UP:
-                if (!paletteHsvSv.isEnableScrolling()) {
-                    editable = false;
-                    paletteHsvSv.setEnableScrolling(true);
-                    editPw.dismiss();
-                    showToast(context,
-                            resources.getString(R.string.activity_color_picker_toast_edit_mode_off),
+                if (!mPaletteHsvSv.isEnableScrolling()) {
+                    mEditable = false;
+                    mPaletteHsvSv.setEnableScrolling(true);
+                    mEditPw.dismiss();
+                    showToast(mContext,
+                            mResources.getString(R.string.activity_color_picker_toast_edit_mode_off),
                             Toast.LENGTH_SHORT);
                 }
 
-                animateElevation(view,
-                        resources.getInteger(R.integer.activity_color_picker_palette_box_anim_elevation_duration),
-                        resources.getDimensionPixelSize(R.dimen.activity_color_picker_palette_box_anim_elevation_off));
+                animateElevation(mView,
+                        mResources.getInteger(R.integer.activity_color_picker_palette_box_anim_elevation_duration),
+                        mResources.getDimensionPixelSize(R.dimen.activity_color_picker_palette_box_anim_elevation_off));
                 return true;
 
             // Elevation animation off.
             case MotionEvent.ACTION_CANCEL:
-                editable = false;
-                animateElevation(view,
-                        resources.getInteger(R.integer.activity_color_picker_palette_box_anim_elevation_duration),
-                        resources.getDimensionPixelSize(R.dimen.activity_color_picker_palette_box_anim_elevation_off));
+                mEditable = false;
+                animateElevation(mView,
+                        mResources.getInteger(R.integer.activity_color_picker_palette_box_anim_elevation_duration),
+                        mResources.getDimensionPixelSize(R.dimen.activity_color_picker_palette_box_anim_elevation_off));
                 return true;
 
             // Edit mode: Change color
             case MotionEvent.ACTION_MOVE:
                 // Check.
-                if (editable) {
-                    if (paletteHsvSv.isEnableScrolling()) {
-                        editable = false;
+                if (mEditable) {
+                    if (mPaletteHsvSv.isEnableScrolling()) {
+                        mEditable = false;
                         break;
                     }
 
                     // Change color.
                     final float size  = v.getWidth();
-                    final float start = (index - 1) * hsvDegree;
-                    final float end   = (index + 1) * hsvDegree;
+                    final float start = (mIndex - 1) * mHsvDegree;
+                    final float end   = (mIndex + 1) * mHsvDegree;
                     final float range = end - start;
                     final float x0    = e.getX();
                     final float y0    = e.getY();
@@ -127,31 +127,31 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
                     final float hue   = ((x / size) * range) + start;
                     final float value = y / size;
                     final int newColor = Color.HSVToColor(new float[] {hue, 1f, value});
-                    context.setColorOnMove(view, newColor, index);
+                    mContext.setColorOnMove(mView, newColor, mIndex);
 
                     // Notify when border reaches
-                    if (!pauseNotify && (x0 > size || x0 < 0 || y0 > size || y0 < 0)) {
+                    if (!mPauseNotify && (x0 > size || x0 < 0 || y0 > size || y0 < 0)) {
                         makeVibrate(
-                                context,
-                                resources.getInteger(R.integer.activity_color_picker_vibration_duration));
-                        pauseNotify = true;
+                                mContext,
+                                mResources.getInteger(R.integer.activity_color_picker_vibration_duration));
+                        mPauseNotify = true;
                         final Handler handler = new Handler();
                         handler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                pauseNotify = false;
+                                mPauseNotify = false;
                             }
-                        }, resources.getInteger(R.integer.activity_color_picker_notification_interval_border_reaches));
+                        }, mResources.getInteger(R.integer.activity_color_picker_notification_interval_border_reaches));
                     }
 
                 } else {
                     // Check condition to start change color.
-                    if (longPressed) {
-                        int delta = (int) resources.getDimension(R.dimen.activity_color_picker_delta_to_enable_change_color);
-                        if (Math.abs(e.getX() - x1) > delta
-                                || Math.abs(e.getY() - y1) > delta) {
-                            editable = true;
-                            longPressed = false;
+                    if (mLongPressed) {
+                        int delta = (int) mResources.getDimension(R.dimen.activity_color_picker_delta_to_enable_change_color);
+                        if (Math.abs(e.getX() - mX1) > delta
+                                || Math.abs(e.getY() - mY1) > delta) {
+                            mEditable = true;
+                            mLongPressed = false;
                         }
                     }
                 }
@@ -180,39 +180,39 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
             public void onLongPress(MotionEvent e) {
                 // Notification
                 playSoundAndShowToast(
-                        context,
+                        mContext,
                         RingtoneManager.TYPE_NOTIFICATION,
-                        resources.getString(R.string.activity_color_picker_toast_edit_mode_on),
+                        mResources.getString(R.string.activity_color_picker_toast_edit_mode_on),
                         Toast.LENGTH_SHORT);
 
                 // Enable scrolling
-                paletteHsvSv.setEnableScrolling(false);
+                mPaletteHsvSv.setEnableScrolling(false);
 
                 //
-                longPressed = true;
-                x1 = e.getX();
-                y1 = e.getY();
+                mLongPressed = true;
+                mX1 = e.getX();
+                mY1 = e.getY();
 
                 // Show popup window, and set current color.
-                context.showPopupWindow();
-                context.setColorOnMove(view, -1, index);
+                mContext.showPopupWindow();
+                mContext.setColorOnMove(mView, -1, mIndex);
             }
 
             // Set default color back to palette box
             @Override
             public boolean onDoubleTap(MotionEvent e) {
-                setBackgroundColorRectangleAPI(context, view, hsvColors[index]);
+                setBackgroundColorRectangleAPI(mContext, mView, mHsvColors[mIndex]);
                 // Update overridden array.
-                hsvColorsOverridden[index] = -1;
+                mHsvColorsOverridden[mIndex] = -1;
                 return true;
             }
 
             // Set palette color to result box
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
-                int result = hsvColorsOverridden[index] != -1
-                        ? hsvColorsOverridden[index] : hsvColors[index];
-                context.setResultBoxColor(result);
+                int result = mHsvColorsOverridden[mIndex] != -1
+                        ? mHsvColorsOverridden[mIndex] : mHsvColors[mIndex];
+                mContext.setResultBoxColor(result);
                 return true;
             }
         };

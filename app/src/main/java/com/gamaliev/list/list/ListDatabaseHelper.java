@@ -47,7 +47,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
     /* Logger */
     private static final String TAG = ListDatabaseHelper.class.getSimpleName();
 
-    @NonNull private static final String[] datesColumns = {
+    @NonNull private static final String[] DATES_COLUMNS = {
             LIST_ITEMS_COLUMN_CREATED,
             LIST_ITEMS_COLUMN_EDITED,
             LIST_ITEMS_COLUMN_VIEWED
@@ -88,55 +88,64 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      */
     public boolean insertEntry(@NonNull final ListEntry entry) {
         try (SQLiteDatabase db = getWritableDatabase()) {
-
-            // Variables
-            final String title = entry.getTitle();
-            final String description = entry.getDescription();
-            final int color = entry.getColor() == null ? getDefaultColor(context) : entry.getColor();
-
-            // Content values
-            final ContentValues cv = new ContentValues();
-            cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
-            cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
-            cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
-
-            String utcCreatedDate =
-                    getStringDateFormatSqlite(
-                            context,
-                            entry.getCreated() == null ? new Date() : entry.getCreated(),
-                            true);
-            String utcEditedDate =
-                    getStringDateFormatSqlite(
-                            context,
-                            entry.getEdited() == null ? new Date() : entry.getEdited(),
-                            true);
-            String utcViewedDate =
-                    getStringDateFormatSqlite(
-                            context,
-                            entry.getViewed() == null ? new Date() : entry.getViewed(),
-                            true);
-
-            cv.put(LIST_ITEMS_COLUMN_CREATED,   utcCreatedDate);
-            cv.put(LIST_ITEMS_COLUMN_EDITED,    utcEditedDate);
-            cv.put(LIST_ITEMS_COLUMN_VIEWED,    utcViewedDate);
-
-            // Insert
-            if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
-                final String error = String.format(Locale.ENGLISH,
-                        "[ERROR] Insert entry {%s: %s, %s: %s, %s: %d}",
-                        LIST_ITEMS_COLUMN_TITLE, title,
-                        LIST_ITEMS_COLUMN_DESCRIPTION, description,
-                        LIST_ITEMS_COLUMN_COLOR, color);
-                throw new SQLiteException(error);
-            }
+            insertEntry(entry, db);
 
             // If ok
             return true;
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+            showToast(mContext, mDbFailMessage, Toast.LENGTH_SHORT);
             return false;
+        }
+    }
+
+    /**
+     * Insert new entry in database.
+     * @param entry Entry, contains title, description, color.
+     * @param db    Opened writable database.
+     */
+    public void insertEntry(@NonNull ListEntry entry, SQLiteDatabase db) {
+
+        // Variables
+        final String title = entry.getTitle();
+        final String description = entry.getDescription();
+        final int color = entry.getColor() == null ? getDefaultColor(mContext) : entry.getColor();
+
+        // Content values
+        final ContentValues cv = new ContentValues();
+        cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
+        cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
+        cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
+
+        String utcCreatedDate =
+                getStringDateFormatSqlite(
+                        mContext,
+                        entry.getCreated() == null ? new Date() : entry.getCreated(),
+                        true);
+        String utcEditedDate =
+                getStringDateFormatSqlite(
+                        mContext,
+                        entry.getEdited() == null ? new Date() : entry.getEdited(),
+                        true);
+        String utcViewedDate =
+                getStringDateFormatSqlite(
+                        mContext,
+                        entry.getViewed() == null ? new Date() : entry.getViewed(),
+                        true);
+
+        cv.put(LIST_ITEMS_COLUMN_CREATED,   utcCreatedDate);
+        cv.put(LIST_ITEMS_COLUMN_EDITED,    utcEditedDate);
+        cv.put(LIST_ITEMS_COLUMN_VIEWED,    utcViewedDate);
+
+        // Insert
+        if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
+            final String error = String.format(Locale.ENGLISH,
+                    "[ERROR] Insert entry {%s: %s, %s: %s, %s: %d}",
+                    LIST_ITEMS_COLUMN_TITLE, title,
+                    LIST_ITEMS_COLUMN_DESCRIPTION, description,
+                    LIST_ITEMS_COLUMN_COLOR, color);
+            throw new SQLiteException(error);
         }
     }
 
@@ -163,7 +172,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
             final String title          = entry.getTitle();
             final String description    = entry.getDescription();
             final int color             = entry.getColor() == null
-                                            ? getDefaultColor(context)
+                                            ? getDefaultColor(mContext)
                                             : entry.getColor();
 
             // Content values
@@ -171,7 +180,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
             cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
             cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
             cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
-            cv.put(editedViewedColumn,              getStringDateFormatSqlite(context, new Date(), true));
+            cv.put(editedViewedColumn,              getStringDateFormatSqlite(mContext, new Date(), true));
 
             // Update
             final int updateResult = db.update(
@@ -189,7 +198,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+            showToast(mContext, mDbFailMessage, Toast.LENGTH_SHORT);
             return false;
         }
     }
@@ -220,7 +229,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+            showToast(mContext, mDbFailMessage, Toast.LENGTH_SHORT);
             return null;
 
             // TODO: db.close -> cursor.close -> exception.
@@ -268,7 +277,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
                 entry.setColor(         cursor.getInt(      indexColor));
 
                 // Parse sqlite format (yyyy-MM-dd HH:mm:ss, UTC), in localtime.
-                DateFormat df = CommonUtils.getDateFormatSqlite(context, true);
+                DateFormat df = CommonUtils.getDateFormatSqlite(mContext, true);
                 try {
                     Date created    = df.parse(cursor.getString(indexCreated));
                     Date edited     = df.parse(cursor.getString(indexEdited));
@@ -287,7 +296,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+            showToast(mContext, mDbFailMessage, Toast.LENGTH_SHORT);
             return null;
         }
     }
@@ -316,7 +325,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+            showToast(mContext, mDbFailMessage, Toast.LENGTH_SHORT);
             return false;
         }
     }
@@ -348,7 +357,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+            showToast(mContext, mDbFailMessage, Toast.LENGTH_SHORT);
             return false;
 
         } finally {
@@ -377,7 +386,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
 
             // Helper method for add entries.
             ListDatabaseMockHelper.addMockEntries(
-                    resources.getInteger(R.integer.mock_items_number_click),
+                    mRes.getInteger(R.integer.mock_items_number_click),
                     db);
 
             // Success transaction.
@@ -388,7 +397,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, dbFailMessage, Toast.LENGTH_SHORT);
+            showToast(mContext, mDbFailMessage, Toast.LENGTH_SHORT);
             return false;
 
         } finally {
@@ -439,7 +448,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
         }
 
         // For each column.
-        for (int i = 0; i < datesColumns.length; i++) {
+        for (int i = 0; i < DATES_COLUMNS.length; i++) {
 
             // Add +1 day to dateTo.
 
@@ -447,7 +456,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
             final String dates = getDateFromProfileMap(
                     context,
                     profileMap,
-                    datesColumns[i],
+                    DATES_COLUMNS[i],
                     EXTRA_DATES_TO_DATETIME);
 
             if (TextUtils.isEmpty(dates)) {
@@ -473,7 +482,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
             datesArray[0] = getDateFromProfileMap(
                     context,
                     profileMap,
-                    datesColumns[i],
+                    DATES_COLUMNS[i],
                     EXTRA_DATES_FROM_DATE);
             datesArray[1] = getStringDateFormatSqlite(
                     context,
@@ -481,9 +490,9 @@ public final class ListDatabaseHelper extends DatabaseHelper {
                     false);
 
             // Add viewed filter, if not empty or null.
-            if (!TextUtils.isEmpty(profileMap.get(datesColumns[i]))) {
+            if (!TextUtils.isEmpty(profileMap.get(DATES_COLUMNS[i]))) {
                 resultQueryBuilder.addAnd(
-                        datesColumns[i],
+                        DATES_COLUMNS[i],
                         OPERATOR_BETWEEN,
                         datesArray);
             }
@@ -499,6 +508,6 @@ public final class ListDatabaseHelper extends DatabaseHelper {
         resultQueryBuilder.setAscDesc(profileMap.get(SP_FILTER_ORDER_ASC));
 
         // Go-go-go.
-        return this.getEntries(resultQueryBuilder);
+        return getEntries(resultQueryBuilder);
     }
 }
