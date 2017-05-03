@@ -178,8 +178,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
         mAdapter.setFilterQueryProvider(mQueryProvider);
 
         // Apply filter.
-        mAdapter.getFilter().filter("");
-        showFoundNotification();
+        filterAdapterAndShowFoundNotification("");
     }
 
 
@@ -217,8 +216,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
             @Override
             public boolean onQueryTextChange(String newText) {
                 // Set filter text and show "Found" notification.
-                mAdapter.getFilter().filter(newText);
-                showFoundNotification();
+                filterAdapterAndShowFoundNotification(newText);
                 return true;
             }
         });
@@ -281,8 +279,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
             if (requestCode == REQUEST_CODE_ADD) {
 
                 // Update
-                mAdapter.getFilter().filter("");
-                showFoundNotification();
+                filterAdapterAndShowFoundNotification("");
 
                 // Notification if added.
                 showToast(
@@ -314,8 +311,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                 importEntries(ListActivity.this, selectedFile);
 
                 // Update
-                mAdapter.getFilter().filter("");
-                showFoundNotification();
+                filterAdapterAndShowFoundNotification("");
             }
         }
     }
@@ -324,8 +320,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
     public void onComplete(final int code, @Nullable final Object object) {
         if (code == REQUEST_CODE_DIALOG_FRAGMENT_RETURN_PROFILE && object != null) {
             mProfileMap = convertProfileJsonToMap(getSelectedProfileJson(this));
-            mAdapter.getFilter().filter("");
-            showFoundNotification();
+            filterAdapterAndShowFoundNotification("");
             showToast(
                     this,
                     getString(R.string.activity_list_notification_filtered),
@@ -509,5 +504,13 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                 return true;
             }
         };
+    }
+
+    /**
+     * @param text Text to show.
+     */
+    private void filterAdapterAndShowFoundNotification(@NonNull final String text) {
+        mAdapter.getFilter().filter(text);
+        showFoundNotification();
     }
 }

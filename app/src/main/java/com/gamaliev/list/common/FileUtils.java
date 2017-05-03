@@ -3,6 +3,7 @@ package com.gamaliev.list.common;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
@@ -206,61 +207,52 @@ public class FileUtils {
             }
         }
 
-        // Create
-        JSONArray jsonArray = null;
-        JSONObject jsonObject = null;
+        try (   // Open database and start transaction.
+                ListDatabaseHelper dbHelper = new ListDatabaseHelper(context);
+                SQLiteDatabase db = dbHelper.getWritableDatabase()) {
 
-        try {
             // Init
-            jsonArray = new JSONArray(inputJson);
+            JSONArray jsonArray = new JSONArray(inputJson);
+            JSONObject jsonObject = null;
 
-            // Open database and start transaction.
-            ListDatabaseHelper dbHelper = new ListDatabaseHelper(context);
+            // Begin transaction
+            db.beginTransaction();
 
-            try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
+            // Seek.
+            for (int i = 0; i < jsonArray.length(); i++) {
 
-                // Begin transaction
-                db.beginTransaction();
+                // Get string.
+                final String entryJson = jsonArray.getString(i);
 
-                // Seek.
-                for (int i = 0; i < jsonArray.length(); i++) {
+                // Init
+                jsonObject = new JSONObject(entryJson);
 
-                    // Get string.
-                    final String entryJson = jsonArray.getString(i);
+                // Get strings
+                final String title = jsonObject.optString(LIST_ITEMS_COLUMN_TITLE, null);
+                final int color =
+                        Color.parseColor(jsonObject.optString(LIST_ITEMS_COLUMN_COLOR, null));
 
-                    // Init
-                    jsonObject = new JSONObject(entryJson);
+                final String description = jsonObject.optString(LIST_ITEMS_COLUMN_DESCRIPTION, null);
+                final String created = jsonObject.optString(LIST_ITEMS_COLUMN_CREATED, null);
+                final String edited = jsonObject.optString(LIST_ITEMS_COLUMN_EDITED, null);
+                final String viewed = jsonObject.optString(LIST_ITEMS_COLUMN_VIEWED, null);
 
-                    // Get strings
-                    final String title      = jsonObject.optString(LIST_ITEMS_COLUMN_TITLE, null);
-                    final int color         =
-                            Color.parseColor(jsonObject.optString(LIST_ITEMS_COLUMN_COLOR, null));
+                // Create entry model.
+                ListEntry entry = new ListEntry();
+                entry.setTitle(title);
+                entry.setColor(color);
+                entry.setDescription(description);
+                entry.setCreated(getDateFromISO8601String(context, created));
+                entry.setEdited(getDateFromISO8601String(context, edited));
+                entry.setViewed(getDateFromISO8601String(context, viewed));
 
-                    final String description = jsonObject.optString(LIST_ITEMS_COLUMN_DESCRIPTION, null);
-                    final String created    = jsonObject.optString(LIST_ITEMS_COLUMN_CREATED, null);
-                    final String edited     = jsonObject.optString(LIST_ITEMS_COLUMN_EDITED, null);
-                    final String viewed     = jsonObject.optString(LIST_ITEMS_COLUMN_VIEWED, null);
-
-                    // Create entry model.
-                    ListEntry entry = new ListEntry();
-                    entry.setTitle(title);
-                    entry.setColor(color);
-                    entry.setDescription(description);
-                    entry.setCreated(getDateFromISO8601String(context , created));
-                    entry.setEdited(getDateFromISO8601String(context , edited));
-                    entry.setViewed(getDateFromISO8601String(context , viewed));
-
-                    // Insert
-                    dbHelper.insertEntry(entry, db);
-                }
-
-                // Transaction success.
-                db.setTransactionSuccessful();
-                db.endTransaction();
+                // Insert
+                dbHelper.insertEntry(entry, db);
             }
 
-            // Close.
-            dbHelper.close();
+            // Transaction success.
+            db.setTransactionSuccessful();
+            db.endTransaction();
 
             // Notification success.
             showToast(
@@ -268,9 +260,7 @@ public class FileUtils {
                     context.getString(R.string.file_utils_import_toast_message_success),
                     Toast.LENGTH_SHORT);
 
-
-
-        } catch (JSONException e) {
+        } catch (JSONException | SQLiteException e) {
             Log.e(TAG, e.toString());
             // Notification failed.
             showToast(

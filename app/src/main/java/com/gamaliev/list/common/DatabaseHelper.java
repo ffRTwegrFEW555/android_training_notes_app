@@ -22,7 +22,7 @@ import static com.gamaliev.list.common.CommonUtils.showToast;
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+public class DatabaseHelper extends SQLiteOpenHelper implements AutoCloseable {
 
     /* Logger */
     private static final String TAG = DatabaseHelper.class.getSimpleName();

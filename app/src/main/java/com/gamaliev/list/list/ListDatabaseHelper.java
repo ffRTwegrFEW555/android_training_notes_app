@@ -105,7 +105,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      * @param entry Entry, contains title, description, color.
      * @param db    Opened writable database.
      */
-    public void insertEntry(@NonNull ListEntry entry, SQLiteDatabase db) {
+    public void insertEntry(@NonNull ListEntry entry, SQLiteDatabase db) throws SQLiteException {
 
         // Variables
         final String title = entry.getTitle();
