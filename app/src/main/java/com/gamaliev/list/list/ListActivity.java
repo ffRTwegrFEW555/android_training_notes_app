@@ -314,6 +314,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                             getString(R.string.activity_list_notification_entry_deleted),
                             Toast.LENGTH_SHORT);
                 }
+
             } else if (requestCode == REQUEST_CODE_IMPORT) {
 
                 // If file selected, then start import.
@@ -323,6 +324,9 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                 // Refresh view.
                 filterAdapterAndShowFoundNotification("");
             }
+
+        } else if (resultCode == RESULT_CANCELED) {
+            filterAdapterAndShowFoundNotification("");
         }
     }
 

@@ -55,4 +55,8 @@
         <item name="colorAccent">@color/color_primary_contrast</item>
     </style>
 
+    <style name="AppTheme.WhileColor">
+        <item name="colorAccent">@color/color_white</item>
+    </style>
+
 </resources>

@@ -16,10 +16,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.transition.TransitionInflater;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.gamaliev.list.R;
 import com.gamaliev.list.colorpicker.ColorPickerActivity;
@@ -27,9 +29,13 @@ import com.gamaliev.list.colorpicker.ColorPickerActivity;
 import static com.gamaliev.list.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.list.common.CommonUtils.getResourceColorApi;
 import static com.gamaliev.list.common.CommonUtils.getStringDateFormatSqlite;
+import static com.gamaliev.list.common.CommonUtils.showToast;
 import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
 
 public class ItemDetailsActivity extends AppCompatActivity {
+
+    /* Logger */
+    private static final String TAG = ItemDetailsActivity.class.getSimpleName();
 
     /* Action */
     private static final String ACTION_ADD  = "ItemDetailsActivity.ACTION_ADD";
@@ -49,6 +55,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
     @NonNull private EditText mTitleEditText;
     @NonNull private EditText mDescEditText;
     @NonNull private ListEntry mEntry;
+    @NonNull private Menu mMenu;
     @Nullable private Bundle mSavedInstanceState;
     private int mColor;
 
@@ -180,24 +187,29 @@ public class ItemDetailsActivity extends AppCompatActivity {
                 if (mSavedInstanceState == null) {
 
                     // On first start activity. Get entry from database, with given id.
-                    long id     = getIntent().getLongExtra(EXTRA_ID, -1);
+                    final long id = getIntent().getLongExtra(EXTRA_ID, -1);
                     mDbHelper = new ListDatabaseHelper(this);
                     mEntry = mDbHelper.getEntry(id);
-
-                    // Update viewed date.
-                    mDbHelper.updateEntry(mEntry, LIST_ITEMS_COLUMN_VIEWED);
-
                     mDbHelper.close();
 
-                    if (mEntry != null) {
+                    // If received object and id is not null.
+                    // Else finish.
+                    if (mEntry != null && mEntry.getId() != null) {
                         // Fill activity views values with received values.
                         fillActivityViews();
 
+                        // Update viewed date.
+                        mDbHelper.updateEntry(mEntry, LIST_ITEMS_COLUMN_VIEWED);
+
                     } else {
-                        // If received object is null, then fill by default values.
-                        refreshColorBox(getDefaultColor(this));
-                        mEntry = new ListEntry();
-                        refreshEntry();
+                        setResult(RESULT_CANCELED, null);
+                        finish();
+                        final String error = getString(R.string.activity_item_details_edit_mode_wrong_id);
+                        Log.e(TAG, error);
+                        showToast(
+                                this,
+                                error,
+                                Toast.LENGTH_LONG);
                     }
 
                 } else {
@@ -350,6 +362,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        mMenu = menu;
         getMenuInflater().inflate(R.menu.menu_list_item_details, menu);
 
         // If "edit action", then set info and delete buttons to visible.
@@ -370,35 +383,90 @@ public class ItemDetailsActivity extends AppCompatActivity {
             // On save action.
             // Create database -> process action -> close database.
             case R.id.menu_list_item_details_done:
-                mDbHelper = new ListDatabaseHelper(this);
+
+                //
+                showProgressBarAndHideMenuItems();
+                refreshEntry();
+                Thread thread = null;
 
                 switch (getIntent().getAction()) {
 
                     // If new, then add to database, and finish activity with RESULT_OK.
                     case ACTION_ADD:
-                        refreshEntry();
-                        mDbHelper.insertEntry(mEntry);
-                        setResult(
-                                RESULT_OK,
-                                ListActivity.getResultIntent(ListActivity.RESULT_CODE_EXTRA_ADDED));
-                        finish();
+
+                        // Background task.
+                        thread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                // Insert
+                                mDbHelper = new ListDatabaseHelper(ItemDetailsActivity.this);
+                                mDbHelper.insertEntry(mEntry);
+                                mDbHelper.close();
+
+                                // Demonstration pause.
+                                try {
+                                    Thread.sleep(getResources().getInteger(
+                                            R.integer.activity_item_detail_demonstration_pause));
+                                } catch (InterruptedException e) {
+                                    Log.e(TAG, e.toString());
+                                }
+
+                                // Finish activity with result.
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setResult(
+                                                RESULT_OK,
+                                                ListActivity.getResultIntent(ListActivity.RESULT_CODE_EXTRA_ADDED));
+                                        finish();
+                                    }
+                                });
+                            }
+                        });
+                        thread.start();
                         break;
 
                     // If edit, then update entry in database, and finish activity with RESULT_OK.
                     case ACTION_EDIT:
-                        refreshEntry();
-                        mDbHelper.updateEntry(mEntry, null);
-                        setResult(
-                                RESULT_OK,
-                                ListActivity.getResultIntent(ListActivity.RESULT_CODE_EXTRA_EDITED));
-                        finish();
+
+                        // Background task.
+                        thread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                // Update
+                                mDbHelper = new ListDatabaseHelper(ItemDetailsActivity.this);
+                                mDbHelper.updateEntry(mEntry, null);
+                                mDbHelper.close();
+
+                                // Demonstration pause.
+                                try {
+                                    Thread.sleep(getResources().getInteger(
+                                            R.integer.activity_item_detail_demonstration_pause));
+                                } catch (InterruptedException e) {
+                                    Log.e(TAG, e.toString());
+                                }
+
+                                // Finish activity with result.
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setResult(
+                                                RESULT_OK,
+                                                ListActivity.getResultIntent(ListActivity.RESULT_CODE_EXTRA_EDITED));
+                                        finish();
+                                    }
+                                });
+                            }
+                        });
+                        thread.start();
                         break;
 
                     default:
                         break;
                 }
 
-                mDbHelper.close();
                 break;
 
             // On cancel action. Finish activity.
@@ -474,13 +542,41 @@ public class ItemDetailsActivity extends AppCompatActivity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
-                                mDbHelper = new ListDatabaseHelper(ItemDetailsActivity.this);
-                                mDbHelper.deleteEntry(mEntry.getId());
-                                mDbHelper.close();
-                                setResult(
-                                        RESULT_OK,
-                                        ListActivity.getResultIntent(ListActivity.RESULT_CODE_EXTRA_DELETED));
-                                finish();
+
+                                //
+                                showProgressBarAndHideMenuItems();
+
+                                // Background task.
+                                final Thread thread = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        // Delete
+                                        mDbHelper = new ListDatabaseHelper(ItemDetailsActivity.this);
+                                        mDbHelper.deleteEntry(mEntry.getId());
+                                        mDbHelper.close();
+
+                                        // Demonstration pause.
+                                        try {
+                                            Thread.sleep(getResources().getInteger(
+                                                    R.integer.activity_item_detail_demonstration_pause));
+                                        } catch (InterruptedException e) {
+                                            Log.e(TAG, e.toString());
+                                        }
+
+                                        // Finish activity with result.
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                setResult(
+                                                        RESULT_OK,
+                                                        ListActivity.getResultIntent(ListActivity.RESULT_CODE_EXTRA_DELETED));
+                                                finish();
+                                            }
+                                        });
+                                    }
+                                });
+                                thread.start();
                             }
                         })
                 .setNegativeButton(getString(R.string.activity_item_details_delete_dialog_button_cancel),
@@ -494,6 +590,19 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
         // Show
         alert.show();
+    }
+
+    private void showProgressBarAndHideMenuItems() {
+        // Replace color box with progress bar.
+        findViewById(R.id.activity_item_details_color)
+                .setVisibility(View.GONE);
+        findViewById(R.id.activity_item_details_progress_bar_replacer)
+                .setVisibility(View.VISIBLE);
+
+        // Hide menu items.
+        mMenu.findItem(R.id.menu_list_item_details_done).setVisible(false);
+        mMenu.findItem(R.id.menu_list_item_details_cancel).setVisible(false);
+        mMenu.findItem(R.id.menu_list_item_details_delete).setVisible(false);
     }
 
 

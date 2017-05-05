@@ -39,8 +39,16 @@
     <integer name="activity_list_smooth_scroll_delay">200</integer>
 
 
+    <!--                        -->
+    <!-- Activity ItemDetails   -->
+    <!--                        -->
+
+    <!-- Other -->
+    <integer name="activity_item_detail_demonstration_pause">1000</integer>
+
+
     <!--                    -->
-    <!-- Activity ListItem  -->
+    <!-- Layout ListItem    -->
     <!--                    -->
 
     <!-- Other -->
