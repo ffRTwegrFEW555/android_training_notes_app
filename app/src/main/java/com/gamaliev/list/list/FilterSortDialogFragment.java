@@ -247,9 +247,6 @@ public class FilterSortDialogFragment extends DialogFragment {
         // Remove all child.
         profiles.removeAllViews();
 
-        // Open database.
-        final ListDatabaseHelper dbHelper = new ListDatabaseHelper(getActivity());
-
         // Get profiles set from shared preferences.
         final Set<String> profilesSet = getProfilesSet(getActivity());
 
@@ -272,13 +269,16 @@ public class FilterSortDialogFragment extends DialogFragment {
             // Title. Get and set.
             final String title = profileMap.get(SP_FILTER_TITLE);
             final TextView newTitleView = (TextView) newView.findViewById(
-                    R.id.activity_list_filter_sort_dialog_profile_title);
+                    R.id.activity_list_filter_dialog_profile_title);
             newTitleView.setText(title);
 
-            // Count text.
-            // Create new view.
-            final TextView newFoundView = (TextView) newView.findViewById(
-                    R.id.activity_list_filter_sort_dialog_profile_found);
+            // Found text view.
+            final TextView foundTextView = (TextView) newView.findViewById(
+                    R.id.activity_list_filter_dialog_profile_found);
+
+            // Progress bar.
+            final View progressBar = newView.findViewById(
+                    R.id.activity_list_filter_dialog_profile_found_progress_bar);
 
             // Check cached
             final String foundedEntries = mFoundedEntries.get(id);
@@ -286,19 +286,56 @@ public class FilterSortDialogFragment extends DialogFragment {
                 // If not exists.
                 // Get "found entries"-text dependent this profile and set.
                 // Get entries from database, with given profile-params and count result.
-                final Cursor cursor = dbHelper.getCursorWithParams(getActivity(), null, profileMap);
-                final String count = String.valueOf(cursor.getCount());
-                cursor.close();
 
-                // Set text.
-                newFoundView.setText("(" + count + ")");
+                // Hide found text view.
+                foundTextView.setVisibility(View.GONE);
 
-                // Caching
-                mFoundedEntries.put(id, count);
+                // Show progress bar.
+                progressBar.setVisibility(View.VISIBLE);
+
+                // Background task.
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        // Open database.
+                        final ListDatabaseHelper dbHelper = new ListDatabaseHelper(getActivity());
+
+                        // Get
+                        final Cursor cursor = dbHelper.getCursorWithParams(getActivity(), null, profileMap);
+                        final String count = String.valueOf(cursor.getCount());
+                        cursor.close();
+
+                        //
+                        dbHelper.close();
+
+                        // Caching
+                        mFoundedEntries.put(id, count);
+
+                        // Update view.
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Set text.
+                                foundTextView.setText("(" + count + ")");
+
+                                // Hide progress bar.
+                                progressBar.setVisibility(View.GONE);
+
+                                // Show found text view.
+                                foundTextView.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    }
+                });
+                thread.start();
 
             } else {
                 // If exists.
-                newFoundView.setText("(" + foundedEntries + ")");
+                foundTextView.setText("(" + foundedEntries + ")");
+
+                // Show found text view.
+                foundTextView.setVisibility(View.VISIBLE);
             }
 
             // Color. Get id and check selected.
@@ -338,7 +375,7 @@ public class FilterSortDialogFragment extends DialogFragment {
 
             // Set "delete button" on click listener.
             final ImageButton deleteButton = (ImageButton) newView.findViewById(
-                    R.id.activity_list_filter_sort_dialog_profile_delete);
+                    R.id.activity_list_filter_dialog_profile_delete);
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -369,9 +406,6 @@ public class FilterSortDialogFragment extends DialogFragment {
             // Add child view to parent.
             profiles.addView(newView);
         }
-
-        // Close db.
-        dbHelper.close();
     }
 
     private void initSortComponents() {
@@ -1040,14 +1074,59 @@ public class FilterSortDialogFragment extends DialogFragment {
      * Get from database count of entries, with given profile params.
      */
     private void refreshFoundText() {
-        final ListDatabaseHelper dbHelper = new ListDatabaseHelper(getActivity());
-        final Cursor cursor = dbHelper.getCursorWithParams(getActivity(), null, mProfileMap);
-        final String text = getString(R.string.activity_list_filter_dialog_profile_found_text);
-        ((TextView) mDialog
-                .findViewById(R.id.activity_list_filter_dialog_found_text_view))
-                .setText(text + " " + String.valueOf(cursor.getCount()));
-        cursor.close();
-        dbHelper.close();
+
+        // Found text view.
+        final TextView foundTextView = (TextView) mDialog
+                .findViewById(R.id.activity_list_filter_dialog_found_text_view);
+
+        // Progress bar.
+        final View progressBar = mDialog.findViewById(
+                R.id.activity_list_filter_dialog_found_progress_bar);
+
+        // Hide found text view.
+        foundTextView.setVisibility(View.GONE);
+
+        // Show progress bar.
+        progressBar.setVisibility(View.VISIBLE);
+
+        // Background task.
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                // Open database.
+                final ListDatabaseHelper dbHelper = new ListDatabaseHelper(getActivity());
+
+                // Get
+                final Cursor cursor = dbHelper.getCursorWithParams(getActivity(), null, mProfileMap);
+                final String count = String.valueOf(cursor.getCount());
+                cursor.close();
+
+                //
+                dbHelper.close();
+
+                // Update view.
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //
+                        final String text = getString(
+                                R.string.activity_list_filter_dialog_profile_found_text)
+                                + " " + count;
+
+                        // Set text.
+                        foundTextView.setText(text);
+
+                        // Hide progress bar.
+                        progressBar.setVisibility(View.GONE);
+
+                        // Show found text view.
+                        foundTextView.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+        });
+        thread.start();
     }
 
     /**

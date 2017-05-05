@@ -9,11 +9,11 @@
 
     <!-- Profile title -->
     <TextView
-        android:id="@+id/activity_list_filter_sort_dialog_profile_title"
+        android:id="@+id/activity_list_filter_dialog_profile_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/activity_list_filter_sort_dialog_profile_found"
+        android:layout_toStartOf="@+id/activity_list_filter_dialog_profile_found"
         android:layout_centerVertical="true"
         android:textSize="@dimen/activity_list_filter_dialog_title_small_size"
         android:maxLines="1"
@@ -21,16 +21,28 @@
 
     <!-- Profile found text -->
     <TextView
-        android:id="@+id/activity_list_filter_sort_dialog_profile_found"
+        android:id="@+id/activity_list_filter_dialog_profile_found"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toStartOf="@+id/activity_list_filter_sort_dialog_profile_delete"
+        android:layout_toStartOf="@+id/activity_list_filter_dialog_profile_delete"
         android:layout_centerVertical="true"
-        android:textSize="@dimen/activity_list_filter_dialog_title_super_small_size"/>
+        android:textSize="@dimen/activity_list_filter_dialog_title_super_small_size"
+        android:visibility="gone"/>
+
+    <!-- Progress bar -->
+    <ProgressBar
+        android:id="@+id/activity_list_filter_dialog_profile_found_progress_bar"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:padding="5dp"
+        android:layout_toStartOf="@+id/activity_list_filter_dialog_profile_delete"
+        android:layout_centerVertical="true"
+        android:theme="@style/AppTheme.ContrastColorAccent"
+        android:visibility="gone"/>
 
     <!-- Profile delete button -->
     <ImageButton
-        android:id="@+id/activity_list_filter_sort_dialog_profile_delete"
+        android:id="@+id/activity_list_filter_dialog_profile_delete"
         android:layout_width="@dimen/activity_list_filter_dialog_profile_delete_size"
         android:layout_height="@dimen/activity_list_filter_dialog_profile_delete_size"
         android:layout_alignParentEnd="true"
