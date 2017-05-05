@@ -146,8 +146,14 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
         if (mDbHelper == null) {
             mDbHelper = new ListDatabaseHelper(this);
         }
-        Cursor cursor   = mDbHelper.getEntries(new DatabaseQueryBuilder());
-        mAdapter = new ListCursorAdapter(this, cursor, 0);
+
+        // Create adapter.
+        mAdapter = new ListCursorAdapter(this, null, 0);
+
+        // SearchView filter query provider.
+        mAdapter.setFilterQueryProvider(mQueryProvider);
+
+        // Init list view
         mListView = (ListView) findViewById(R.id.activity_list_listview);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -174,10 +180,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
             }
         });
 
-        // SearchView filter query provider.
-        mAdapter.setFilterQueryProvider(mQueryProvider);
-
-        // Apply filter.
+        // Refresh view. Apply filter.
         filterAdapterAndShowFoundNotification("");
     }
 
@@ -215,7 +218,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // Set filter text and show "Found" notification.
+                // Refresh view.
                 filterAdapterAndShowFoundNotification(newText);
                 return true;
             }
@@ -278,7 +281,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CODE_ADD) {
 
-                // Update
+                // Refresh view.
                 filterAdapterAndShowFoundNotification("");
 
                 // Notification if added.
@@ -288,17 +291,18 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                         Toast.LENGTH_SHORT);
 
             } else if (requestCode == REQUEST_CODE_EDIT) {
-                refreshDbConnectAndView();
+                // Refresh view.
+                filterAdapterAndShowFoundNotification("");
 
                 if (data.getIntExtra(RESULT_CODE_EXTRA, -1) == RESULT_CODE_EXTRA_EDITED) {
-                    // Notification if edited.
+                    // Show notification if edited.
                     showToast(
                             this,
                             getString(R.string.activity_list_notification_entry_updated),
                             Toast.LENGTH_SHORT);
 
                 } else if (data.getIntExtra(RESULT_CODE_EXTRA, -1) == RESULT_CODE_EXTRA_DELETED) {
-                    // Notification if deleted.
+                    // Show notification if deleted.
                     showToast(
                             this,
                             getString(R.string.activity_list_notification_entry_deleted),
@@ -310,7 +314,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                 Uri selectedFile = data.getData();
                 importEntries(ListActivity.this, selectedFile);
 
-                // Update
+                // Refresh view.
                 filterAdapterAndShowFoundNotification("");
             }
         }
@@ -320,7 +324,11 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
     public void onComplete(final int code, @Nullable final Object object) {
         if (code == REQUEST_CODE_DIALOG_FRAGMENT_RETURN_PROFILE && object != null) {
             mProfileMap = convertProfileJsonToMap(getSelectedProfileJson(this));
+
+            // Refresh view.
             filterAdapterAndShowFoundNotification("");
+
+            // Show notification
             showToast(
                     this,
                     getString(R.string.activity_list_notification_filtered),
@@ -472,9 +480,13 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
 
                     // Add mock entries.
                     case R.id.activity_list_nav_drawer_item_add_mock_entries:
+                        // Add.
                         mDbHelper.addMockEntries();
-                        refreshDbConnectAndView();
-                        // Notification.
+
+                        // Refresh view.
+                        filterAdapterAndShowFoundNotification("");
+
+                        // Show notification.
                         showToast(
                                 ListActivity.this,
                                 getString(R.string.activity_list_notification_add_mock_entries),
@@ -483,9 +495,13 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
 
                     // Remove all entries.
                     case R.id.activity_list_nav_drawer_item_delete_all_entries:
+                        // Remove.
                         mDbHelper.removeAllEntries();
-                        refreshDbConnectAndView();
-                        // Notification.
+
+                        // Refresh view.
+                        filterAdapterAndShowFoundNotification("");
+
+                        // Show notification.
                         showToast(
                                 ListActivity.this,
                                 getString(R.string.activity_list_notification_delete_all_entries),
