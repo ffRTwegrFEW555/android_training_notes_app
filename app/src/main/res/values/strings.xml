@@ -68,7 +68,7 @@
     <string name="activity_list_nav_drawer_open">Open navigation drawer</string>
     <string name="activity_list_nav_drawer_close">Close navigation drawer</string>
     <string name="activity_list_nav_drawer_text_mail">gamaliev-vadim@yandex.com</string>
-    <string name="activity_list_nav_drawer_item_add_mock_entries">Add example</string>
+    <string name="activity_list_nav_drawer_item_add_mock_entries">Add 100_000 entries</string>
     <string name="activity_list_nav_drawer_item_delete_all_entries">Delete all</string>
     <string name="activity_list_nav_drawer_item_import_entries">Import notes</string>
     <string name="activity_list_nav_drawer_item_export_entries">Export notes</string>

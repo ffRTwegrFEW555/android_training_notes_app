@@ -94,10 +94,12 @@ public class FilterSortDialogFragment extends DialogFragment {
 
     /* Extra */
     private static final String EXTRA_PROFILE_MAP = "FilterSortDialogFragment.EXTRA_PROFILE_MAP";
+    private static final String EXTRA_FOUNDED_MAP = "FilterSortDialogFragment.EXTRA_FOUNDED_MAP";
     private static final String EXTRA_SELECTED_ID = "FilterSortDialogFragment.EXTRA_SELECTED_ID";
 
     @Nullable private View mDialog;
     @Nullable private Map<String, String> mProfileMap;
+    @Nullable private Map<String, String> mFoundedEntries;
     @Nullable private String mSelectedProfileId;
     @Nullable public OnCompleteListener mOnCompleteListener;
 
@@ -153,6 +155,7 @@ public class FilterSortDialogFragment extends DialogFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putSerializable(EXTRA_PROFILE_MAP, (HashMap) mProfileMap);
+        outState.putSerializable(EXTRA_FOUNDED_MAP, (HashMap) mFoundedEntries);
         outState.putString(EXTRA_SELECTED_ID, mSelectedProfileId);
         super.onSaveInstanceState(outState);
     }
@@ -162,6 +165,7 @@ public class FilterSortDialogFragment extends DialogFragment {
         // Restore local variables, if exists, else init.
         if (savedInstanceState != null) {
             mProfileMap = (HashMap) savedInstanceState.getSerializable(EXTRA_PROFILE_MAP);
+            mFoundedEntries = (HashMap) savedInstanceState.getSerializable(EXTRA_FOUNDED_MAP);
             mSelectedProfileId = savedInstanceState.getString(EXTRA_SELECTED_ID);
         } else {
             initLocalVariables();
@@ -202,6 +206,7 @@ public class FilterSortDialogFragment extends DialogFragment {
     private void initLocalVariables() {
         setLocalProfileMap();
         setLocalSelectedProfileId();
+        mFoundedEntries = new HashMap<>();
     }
 
     private void setLocalProfileMap() {
@@ -261,6 +266,9 @@ public class FilterSortDialogFragment extends DialogFragment {
             final Map<String, String> profileMap =
                     convertProfileJsonToMap(profileJson);
 
+            // Get id
+            final String id = profileMap.get(SP_FILTER_ID);
+
             // Title. Get and set.
             final String title = profileMap.get(SP_FILTER_TITLE);
             final TextView newTitleView = (TextView) newView.findViewById(
@@ -268,20 +276,33 @@ public class FilterSortDialogFragment extends DialogFragment {
             newTitleView.setText(title);
 
             // Count text.
-            // Get "found entries"-text dependent this profile and set.
-            // Get entries from database, with given profile-params and count result.
-            final Cursor cursor = dbHelper.getCursorWithParams(getActivity(), null, profileMap);
-            final String count = String.valueOf(cursor.getCount());
-            cursor.close();
-
-            // Set text.
+            // Create new view.
             final TextView newFoundView = (TextView) newView.findViewById(
                     R.id.activity_list_filter_sort_dialog_profile_found);
-            newFoundView.setText("(" + count + ")");
+
+            // Check cached
+            final String foundedEntries = mFoundedEntries.get(id);
+            if (foundedEntries == null) {
+                // If not exists.
+                // Get "found entries"-text dependent this profile and set.
+                // Get entries from database, with given profile-params and count result.
+                final Cursor cursor = dbHelper.getCursorWithParams(getActivity(), null, profileMap);
+                final String count = String.valueOf(cursor.getCount());
+                cursor.close();
+
+                // Set text.
+                newFoundView.setText("(" + count + ")");
+
+                // Caching
+                mFoundedEntries.put(id, count);
+
+            } else {
+                // If exists.
+                newFoundView.setText("(" + foundedEntries + ")");
+            }
 
             // Color. Get id and check selected.
             // If id is selectedId, then set contrast color.
-            final String id = profileMap.get(SP_FILTER_ID);
             if (mSelectedProfileId.equals(id)) {
                 mProfileMap = profileMap;
                 final int color = getResourceColorApi(getActivity(), R.color.color_primary_contrast);
@@ -669,7 +690,7 @@ public class FilterSortDialogFragment extends DialogFragment {
 
                         // Reinitialize.
                         mSelectedProfileId = SP_FILTER_PROFILE_CURRENT_ID;
-                        initComponents();
+                        initProfilesComponents();
                     }
                 });
 
@@ -693,7 +714,7 @@ public class FilterSortDialogFragment extends DialogFragment {
 
                         // Reinitialize.
                         mSelectedProfileId = SP_FILTER_PROFILE_CURRENT_ID;
-                        initComponents();
+                        initProfilesComponents();
                     }
                 });
     }
@@ -759,7 +780,8 @@ public class FilterSortDialogFragment extends DialogFragment {
 
                         // Reinitialize.
                         mSelectedProfileId = SP_FILTER_PROFILE_CURRENT_ID;
-                        initComponents();
+                        initProfilesComponents();
+                        refreshFoundText();
                     }
                 });
 
