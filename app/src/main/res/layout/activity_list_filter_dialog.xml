@@ -91,17 +91,39 @@
 
             </LinearLayout>
 
-            <!-- Save profile -->
-            <Button
-                android:id="@+id/activity_list_filter_dialog_profiles_save_current_button"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="wrap_content"
+            <!-- Reset and Add buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:drawablePadding="@dimen/activity_list_filter_dialog_profiles_save_current_button_padding"
-                android:drawableStart="@drawable/activity_list_filter_dialog_save_button_drawable"
-                android:text="@string/activity_list_filter_dialog_profiles_save_current_button_text"
-                android:textSize="@dimen/activity_list_filter_dialog_title_small_size" />
+                android:orientation="horizontal">
+
+                <!-- Reset profiles -->
+                <Button
+                    android:id="@+id/activity_list_filter_dialog_profile_reset"
+                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="0dp"
+                    android:text="@string/activity_list_filter_dialog_profiles_reset_text"
+                    android:textSize="@dimen/activity_list_filter_dialog_title_small_size" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+
+                <!-- Save profile -->
+                <Button
+                    android:id="@+id/activity_list_filter_dialog_profiles_save_current_button"
+                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="@dimen/activity_list_filter_dialog_profiles_save_current_button_padding"
+                    android:drawableStart="@drawable/activity_list_filter_dialog_save_button_drawable"
+                    android:text="@string/activity_list_filter_dialog_profiles_save_current_button_text"
+                    android:textSize="@dimen/activity_list_filter_dialog_title_small_size" />
+
+            </LinearLayout>
 
             <!-- Profiles / Sorting divider -->
             <View

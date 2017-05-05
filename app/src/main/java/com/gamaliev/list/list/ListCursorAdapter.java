@@ -20,7 +20,7 @@ import com.gamaliev.list.common.DatabaseHelper;
 final class ListCursorAdapter extends CursorAdapter {
 
     ListCursorAdapter(Context context, Cursor c, int flags) {
-        super(context, c, flags); // TODO: flags
+        super(context, c, flags);
     }
 
     @Override

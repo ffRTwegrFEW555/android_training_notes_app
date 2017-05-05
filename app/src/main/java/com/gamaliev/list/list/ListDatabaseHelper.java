@@ -203,9 +203,6 @@ public final class ListDatabaseHelper extends DatabaseHelper {
         }
     }
 
-
-    // TODO: refactor
-    // "datetime('%Y-%m-%d %H:%M:%S', 'utc')"
     /**
      * Get entries from database with specified parameters.
      * @return Result cursor.

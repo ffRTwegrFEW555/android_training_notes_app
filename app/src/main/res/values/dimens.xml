@@ -78,8 +78,8 @@
     <dimen name="activity_list_filter_dialog_color_by_title_bottom">8dp</dimen>
     <dimen name="activity_list_filter_dialog_color_by_title_top">16dp</dimen>
     <dimen name="activity_list_filter_dialog_color_by_default_text_padding_bottom">8dp</dimen>
-    <dimen name="activity_list_filter_sort_dialog_profile_delete_size">40dp</dimen>
-
+    <dimen name="activity_list_filter_dialog_profile_delete_size">40dp</dimen>
+    <dimen name="activity_list_filter_dialog_max_height">400dp</dimen>
 
 
     <!--                    -->

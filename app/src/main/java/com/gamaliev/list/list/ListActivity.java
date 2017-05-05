@@ -387,8 +387,8 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
     }
 
     @Override
-    public void onComplete(final int code, @Nullable final Object object) {
-        if (code == REQUEST_CODE_DIALOG_FRAGMENT_RETURN_PROFILE && object != null) {
+    public void onComplete(final int code) {
+        if (code == REQUEST_CODE_DIALOG_FRAGMENT_RETURN_PROFILE) {
             mProfileMap = convertProfileJsonToMap(getSelectedProfileJson(this));
 
             // Refresh view.

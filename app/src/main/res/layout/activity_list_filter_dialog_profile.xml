@@ -31,8 +31,8 @@
     <!-- Profile delete button -->
     <ImageButton
         android:id="@+id/activity_list_filter_sort_dialog_profile_delete"
-        android:layout_width="@dimen/activity_list_filter_sort_dialog_profile_delete_size"
-        android:layout_height="@dimen/activity_list_filter_sort_dialog_profile_delete_size"
+        android:layout_width="@dimen/activity_list_filter_dialog_profile_delete_size"
+        android:layout_height="@dimen/activity_list_filter_dialog_profile_delete_size"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         style="@style/Widget.AppCompat.Button.Borderless"

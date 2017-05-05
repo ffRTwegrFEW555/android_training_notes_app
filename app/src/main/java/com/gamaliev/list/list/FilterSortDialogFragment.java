@@ -11,7 +11,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayout;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.UnderlineSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +29,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.gamaliev.list.R;
@@ -103,7 +107,7 @@ public class FilterSortDialogFragment extends DialogFragment {
      */
 
     public interface OnCompleteListener {
-        void onComplete(final int code, @Nullable final Object object);
+        void onComplete(final int code);
     }
 
     /*
@@ -141,6 +145,7 @@ public class FilterSortDialogFragment extends DialogFragment {
         return mDialog;
     }
 
+
     /*
         On save / restore instance save.
      */
@@ -171,6 +176,24 @@ public class FilterSortDialogFragment extends DialogFragment {
         super.onViewStateRestored(savedInstanceState);
     }
 
+    @Override
+    public void onResume() {
+
+        // Set max size of dialog. ( XML is not work :/ )
+
+        DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
+
+        ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
+        params.width = Math.min(
+                displayMetrics.widthPixels,
+                getActivity().getResources().getDimensionPixelSize(
+                        R.dimen.activity_list_filter_dialog_max_height));
+        params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
+
+        getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+
+        super.onResume();
+    }
 
     /*
         Init components
@@ -186,7 +209,7 @@ public class FilterSortDialogFragment extends DialogFragment {
     }
 
     private void setLocalSelectedProfileId() {
-        mSelectedProfileId =  getStringFromSp(getActivity(), SP_FILTER_PROFILE_SELECTED_ID);
+        mSelectedProfileId = getStringFromSp(getActivity(), SP_FILTER_PROFILE_SELECTED_ID);
     }
 
     private void initComponents() {
@@ -200,6 +223,7 @@ public class FilterSortDialogFragment extends DialogFragment {
     }
 
     private void setListeners() {
+        setResetProfileListener();
         setAddCurrentProfileListener();
         setSortingListeners();
         setFilterDatesListeners();
@@ -237,29 +261,36 @@ public class FilterSortDialogFragment extends DialogFragment {
             final Map<String, String> profileMap =
                     convertProfileJsonToMap(profileJson);
 
-            // Get and set title.
+            // Title. Get and set.
             final String title = profileMap.get(SP_FILTER_TITLE);
             final TextView newTitleView = (TextView) newView.findViewById(
                     R.id.activity_list_filter_sort_dialog_profile_title);
             newTitleView.setText(title);
 
+            // Count text.
             // Get "found entries"-text dependent this profile and set.
             // Get entries from database, with given profile-params and count result.
             final Cursor cursor = dbHelper.getCursorWithParams(getActivity(), null, profileMap);
             final String count = String.valueOf(cursor.getCount());
             cursor.close();
 
-            // Set count text.
+            // Set text.
             final TextView newFoundView = (TextView) newView.findViewById(
                     R.id.activity_list_filter_sort_dialog_profile_found);
             newFoundView.setText("(" + count + ")");
 
-            // Get id and check selected. If id is selectedId, then set contrast color.
+            // Color. Get id and check selected.
+            // If id is selectedId, then set contrast color.
             final String id = profileMap.get(SP_FILTER_ID);
             if (mSelectedProfileId.equals(id)) {
                 mProfileMap = profileMap;
                 final int color = getResourceColorApi(getActivity(), R.color.color_primary_contrast);
                 newTitleView.setTextColor(color);
+
+                // Also add underline to title.
+                SpannableString titleUnderline = new SpannableString(title);
+                titleUnderline.setSpan(new UnderlineSpan(), 0, titleUnderline.length(), 0);
+                newTitleView.setText(titleUnderline);
             }
 
             // Set layout on click listener.
@@ -267,8 +298,10 @@ public class FilterSortDialogFragment extends DialogFragment {
             newView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
                     mSelectedProfileId = profileMap.get(SP_FILTER_ID);
-                    // BUG. TODO: ...
+
+                    // BUG.
                     ((RadioGroup) mDialog.findViewById(R.id.activity_list_filter_dialog_sorting_by_radio_group_order))
                             .setOnCheckedChangeListener(null);
                     ((RadioGroup) mDialog.findViewById(R.id.activity_list_filter_dialog_sorting_by_radio_group_asc_desc))
@@ -277,7 +310,7 @@ public class FilterSortDialogFragment extends DialogFragment {
                     // Reinitialize.
                     initComponents();
 
-                    // BUG. TODO: ...
+                    // BUG.
                     setSortingListeners();
                 }
             });
@@ -288,18 +321,27 @@ public class FilterSortDialogFragment extends DialogFragment {
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
                     // Delete profile.
                     deleteProfile(getActivity(), id);
 
-                    // Set selected profile to current.
-                    setSelectedProfileId(getActivity(), SP_FILTER_PROFILE_CURRENT_ID);
+                    // If deleted profile equals selected, then set default settings.
+                    if (mSelectedProfileId.equals(id)) {
+                        // Set selected profile to current.
+                        setSelectedProfileId(getActivity(), SP_FILTER_PROFILE_CURRENT_ID);
 
-                    // Set default params to current profile.
-                    setString(getActivity(), SP_FILTER_PROFILE_CURRENT, getDefaultProfile());
+                        // Set default params to current profile.
+                        setString(getActivity(), SP_FILTER_PROFILE_CURRENT, getDefaultProfile());
 
-                    // Reinitialize.
-                    initLocalVariables();
-                    initComponents();
+                        // Reinitialize.
+                        initLocalVariables();
+                        initComponents();
+
+                    } else {
+
+                        // Reinitialize profiles block.
+                        initProfilesComponents();
+                    }
                 }
             });
 
@@ -404,9 +446,7 @@ public class FilterSortDialogFragment extends DialogFragment {
 
                     // Reinitialize.
                     mSelectedProfileId = SP_FILTER_PROFILE_CURRENT_ID;
-                    initProfilesComponents();
-                    initColorComponents();
-                    refreshFoundText();
+                    initComponents();
                 }
                 // Set on.
                 colorCb.setChecked(true);
@@ -457,6 +497,7 @@ public class FilterSortDialogFragment extends DialogFragment {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
                     // Set off.
                     colorCb.setChecked(false);
 
@@ -465,9 +506,7 @@ public class FilterSortDialogFragment extends DialogFragment {
 
                     // Reinitialize.
                     mSelectedProfileId = SP_FILTER_PROFILE_CURRENT_ID;
-                    initProfilesComponents();
-                    initColorComponents();
-                    refreshFoundText();
+                    initComponents();
                 }
             });
 
@@ -566,6 +605,27 @@ public class FilterSortDialogFragment extends DialogFragment {
      */
 
     /**
+     * Reset to default profile.
+     */
+    private void setResetProfileListener() {
+        mDialog.findViewById(R.id.activity_list_filter_dialog_profile_reset)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        // Set default profile id.
+                        mSelectedProfileId = SP_FILTER_PROFILE_CURRENT_ID;
+
+                        // Set default profile map.
+                        mProfileMap = convertProfileJsonToMap(getDefaultProfile());
+
+                        // Reinitialize.
+                        initComponents();
+                    }
+                });
+    }
+
+    /**
      * Show input text dialog, if confirm, then add new profile, and reinitialize.
      */
     private void setAddCurrentProfileListener() {
@@ -573,8 +633,9 @@ public class FilterSortDialogFragment extends DialogFragment {
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
                         // Show input text dialog, if confirm, then add new profile, and reinitialize.
-                        showInputDialog();
+                        showInputDialogAddProfile();
                     }
                 });
     }
@@ -607,10 +668,8 @@ public class FilterSortDialogFragment extends DialogFragment {
                         }
 
                         // Reinitialize.
-                        // Refresh found text.
                         mSelectedProfileId = SP_FILTER_PROFILE_CURRENT_ID;
-                        initProfilesComponents();
-                        refreshFoundText();
+                        initComponents();
                     }
                 });
 
@@ -633,10 +692,8 @@ public class FilterSortDialogFragment extends DialogFragment {
                         }
 
                         // Reinitialize.
-                        // Refresh found text.
                         mSelectedProfileId = SP_FILTER_PROFILE_CURRENT_ID;
-                        initProfilesComponents();
-                        refreshFoundText();
+                        initComponents();
                     }
                 });
     }
@@ -701,10 +758,8 @@ public class FilterSortDialogFragment extends DialogFragment {
                         }
 
                         // Reinitialize.
-                        // Refresh found text.
                         mSelectedProfileId = SP_FILTER_PROFILE_CURRENT_ID;
-                        initProfilesComponents();
-                        refreshFoundText();
+                        initComponents();
                     }
                 });
 
@@ -723,6 +778,7 @@ public class FilterSortDialogFragment extends DialogFragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 // Init.
                 int year;
                 int month;
@@ -814,7 +870,9 @@ public class FilterSortDialogFragment extends DialogFragment {
                     // Update profileMap values.
                     updateDateSettings(filterCategory, resultDate, isDateFrom);
 
+
                     // Reinitialize.
+                    mSelectedProfileId = SP_FILTER_PROFILE_CURRENT_ID;
                     initComponents();
                 }
             }
@@ -878,7 +936,7 @@ public class FilterSortDialogFragment extends DialogFragment {
                     newUtcDateToS = resultUtcDateD.before(utcDateTo)
                             ? getDateFromProfileMap(
                                     getActivity(),
-                            mProfileMap,
+                                    mProfileMap,
                                     filterCategory,
                                     EXTRA_DATES_TO_DATETIME)
                             : resultUtcDateS;
@@ -889,7 +947,7 @@ public class FilterSortDialogFragment extends DialogFragment {
                     newUtcDateFromS = resultUtcDateD.after(utcDateFrom)
                             ? getDateFromProfileMap(
                                     getActivity(),
-                            mProfileMap,
+                                    mProfileMap,
                                     filterCategory,
                                     EXTRA_DATES_FROM_DATETIME)
                             : resultUtcDateS;
@@ -929,8 +987,9 @@ public class FilterSortDialogFragment extends DialogFragment {
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
                         dismiss();
-                        refreshListActivity(); // TODO: replace by Resume lifecycle?!
+                        refreshListActivity();
                     }
                 });
     }
@@ -949,10 +1008,9 @@ public class FilterSortDialogFragment extends DialogFragment {
                         convertProfileMapToJson(mProfileMap));
             }
 
-            // Return result.
+            // Notify activity.
             mOnCompleteListener.onComplete(
-                    ListActivity.REQUEST_CODE_DIALOG_FRAGMENT_RETURN_PROFILE,
-                    mProfileMap);
+                    ListActivity.REQUEST_CODE_DIALOG_FRAGMENT_RETURN_PROFILE);
         }
     }
 
@@ -971,9 +1029,9 @@ public class FilterSortDialogFragment extends DialogFragment {
     }
 
     /**
-     * Show input text dialog, if confirm, then add new profile, and reinitialize.
+     * Show input text dialog for add profile, if confirm, then add new profile, and reinitialize.
      */
-    private void showInputDialog() {
+    private void showInputDialogAddProfile() {
         // Create builder.
         final AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
@@ -1005,6 +1063,7 @@ public class FilterSortDialogFragment extends DialogFragment {
         // Set save button listener.
         alert.setPositiveButton(save, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
+
                 String enteredText = editText.getText().toString();
 
                 // Add to profiles, get newId, set selected newId.
@@ -1020,9 +1079,7 @@ public class FilterSortDialogFragment extends DialogFragment {
         });
 
         // Set cancel button listener.
-        alert.setNegativeButton(cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {}
-        });
+        alert.setNegativeButton(cancel, null);
 
         // Show.
         alert.show();
