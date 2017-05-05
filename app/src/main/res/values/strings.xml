@@ -141,7 +141,17 @@
     <!-- File utils -->
     <string name="file_utils_export_toast_message_success">Export successfully</string>
     <string name="file_utils_export_toast_message_failed">Export failed</string>
+    <string name="file_utils_import_intent_chooser_title">Choose import-file, *.ili</string>
     <string name="file_utils_import_toast_message_success">Import successfully</string>
     <string name="file_utils_import_toast_message_failed">Import failed</string>
+    <string name="file_utils_export_message_write_external_storage_denied">
+        You can not export entries, because the permission to write to external storage is denied. Please check access in the application settings, and enable it.
+    </string>
+    <string name="file_utils_import_message_read_external_storage_denied">
+        You can not import entries, because the permission to read from external storage is denied. Please check access in the application settings, and enable it.
+    </string>
+
+    <!-- Common utils -->
+    <string name="common_utils_message_dialog_ok_action">OK</string>
 
 </resources>

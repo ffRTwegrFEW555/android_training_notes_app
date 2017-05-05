@@ -1,6 +1,8 @@
 package com.gamaliev.list.list;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -17,6 +19,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,16 +31,19 @@ import android.widget.Toast;
 
 import com.gamaliev.list.R;
 import com.gamaliev.list.common.DatabaseHelper;
-import com.gamaliev.list.common.DatabaseQueryBuilder;
 
 import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.gamaliev.list.common.CommonUtils.checkAndRequestPermissions;
 import static com.gamaliev.list.common.CommonUtils.circularRevealAnimationOff;
 import static com.gamaliev.list.common.CommonUtils.circularRevealAnimationOn;
+import static com.gamaliev.list.common.CommonUtils.showMessageDialog;
 import static com.gamaliev.list.common.CommonUtils.showToast;
+import static com.gamaliev.list.common.FileUtils.REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE;
+import static com.gamaliev.list.common.FileUtils.REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE;
 import static com.gamaliev.list.common.FileUtils.exportEntries;
 import static com.gamaliev.list.common.FileUtils.importEntries;
 import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.convertProfileJsonToMap;
@@ -320,6 +326,66 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
         }
     }
 
+    /**
+     * Request permission result handler.
+     * @param requestCode   Request code.
+     * @param permissions   Checked permissions. See: {@link android.Manifest.permission}
+     * @param grantResults  Result.
+     */
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode,
+            @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
+
+        switch (requestCode) {
+            case REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE:
+
+                // If access to write is granted, then export entries.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    //
+                    exportEntries(this);
+                } else {
+
+                    // If denied, then make explanation notification.
+                    String deniedMessage = getString(R.string.file_utils_export_message_write_external_storage_denied);
+                    Log.i(TAG, deniedMessage);
+                    showMessageDialog(
+                            this,
+                            null,
+                            deniedMessage);
+                }
+
+                break;
+
+            case REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE:
+
+                // If access to read is granted, then import entries.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    //
+                    startImportFileChooser();
+                } else {
+
+                    // If denied, then make explanation notification.
+                    String deniedMessage = getString(R.string.file_utils_import_message_read_external_storage_denied);
+                    Log.i(TAG, deniedMessage);
+                    showMessageDialog(
+                            this,
+                            null,
+                            deniedMessage);
+                }
+
+                break;
+
+            default:
+                break;
+        }
+    }
+
     @Override
     public void onComplete(final int code, @Nullable final Object object) {
         if (code == REQUEST_CODE_DIALOG_FRAGMENT_RETURN_PROFILE && object != null) {
@@ -464,13 +530,16 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                     // Import entries.
                     case R.id.activity_list_nav_drawer_item_import_entries:
 
-                        // Start file chooser.
-                        Intent intent = new Intent();
-                        intent.setType("*/*");
-                        intent.setAction(Intent.ACTION_GET_CONTENT);
-                        startActivityForResult(
-                                Intent.createChooser(intent, "Choose import-file, *.ili"),
-                                REQUEST_CODE_IMPORT);
+                        // Check readable. If denied, make request, then break.
+                        if (checkAndRequestPermissions(
+                                ListActivity.this,
+                                Manifest.permission.READ_EXTERNAL_STORAGE,
+                                REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE)) {
+
+                            //
+                            startImportFileChooser();
+                        }
+
                         break;
 
                     // Export entries.
@@ -481,31 +550,36 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                     // Add mock entries.
                     case R.id.activity_list_nav_drawer_item_add_mock_entries:
                         // Add.
-                        mDbHelper.addMockEntries();
+                        int added = mDbHelper.addMockEntries();
 
                         // Refresh view.
                         filterAdapterAndShowFoundNotification("");
 
-                        // Show notification.
-                        showToast(
-                                ListActivity.this,
-                                getString(R.string.activity_list_notification_add_mock_entries),
-                                Toast.LENGTH_SHORT);
+                        // If success, show notification.
+                        if (added > -1) {
+                            showToast(
+                                    ListActivity.this,
+                                    getString(R.string.activity_list_notification_add_mock_entries)
+                                            + " (" + added + ")",
+                                    Toast.LENGTH_SHORT);
+                        }
                         break;
 
                     // Remove all entries.
                     case R.id.activity_list_nav_drawer_item_delete_all_entries:
                         // Remove.
-                        mDbHelper.removeAllEntries();
+                        boolean success = mDbHelper.removeAllEntries();
 
                         // Refresh view.
                         filterAdapterAndShowFoundNotification("");
 
-                        // Show notification.
-                        showToast(
-                                ListActivity.this,
-                                getString(R.string.activity_list_notification_delete_all_entries),
-                                Toast.LENGTH_SHORT);
+                        // If success, show notification.
+                        if (success) {
+                            showToast(
+                                    ListActivity.this,
+                                    getString(R.string.activity_list_notification_delete_all_entries),
+                                    Toast.LENGTH_SHORT);
+                        }
                         break;
 
                     // Default.
@@ -528,5 +602,19 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
     private void filterAdapterAndShowFoundNotification(@NonNull final String text) {
         mAdapter.getFilter().filter(text);
         showFoundNotification();
+    }
+
+    /**
+     * Creating intent, and starting file chooser for import-file.<br>
+     * Then result handle by {@link #onActivityResult(int, int, Intent)},
+     * with {@link #REQUEST_CODE_IMPORT}.
+     */
+    private void startImportFileChooser() {
+        final Intent intent = new Intent();
+        intent.setType("*/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(
+                Intent.createChooser(intent, getString(R.string.file_utils_import_intent_chooser_title)),
+                REQUEST_CODE_IMPORT);
     }
 }

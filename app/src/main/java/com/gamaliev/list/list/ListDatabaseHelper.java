@@ -335,78 +335,67 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      * @return true if ok, otherwise false.
      */
     boolean removeAllEntries() {
-        SQLiteDatabase db = null;
 
-        // TODO: try-catch-with-resources and db.endTransaction?!
-        try {
-            // Open database.
-            db = getWritableDatabase();
+        // Open database.
+        try (SQLiteDatabase db = getWritableDatabase()) {
 
             // Begin transaction.
             db.beginTransaction();
 
-            // Exec SQL queries.
-            db.execSQL(SQL_LIST_ITEMS_DROP_TABLE);
-            db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
+            try {
+                // Exec SQL queries.
+                db.execSQL(SQL_LIST_ITEMS_DROP_TABLE);
+                db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
 
-            // Success transaction.
-            db.setTransactionSuccessful();
+                // If ok.
+                db.setTransactionSuccessful();
+                return true;
 
-            // If ok
-            return true;
+            } finally {
+                db.endTransaction();
+            }
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(mContext, mDbFailMessage, Toast.LENGTH_SHORT);
-            return false;
-
-        } finally {
-            if (db != null) {
-                // End transaction and close database.
-                db.endTransaction();
-                db.close();
-            }
         }
+
+        return false;
     }
 
     /**
      * Add mock entries in list activity. See: {@link com.gamaliev.list.list.ListActivity}
-     * @return True if ok, otherwise false.
+     * @return Number of added entries. If error, then return "-1".
      */
-    boolean addMockEntries() {
-        SQLiteDatabase db = null;
+    int addMockEntries() {
 
-        // TODO: try-catch-with-resources and db.endTransaction?!
-        try {
-            // Open database.
-            db = getWritableDatabase();
+        // Open database.
+        try (SQLiteDatabase db = getWritableDatabase()) {
 
             // Begin transaction.
             db.beginTransaction();
 
-            // Helper method for add entries.
-            ListDatabaseMockHelper.addMockEntries(
-                    mRes.getInteger(R.integer.mock_items_number_click),
-                    db);
+            try {
+                // Number of adding entries.
+                int n = mRes.getInteger(R.integer.mock_items_number_click);
 
-            // Success transaction.
-            db.setTransactionSuccessful();
+                // Helper method for add entries.
+                ListDatabaseMockHelper.addMockEntries(n, db);
 
-            // If ok.
-            return true;
+                // If ok.
+                db.setTransactionSuccessful();
+                return n;
+
+            } finally {
+                db.endTransaction();
+            }
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(mContext, mDbFailMessage, Toast.LENGTH_SHORT);
-            return false;
-
-        } finally {
-            if (db != null) {
-                // End transaction and close database.
-                db.endTransaction();
-                db.close();
-            }
         }
+
+        return -1;
     }
 
     /**

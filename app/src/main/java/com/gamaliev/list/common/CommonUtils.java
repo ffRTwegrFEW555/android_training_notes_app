@@ -5,7 +5,9 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -17,6 +19,9 @@ import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -580,5 +585,81 @@ public final class CommonUtils {
             default:
                 return null;
         }
+    }
+
+
+    /*
+        Dialogs
+     */
+
+    /**
+     * Creating standard information message dialog, with "OK" button.
+     * @param context   Context.
+     * @param title     Title of dialog.
+     * @param message   Body message of dialog.
+     */
+    public static void showMessageDialog(
+            @NonNull final Context context,
+            @Nullable final String title,
+            @NonNull final String message) {
+
+        // Create builder.
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+
+        // Set title, if exist.
+        if (title != null) {
+            dialogBuilder.setTitle(title);
+        }
+
+        // Set message.
+        dialogBuilder.setMessage(message);
+
+        // Init OK button.
+        dialogBuilder.setPositiveButton(
+                R.string.common_utils_message_dialog_ok_action,
+                null);
+
+        // Show dialog.
+        dialogBuilder.show();
+    }
+
+
+    /*
+        Permissions
+     */
+
+    /**
+     * Checking permission.
+     * If permission denied, then requesting permission from the user, then return result to given activity.
+     *
+     * @param activity      Activity.
+     * @param permission    Checked permission. See: {@link android.Manifest.permission}
+     * @param requestCode   Request code, whose will be returned to given activity.
+     *                      See: {@link android.support.v4.app.ActivityCompat#requestPermissions(Activity, String[], int)}
+     * @return True if permission granted, otherwise false.
+     */
+    public static boolean checkAndRequestPermissions(
+            @NonNull final Activity activity,
+            @NonNull final String permission,
+            final int requestCode) {
+
+        // Check write external storage permission.
+        if (ContextCompat.checkSelfPermission(
+                activity,
+                permission)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Request the permission.
+            ActivityCompat.requestPermissions(
+                    activity,
+                    new String[]{permission},
+                    requestCode);
+
+            // If denied.
+            return false;
+        }
+
+        // If granted.
+        return true;
     }
 }

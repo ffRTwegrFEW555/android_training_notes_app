@@ -138,7 +138,10 @@ public class DatabaseHelper extends SQLiteOpenHelper implements AutoCloseable {
 
         // Creating a table and populating with default values
         if (oldVersion == 0) {
+
+            // Begin transaction.
             db.beginTransaction();
+
             try {
                 // Create tables
                 db.execSQL(SQL_FAVORITE_CREATE_TABLE);
@@ -147,7 +150,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements AutoCloseable {
                 // Populating.
                 populateDatabase(db);
 
-                // If ok
+                // If ok.
                 db.setTransactionSuccessful();
 
             } catch (SQLiteException e) {
