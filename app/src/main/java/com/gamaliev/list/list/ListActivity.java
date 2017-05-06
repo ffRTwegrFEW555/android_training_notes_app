@@ -4,12 +4,13 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.DataSetObserver;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
@@ -95,6 +96,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
 
     private void init() {
         initSharedPreferences(this);
+        initDataBase();
 
         mQueryProvider = getFilterQueryProvider();
         mFoundView = (Button) findViewById(R.id.activity_list_button_found);
@@ -103,6 +105,16 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
         initToolbarAndNavigationDrawer();
         setFabOnClickListener();
         refreshDbConnectAndView();
+    }
+
+    /**
+     * Init database if not exist on first run application.
+     * (The reason for the method is a bug, when after start app,
+     * the database does not have time to fill when list view is refreshing)
+     */
+    private void initDataBase() {
+        try (   ListDatabaseHelper ldh = new ListDatabaseHelper(this);
+                SQLiteDatabase wdb = ldh.getWritableDatabase()) {}
     }
 
     /**
@@ -159,6 +171,14 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
         // SearchView filter query provider.
         mAdapter.setFilterQueryProvider(mQueryProvider);
 
+        // Register observer. Showing found notification.
+        mAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                showFoundNotification();
+            }
+        });
+
         // Init list view
         mListView = (ListView) findViewById(R.id.activity_list_listview);
         mListView.setAdapter(mAdapter);
@@ -186,8 +206,8 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
             }
         });
 
-        // Refresh view. Apply filter.
-        filterAdapterAndShowFoundNotification("");
+        // Refresh view.
+        filterAdapter("");
     }
 
 
@@ -225,7 +245,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
             @Override
             public boolean onQueryTextChange(String newText) {
                 // Refresh view.
-                filterAdapterAndShowFoundNotification(newText);
+                filterAdapter(newText);
                 return true;
             }
         });
@@ -288,7 +308,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
             if (requestCode == REQUEST_CODE_ADD) {
 
                 // Refresh view.
-                filterAdapterAndShowFoundNotification("");
+                filterAdapter("");
 
                 // Notification if added.
                 showToast(
@@ -298,7 +318,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
 
             } else if (requestCode == REQUEST_CODE_EDIT) {
                 // Refresh view.
-                filterAdapterAndShowFoundNotification("");
+                filterAdapter("");
 
                 if (data.getIntExtra(RESULT_CODE_EXTRA, -1) == RESULT_CODE_EXTRA_EDITED) {
                     // Show notification if edited.
@@ -322,11 +342,11 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                 importEntries(ListActivity.this, selectedFile);
 
                 // Refresh view.
-                filterAdapterAndShowFoundNotification("");
+                filterAdapter("");
             }
 
         } else if (resultCode == RESULT_CANCELED) {
-            filterAdapterAndShowFoundNotification("");
+            filterAdapter("");
         }
     }
 
@@ -396,7 +416,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
             mProfileMap = convertProfileJsonToMap(getSelectedProfileJson(this));
 
             // Refresh view.
-            filterAdapterAndShowFoundNotification("");
+            filterAdapter("");
 
             // Show notification
             showToast(
@@ -557,7 +577,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                         int added = mDbHelper.addMockEntries();
 
                         // Refresh view.
-                        filterAdapterAndShowFoundNotification("");
+                        filterAdapter("");
 
                         // If success, show notification.
                         if (added > -1) {
@@ -575,7 +595,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                         boolean success = mDbHelper.removeAllEntries();
 
                         // Refresh view.
-                        filterAdapterAndShowFoundNotification("");
+                        filterAdapter("");
 
                         // If success, show notification.
                         if (success) {
@@ -601,11 +621,10 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
     }
 
     /**
-     * @param text Text to show.
+     * @param text Text to filter.
      */
-    private void filterAdapterAndShowFoundNotification(@NonNull final String text) {
+    private void filterAdapter(@NonNull final String text) {
         mAdapter.getFilter().filter(text);
-        showFoundNotification();
     }
 
     /**
