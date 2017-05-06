@@ -43,6 +43,7 @@
     <string name="activity_item_details_text_view_title">Title</string>
     <string name="activity_item_details_text_view_description">Description</string>
     <string name="activity_item_details_edit_mode_wrong_id">Entry with given id is not exists</string>
+    <string name="activity_item_details_toast_demonstration_pause">Demonstration pause</string>
 
     <!-- Info alert dialog -->
     <string name="activity_item_details_info_dialog_title">Info</string>

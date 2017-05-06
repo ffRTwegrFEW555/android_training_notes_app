@@ -31,6 +31,9 @@ import static com.gamaliev.list.common.CommonUtils.getResourceColorApi;
 import static com.gamaliev.list.common.CommonUtils.getStringDateFormatSqlite;
 import static com.gamaliev.list.common.CommonUtils.showToast;
 import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
+import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_ADDED;
+import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_DELETED;
+import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_EDITED;
 
 public class ItemDetailsActivity extends AppCompatActivity {
 
@@ -384,83 +387,18 @@ public class ItemDetailsActivity extends AppCompatActivity {
             // Create database -> process action -> close database.
             case R.id.menu_list_item_details_done:
 
-                //
-                showProgressBarAndHideMenuItems();
-                refreshEntry();
-                Thread thread = null;
-
                 switch (getIntent().getAction()) {
 
                     // If new, then add to database, and finish activity with RESULT_OK.
                     case ACTION_ADD:
-
-                        // Background task.
-                        thread = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                // Insert
-                                mDbHelper = new ListDatabaseHelper(ItemDetailsActivity.this);
-                                mDbHelper.insertEntry(mEntry);
-                                mDbHelper.close();
-
-                                // Demonstration pause.
-                                try {
-                                    Thread.sleep(getResources().getInteger(
-                                            R.integer.activity_item_detail_demonstration_pause));
-                                } catch (InterruptedException e) {
-                                    Log.e(TAG, e.toString());
-                                }
-
-                                // Finish activity with result.
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        setResult(
-                                                RESULT_OK,
-                                                ListActivity.getResultIntent(ListActivity.RESULT_CODE_EXTRA_ADDED));
-                                        finish();
-                                    }
-                                });
-                            }
-                        });
-                        thread.start();
+                        //
+                        startActionAsyncTask(RESULT_CODE_EXTRA_ADDED);
                         break;
 
                     // If edit, then update entry in database, and finish activity with RESULT_OK.
                     case ACTION_EDIT:
-
-                        // Background task.
-                        thread = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                // Update
-                                mDbHelper = new ListDatabaseHelper(ItemDetailsActivity.this);
-                                mDbHelper.updateEntry(mEntry, null);
-                                mDbHelper.close();
-
-                                // Demonstration pause.
-                                try {
-                                    Thread.sleep(getResources().getInteger(
-                                            R.integer.activity_item_detail_demonstration_pause));
-                                } catch (InterruptedException e) {
-                                    Log.e(TAG, e.toString());
-                                }
-
-                                // Finish activity with result.
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        setResult(
-                                                RESULT_OK,
-                                                ListActivity.getResultIntent(ListActivity.RESULT_CODE_EXTRA_EDITED));
-                                        finish();
-                                    }
-                                });
-                            }
-                        });
-                        thread.start();
+                        //
+                        startActionAsyncTask(RESULT_CODE_EXTRA_EDITED);
                         break;
 
                     default:
@@ -541,42 +479,10 @@ public class ItemDetailsActivity extends AppCompatActivity {
                 .setPositiveButton(getString(R.string.activity_item_details_delete_dialog_button_ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-
                                 //
-                                showProgressBarAndHideMenuItems();
-
-                                // Background task.
-                                final Thread thread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-
-                                        // Delete
-                                        mDbHelper = new ListDatabaseHelper(ItemDetailsActivity.this);
-                                        mDbHelper.deleteEntry(mEntry.getId());
-                                        mDbHelper.close();
-
-                                        // Demonstration pause.
-                                        try {
-                                            Thread.sleep(getResources().getInteger(
-                                                    R.integer.activity_item_detail_demonstration_pause));
-                                        } catch (InterruptedException e) {
-                                            Log.e(TAG, e.toString());
-                                        }
-
-                                        // Finish activity with result.
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                setResult(
-                                                        RESULT_OK,
-                                                        ListActivity.getResultIntent(ListActivity.RESULT_CODE_EXTRA_DELETED));
-                                                finish();
-                                            }
-                                        });
-                                    }
-                                });
-                                thread.start();
+                                dialog.cancel();
+                                //
+                                startActionAsyncTask(RESULT_CODE_EXTRA_DELETED);
                             }
                         })
                 .setNegativeButton(getString(R.string.activity_item_details_delete_dialog_button_cancel),
@@ -592,6 +498,68 @@ public class ItemDetailsActivity extends AppCompatActivity {
         alert.show();
     }
 
+    /**
+     * Show progress bar, hide menu items, open database,
+     * perform action in async mode, return result, finish activity.
+     * @param resultCode    See:
+     *                      {@link com.gamaliev.list.list.ListActivity#RESULT_CODE_EXTRA_ADDED},
+     *                      {@link com.gamaliev.list.list.ListActivity#RESULT_CODE_EXTRA_EDITED},
+     *                      {@link com.gamaliev.list.list.ListActivity#RESULT_CODE_EXTRA_DELETED},
+     */
+    private void startActionAsyncTask(final int resultCode) {
+        //
+        showProgressBarAndHideMenuItems();
+
+        // Background task.
+        final Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                // Open database, and make action.
+                mDbHelper = new ListDatabaseHelper(ItemDetailsActivity.this);
+
+                //
+                switch (resultCode) {
+
+                    case RESULT_CODE_EXTRA_ADDED:
+                        refreshEntry();
+                        mDbHelper.insertEntry(mEntry);
+                        break;
+
+                    case RESULT_CODE_EXTRA_EDITED:
+                        refreshEntry();
+                        mDbHelper.updateEntry(mEntry, null);
+                        break;
+
+                    case RESULT_CODE_EXTRA_DELETED:
+                        mDbHelper.deleteEntry(mEntry.getId());
+                        break;
+
+                    default:
+                        break;
+                }
+
+                //
+                mDbHelper.close();
+
+                //
+                makeDemonstrationPause();
+
+                // Finish activity with result.
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setResult(
+                                RESULT_OK,
+                                ListActivity.getResultIntent(resultCode));
+                        finish();
+                    }
+                });
+            }
+        });
+        thread.start();
+    }
+
     private void showProgressBarAndHideMenuItems() {
         // Replace color box with progress bar.
         findViewById(R.id.activity_item_details_color)
@@ -603,6 +571,28 @@ public class ItemDetailsActivity extends AppCompatActivity {
         mMenu.findItem(R.id.menu_list_item_details_done).setVisible(false);
         mMenu.findItem(R.id.menu_list_item_details_cancel).setVisible(false);
         mMenu.findItem(R.id.menu_list_item_details_delete).setVisible(false);
+    }
+
+    private void makeDemonstrationPause() {
+        //
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showToast(
+                        ItemDetailsActivity.this,
+                        getString(R.string.activity_item_details_toast_demonstration_pause),
+                        Toast.LENGTH_SHORT);
+            }
+        });
+
+        // Demonstration pause.
+        try {
+            Thread.sleep(getResources().getInteger(
+                    R.integer.activity_item_detail_demonstration_pause));
+        } catch (InterruptedException e) {
+            Log.e(TAG, e.toString());
+        }
+
     }
 
 
