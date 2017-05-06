@@ -20,6 +20,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +33,8 @@ import android.widget.Toast;
 
 import com.gamaliev.list.R;
 import com.gamaliev.list.common.DatabaseHelper;
+import com.gamaliev.list.common.FileUtils;
+import com.gamaliev.list.common.OnCompleteListener;
 
 import java.util.Locale;
 import java.util.Map;
@@ -45,13 +48,13 @@ import static com.gamaliev.list.common.CommonUtils.showMessageDialog;
 import static com.gamaliev.list.common.CommonUtils.showToast;
 import static com.gamaliev.list.common.FileUtils.REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE;
 import static com.gamaliev.list.common.FileUtils.REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE;
-import static com.gamaliev.list.common.FileUtils.exportEntries;
-import static com.gamaliev.list.common.FileUtils.importEntries;
+import static com.gamaliev.list.common.FileUtils.exportEntriesAsyncWithCheckPermission;
+import static com.gamaliev.list.common.FileUtils.importEntriesAsync;
 import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.convertProfileJsonToMap;
 import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.getSelectedProfileJson;
 import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.initSharedPreferences;
 
-public class ListActivity extends AppCompatActivity implements FilterSortDialogFragment.OnCompleteListener {
+public class ListActivity extends AppCompatActivity implements OnCompleteListener {
 
     /* Logger */
     private static final String TAG = ListActivity.class.getSimpleName();
@@ -60,12 +63,14 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
     private static final int REQUEST_CODE_ADD           = 1;
     private static final int REQUEST_CODE_EDIT          = 2;
     private static final int REQUEST_CODE_IMPORT        = 3;
-    public static final int REQUEST_CODE_DIALOG_FRAGMENT_RETURN_PROFILE = 4;
 
     private static final String RESULT_CODE_EXTRA       = "resultCodeExtra";
-    public static final int RESULT_CODE_EXTRA_ADDED     = 1;
-    public static final int RESULT_CODE_EXTRA_EDITED    = 2;
-    public static final int RESULT_CODE_EXTRA_DELETED   = 3;
+    public static final int RESULT_CODE_FILTER_DIALOG   = 4;
+    public static final int RESULT_CODE_EXTRA_ADDED     = 5;
+    public static final int RESULT_CODE_EXTRA_EDITED    = 6;
+    public static final int RESULT_CODE_EXTRA_DELETED   = 7;
+    public static final int RESULT_CODE_EXTRA_IMPORTED  = 8;
+    public static final int RESULT_CODE_EXTRA_EXPORTED  = 9;
 
     /* SQLite */
     @NonNull public static final String[] SEARCH_COLUMNS = {
@@ -79,6 +84,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
     /* */
     @NonNull private ListView mListView;
     @NonNull private Button mFoundView;
+    @NonNull private SearchView mSearchView;
     @NonNull private Map<String, String> mProfileMap;
     private long mTimerFound;
 
@@ -97,6 +103,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
     private void init() {
         initSharedPreferences(this);
         initDataBase();
+        initFileUtils();
 
         mQueryProvider = getFilterQueryProvider();
         mFoundView = (Button) findViewById(R.id.activity_list_button_found);
@@ -115,6 +122,15 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
     private void initDataBase() {
         try (   ListDatabaseHelper ldh = new ListDatabaseHelper(this);
                 SQLiteDatabase wdb = ldh.getWritableDatabase()) {}
+    }
+
+    /**
+     * To initialize the static fields of a FileUtils class, to fix the bug.<br>
+     * Otherwise ImportExportLooperThread does not have time to execute the Run method,
+     * when first accessing, and get NPE.
+     */
+    private void initFileUtils() {
+        FileUtils.getImportExportThreadLooper();
     }
 
     /**
@@ -233,10 +249,9 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
      * @param menu Action bar menu of activity.
      */
     private void initSearchView(@NonNull final Menu menu) {
-        final SearchView searchView =
-                (SearchView) menu.findItem(R.id.menu_list_search).getActionView();
+        mSearchView = (SearchView) menu.findItem(R.id.menu_list_search).getActionView();
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 return false;
@@ -339,7 +354,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
 
                 // If file selected, then start import.
                 Uri selectedFile = data.getData();
-                importEntries(ListActivity.this, selectedFile);
+                importEntriesAsync(this, selectedFile, this);
 
                 // Refresh view.
                 filterAdapter("");
@@ -370,7 +385,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     //
-                    exportEntries(this);
+                    exportEntriesAsyncWithCheckPermission(this, this);
                 } else {
 
                     // If denied, then make explanation notification.
@@ -412,7 +427,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
 
     @Override
     public void onComplete(final int code) {
-        if (code == REQUEST_CODE_DIALOG_FRAGMENT_RETURN_PROFILE) {
+        if (code == RESULT_CODE_FILTER_DIALOG) {
             mProfileMap = convertProfileJsonToMap(getSelectedProfileJson(this));
 
             // Refresh view.
@@ -423,6 +438,9 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                     this,
                     getString(R.string.activity_list_notification_filtered),
                     Toast.LENGTH_SHORT);
+
+        } else if (code == RESULT_CODE_EXTRA_IMPORTED) {
+            updateFilterAdapter();
         }
     }
 
@@ -470,47 +488,51 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
                 final int delayClose = getResources()
                         .getInteger(R.integer.activity_list_notification_delay_auto_close);
 
-                // Set text.
-                mFoundView.setText(String.format(Locale.ENGLISH,
-                        getString(R.string.activity_list_notification_found_text) + "\n%d",
-                        mListView.getCount()));
+                // Check..
+                if (mFoundView.isAttachedToWindow()) {
 
-                // Set start time of the notification display.
-                mTimerFound = System.currentTimeMillis();
+                    // Set text.
+                    mFoundView.setText(String.format(Locale.ENGLISH,
+                            getString(R.string.activity_list_notification_found_text) + "\n%d",
+                            mListView.getCount()));
 
-                if (mFoundView.getVisibility() == View.INVISIBLE) {
-                    // Show notification. If API >= 21, then with circular reveal animation.
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        circularRevealAnimationOn(mFoundView);
-                    } else {
-                        mFoundView.setVisibility(View.VISIBLE);
-                    }
+                    // Set start time of the notification display.
+                    mTimerFound = System.currentTimeMillis();
 
-                    // Start notification close timer.
-                    // Timer is cyclical, while notification is showed.
-                    final Timer timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            if (System.currentTimeMillis() - mTimerFound >
-                                    delayClose) {
-
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                            circularRevealAnimationOff(mFoundView);
-                                        } else {
-                                            mFoundView.setVisibility(View.INVISIBLE);
-                                        }
-                                    }
-                                });
-
-                                // If notification is closed, then stop timer.
-                                timer.cancel();
-                            }
+                    if (mFoundView.getVisibility() == View.INVISIBLE) {
+                        // Show notification. If API >= 21, then with circular reveal animation.
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            circularRevealAnimationOn(mFoundView);
+                        } else {
+                            mFoundView.setVisibility(View.VISIBLE);
                         }
-                    }, delay, delay);
+
+                        // Start notification close timer.
+                        // Timer is cyclical, while notification is showed.
+                        final Timer timer = new Timer();
+                        timer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                if (System.currentTimeMillis() - mTimerFound >
+                                        delayClose) {
+
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                                circularRevealAnimationOff(mFoundView);
+                                            } else {
+                                                mFoundView.setVisibility(View.INVISIBLE);
+                                            }
+                                        }
+                                    });
+
+                                    // If notification is closed, then stop timer.
+                                    timer.cancel();
+                                }
+                            }
+                        }, delay, delay);
+                    }
                 }
             }
         };
@@ -568,7 +590,7 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
 
                     // Export entries.
                     case R.id.activity_list_nav_drawer_item_export_entries:
-                        exportEntries(ListActivity.this);
+                        exportEntriesAsyncWithCheckPermission(ListActivity.this, ListActivity.this);
                         break;
 
                     // Add mock entries.
@@ -625,6 +647,14 @@ public class ListActivity extends AppCompatActivity implements FilterSortDialogF
      */
     private void filterAdapter(@NonNull final String text) {
         mAdapter.getFilter().filter(text);
+    }
+
+    /**
+     * Getting text from search view, and use for filter. If text is empty, then using empty string.
+     */
+    private void updateFilterAdapter() {
+        String searchText = mSearchView.getQuery().toString();
+        mAdapter.getFilter().filter(TextUtils.isEmpty(searchText) ? "" : searchText);
     }
 
     /**

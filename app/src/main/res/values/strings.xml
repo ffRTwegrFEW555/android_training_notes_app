@@ -43,7 +43,7 @@
     <string name="activity_item_details_text_view_title">Title</string>
     <string name="activity_item_details_text_view_description">Description</string>
     <string name="activity_item_details_edit_mode_wrong_id">Entry with given id is not exists</string>
-    <string name="activity_item_details_toast_demonstration_pause">Demonstration pause</string>
+    <string name="activity_item_details_toast_demonstrative_pause">Demonstrative pause</string>
 
     <!-- Info alert dialog -->
     <string name="activity_item_details_info_dialog_title">Info</string>
@@ -142,10 +142,18 @@
     <string name="pattern_date_time_sqlite_format">yyyy-MM-dd HH:mm:ss</string>
 
     <!-- File utils -->
+    <string name="file_utils_export_notification_panel_title">Export entries</string>
+    <string name="file_utils_export_notification_start">Export starting..</string>
+    <string name="file_utils_export_notification_panel_text">Export in progress</string>
+    <string name="file_utils_export_notification_panel_finish">Export complete</string>
+    <string name="file_utils_import_notification_panel_title">Import entries</string>
+    <string name="file_utils_import_notification_panel_text">Import in progress</string>
+    <string name="file_utils_import_notification_panel_finish">Import complete</string>
+    <string name="file_utils_import_notification_start">Import starting..</string>
     <string name="file_utils_export_toast_message_success">Export successfully</string>
     <string name="file_utils_export_toast_message_failed">Export failed</string>
     <string name="file_utils_import_intent_chooser_title">Choose import-file, *.ili</string>
-    <string name="file_utils_import_toast_message_success">Import successfully</string>
+    <string name="file_utils_import_toast_message_success">Import successfully!</string>
     <string name="file_utils_import_toast_message_failed">Import failed</string>
     <string name="file_utils_export_message_write_external_storage_denied">
         You can not export entries, because the permission to write to external storage is denied. Please check access in the application settings, and enable it.

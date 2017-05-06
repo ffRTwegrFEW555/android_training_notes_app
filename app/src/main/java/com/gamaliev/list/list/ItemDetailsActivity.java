@@ -543,7 +543,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                 mDbHelper.close();
 
                 //
-                makeDemonstrationPause();
+                makeDemonstrativePause();
 
                 // Finish activity with result.
                 runOnUiThread(new Runnable() {
@@ -573,22 +573,22 @@ public class ItemDetailsActivity extends AppCompatActivity {
         mMenu.findItem(R.id.menu_list_item_details_delete).setVisible(false);
     }
 
-    private void makeDemonstrationPause() {
+    private void makeDemonstrativePause() {
         //
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 showToast(
                         ItemDetailsActivity.this,
-                        getString(R.string.activity_item_details_toast_demonstration_pause),
+                        getString(R.string.activity_item_details_toast_demonstrative_pause),
                         Toast.LENGTH_SHORT);
             }
         });
 
-        // Demonstration pause.
+        //
         try {
             Thread.sleep(getResources().getInteger(
-                    R.integer.activity_item_detail_demonstration_pause));
+                    R.integer.activity_item_detail_demonstrative_pause));
         } catch (InterruptedException e) {
             Log.e(TAG, e.toString());
         }

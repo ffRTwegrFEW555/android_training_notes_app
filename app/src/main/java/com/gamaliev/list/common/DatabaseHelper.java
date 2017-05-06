@@ -2,7 +2,6 @@ package com.gamaliev.list.common;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -84,23 +83,6 @@ public class DatabaseHelper extends SQLiteOpenHelper implements AutoCloseable {
 
     public DatabaseHelper(@NonNull final Context context) {
         super(context, DB_NAME, null, DB_VERSION);
-        init(context);
-    }
-
-    public DatabaseHelper(@NonNull final Context context,
-                          @NonNull final String name,
-                          @NonNull final SQLiteDatabase.CursorFactory factory,
-                          final int version) {
-        super(context, name, factory, version);
-        init(context);
-    }
-
-    public DatabaseHelper(@NonNull final Context context,
-                          @NonNull final String name,
-                          @NonNull final SQLiteDatabase.CursorFactory factory,
-                          final int version,
-                          @NonNull final DatabaseErrorHandler errorHandler) {
-        super(context, name, factory, version, errorHandler);
         init(context);
     }
 

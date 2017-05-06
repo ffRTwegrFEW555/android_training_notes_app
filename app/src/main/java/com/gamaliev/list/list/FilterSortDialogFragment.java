@@ -35,6 +35,7 @@ import android.widget.TextView;
 import com.gamaliev.list.R;
 import com.gamaliev.list.colorpicker.ColorPickerDatabaseHelper;
 import com.gamaliev.list.common.CommonUtils;
+import com.gamaliev.list.common.OnCompleteListener;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -109,14 +110,6 @@ public class FilterSortDialogFragment extends DialogFragment {
      /* Fix bug. Fast clicks correct found text: 200 -> 200_000 -> 200 entries */
     @NonNull private ExecutorService mSingleThreadExecutor;
 
-
-    /*
-        Interface
-     */
-
-    public interface OnCompleteListener {
-        void onComplete(final int code);
-    }
 
     /*
         Init
@@ -1077,7 +1070,7 @@ public class FilterSortDialogFragment extends DialogFragment {
 
             // Notify activity.
             mOnCompleteListener.onComplete(
-                    ListActivity.REQUEST_CODE_DIALOG_FRAGMENT_RETURN_PROFILE);
+                    ListActivity.RESULT_CODE_FILTER_DIALOG);
         }
     }
 

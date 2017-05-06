@@ -3,7 +3,6 @@ package com.gamaliev.list.colorpicker;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.support.annotation.NonNull;
@@ -41,21 +40,6 @@ public final class ColorPickerDatabaseHelper extends DatabaseHelper {
 
     public ColorPickerDatabaseHelper(@NonNull final Context context) {
         super(context);
-    }
-
-    ColorPickerDatabaseHelper(@NonNull final Context context,
-                              @NonNull final String name,
-                              @NonNull final SQLiteDatabase.CursorFactory factory,
-                              final int version) {
-        super(context, name, factory, version);
-    }
-
-    ColorPickerDatabaseHelper(@NonNull final Context context,
-                              @NonNull final String name,
-                              @NonNull final SQLiteDatabase.CursorFactory factory,
-                              final int version,
-                              @NonNull final DatabaseErrorHandler errorHandler) {
-        super(context, name, factory, version, errorHandler);
     }
 
 

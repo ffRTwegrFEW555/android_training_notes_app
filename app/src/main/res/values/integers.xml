@@ -44,7 +44,7 @@
     <!--                        -->
 
     <!-- Other -->
-    <integer name="activity_item_detail_demonstration_pause">1000</integer>
+    <integer name="activity_item_detail_demonstrative_pause">1000</integer>
 
 
     <!--                    -->
@@ -63,7 +63,7 @@
 
     <!-- Mock entries -->
     <integer name="mock_items_number_start">500</integer>
-    <integer name="mock_items_number_click">100000</integer>
+    <integer name="mock_items_number_click">10000</integer>
 
     <!-- Shared transition -->
     <integer name="shared_transition_animation_duration">200</integer>

@@ -115,23 +115,8 @@ public final class ListDatabaseMockHelper extends DatabaseHelper {
         Init
      */
 
-    ListDatabaseMockHelper(@NonNull final Context context) {
+    public ListDatabaseMockHelper(@NonNull Context context) {
         super(context);
-    }
-
-    ListDatabaseMockHelper(@NonNull final Context context,
-                       @NonNull final String name,
-                       @NonNull final SQLiteDatabase.CursorFactory factory,
-                       final int version) {
-        super(context, name, factory, version);
-    }
-
-    ListDatabaseMockHelper(@NonNull final Context context,
-                       @NonNull final String name,
-                       @NonNull final SQLiteDatabase.CursorFactory factory,
-                       final int version,
-                       @NonNull final DatabaseErrorHandler errorHandler) {
-        super(context, name, factory, version, errorHandler);
     }
 
 

@@ -269,6 +269,28 @@ public final class CommonUtils {
     }
 
     /**
+     * Shows a toast-message on Ui thread of given activity.<br>
+     * See also: {@link Toast#makeText(Context, CharSequence, int)}<br>
+     *
+     * @param activity  Activity.
+     * @param message   Message to show.
+     * @param duration  Duration of shows.
+     */
+    public static void showToastRunOnUiThread(
+            @NonNull final Activity activity,
+            @NonNull final String message,
+            final int duration) {
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast   .makeText(activity, message, duration)
+                        .show();
+            }
+        });
+    }
+
+    /**
      * Plays a ringtone and shows a toast-message.
      * See also:<br>
      * {@link #playSound(Context, int)}<br>
