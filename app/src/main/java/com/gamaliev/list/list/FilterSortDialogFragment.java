@@ -43,6 +43,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.gamaliev.list.common.CommonUtils.EXTRA_DATES_BOTH;
 import static com.gamaliev.list.common.CommonUtils.EXTRA_DATES_FROM_DATETIME;
@@ -97,11 +99,15 @@ public class FilterSortDialogFragment extends DialogFragment {
     private static final String EXTRA_FOUNDED_MAP = "FilterSortDialogFragment.EXTRA_FOUNDED_MAP";
     private static final String EXTRA_SELECTED_ID = "FilterSortDialogFragment.EXTRA_SELECTED_ID";
 
+    /* ... */
     @Nullable private View mDialog;
     @Nullable private Map<String, String> mProfileMap;
     @Nullable private Map<String, String> mFoundedEntriesCache;
     @Nullable private String mSelectedProfileId;
     @Nullable public OnCompleteListener mOnCompleteListener;
+
+     /* Fix bug. Fast clicks correct found text: 200 -> 200_000 -> 200 entries */
+    @NonNull private ExecutorService mSingleThreadExecutor;
 
 
     /*
@@ -170,6 +176,9 @@ public class FilterSortDialogFragment extends DialogFragment {
         } else {
             initLocalVariables();
         }
+
+        //
+        mSingleThreadExecutor = Executors.newSingleThreadExecutor();
 
         // Init
         initComponents();
@@ -1109,7 +1118,7 @@ public class FilterSortDialogFragment extends DialogFragment {
             progressBar.setVisibility(View.VISIBLE);
 
             // Background task.
-            Thread thread = new Thread(new Runnable() {
+            mSingleThreadExecutor.submit(new Runnable() {
                 @Override
                 public void run() {
 
@@ -1147,7 +1156,6 @@ public class FilterSortDialogFragment extends DialogFragment {
                     }
                 }
             });
-            thread.start();
         }
     }
 
