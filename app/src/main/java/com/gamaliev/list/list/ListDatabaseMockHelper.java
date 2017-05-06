@@ -52,16 +52,16 @@ public final class ListDatabaseMockHelper extends DatabaseHelper {
     };
 
     private static final String[] LIST_MOCK_DATE = {
-            "2017-04-29 21:25:35",
-            "2017-04-28 21:25:35",
-            "2017-04-27 21:25:35",
-            "2017-04-26 21:25:35",
-            "2017-04-25 21:25:35",
-            "2017-04-24 21:25:35",
-            "2017-04-23 21:25:35",
-            "2017-04-22 21:25:35",
-            "2017-04-21 21:25:35",
-            "2017-04-20 21:25:35",
+            "2017-05-10 21:25:35",
+            "2017-05-09 21:25:35",
+            "2017-05-08 21:25:35",
+            "2017-05-07 21:25:35",
+            "2017-05-06 21:25:35",
+            "2017-05-05 21:25:35",
+            "2017-05-04 21:25:35",
+            "2017-05-03 21:25:35",
+            "2017-05-02 21:25:35",
+            "2017-05-01 21:25:35",
     };
 
     private static final String[][] SP_MOCK_DATA = new String[][] {
@@ -77,18 +77,18 @@ public final class ListDatabaseMockHelper extends DatabaseHelper {
             {"1",
                     "Dates, color, title asc",
                     "-53248",
-                    "2017-04-20 00:00:00#2017-04-29 00:00:00",
-                    "2017-04-20 00:00:00#2017-04-26 00:00:00",
-                    "2017-04-23 00:00:00#2017-04-29 00:00:00",
+                    "2017-05-01 00:00:00#2017-05-10 00:00:00",
+                    "2017-05-01 00:00:00#2017-05-07 00:00:00",
+                    "2017-05-04 00:00:00#2017-05-10 00:00:00",
                     LIST_ITEMS_COLUMN_TITLE,
                     ORDER_ASCENDING},
 
             {"2",
                     "Created desc, color",
                     "-16711824",
-                    "2017-04-24 00:00:00#2017-04-29 00:00:00",
+                    "2017-05-05 00:00:00#2017-05-10 00:00:00",
                     "",
-                    "2017-04-20 00:00:00#2017-04-29 00:00:00",
+                    "2017-05-01 00:00:00#2017-05-10 00:00:00",
                     LIST_ITEMS_COLUMN_CREATED,
                     ORDER_DESCENDING},
 
@@ -96,7 +96,7 @@ public final class ListDatabaseMockHelper extends DatabaseHelper {
                     "Color, edited filter, edit asc.",
                     "-4096",
                     "",
-                    "2017-04-23 00:00:00#2017-04-29 00:00:00",
+                    "2017-05-04 00:00:00#2017-05-10 00:00:00",
                     "",
                     LIST_ITEMS_COLUMN_EDITED,
                     ORDER_ASCENDING},
@@ -104,7 +104,7 @@ public final class ListDatabaseMockHelper extends DatabaseHelper {
                     "No color, title desc, edit.",
                     "",
                     "",
-                    "2017-04-23 00:00:00#2017-04-29 00:00:00",
+                    "2017-05-04 00:00:00#2017-05-10 00:00:00",
                     "",
                     LIST_ITEMS_COLUMN_TITLE,
                     ORDER_DESCENDING}
