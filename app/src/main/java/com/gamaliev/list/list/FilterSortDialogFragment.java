@@ -99,7 +99,7 @@ public class FilterSortDialogFragment extends DialogFragment {
 
     @Nullable private View mDialog;
     @Nullable private Map<String, String> mProfileMap;
-    @Nullable private Map<String, String> mFoundedEntries;
+    @Nullable private Map<String, String> mFoundedEntriesCache;
     @Nullable private String mSelectedProfileId;
     @Nullable public OnCompleteListener mOnCompleteListener;
 
@@ -155,7 +155,7 @@ public class FilterSortDialogFragment extends DialogFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putSerializable(EXTRA_PROFILE_MAP, (HashMap) mProfileMap);
-        outState.putSerializable(EXTRA_FOUNDED_MAP, (HashMap) mFoundedEntries);
+        outState.putSerializable(EXTRA_FOUNDED_MAP, (HashMap) mFoundedEntriesCache);
         outState.putString(EXTRA_SELECTED_ID, mSelectedProfileId);
         super.onSaveInstanceState(outState);
     }
@@ -164,9 +164,9 @@ public class FilterSortDialogFragment extends DialogFragment {
     public void onViewStateRestored(Bundle savedInstanceState) {
         // Restore local variables, if exists, else init.
         if (savedInstanceState != null) {
-            mProfileMap = (HashMap) savedInstanceState.getSerializable(EXTRA_PROFILE_MAP);
-            mFoundedEntries = (HashMap) savedInstanceState.getSerializable(EXTRA_FOUNDED_MAP);
-            mSelectedProfileId = savedInstanceState.getString(EXTRA_SELECTED_ID);
+            mProfileMap             = (HashMap) savedInstanceState.getSerializable(EXTRA_PROFILE_MAP);
+            mFoundedEntriesCache    = (HashMap) savedInstanceState.getSerializable(EXTRA_FOUNDED_MAP);
+            mSelectedProfileId      = savedInstanceState.getString(EXTRA_SELECTED_ID);
         } else {
             initLocalVariables();
         }
@@ -206,7 +206,7 @@ public class FilterSortDialogFragment extends DialogFragment {
     private void initLocalVariables() {
         setLocalProfileMap();
         setLocalSelectedProfileId();
-        mFoundedEntries = new HashMap<>();
+        mFoundedEntriesCache = new HashMap<>();
     }
 
     private void setLocalProfileMap() {
@@ -281,7 +281,7 @@ public class FilterSortDialogFragment extends DialogFragment {
                     R.id.activity_list_filter_dialog_profile_found_progress_bar);
 
             // Check cached
-            final String foundedEntries = mFoundedEntries.get(id);
+            final String foundedEntries = mFoundedEntriesCache.get(id);
             if (foundedEntries == null) {
                 // If not exists.
                 // Get "found entries"-text dependent this profile and set.
@@ -310,22 +310,24 @@ public class FilterSortDialogFragment extends DialogFragment {
                         dbHelper.close();
 
                         // Caching
-                        mFoundedEntries.put(id, count);
+                        mFoundedEntriesCache.put(id, count);
 
-                        // Update view.
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                // Set text.
-                                foundTextView.setText("(" + count + ")");
+                        // Update views, if attached.
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // Set text.
+                                    foundTextView.setText("(" + count + ")");
 
-                                // Hide progress bar.
-                                progressBar.setVisibility(View.GONE);
+                                    // Hide progress bar.
+                                    progressBar.setVisibility(View.GONE);
 
-                                // Show found text view.
-                                foundTextView.setVisibility(View.VISIBLE);
-                            }
-                        });
+                                    // Show found text view.
+                                    foundTextView.setVisibility(View.VISIBLE);
+                                }
+                            });
+                        }
                     }
                 });
                 thread.start();
@@ -1083,50 +1085,70 @@ public class FilterSortDialogFragment extends DialogFragment {
         final View progressBar = mDialog.findViewById(
                 R.id.activity_list_filter_dialog_found_progress_bar);
 
-        // Hide found text view.
-        foundTextView.setVisibility(View.GONE);
+        // Check cache, if exist, then set, else get from db in async task.
+        if (mSelectedProfileId.equals(mProfileMap.get(SP_FILTER_ID))
+                && mFoundedEntriesCache.get(mSelectedProfileId) != null) {
 
-        // Show progress bar.
-        progressBar.setVisibility(View.VISIBLE);
+            // Hide progress bar.
+            progressBar.setVisibility(View.GONE);
 
-        // Background task.
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
+            // Set text.
+            final String text = getString(
+                    R.string.activity_list_filter_dialog_profile_found_text)
+                    + " " + mFoundedEntriesCache.get(mSelectedProfileId);
+            foundTextView.setText(text);
 
-                // Open database.
-                final ListDatabaseHelper dbHelper = new ListDatabaseHelper(getActivity());
+            // Show found text view.
+            foundTextView.setVisibility(View.VISIBLE);
 
-                // Get
-                final Cursor cursor = dbHelper.getCursorWithParams(getActivity(), null, mProfileMap);
-                final String count = String.valueOf(cursor.getCount());
-                cursor.close();
+        } else {
+            // Hide found text view.
+            foundTextView.setVisibility(View.GONE);
 
-                //
-                dbHelper.close();
+            // Show progress bar.
+            progressBar.setVisibility(View.VISIBLE);
 
-                // Update view.
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //
-                        final String text = getString(
-                                R.string.activity_list_filter_dialog_profile_found_text)
-                                + " " + count;
+            // Background task.
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
 
-                        // Set text.
-                        foundTextView.setText(text);
+                    // Open database.
+                    final ListDatabaseHelper dbHelper = new ListDatabaseHelper(getActivity());
 
-                        // Hide progress bar.
-                        progressBar.setVisibility(View.GONE);
+                    // Get
+                    final Cursor cursor = dbHelper.getCursorWithParams(getActivity(), null, mProfileMap);
+                    final String count = String.valueOf(cursor.getCount());
+                    cursor.close();
 
-                        // Show found text view.
-                        foundTextView.setVisibility(View.VISIBLE);
+                    //
+                    dbHelper.close();
+
+                    // Update views, if attached.
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                //
+                                final String text = getString(
+                                        R.string.activity_list_filter_dialog_profile_found_text)
+                                        + " " + count;
+
+                                // Set text.
+                                foundTextView.setText(text);
+
+                                // Hide progress bar.
+                                progressBar.setVisibility(View.GONE);
+
+                                // Show found text view.
+                                foundTextView.setVisibility(View.VISIBLE);
+                            }
+                        });
                     }
-                });
-            }
-        });
-        thread.start();
+                }
+            });
+            thread.start();
+        }
     }
 
     /**
