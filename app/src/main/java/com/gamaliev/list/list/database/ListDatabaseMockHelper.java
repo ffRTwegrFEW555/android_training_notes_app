@@ -5,9 +5,11 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.gamaliev.list.colorpicker.database.ColorPickerDatabaseHelper;
+import com.gamaliev.list.common.CommonUtils;
 import com.gamaliev.list.common.database.DatabaseHelper;
 
 import org.json.JSONException;
@@ -124,9 +126,13 @@ public class ListDatabaseMockHelper extends DatabaseHelper {
      */
     public static void addMockEntries(
             final int entriesNumber,
-            @NonNull final SQLiteDatabase db) throws SQLiteException {
+            @NonNull final SQLiteDatabase db,
+            @Nullable final CommonUtils.ProgressNotificationHelper notification) throws SQLiteException {
 
         final Random random = new Random();
+
+        // Number of entries;
+        int percent = 0;
 
         for (int i = 0; i < entriesNumber; i++) {
             // Content values.
@@ -142,6 +148,22 @@ public class ListDatabaseMockHelper extends DatabaseHelper {
             if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
                 throw new SQLiteException("[ERROR] Add mock entries.");
             }
+
+            // Update progress. Without flooding. 0-100%
+            if (notification != null) {
+                final int percentNew = i * 100 / entriesNumber;
+                if (percentNew > percent) {
+                    //
+                    percent = percentNew;
+                    //
+                    notification.setProgress(100, percentNew);
+                }
+            }
+        }
+
+        // Notification panel success.
+        if (notification != null) {
+            notification.endProgress();
         }
     }
 

@@ -2,19 +2,14 @@ package com.gamaliev.list.common;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.NotificationManager;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -34,9 +29,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static com.gamaliev.list.common.CommonUtils.checkAndRequestPermissions;
 import static com.gamaliev.list.common.CommonUtils.getDateFromISO8601String;
@@ -81,7 +73,7 @@ public class FileUtils {
     private static final String FILE_NAME = "itemlist.ili";
 
     /* Handler, Looper */
-    private static final ImportExportLooperHandlerThread IMPORT_EXPORT_HANDLER_LOOPER_THREAD;
+    private static final CommonUtils.LooperHandlerThread IMPORT_EXPORT_HANDLER_LOOPER_THREAD;
 
 
     /*
@@ -89,7 +81,7 @@ public class FileUtils {
      */
 
     static {
-        IMPORT_EXPORT_HANDLER_LOOPER_THREAD = new ImportExportLooperHandlerThread();
+        IMPORT_EXPORT_HANDLER_LOOPER_THREAD = new CommonUtils.LooperHandlerThread();
         IMPORT_EXPORT_HANDLER_LOOPER_THREAD.start();
     }
 
@@ -136,7 +128,7 @@ public class FileUtils {
             @NonNull final Activity activity,
             @NonNull final OnCompleteListener onCompleteListener) {
 
-        IMPORT_EXPORT_HANDLER_LOOPER_THREAD.mHandler.post(new Runnable() {
+        IMPORT_EXPORT_HANDLER_LOOPER_THREAD.getHandler().post(new Runnable() {
             @Override
             public void run() {
                 exportEntries(activity, onCompleteListener);
@@ -165,22 +157,22 @@ public class FileUtils {
         final JSONArray jsonArray = new JSONArray();
 
         // Create progress notification.
-        final ImportExportProgressNotification notification =
-                new ImportExportProgressNotification(
+        final CommonUtils.ProgressNotificationHelper notification =
+                new CommonUtils.ProgressNotificationHelper(
                         activity,
-                        ImportExportProgressNotification.ACTION_EXPORT);
+                        activity.getString(R.string.file_utils_export_notification_panel_title),
+                        activity.getString(R.string.file_utils_export_notification_panel_text),
+                        activity.getString(R.string.file_utils_export_notification_panel_finish));
 
         // Timer for notification enable
-        startTimerToEnableNotification(activity, notification);
-
-        // SingleThreadExecutor for panel notifications, because the bug.
-        final ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+        notification.startTimerToEnableNotification(
+                activity.getResources().getInteger(
+                        R.integer.activity_list_notification_panel_import_export_timer_enable));
 
         // Retrieve data from database in Json-format.
         final String result = getEntriesFromDatabase(
                 activity,
                 jsonArray,
-                singleThreadExecutor,
                 notification);
 
         // Save result Json-string to file.
@@ -189,7 +181,6 @@ public class FileUtils {
                 jsonArray,
                 result,
                 onCompleteListener,
-                singleThreadExecutor,
                 notification);
 
     }
@@ -199,7 +190,6 @@ public class FileUtils {
      *
      * @param activity              Activity.
      * @param jsonArray             JSONArray-object to fill.
-     * @param singleThreadExecutor  Queue for notification progress.
      * @param notification          Notification helper.
      *
      * @return String in needed Json-format, containing all entries from database.
@@ -208,8 +198,7 @@ public class FileUtils {
     private static String getEntriesFromDatabase(
             @NonNull final Activity activity,
             @NonNull final JSONArray jsonArray,
-            @NonNull final ExecutorService singleThreadExecutor,
-            @NonNull final ImportExportProgressNotification notification) {
+            @NonNull final CommonUtils.ProgressNotificationHelper notification) {
 
         // Open database and get cursor.
         final ListDatabaseHelper dbHelper = new ListDatabaseHelper(activity);
@@ -249,16 +238,8 @@ public class FileUtils {
             if (percentNew > percent) {
                 //
                 percent = percentNew;
-
-                if (notification.isEnable()) {
-                    // SingleThreadExecutor, because the bug.
-                    singleThreadExecutor.submit(new Runnable() {
-                        @Override
-                        public void run() {
-                            notification.setProgress(100, percentNew);
-                        }
-                    });
-                }
+                //
+                notification.setProgress(100, percentNew);
             }
         }
 
@@ -324,8 +305,7 @@ public class FileUtils {
             @NonNull final JSONArray jsonArray,
             @NonNull final String result,
             @NonNull final OnCompleteListener onCompleteListener,
-            @NonNull final ExecutorService singleThreadExecutor,
-            @NonNull final ImportExportProgressNotification notification) {
+            @NonNull final CommonUtils.ProgressNotificationHelper notification) {
 
         try {
             // Create file
@@ -353,15 +333,7 @@ public class FileUtils {
             });
 
             // Notification panel success.
-            if (notification.isEnable()) {
-                // SingleThreadExecutor, because the bug.
-                singleThreadExecutor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        notification.endProgress();
-                    }
-                });
-            }
+            notification.endProgress();
 
         } catch (IOException e) {
             Log.e(TAG, e.toString());
@@ -392,7 +364,7 @@ public class FileUtils {
             @NonNull final OnCompleteListener onCompleteListener) {
 
         //
-        IMPORT_EXPORT_HANDLER_LOOPER_THREAD.mHandler.post(new Runnable() {
+        IMPORT_EXPORT_HANDLER_LOOPER_THREAD.getHandler().post(new Runnable() {
             @Override
             public void run() {
                 importEntries(activity, selectedFile, onCompleteListener);
@@ -420,13 +392,17 @@ public class FileUtils {
                 Toast.LENGTH_SHORT);
 
         // Create progress notification.
-        final ImportExportProgressNotification notification =
-                new ImportExportProgressNotification(
+        final CommonUtils.ProgressNotificationHelper notification =
+                new CommonUtils.ProgressNotificationHelper(
                         activity,
-                        ImportExportProgressNotification.ACTION_IMPORT);
+                        activity.getString(R.string.file_utils_import_notification_panel_title),
+                        activity.getString(R.string.file_utils_import_notification_panel_text),
+                        activity.getString(R.string.file_utils_import_notification_panel_finish));
 
         // Timer for notification enable
-        startTimerToEnableNotification(activity, notification);
+        notification.startTimerToEnableNotification(
+                activity.getResources().getInteger(
+                        R.integer.activity_list_notification_panel_import_export_timer_enable));
 
         // Get Json-string from file.
         final String inputJson = getStringFromFile(activity, selectedFile);
@@ -493,14 +469,11 @@ public class FileUtils {
             @NonNull final Activity activity,
             @NonNull final String inputJson,
             @NonNull final OnCompleteListener onCompleteListener,
-            @NonNull final ImportExportProgressNotification notification) {
+            @NonNull final CommonUtils.ProgressNotificationHelper notification) {
 
         try (   // Open database and start transaction.
                 ListDatabaseHelper dbHelper = new ListDatabaseHelper(activity);
                 SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-
-            // SingleThreadExecutor for panel notifications, because the bug.
-            final ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
 
             // Init
             final JSONArray jsonArray = new JSONArray(inputJson);
@@ -531,16 +504,8 @@ public class FileUtils {
                     if (percentNew > percent) {
                         //
                         percent = percentNew;
-
-                        if (notification.isEnable()) {
-                            // SingleThreadExecutor, because the bug.
-                            singleThreadExecutor.submit(new Runnable() {
-                                @Override
-                                public void run() {
-                                    notification.setProgress(100, percentNew);
-                                }
-                            });
-                        }
+                        //
+                        notification.setProgress(100, percentNew);
                     }
                 }
 
@@ -556,7 +521,6 @@ public class FileUtils {
                     activity,
                     jsonArray,
                     onCompleteListener,
-                    singleThreadExecutor,
                     notification);
 
         } catch (JSONException | SQLiteException e) {
@@ -599,19 +563,10 @@ public class FileUtils {
             @NonNull final Activity activity,
             @NonNull final JSONArray jsonArray,
             @NonNull final OnCompleteListener onCompleteListener,
-            @NonNull final ExecutorService singleThreadExecutor,
-            @NonNull final ImportExportProgressNotification notification) {
+            @NonNull final CommonUtils.ProgressNotificationHelper notification) {
 
         // Notification panel success.
-        if (notification.isEnable()) {
-            // SingleThreadExecutor, because the bug.
-            singleThreadExecutor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    notification.endProgress();
-                }
-            });
-        }
+        notification.endProgress();
 
         // Notification success.
         showToastRunOnUiThread(
@@ -631,149 +586,13 @@ public class FileUtils {
 
 
     /*
-        Inner Classes
-     */
-
-    /**
-     * Thread, contains {@link android.os.Handler}, whose running into {@link android.os.Looper}.
-     */
-    private static class ImportExportLooperHandlerThread extends Thread {
-        @Nullable private Handler mHandler;
-
-        @Override
-        public void run() {
-            Looper.prepare();
-            mHandler = new Handler();
-            Looper.loop();
-        }
-    }
-
-
-    /**
-     * Helper to create a progress notification for import/export operations.
-     */
-    private static class ImportExportProgressNotification {
-        @NonNull private final Context mContext;
-        @NonNull private final String mAction;
-        @NonNull private final NotificationManager mManager;
-        @NonNull private final NotificationCompat.Builder mBuilder;
-
-        private final int mId;
-        private boolean mEnable;
-        private boolean mFinished;
-
-        private static final String ACTION_IMPORT = "ImportExportProgressNotification.ACTION_IMPORT";
-        private static final String ACTION_EXPORT = "ImportExportProgressNotification.ACTION_EXPORT";
-
-        private ImportExportProgressNotification(
-                @NonNull final Context context,
-                @NonNull final String action) {
-
-            mContext = context;
-            mAction = action;
-            mManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            mBuilder = new NotificationCompat.Builder(context);
-
-            final Random random = new Random();
-            mId = random.nextInt();
-
-            if (ACTION_IMPORT.equals(action)) {
-                mBuilder
-                        .setContentTitle(mContext.getString(
-                        R.string.file_utils_import_notification_panel_title))
-
-                        .setContentText(mContext.getString(
-                        R.string.file_utils_import_notification_panel_text));
-
-            } else if (ACTION_EXPORT.equals(action)) {
-                mBuilder
-                        .setContentTitle(mContext.getString(
-                                R.string.file_utils_export_notification_panel_title))
-
-                        .setContentText(mContext.getString(
-                                R.string.file_utils_export_notification_panel_text));
-            }
-
-            mBuilder.setSmallIcon(getNotificationIcon());
-        }
-
-        private void setProgress(final int max, final int progress) {
-            mBuilder.setProgress(max, progress, false);
-            mManager.notify(mId, mBuilder.build());
-        }
-
-        private void endProgress() {
-            if (ACTION_IMPORT.equals(mAction)) {
-                mBuilder.setContentText(mContext.getString(
-                        R.string.file_utils_import_notification_panel_finish));
-
-            } else if (ACTION_EXPORT.equals(mAction)) {
-                mBuilder.setContentText(mContext.getString(
-                        R.string.file_utils_export_notification_panel_finish));
-            }
-
-            mBuilder.setProgress(0, 0, false);
-            mManager.notify(mId, mBuilder.build());
-
-            mFinished = true;
-        }
-
-        // Fix bug with color icon.
-        private int getNotificationIcon() {
-            boolean useWhiteIcon =
-                    (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP);
-            return useWhiteIcon
-                    ? R.drawable.ic_import_export_black_24dp
-                    : R.drawable.ic_import_export_white_24dp;
-        }
-
-        private void setEnable(final boolean enable) {
-            mEnable = enable;
-        }
-
-        private boolean isEnable() {
-            return mEnable;
-        }
-
-        private boolean isFinished() {
-            return mFinished;
-        }
-    }
-
-
-    /*
         Getters
      */
 
     /**
      * Typically used to initialize a variable, and running thread.
      */
-    public static ImportExportLooperHandlerThread getImportExportHandlerLooperThread() {
+    public static CommonUtils.LooperHandlerThread getImportExportHandlerLooperThread() {
         return IMPORT_EXPORT_HANDLER_LOOPER_THREAD;
-    }
-
-
-    /*
-        ...
-     */
-
-    private static void startTimerToEnableNotification(
-            @NonNull final Activity activity,
-            @NonNull final ImportExportProgressNotification notification) {
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(activity.getResources().getInteger(
-                            R.integer.activity_list_notification_panel_import_export_timer_enable));
-                    if (!notification.isFinished()) {
-                        notification.setEnable(true);
-                    }
-                } catch (InterruptedException e) {
-                    Log.e(TAG, e.toString());
-                }
-            }
-        }).start();
     }
 }

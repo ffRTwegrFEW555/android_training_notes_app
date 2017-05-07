@@ -162,6 +162,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements AutoCloseable {
         // Adding mock entries in list activity.
         ListDatabaseMockHelper.addMockEntries(
                 mRes.getInteger(R.integer.mock_items_number_start),
-                db);
+                db,
+                null);
     }
 }

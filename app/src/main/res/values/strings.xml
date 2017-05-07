@@ -82,8 +82,14 @@
     <string name="activity_list_notification_entry_updated">Entry updated</string>
     <string name="activity_list_notification_entry_deleted">Entry deleted</string>
     <string name="activity_list_notification_filtered">Filtered</string>
-    <string name="activity_list_notification_add_mock_entries">Mock entries added</string>
-    <string name="activity_list_notification_delete_all_entries">All entries deleted</string>
+    <string name="activity_list_notification_add_mock_entries_success">Mock entries added</string>
+    <string name="activity_list_notification_add_mock_entries_failed">Mock entries adding failed</string>
+    <string name="activity_list_notification_add_mock_entries_start">Mock entries adding…</string>
+    <string name="activity_list_notification_delete_all_entries_success">All entries deleted</string>
+    <string name="activity_list_notification_delete_all_entries_failed">All entries deleting failed</string>
+    <string name="activity_list_notification_add_mock_title">Add mock entries</string>
+    <string name="activity_list_notification_add_mock_text">Add in progress</string>
+    <string name="activity_list_notification_add_mock_finish">Add mock complete</string>
 
     <!-- Filter / sort dialog -->
     <string name="activity_item_details_delete_dialog_date_text_default">---</string>
@@ -142,14 +148,14 @@
     <string name="pattern_date_time_sqlite_format">yyyy-MM-dd HH:mm:ss</string>
 
     <!-- File utils -->
-    <string name="file_utils_export_notification_panel_title">Export entries</string>
     <string name="file_utils_export_notification_start">Export starting..</string>
+    <string name="file_utils_export_notification_panel_title">Export entries</string>
     <string name="file_utils_export_notification_panel_text">Export in progress</string>
     <string name="file_utils_export_notification_panel_finish">Export complete</string>
+    <string name="file_utils_import_notification_start">Import starting..</string>
     <string name="file_utils_import_notification_panel_title">Import entries</string>
     <string name="file_utils_import_notification_panel_text">Import in progress</string>
     <string name="file_utils_import_notification_panel_finish">Import complete</string>
-    <string name="file_utils_import_notification_start">Import starting..</string>
     <string name="file_utils_export_toast_message_success">Export successfully</string>
     <string name="file_utils_export_toast_message_failed">Export failed</string>
     <string name="file_utils_import_intent_chooser_title">Choose import-file, *.ili</string>

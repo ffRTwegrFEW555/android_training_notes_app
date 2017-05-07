@@ -347,7 +347,8 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      * Add mock entries in list activity. See: {@link com.gamaliev.list.list.ListActivity}
      * @return Number of added entries. If error, then return "-1".
      */
-    public int addMockEntries() {
+    public int addMockEntries(
+            @Nullable final CommonUtils.ProgressNotificationHelper notification) {
 
         // Open database.
         try (SQLiteDatabase db = getWritableDatabase()) {
@@ -360,7 +361,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
                 int n = mRes.getInteger(R.integer.mock_items_number_click);
 
                 // Helper method for add entries.
-                ListDatabaseMockHelper.addMockEntries(n, db);
+                ListDatabaseMockHelper.addMockEntries(n, db, notification);
 
                 // If ok.
                 db.setTransactionSuccessful();

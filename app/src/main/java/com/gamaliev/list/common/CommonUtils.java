@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -15,11 +16,14 @@ import android.graphics.drawable.GradientDrawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -37,7 +41,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.gamaliev.list.list.database.ListActivitySharedPreferencesUtils.SP_FILTER_SYMBOL_DATE_SPLIT;
 
@@ -684,5 +691,151 @@ public class CommonUtils {
 
         // If granted.
         return true;
+    }
+
+
+    /*
+        Progress notification
+     */
+
+    /**
+     * Helper to create a progress notification.
+     */
+    public final static class ProgressNotificationHelper {
+
+        @NonNull private final NotificationManager mManager;
+        @NonNull private final NotificationCompat.Builder mBuilder;
+        @NonNull private final ExecutorService mSingleThreadExecutor; /* Exists, because the bug. */
+
+        @NonNull private final String mTitle;
+        @NonNull private final String mText;
+        @NonNull private final String mComplete;
+
+        private final int mId;
+        private boolean mEnable;
+
+        /**
+         * To enable notification, you must use {@link #startTimerToEnableNotification}
+         *
+         * @param context   Context.
+         * @param title     Title of notification.
+         * @param text      Text of notification.
+         * @param complete  Complete text of notification.
+         */
+        public ProgressNotificationHelper(
+                @NonNull final Context context,
+                @NonNull final String title,
+                @NonNull final String text,
+                @NonNull final String complete) {
+
+            mManager    = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            mBuilder    = new NotificationCompat.Builder(context);
+            mSingleThreadExecutor = Executors.newSingleThreadExecutor();
+
+            mTitle      = title;
+            mText       = text;
+            mComplete   = complete;
+
+            final Random random = new Random();
+            mId = random.nextInt();
+
+            // Create notification.
+            mBuilder.setContentTitle(mTitle)
+                    .setContentText(mText)
+                    .setSmallIcon(getNotificationIcon());
+        }
+
+        public void setProgress(final int max, final int progress) {
+            if (isEnable()) {
+                mSingleThreadExecutor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        mBuilder.setProgress(max, progress, false);
+                        mManager.notify(mId, mBuilder.build());
+                    }
+                });
+            }
+        }
+
+        public void endProgress() {
+            if (isEnable()) {
+                mSingleThreadExecutor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        mBuilder.setContentText(mComplete)
+                                .setProgress(0, 0, false);
+
+                        mManager.notify(mId, mBuilder.build());
+
+                        mEnable = false;
+                    }
+                });
+            }
+        }
+
+        // Fix bug with color icon.
+        private int getNotificationIcon() {
+            boolean useWhiteIcon =
+                    (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP);
+            return useWhiteIcon
+                    ? R.drawable.ic_import_export_black_24dp
+                    : R.drawable.ic_import_export_white_24dp;
+        }
+
+        /**
+         * @param timeToStart Time to enable progress notification, in ms.
+         */
+        public void startTimerToEnableNotification(final int timeToStart) {
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(timeToStart);
+                        setEnable(true);
+
+                    } catch (InterruptedException e) {
+                        Log.e(TAG, e.toString());
+                    }
+                }
+            }).start();
+        }
+
+
+        /*
+            Setters and getters
+         */
+
+        public void setEnable(final boolean enable) {
+            mEnable = enable;
+        }
+
+        public boolean isEnable() {
+            return mEnable;
+        }
+    }
+
+
+    /*
+        Threads
+     */
+
+    /**
+     * Thread, contains {@link android.os.Handler}, whose running into {@link android.os.Looper}.
+     */
+    public static class LooperHandlerThread extends Thread {
+        @Nullable private Handler mHandler;
+
+        @Override
+        public void run() {
+            Looper.prepare();
+            mHandler = new Handler();
+            Looper.loop();
+        }
+
+        @Nullable
+        public Handler getHandler() {
+            return mHandler;
+        }
     }
 }

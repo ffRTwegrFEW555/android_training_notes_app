@@ -32,6 +32,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.gamaliev.list.R;
+import com.gamaliev.list.common.CommonUtils;
 import com.gamaliev.list.common.database.DatabaseHelper;
 import com.gamaliev.list.common.FileUtils;
 import com.gamaliev.list.common.OnCompleteListener;
@@ -48,6 +49,7 @@ import static com.gamaliev.list.common.CommonUtils.circularRevealAnimationOff;
 import static com.gamaliev.list.common.CommonUtils.circularRevealAnimationOn;
 import static com.gamaliev.list.common.CommonUtils.showMessageDialog;
 import static com.gamaliev.list.common.CommonUtils.showToast;
+import static com.gamaliev.list.common.CommonUtils.showToastRunOnUiThread;
 import static com.gamaliev.list.common.FileUtils.REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE;
 import static com.gamaliev.list.common.FileUtils.REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE;
 import static com.gamaliev.list.common.FileUtils.exportEntriesAsyncWithCheckPermission;
@@ -325,7 +327,7 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
             if (requestCode == REQUEST_CODE_ADD) {
 
                 // Refresh view.
-                filterAdapter("");
+                updateFilterAdapter();
 
                 // Notification if added.
                 showToast(
@@ -335,7 +337,7 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
 
             } else if (requestCode == REQUEST_CODE_EDIT) {
                 // Refresh view.
-                filterAdapter("");
+                updateFilterAdapter();
 
                 if (data.getIntExtra(RESULT_CODE_EXTRA, -1) == RESULT_CODE_EXTRA_EDITED) {
                     // Show notification if edited.
@@ -359,11 +361,11 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                 importEntriesAsync(this, selectedFile, this);
 
                 // Refresh view.
-                filterAdapter("");
+                updateFilterAdapter();
             }
 
         } else if (resultCode == RESULT_CANCELED) {
-            filterAdapter("");
+            updateFilterAdapter();
         }
     }
 
@@ -433,7 +435,7 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
             mProfileMap = convertProfileJsonToMap(getSelectedProfileJson(this));
 
             // Refresh view.
-            filterAdapter("");
+            updateFilterAdapter();
 
             // Show notification
             showToast(
@@ -592,45 +594,22 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
 
                     // Export entries.
                     case R.id.activity_list_nav_drawer_item_export_entries:
-                        exportEntriesAsyncWithCheckPermission(ListActivity.this, ListActivity.this);
+                        exportEntriesAsyncWithCheckPermission(
+                                ListActivity.this,
+                                ListActivity.this);
                         break;
 
                     // Add mock entries.
                     case R.id.activity_list_nav_drawer_item_add_mock_entries:
-                        // Add.
-                        final int added = mDbHelper.addMockEntries();
-
-                        // Refresh view.
-                        filterAdapter("");
-
-                        // If success, show notification.
-                        if (added > -1) {
-                            showToast(
-                                    ListActivity.this,
-                                    getString(R.string.activity_list_notification_add_mock_entries)
-                                            + " (" + added + ")",
-                                    Toast.LENGTH_SHORT);
-                        }
+                        addMockEntries();
                         break;
 
                     // Remove all entries.
                     case R.id.activity_list_nav_drawer_item_delete_all_entries:
-                        // Remove.
-                        final boolean success = mDbHelper.removeAllEntries();
-
-                        // Refresh view.
-                        filterAdapter("");
-
-                        // If success, show notification.
-                        if (success) {
-                            showToast(
-                                    ListActivity.this,
-                                    getString(R.string.activity_list_notification_delete_all_entries),
-                                    Toast.LENGTH_SHORT);
-                        }
+                        deleteAllEntries();
                         break;
 
-                    // Default.
+                    //
                     default:
                         break;
 
@@ -642,6 +621,70 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                 return true;
             }
         };
+    }
+
+    private void addMockEntries() {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //
+                showToastRunOnUiThread(
+                        ListActivity.this,
+                        getString(R.string.activity_list_notification_add_mock_entries_start),
+                        Toast.LENGTH_SHORT);
+
+                // Create progress notification.
+                final CommonUtils.ProgressNotificationHelper notification =
+                        new CommonUtils.ProgressNotificationHelper(
+                                ListActivity.this,
+                                getString(R.string.activity_list_notification_add_mock_title),
+                                getString(R.string.activity_list_notification_add_mock_text),
+                                getString(R.string.activity_list_notification_add_mock_finish));
+
+                // Timer for notification enable
+                notification.startTimerToEnableNotification(
+                        getResources().getInteger(
+                                R.integer.activity_list_notification_panel_add_mock_timer_enable));
+
+                // Add.
+                final int added = mDbHelper.addMockEntries(notification);
+
+                // Refresh view.
+                updateFilterAdapter();
+
+                // Show result notification.
+                showToastRunOnUiThread(
+                        ListActivity.this,
+                        added > -1
+                                ? getString(R.string.activity_list_notification_add_mock_entries_success)
+                                + " (" + added + ")"
+                                : getString(R.string.activity_list_notification_add_mock_entries_failed),
+                        Toast.LENGTH_SHORT);
+            }
+        }).start();
+    }
+
+    private void deleteAllEntries() {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Remove.
+                final boolean success = mDbHelper.removeAllEntries();
+
+                // Refresh view.
+                updateFilterAdapter();
+
+                // Show result notification.
+                showToastRunOnUiThread(
+                        ListActivity.this,
+                        success
+                                ? getString(R.string.activity_list_notification_delete_all_entries_success)
+                                : getString(R.string.activity_list_notification_delete_all_entries_failed),
+                        Toast.LENGTH_SHORT);
+            }
+        }).start();
     }
 
     /**
