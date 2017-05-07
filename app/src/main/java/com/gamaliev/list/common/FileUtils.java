@@ -54,6 +54,7 @@ import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_IMPORTED;
 /**
  * Class, for working with files, for exporting/importing entries from/to database.<br>
  * Supported asynchronous mode with message queue.<br>
+ * If the operation time is longer than the specified time, then progress notification enable.<br>
  * <br>
  * The following file template is used:<br><br>
  *     {"title":"...",<br>
@@ -144,7 +145,8 @@ public class FileUtils {
     }
 
     /**
-     * Export entries from database to file with Json-format.
+     * Export entries from database to file with Json-format.<br>
+     * If the operation time is longer than the specified time, then progress notification enable.
      *
      * @param activity              Activity.
      * @param onCompleteListener    Listener, who will be notified of the result.
@@ -167,6 +169,9 @@ public class FileUtils {
                 new ImportExportProgressNotification(
                         activity,
                         ImportExportProgressNotification.ACTION_EXPORT);
+
+        // Timer for notification enable
+        startTimerToEnableNotification(activity, notification);
 
         // SingleThreadExecutor for panel notifications, because the bug.
         final ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
@@ -245,13 +250,15 @@ public class FileUtils {
                 //
                 percent = percentNew;
 
-                // SingleThreadExecutor, because the bug.
-                singleThreadExecutor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        notification.setProgress(100, percentNew);
-                    }
-                });
+                if (notification.isEnable()) {
+                    // SingleThreadExecutor, because the bug.
+                    singleThreadExecutor.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            notification.setProgress(100, percentNew);
+                        }
+                    });
+                }
             }
         }
 
@@ -346,13 +353,15 @@ public class FileUtils {
             });
 
             // Notification panel success.
-            // SingleThreadExecutor, because the bug.
-            singleThreadExecutor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    notification.endProgress();
-                }
-            });
+            if (notification.isEnable()) {
+                // SingleThreadExecutor, because the bug.
+                singleThreadExecutor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        notification.endProgress();
+                    }
+                });
+            }
 
         } catch (IOException e) {
             Log.e(TAG, e.toString());
@@ -392,7 +401,8 @@ public class FileUtils {
     }
 
     /**
-     * Import entries from file to database.
+     * Import entries from file to database.<br>
+     * If the operation time is longer than the specified time, then progress notification enable.
      *
      * @param activity              Activity.
      * @param selectedFile          Selected file.
@@ -409,6 +419,15 @@ public class FileUtils {
                 activity.getString(R.string.file_utils_import_notification_start),
                 Toast.LENGTH_SHORT);
 
+        // Create progress notification.
+        final ImportExportProgressNotification notification =
+                new ImportExportProgressNotification(
+                        activity,
+                        ImportExportProgressNotification.ACTION_IMPORT);
+
+        // Timer for notification enable
+        startTimerToEnableNotification(activity, notification);
+
         // Get Json-string from file.
         final String inputJson = getStringFromFile(activity, selectedFile);
 
@@ -416,7 +435,8 @@ public class FileUtils {
         parseAndSaveToDatabase(
                 activity,
                 inputJson,
-                onCompleteListener);
+                onCompleteListener,
+                notification);
     }
 
     /**
@@ -472,23 +492,18 @@ public class FileUtils {
     private static void parseAndSaveToDatabase(
             @NonNull final Activity activity,
             @NonNull final String inputJson,
-            @NonNull final OnCompleteListener onCompleteListener){
+            @NonNull final OnCompleteListener onCompleteListener,
+            @NonNull final ImportExportProgressNotification notification) {
 
         try (   // Open database and start transaction.
                 ListDatabaseHelper dbHelper = new ListDatabaseHelper(activity);
                 SQLiteDatabase db = dbHelper.getWritableDatabase()) {
 
-            // Init
-            final JSONArray jsonArray = new JSONArray(inputJson);
-
-            // Create progress notification.
-            final ImportExportProgressNotification notification =
-                    new ImportExportProgressNotification(
-                            activity,
-                            ImportExportProgressNotification.ACTION_IMPORT);
-
             // SingleThreadExecutor for panel notifications, because the bug.
             final ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+
+            // Init
+            final JSONArray jsonArray = new JSONArray(inputJson);
 
             // Number of entries;
             final int size = jsonArray.length();
@@ -517,13 +532,15 @@ public class FileUtils {
                         //
                         percent = percentNew;
 
-                        // SingleThreadExecutor, because the bug.
-                        singleThreadExecutor.submit(new Runnable() {
-                            @Override
-                            public void run() {
-                                notification.setProgress(100, percentNew);
-                            }
-                        });
+                        if (notification.isEnable()) {
+                            // SingleThreadExecutor, because the bug.
+                            singleThreadExecutor.submit(new Runnable() {
+                                @Override
+                                public void run() {
+                                    notification.setProgress(100, percentNew);
+                                }
+                            });
+                        }
                     }
                 }
 
@@ -586,13 +603,15 @@ public class FileUtils {
             @NonNull final ImportExportProgressNotification notification) {
 
         // Notification panel success.
-        // SingleThreadExecutor, because the bug.
-        singleThreadExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                notification.endProgress();
-            }
-        });
+        if (notification.isEnable()) {
+            // SingleThreadExecutor, because the bug.
+            singleThreadExecutor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    notification.endProgress();
+                }
+            });
+        }
 
         // Notification success.
         showToastRunOnUiThread(
@@ -640,6 +659,8 @@ public class FileUtils {
         @NonNull private final NotificationCompat.Builder mBuilder;
 
         private final int mId;
+        private boolean mEnable;
+        private boolean mFinished;
 
         private static final String ACTION_IMPORT = "ImportExportProgressNotification.ACTION_IMPORT";
         private static final String ACTION_EXPORT = "ImportExportProgressNotification.ACTION_EXPORT";
@@ -693,6 +714,8 @@ public class FileUtils {
 
             mBuilder.setProgress(0, 0, false);
             mManager.notify(mId, mBuilder.build());
+
+            mFinished = true;
         }
 
         // Fix bug with color icon.
@@ -702,6 +725,18 @@ public class FileUtils {
             return useWhiteIcon
                     ? R.drawable.ic_import_export_black_24dp
                     : R.drawable.ic_import_export_white_24dp;
+        }
+
+        private void setEnable(final boolean enable) {
+            mEnable = enable;
+        }
+
+        private boolean isEnable() {
+            return mEnable;
+        }
+
+        private boolean isFinished() {
+            return mFinished;
         }
     }
 
@@ -715,5 +750,30 @@ public class FileUtils {
      */
     public static ImportExportLooperHandlerThread getImportExportHandlerLooperThread() {
         return IMPORT_EXPORT_HANDLER_LOOPER_THREAD;
+    }
+
+
+    /*
+        ...
+     */
+
+    private static void startTimerToEnableNotification(
+            @NonNull final Activity activity,
+            @NonNull final ImportExportProgressNotification notification) {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(activity.getResources().getInteger(
+                            R.integer.activity_list_notification_panel_import_export_timer_enable));
+                    if (!notification.isFinished()) {
+                        notification.setEnable(true);
+                    }
+                } catch (InterruptedException e) {
+                    Log.e(TAG, e.toString());
+                }
+            }
+        }).start();
     }
 }
