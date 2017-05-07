@@ -54,7 +54,7 @@ import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.convertP
 import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.getSelectedProfileJson;
 import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.initSharedPreferences;
 
-public class ListActivity extends AppCompatActivity implements OnCompleteListener {
+public final class ListActivity extends AppCompatActivity implements OnCompleteListener {
 
     /* Logger */
     private static final String TAG = ListActivity.class.getSimpleName();
@@ -130,7 +130,7 @@ public class ListActivity extends AppCompatActivity implements OnCompleteListene
      * when first accessing, and get NPE.
      */
     private void initFileUtils() {
-        FileUtils.getImportExportThreadLooper();
+        FileUtils.getImportExportHandlerLooperThread();
     }
 
     /**
@@ -138,12 +138,12 @@ public class ListActivity extends AppCompatActivity implements OnCompleteListene
      */
     private void initToolbarAndNavigationDrawer() {
         // Set toolbar.
-        Toolbar toolbar = (Toolbar) findViewById(R.id.activity_list_toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.activity_list_toolbar);
         setSupportActionBar(toolbar);
 
         // Init toggle.
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_list_drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_list_drawer_layout);
+        final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this,
                 drawer,
                 toolbar,
@@ -153,7 +153,7 @@ public class ListActivity extends AppCompatActivity implements OnCompleteListene
         toggle.syncState();
 
         // Set navigation view listener
-        NavigationView navigationView = (NavigationView) findViewById(R.id.activity_list_nav_view);
+        final NavigationView navigationView = (NavigationView) findViewById(R.id.activity_list_nav_view);
         navigationView.setNavigationItemSelectedListener(getNavItemSelectedListener());
     }
 
@@ -205,10 +205,10 @@ public class ListActivity extends AppCompatActivity implements OnCompleteListene
                 // On click - start item details activity, with edit action.
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     // If API >= 21, then set shared transition animation.
-                    View iconView = view.findViewById(R.id.activity_list_item_color);
+                    final View iconView = view.findViewById(R.id.activity_list_item_color);
                     iconView.setTransitionName(
                             getString(R.string.shared_transition_name_color_box));
-                    Pair<View, String> icon = new Pair<>(iconView, iconView.getTransitionName());
+                    final Pair<View, String> icon = new Pair<>(iconView, iconView.getTransitionName());
                     ActivityOptionsCompat aoc =
                             ActivityOptionsCompat.makeSceneTransitionAnimation(
                                     ListActivity.this, icon);
@@ -289,7 +289,7 @@ public class ListActivity extends AppCompatActivity implements OnCompleteListene
     @Override
     public void onBackPressed() {
         // Check navigation drawer. If open, then close.
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_list_drawer_layout);
+        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_list_drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -312,7 +312,7 @@ public class ListActivity extends AppCompatActivity implements OnCompleteListene
      */
     @NonNull
     public static Intent getResultIntent(final int resultCodeExtra) {
-        Intent intent = new Intent();
+        final Intent intent = new Intent();
         intent.putExtra(RESULT_CODE_EXTRA, resultCodeExtra);
         return intent;
     }
@@ -353,7 +353,7 @@ public class ListActivity extends AppCompatActivity implements OnCompleteListene
             } else if (requestCode == REQUEST_CODE_IMPORT) {
 
                 // If file selected, then start import.
-                Uri selectedFile = data.getData();
+                final Uri selectedFile = data.getData();
                 importEntriesAsync(this, selectedFile, this);
 
                 // Refresh view.
@@ -389,7 +389,7 @@ public class ListActivity extends AppCompatActivity implements OnCompleteListene
                 } else {
 
                     // If denied, then make explanation notification.
-                    String deniedMessage = getString(R.string.file_utils_export_message_write_external_storage_denied);
+                    final String deniedMessage = getString(R.string.file_utils_export_message_write_external_storage_denied);
                     Log.i(TAG, deniedMessage);
                     showMessageDialog(
                             this,
@@ -410,7 +410,7 @@ public class ListActivity extends AppCompatActivity implements OnCompleteListene
                 } else {
 
                     // If denied, then make explanation notification.
-                    String deniedMessage = getString(R.string.file_utils_import_message_read_external_storage_denied);
+                    final String deniedMessage = getString(R.string.file_utils_import_message_read_external_storage_denied);
                     Log.i(TAG, deniedMessage);
                     showMessageDialog(
                             this,
@@ -596,7 +596,7 @@ public class ListActivity extends AppCompatActivity implements OnCompleteListene
                     // Add mock entries.
                     case R.id.activity_list_nav_drawer_item_add_mock_entries:
                         // Add.
-                        int added = mDbHelper.addMockEntries();
+                        final int added = mDbHelper.addMockEntries();
 
                         // Refresh view.
                         filterAdapter("");
@@ -614,7 +614,7 @@ public class ListActivity extends AppCompatActivity implements OnCompleteListene
                     // Remove all entries.
                     case R.id.activity_list_nav_drawer_item_delete_all_entries:
                         // Remove.
-                        boolean success = mDbHelper.removeAllEntries();
+                        final boolean success = mDbHelper.removeAllEntries();
 
                         // Refresh view.
                         filterAdapter("");
@@ -635,7 +635,7 @@ public class ListActivity extends AppCompatActivity implements OnCompleteListene
                 }
 
                 // Close nav drawer after click.
-                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_list_drawer_layout);
+                final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_list_drawer_layout);
                 drawer.closeDrawer(GravityCompat.START);
                 return true;
             }
@@ -653,7 +653,7 @@ public class ListActivity extends AppCompatActivity implements OnCompleteListene
      * Getting text from search view, and use for filter. If text is empty, then using empty string.
      */
     private void updateFilterAdapter() {
-        String searchText = mSearchView.getQuery().toString();
+        final String searchText = mSearchView.getQuery().toString();
         mAdapter.getFilter().filter(TextUtils.isEmpty(searchText) ? "" : searchText);
     }
 

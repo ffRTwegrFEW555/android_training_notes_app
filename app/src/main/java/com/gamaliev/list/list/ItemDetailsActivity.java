@@ -35,7 +35,7 @@ import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_ADDED;
 import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_DELETED;
 import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_EDITED;
 
-public class ItemDetailsActivity extends AppCompatActivity {
+public final class ItemDetailsActivity extends AppCompatActivity {
 
     /* Logger */
     private static final String TAG = ItemDetailsActivity.class.getSimpleName();

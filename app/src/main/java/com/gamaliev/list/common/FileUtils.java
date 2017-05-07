@@ -52,6 +52,8 @@ import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_IMPORTED;
 
 /**
  * Class, for working with files, for exporting/importing entries from/to database.<br>
+ * Supported asynchronous mode with message queue.<br>
+ * <br>
  * The following file template is used:<br><br>
  *     {"title":"...",<br>
  *     "description":"...",<br>
@@ -77,7 +79,7 @@ public class FileUtils {
     private static final String FILE_NAME = "itemlist.ili";
 
     /* Handler, Looper */
-    private static final ImportExportLooperThread IMPORT_EXPORT_THREAD_LOOPER;
+    private static final ImportExportLooperHandlerThread IMPORT_EXPORT_HANDLER_LOOPER_THREAD;
 
 
     /*
@@ -85,8 +87,8 @@ public class FileUtils {
      */
 
     static {
-        IMPORT_EXPORT_THREAD_LOOPER = new ImportExportLooperThread();
-        IMPORT_EXPORT_THREAD_LOOPER.start();
+        IMPORT_EXPORT_HANDLER_LOOPER_THREAD = new ImportExportLooperHandlerThread();
+        IMPORT_EXPORT_HANDLER_LOOPER_THREAD.start();
     }
 
     private FileUtils() {}
@@ -96,8 +98,13 @@ public class FileUtils {
         EXPORT
      */
 
-    // TODO: handle
-    // Before export is check for permission, and if necessary, making request to user.
+    /**
+     * Checking permission for export. If permission is granted, starting export,
+     * otherwise requesting permission from user.
+     *
+     * @param activity              Activity.
+     * @param onCompleteListener    Listener, who will be notified of the result.
+     */
     public static void exportEntriesAsyncWithCheckPermission(
             @NonNull final Activity activity,
             @NonNull final OnCompleteListener onCompleteListener) {
@@ -115,12 +122,19 @@ public class FileUtils {
         exportEntriesAsync(activity, onCompleteListener);
     }
 
-    // TODO: handle
+
+    /**
+     * Starting the export in asynchronous mode,
+     * using a dedicated shared thread, with looper and message queue.<br>
+     *
+     * @param activity              Activity.
+     * @param onCompleteListener    Listener, who will be notified of the result.
+     */
     public static void exportEntriesAsync(
             @NonNull final Activity activity,
             @NonNull final OnCompleteListener onCompleteListener) {
 
-        IMPORT_EXPORT_THREAD_LOOPER.mHandler.post(new Runnable() {
+        IMPORT_EXPORT_HANDLER_LOOPER_THREAD.mHandler.post(new Runnable() {
             @Override
             public void run() {
                 exportEntries(activity, onCompleteListener);
@@ -129,8 +143,10 @@ public class FileUtils {
     }
 
     /**
-     * Export entries from database to file with Json-format.<br>
-     * @param activity Activity.
+     * Export entries from database to file with Json-format.
+     *
+     * @param activity              Activity.
+     * @param onCompleteListener    Listener, who will be notified of the result.
      */
     public static void exportEntries(
             @NonNull final Activity activity,
@@ -172,7 +188,16 @@ public class FileUtils {
 
     }
 
-    // TODO: handle
+    /**
+     * Get all entries from database.
+     *
+     * @param activity              Activity.
+     * @param jsonArray             JSONArray-object to fill.
+     * @param singleThreadExecutor  Queue for notification progress.
+     * @param notification          Notification helper.
+     *
+     * @return String in needed Json-format, containing all entries from database.
+     */
     @Nullable
     private static String getEntriesFromDatabase(
             @NonNull final Activity activity,
@@ -237,7 +262,15 @@ public class FileUtils {
         return jsonArray.toString();
     }
 
-    // TODO: handle
+    /**
+     * Get filled JSONObject with data from current cursor position.
+     *
+     * @param activity  Activity.
+     * @param cursor    Cursor.
+     *
+     * @return Filled JSONObject with data from current cursor position.
+     * @throws IllegalStateException Usually happens when the data has been changed.
+     */
     @NonNull
     private static JSONObject getJsonObject(
             @NonNull final Activity activity,
@@ -275,7 +308,9 @@ public class FileUtils {
         return new JSONObject(entryMap);
     }
 
-    // TODO: handle
+    /**
+     * Saving given string to file, and notifying.
+     */
     private static void saveStringToFile(
             @NonNull final Activity activity,
             @NonNull final JSONArray jsonArray,
@@ -333,14 +368,21 @@ public class FileUtils {
         IMPORT
      */
 
-    // TODO: handle
+    /**
+     * Starting the import in asynchronous mode,
+     * using a dedicated shared thread, with looper and message queue.<br>
+     *
+     * @param activity              Activity.
+     * @param selectedFile          Selected file.
+     * @param onCompleteListener    Listener, who will be notified of the result.
+     */
     public static void importEntriesAsync(
             @NonNull final Activity activity,
             @NonNull final Uri selectedFile,
             @NonNull final OnCompleteListener onCompleteListener) {
 
         //
-        IMPORT_EXPORT_THREAD_LOOPER.mHandler.post(new Runnable() {
+        IMPORT_EXPORT_HANDLER_LOOPER_THREAD.mHandler.post(new Runnable() {
             @Override
             public void run() {
                 importEntries(activity, selectedFile, onCompleteListener);
@@ -349,9 +391,11 @@ public class FileUtils {
     }
 
     /**
-     * Import entries from given file path.
-     * @param activity      Activity.
-     * @param selectedFile  Path to file.
+     * Import entries from file to database.
+     *
+     * @param activity              Activity.
+     * @param selectedFile          Selected file.
+     * @param onCompleteListener    Listener, who will be notified of the result.
      */
     public static void importEntries(
             @NonNull final Activity activity,
@@ -374,6 +418,10 @@ public class FileUtils {
                 onCompleteListener);
     }
 
+    /**
+     * @param activity      Activity.
+     * @param selectedFile  File with string.
+     */
     @Nullable
     private static String getStringFromFile(
             @NonNull final Activity activity,
@@ -413,7 +461,13 @@ public class FileUtils {
         return inputJson;
     }
 
-    // TODO: handle
+    /**
+     * Parse given string in Json-format, and save to database.
+     *
+     * @param activity              Activity.
+     * @param inputJson             String in Json-format.
+     * @param onCompleteListener    Listener, who will be notified of the result.
+     */
     private static void parseAndSaveToDatabase(
             @NonNull final Activity activity,
             @NonNull final String inputJson,
@@ -523,7 +577,6 @@ public class FileUtils {
         return entry;
     }
 
-    // TODO: handle
     private static void makeSuccessImportOperations(
             @NonNull final Activity activity,
             @NonNull final JSONArray jsonArray,
@@ -561,10 +614,11 @@ public class FileUtils {
         Inner Classes
      */
 
-    // TODO: handle
-    private static class ImportExportLooperThread extends Thread {
-        @Nullable
-        private Handler mHandler;
+    /**
+     * Thread, contains {@link android.os.Handler}, whose running into {@link android.os.Looper}.
+     */
+    private static class ImportExportLooperHandlerThread extends Thread {
+        @Nullable private Handler mHandler;
 
         @Override
         public void run() {
@@ -574,7 +628,10 @@ public class FileUtils {
         }
     }
 
-    // TODO: handle
+
+    /**
+     * Helper to create a progress notification for import/export operations.
+     */
     private static class ImportExportProgressNotification {
         @NonNull private final Context mContext;
         @NonNull private final String mAction;
@@ -652,7 +709,10 @@ public class FileUtils {
         Getters
      */
 
-    public static ImportExportLooperThread getImportExportThreadLooper() {
-        return IMPORT_EXPORT_THREAD_LOOPER;
+    /**
+     * Typically used to initialize a variable, and running thread.
+     */
+    public static ImportExportLooperHandlerThread getImportExportHandlerLooperThread() {
+        return IMPORT_EXPORT_HANDLER_LOOPER_THREAD;
     }
 }

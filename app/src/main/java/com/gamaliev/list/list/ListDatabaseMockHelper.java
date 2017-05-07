@@ -32,7 +32,7 @@ import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTE
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public final class ListDatabaseMockHelper extends DatabaseHelper {
+public class ListDatabaseMockHelper extends DatabaseHelper {
 
     /* Logger */
     private static final String TAG = ListDatabaseMockHelper.class.getSimpleName();
@@ -115,7 +115,7 @@ public final class ListDatabaseMockHelper extends DatabaseHelper {
         Init
      */
 
-    public ListDatabaseMockHelper(@NonNull Context context) {
+    private ListDatabaseMockHelper(@NonNull Context context) {
         super(context);
     }
 

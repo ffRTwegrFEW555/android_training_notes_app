@@ -90,7 +90,7 @@ import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.updatePr
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class FilterSortDialogFragment extends DialogFragment {
+public final class FilterSortDialogFragment extends DialogFragment {
 
     /* Logger */
     private static final String TAG = FilterSortDialogFragment.class.getSimpleName();

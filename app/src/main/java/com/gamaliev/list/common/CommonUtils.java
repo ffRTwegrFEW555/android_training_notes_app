@@ -45,7 +45,7 @@ import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTE
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public final class CommonUtils {
+public class CommonUtils {
 
     /* Logger */
     private static final String TAG = CommonUtils.class.getSimpleName();
