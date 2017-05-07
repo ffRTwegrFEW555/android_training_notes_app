@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.gamaliev.list.R;
+import com.gamaliev.list.common.database.DatabaseHelper;
 import com.gamaliev.list.common.database.DatabaseQueryBuilder;
 import com.gamaliev.list.list.database.ListDatabaseHelper;
 import com.gamaliev.list.list.ListEntry;
@@ -200,9 +201,8 @@ public class FileUtils {
             @NonNull final JSONArray jsonArray,
             @NonNull final CommonUtils.ProgressNotificationHelper notification) {
 
-        // Open database and get cursor.
-        final ListDatabaseHelper dbHelper = new ListDatabaseHelper(activity);
-        final Cursor cursor = dbHelper.getEntries(new DatabaseQueryBuilder());
+        // Get cursor.
+        final Cursor cursor = ListDatabaseHelper.getEntries(activity, new DatabaseQueryBuilder());
 
         // Create json object;
         JSONObject jsonObject;
@@ -245,7 +245,6 @@ public class FileUtils {
 
         // Finish him.
         cursor.close();
-        dbHelper.close();
 
         //
         return jsonArray.toString();
@@ -471,9 +470,9 @@ public class FileUtils {
             @NonNull final OnCompleteListener onCompleteListener,
             @NonNull final CommonUtils.ProgressNotificationHelper notification) {
 
-        try (   // Open database and start transaction.
-                ListDatabaseHelper dbHelper = new ListDatabaseHelper(activity);
-                SQLiteDatabase db = dbHelper.getWritableDatabase()) {
+        // Get database and start transaction.
+        try {
+            final SQLiteDatabase db = DatabaseHelper.getInstance(null).getWritableDatabase();
 
             // Init
             final JSONArray jsonArray = new JSONArray(inputJson);
@@ -497,7 +496,7 @@ public class FileUtils {
                     final ListEntry entry = convertJsonToListEntry(activity, jsonObject);
 
                     // Insert
-                    dbHelper.insertEntry(entry, db);
+                    ListDatabaseHelper.insertEntry(activity, entry, db);
 
                     // Update progress. Without flooding. 0-100%
                     final int percentNew = i * 100 / size;
@@ -506,6 +505,8 @@ public class FileUtils {
                         percent = percentNew;
                         //
                         notification.setProgress(100, percentNew);
+                        //
+                        db.yieldIfContendedSafely();
                     }
                 }
 

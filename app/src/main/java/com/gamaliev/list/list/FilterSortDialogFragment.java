@@ -3,7 +3,6 @@ package com.gamaliev.list.list;
 import android.app.DatePickerDialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
@@ -106,10 +105,9 @@ public final class FilterSortDialogFragment extends DialogFragment {
     @Nullable private Map<String, String> mProfileMap;
     @Nullable private Map<String, String> mFoundedEntriesCache;
     @Nullable private String mSelectedProfileId;
-    @Nullable public OnCompleteListener mOnCompleteListener;
-
-     /* Fix bug. Fast clicks correct found text: 200 -> 200_000 -> 200 entries */
+    @Nullable private OnCompleteListener mOnCompleteListener;
     @NonNull private ExecutorService mSingleThreadExecutor;
+    private int firstCountTimer;
 
 
     /*
@@ -174,6 +172,9 @@ public final class FilterSortDialogFragment extends DialogFragment {
         //
         mSingleThreadExecutor = Executors.newSingleThreadExecutor();
 
+        //
+        firstCountTimer = 1000;
+
         // Init
         initComponents();
 
@@ -187,16 +188,13 @@ public final class FilterSortDialogFragment extends DialogFragment {
     public void onResume() {
 
         // Set max size of dialog. ( XML is not work :/ )
-
         DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
-
         ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
         params.width = Math.min(
                 displayMetrics.widthPixels,
                 getActivity().getResources().getDimensionPixelSize(
                         R.dimen.activity_list_filter_dialog_max_height));
         params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
-
         getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
 
         super.onResume();
@@ -297,23 +295,28 @@ public final class FilterSortDialogFragment extends DialogFragment {
                 progressBar.setVisibility(View.VISIBLE);
 
                 // Background task.
-                Thread thread = new Thread(new Runnable() {
+                mSingleThreadExecutor.submit(new Runnable() {
                     @Override
                     public void run() {
 
-                        // Open database.
-                        final ListDatabaseHelper dbHelper = new ListDatabaseHelper(getActivity());
+                        // Pause for norm UI work
+                        try {
+                            Thread.sleep(firstCountTimer); // For first
+                            firstCountTimer = 0;
+                        } catch (InterruptedException e) {
+                            Log.e(TAG, e.toString());
+                        }
 
                         // Get
-                        final Cursor cursor = dbHelper.getCursorWithParams(getActivity(), null, profileMap);
-                        final String count = String.valueOf(cursor.getCount());
-                        cursor.close();
-
-                        //
-                        dbHelper.close();
+                        final long count = ListDatabaseHelper.getEntriesCount(
+                                getActivity(),
+                                ListDatabaseHelper.convertToQueryBuilder(
+                                        getActivity(),
+                                        null,
+                                        profileMap));
 
                         // Caching
-                        mFoundedEntriesCache.put(id, count);
+                        mFoundedEntriesCache.put(id, String.valueOf(count));
 
                         // Update views, if attached.
                         if (getActivity() != null) {
@@ -333,7 +336,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
                         }
                     }
                 });
-                thread.start();
 
             } else {
                 // If exists.
@@ -478,9 +480,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
     private void initColorComponents() {
 
-        // Open database for retrieving favorite colors.
-        final ColorPickerDatabaseHelper dbHelper = new ColorPickerDatabaseHelper(getActivity());
-
         // Get colors matrix.
         final GridLayout colorsMatrix = (GridLayout) mDialog.findViewById(
                 R.id.activity_list_filter_dialog_color_by_body);
@@ -541,7 +540,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
             button.setBackground(oval);
 
             // Get favorite color from database, and set.
-            final int color = dbHelper.getFavoriteColor(i);
+            final int color = ColorPickerDatabaseHelper.getFavoriteColor(getActivity(), i);
             CommonUtils.setBackgroundColor(button, color);
 
             // If color is selected, then set done icon.
@@ -573,9 +572,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
             // Add button to colors matrix.
             colorsMatrix.addView(button);
         }
-
-        // Database close.
-        dbHelper.close();
     }
 
     private void setDatesStatus(
@@ -1112,20 +1108,17 @@ public final class FilterSortDialogFragment extends DialogFragment {
             progressBar.setVisibility(View.VISIBLE);
 
             // Background task.
-            mSingleThreadExecutor.submit(new Runnable() {
+            mSingleThreadExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
 
-                    // Open database.
-                    final ListDatabaseHelper dbHelper = new ListDatabaseHelper(getActivity());
-
                     // Get
-                    final Cursor cursor = dbHelper.getCursorWithParams(getActivity(), null, mProfileMap);
-                    final String count = String.valueOf(cursor.getCount());
-                    cursor.close();
-
-                    //
-                    dbHelper.close();
+                    final long count = ListDatabaseHelper.getEntriesCount(
+                            getActivity(),
+                            ListDatabaseHelper.convertToQueryBuilder(
+                                    getActivity(),
+                                    null,
+                                    mProfileMap));
 
                     // Update views, if attached.
                     if (getActivity() != null) {

@@ -27,19 +27,16 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
     @NonNull private final Resources mRes;
     @NonNull private final GestureDetector mGestureDetector;
     @NonNull private final View mView;
-    @NonNull private final ColorPickerDatabaseHelper mBbHelper;
     private final int mIndex;
 
     FavoriteColorBoxOnTouchListener(
             @NonNull final ColorPickerActivity context,
             @NonNull final View view,
-            @NonNull final ColorPickerDatabaseHelper dbHelper,
             final int index) {
 
         mIndex      = index;
         mContext    = context;
         mView       = view;
-        mBbHelper   = dbHelper;
         mRes        = context.getResources();
         mGestureDetector = new GestureDetector(context, getSimpleOnGestureListener());
     }
@@ -98,7 +95,7 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
             public void onLongPress(MotionEvent e) {
                 final int resultColor = mContext.getResultColor();
                 // Update database entry.
-                if (mBbHelper.updateFavoriteColor(mIndex, resultColor)) {
+                if (ColorPickerDatabaseHelper.updateFavoriteColor(mContext, mIndex, resultColor)) {
                     // Notification
                     playSoundAndShowToast(
                             mContext,
@@ -121,7 +118,7 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 // Refresh color from database.
                 // Update current color box and result box.
-                final int color = mBbHelper.getFavoriteColor(mIndex);
+                final int color = ColorPickerDatabaseHelper.getFavoriteColor(mContext, mIndex);
                 if (color != -1) {
                     setBackgroundColor(mView, color);
                     mContext.setResultBoxColor(color);

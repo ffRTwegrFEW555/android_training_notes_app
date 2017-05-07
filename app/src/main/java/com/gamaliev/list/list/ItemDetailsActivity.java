@@ -53,7 +53,6 @@ public final class ItemDetailsActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_COLOR = 1;
 
     /* */
-    @NonNull private ListDatabaseHelper mDbHelper;
     @NonNull private ActionBar mActionBar;
     @NonNull private View mColorView;
     @NonNull private EditText mTitleEditText;
@@ -192,9 +191,7 @@ public final class ItemDetailsActivity extends AppCompatActivity {
 
                     // On first start activity. Get entry from database, with given id.
                     final long id = getIntent().getLongExtra(EXTRA_ID, -1);
-                    mDbHelper = new ListDatabaseHelper(this);
-                    mEntry = mDbHelper.getEntry(id);
-                    mDbHelper.close();
+                    mEntry = ListDatabaseHelper.getEntry(this, id);
 
                     // If received object and id is not null.
                     // Else finish.
@@ -203,7 +200,7 @@ public final class ItemDetailsActivity extends AppCompatActivity {
                         fillActivityViews();
 
                         // Update viewed date.
-                        mDbHelper.updateEntry(mEntry, LIST_ITEMS_COLUMN_VIEWED);
+                        ListDatabaseHelper.updateEntry(this, mEntry, LIST_ITEMS_COLUMN_VIEWED);
 
                     } else {
                         setResult(RESULT_CANCELED, null);
@@ -516,32 +513,26 @@ public final class ItemDetailsActivity extends AppCompatActivity {
             @Override
             public void run() {
 
-                // Open database, and make action.
-                mDbHelper = new ListDatabaseHelper(ItemDetailsActivity.this);
-
                 //
                 switch (resultCode) {
 
                     case RESULT_CODE_EXTRA_ADDED:
                         refreshEntry();
-                        mDbHelper.insertEntry(mEntry);
+                        ListDatabaseHelper.insertEntry(ItemDetailsActivity.this, mEntry);
                         break;
 
                     case RESULT_CODE_EXTRA_EDITED:
                         refreshEntry();
-                        mDbHelper.updateEntry(mEntry, null);
+                        ListDatabaseHelper.updateEntry(ItemDetailsActivity.this, mEntry, null);
                         break;
 
                     case RESULT_CODE_EXTRA_DELETED:
-                        mDbHelper.deleteEntry(mEntry.getId());
+                        ListDatabaseHelper.deleteEntry(ItemDetailsActivity.this, mEntry.getId());
                         break;
 
                     default:
                         break;
                 }
-
-                //
-                mDbHelper.close();
 
                 //
                 makeDemonstrativePause();

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.DataSetObserver;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,7 +33,6 @@ import android.widget.Toast;
 import com.gamaliev.list.R;
 import com.gamaliev.list.common.CommonUtils;
 import com.gamaliev.list.common.database.DatabaseHelper;
-import com.gamaliev.list.common.FileUtils;
 import com.gamaliev.list.common.OnCompleteListener;
 import com.gamaliev.list.list.database.ListCursorAdapter;
 import com.gamaliev.list.list.database.ListDatabaseHelper;
@@ -81,7 +79,6 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
             DatabaseHelper.LIST_ITEMS_COLUMN_TITLE,
             DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION};
 
-    @NonNull private ListDatabaseHelper mDbHelper;
     @NonNull private ListCursorAdapter mAdapter;
     @NonNull private FilterQueryProvider mQueryProvider;
 
@@ -106,8 +103,6 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
 
     private void init() {
         initSharedPreferences(this);
-        initDataBase();
-        initFileUtils();
 
         mQueryProvider = getFilterQueryProvider();
         mFoundView = (Button) findViewById(R.id.activity_list_button_found);
@@ -115,26 +110,7 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
 
         initToolbarAndNavigationDrawer();
         setFabOnClickListener();
-        refreshDbConnectAndView();
-    }
-
-    /**
-     * Init database if not exist on first run application.
-     * (The reason for the method is a bug, when after start app,
-     * the database does not have time to fill when list view is refreshing)
-     */
-    private void initDataBase() {
-        try (   ListDatabaseHelper ldh = new ListDatabaseHelper(this);
-                SQLiteDatabase wdb = ldh.getWritableDatabase()) {}
-    }
-
-    /**
-     * To initialize the static fields of a FileUtils class, to fix the bug.<br>
-     * Otherwise ImportExportLooperThread does not have time to execute the Run method,
-     * when first accessing, and get NPE.
-     */
-    private void initFileUtils() {
-        FileUtils.getImportExportHandlerLooperThread();
+        initializeAdapterAndListView();
     }
 
     /**
@@ -175,15 +151,10 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
     }
 
     /**
-     * Open a new database helper, get cursor, create and set adapter,
+     * Get cursor from database, create and set adapter,
      * set on click listener, set filter query provider.<br>
-     * See also: {@link ListDatabaseHelper}
-     * See also: {@link ListDatabaseHelper}
      */
-    private void refreshDbConnectAndView() {
-        if (mDbHelper == null) {
-            mDbHelper = new ListDatabaseHelper(this);
-        }
+    private void initializeAdapterAndListView() {
 
         // Create adapter.
         mAdapter = new ListCursorAdapter(this, null, 0);
@@ -450,21 +421,6 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
 
 
     /*
-        On Pause/Resume
-     */
-
-    /**
-     * Close database helper.<br>
-     * See also: {@link ListDatabaseHelper}
-     */
-    @Override
-    protected void onPause() {
-        mDbHelper.close();
-        super.onPause();
-    }
-
-
-    /*
         Found notification
      */
 
@@ -556,7 +512,7 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
             @Override
             public Cursor runQuery(CharSequence constraint) {
 
-                return mDbHelper.getCursorWithParams(
+                return ListDatabaseHelper.getCursorWithParams(
                         ListActivity.this,
                         constraint,
                         mProfileMap);
@@ -648,7 +604,9 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                                 R.integer.activity_list_notification_panel_add_mock_timer_enable));
 
                 // Add.
-                final int added = mDbHelper.addMockEntries(notification);
+                final int added = ListDatabaseHelper.addMockEntries(
+                        ListActivity.this,
+                        notification);
 
                 // Refresh view.
                 updateFilterAdapter();
@@ -671,7 +629,7 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
             @Override
             public void run() {
                 // Remove.
-                final boolean success = mDbHelper.removeAllEntries();
+                final boolean success = ListDatabaseHelper.removeAllEntries(ListActivity.this);
 
                 // Refresh view.
                 updateFilterAdapter();
@@ -698,8 +656,13 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
      * Getting text from search view, and use for filter. If text is empty, then using empty string.
      */
     private void updateFilterAdapter() {
-        final String searchText = mSearchView.getQuery().toString();
-        mAdapter.getFilter().filter(TextUtils.isEmpty(searchText) ? "" : searchText);
+        if (mSearchView != null) {
+            final String searchText = mSearchView.getQuery().toString();
+            filterAdapter(TextUtils.isEmpty(searchText) ? "" : searchText);
+
+        } else {
+            filterAdapter("");
+        }
     }
 
     /**

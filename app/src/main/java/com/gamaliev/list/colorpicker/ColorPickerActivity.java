@@ -14,7 +14,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.TransitionInflater;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -41,6 +40,7 @@ import static com.gamaliev.list.common.CommonUtils.shiftColor;
  */
 
 public final class ColorPickerActivity extends AppCompatActivity {
+
     /* Logger */
     private static final String TAG = ColorPickerActivity.class.getSimpleName();
 
@@ -51,7 +51,6 @@ public final class ColorPickerActivity extends AppCompatActivity {
 
     @NonNull private Resources mRes;
     @NonNull private SwitchableHorizontalScrollView mPaletteHsvSv;
-    @NonNull private ColorPickerDatabaseHelper mDbHelper;
     @NonNull private View mResultView;
     @NonNull private View mResultParentView;
     @NonNull private PopupWindow mEditPw;
@@ -78,7 +77,6 @@ public final class ColorPickerActivity extends AppCompatActivity {
         mPaletteHsvSv   = (SwitchableHorizontalScrollView)
                 findViewById(R.id.activity_color_picker_scroll_palette_bar);
 
-        mDbHelper       = new ColorPickerDatabaseHelper(this);
         mResultView     = findViewById(R.id.activity_color_picker_ff_result_box);
         mResultParentView = findViewById(R.id.activity_color_picker_ff_result_outer);
         mEditPw         = getPopupWindow();
@@ -199,12 +197,12 @@ public final class ColorPickerActivity extends AppCompatActivity {
 
             // Get and set color.
             button.getBackground()
-                    .setColorFilter(mDbHelper.getFavoriteColor(i), PorterDuff.Mode.SRC);
+                    .setColorFilter(ColorPickerDatabaseHelper.getFavoriteColor(this, i), PorterDuff.Mode.SRC);
 
             // Set on touch listener.
             // Handles single, long clicks; down, up, cancel actions.
             button.setOnTouchListener(
-                    new FavoriteColorBoxOnTouchListener(this, button, mDbHelper, i));
+                    new FavoriteColorBoxOnTouchListener(this, button, i));
 
             // Add color box to favorite bar.
             favoriteBarVg.addView(button, params);
@@ -372,37 +370,6 @@ public final class ColorPickerActivity extends AppCompatActivity {
         outState.putInt(EXTRA_RESULT_COLOR, mResultColor);
         outState.putIntArray(EXTRA_HSV_COLOR_OVERRIDDEN, mHsvColorsOverridden);
         super.onSaveInstanceState(outState);
-    }
-
-
-    /*
-        On Pause/Resume
-     */
-
-    /**
-     * Open a new database helper.<br>
-     * See also: {@link ColorPickerDatabaseHelper}
-     */
-    @Override
-    protected void onResume() {
-        if (mDbHelper == null) {
-            mDbHelper = new ColorPickerDatabaseHelper(this);
-        }
-        super.onResume();
-    }
-
-    /**
-     * Close database helper.<br>
-     * See also: {@link ColorPickerDatabaseHelper}
-     */
-    @Override
-    protected void onPause() {
-        try {
-            mDbHelper.close();
-        } catch (Exception e) {
-            Log.e(TAG, e.toString());
-        }
-        super.onPause();
     }
 
 

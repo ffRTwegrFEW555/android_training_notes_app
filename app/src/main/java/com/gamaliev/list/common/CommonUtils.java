@@ -705,7 +705,6 @@ public class CommonUtils {
 
         @NonNull private final NotificationManager mManager;
         @NonNull private final NotificationCompat.Builder mBuilder;
-        @NonNull private final ExecutorService mSingleThreadExecutor; /* Exists, because the bug. */
 
         @NonNull private final String mTitle;
         @NonNull private final String mText;
@@ -713,6 +712,7 @@ public class CommonUtils {
 
         private final int mId;
         private boolean mEnable;
+        private boolean mFinished;
 
         /**
          * To enable notification, you must use {@link #startTimerToEnableNotification}
@@ -730,7 +730,6 @@ public class CommonUtils {
 
             mManager    = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             mBuilder    = new NotificationCompat.Builder(context);
-            mSingleThreadExecutor = Executors.newSingleThreadExecutor();
 
             mTitle      = title;
             mText       = text;
@@ -747,39 +746,28 @@ public class CommonUtils {
 
         public void setProgress(final int max, final int progress) {
             if (isEnable()) {
-                mSingleThreadExecutor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        mBuilder.setProgress(max, progress, false);
-                        mManager.notify(mId, mBuilder.build());
-                    }
-                });
+                mBuilder.setProgress(max, progress, false);
+                mManager.notify(mId, mBuilder.build());
             }
         }
 
         public void endProgress() {
+            mFinished = true;
+
             if (isEnable()) {
-                mSingleThreadExecutor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        mBuilder.setContentText(mComplete)
-                                .setProgress(0, 0, false);
+                mBuilder.setContentText(mComplete)
+                        .setProgress(0, 0, false);
 
-                        mManager.notify(mId, mBuilder.build());
+                mManager.cancel(mId);
+                mManager.notify(mId, mBuilder.build());
 
-                        mEnable = false;
-                    }
-                });
+                mEnable = false;
             }
         }
 
         // Fix bug with color icon.
         private int getNotificationIcon() {
-            boolean useWhiteIcon =
-                    (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP);
-            return useWhiteIcon
-                    ? R.drawable.ic_import_export_black_24dp
-                    : R.drawable.ic_import_export_white_24dp;
+            return R.drawable.ic_import_export_white_24dp;
         }
 
         /**
@@ -792,7 +780,10 @@ public class CommonUtils {
                 public void run() {
                     try {
                         Thread.sleep(timeToStart);
-                        setEnable(true);
+                        if (!mFinished) {
+                            setEnable(true);
+                            setProgress(100, 0);
+                        }
 
                     } catch (InterruptedException e) {
                         Log.e(TAG, e.toString());

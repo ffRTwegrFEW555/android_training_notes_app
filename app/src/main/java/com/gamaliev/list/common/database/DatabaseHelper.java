@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -21,10 +22,13 @@ import static com.gamaliev.list.common.CommonUtils.showToast;
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class DatabaseHelper extends SQLiteOpenHelper implements AutoCloseable {
+public class DatabaseHelper extends SQLiteOpenHelper {
 
     /* Logger */
     private static final String TAG = DatabaseHelper.class.getSimpleName();
+
+    /* Instance */
+    private static DatabaseHelper sInstance;
 
     /* Basic */
     private static final String DB_NAME                     = "ya_school_app";
@@ -38,12 +42,12 @@ public class DatabaseHelper extends SQLiteOpenHelper implements AutoCloseable {
     public static final String ORDER_COLUMN_DEFAULT         = BASE_COLUMN_ID;
 
     /* Favorite table */
-    protected static final String FAVORITE_TABLE_NAME       = "favorite_colors";
-    protected static final String FAVORITE_COLUMN_INDEX     = "tbl_index";
+    public static final String FAVORITE_TABLE_NAME          = "favorite_colors";
+    public static final String FAVORITE_COLUMN_INDEX        = "tbl_index";
     public static final String FAVORITE_COLUMN_COLOR        = "color";
 
     /* List items table */
-    protected static final String LIST_ITEMS_TABLE_NAME     = "list_items";
+    public static final String LIST_ITEMS_TABLE_NAME        = "list_items";
     public static final String LIST_ITEMS_COLUMN_TITLE      = "title";
     public static final String LIST_ITEMS_COLUMN_DESCRIPTION = "description";
     public static final String LIST_ITEMS_COLUMN_COLOR      = "color";
@@ -58,7 +62,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements AutoCloseable {
                     FAVORITE_COLUMN_INDEX +                 " INTEGER NOT NULL, " +
                     FAVORITE_COLUMN_COLOR +                 " INTEGER NOT NULL); ";
 
-    protected static final String SQL_LIST_ITEMS_CREATE_TABLE =
+    public static final String SQL_LIST_ITEMS_CREATE_TABLE =
             "CREATE TABLE " + LIST_ITEMS_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     LIST_ITEMS_COLUMN_TITLE +               " TEXT, " +
@@ -68,7 +72,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements AutoCloseable {
                     LIST_ITEMS_COLUMN_EDITED +  " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                     LIST_ITEMS_COLUMN_VIEWED +  " DATETIME DEFAULT CURRENT_TIMESTAMP); ";
 
-    protected static final String SQL_LIST_ITEMS_DROP_TABLE =
+    public static final String SQL_LIST_ITEMS_DROP_TABLE =
             "DROP TABLE " + LIST_ITEMS_TABLE_NAME + ";";
 
     /* Local */
@@ -81,7 +85,19 @@ public class DatabaseHelper extends SQLiteOpenHelper implements AutoCloseable {
         Init
      */
 
-    public DatabaseHelper(@NonNull final Context context) {
+    public static synchronized DatabaseHelper getInstance(
+            @Nullable final Context context) {
+
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        // See this article for more information: http://bit.ly/6LRzfx
+        if (sInstance == null && context != null) {
+            sInstance = new DatabaseHelper(context.getApplicationContext());
+        }
+        return sInstance;
+    }
+
+    private DatabaseHelper(@NonNull final Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         init(context);
     }
@@ -163,6 +179,17 @@ public class DatabaseHelper extends SQLiteOpenHelper implements AutoCloseable {
         ListDatabaseMockHelper.addMockEntries(
                 mRes.getInteger(R.integer.mock_items_number_start),
                 db,
-                null);
+                null,
+                false);
+    }
+
+
+    /*
+        Getters
+     */
+
+    @NonNull
+    public String getDbFailMessage() {
+        return mDbFailMessage;
     }
 }

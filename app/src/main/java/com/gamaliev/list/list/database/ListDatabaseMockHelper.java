@@ -1,7 +1,6 @@
 package com.gamaliev.list.list.database;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.support.annotation.NonNull;
@@ -10,7 +9,6 @@ import android.util.Log;
 
 import com.gamaliev.list.colorpicker.database.ColorPickerDatabaseHelper;
 import com.gamaliev.list.common.CommonUtils;
-import com.gamaliev.list.common.database.DatabaseHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,12 +17,23 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_COLOR;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_CREATED;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_EDITED;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_TITLE;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_TABLE_NAME;
+import static com.gamaliev.list.common.database.DatabaseHelper.ORDER_ASCENDING;
+import static com.gamaliev.list.common.database.DatabaseHelper.ORDER_ASC_DESC_DEFAULT;
+import static com.gamaliev.list.common.database.DatabaseHelper.ORDER_DESCENDING;
+
 /**
  * @author Vadim Gamaliev
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class ListDatabaseMockHelper extends DatabaseHelper {
+public class ListDatabaseMockHelper {
 
     /* Logger */
     private static final String TAG = ListDatabaseMockHelper.class.getSimpleName();
@@ -107,9 +116,7 @@ public class ListDatabaseMockHelper extends DatabaseHelper {
         Init
      */
 
-    private ListDatabaseMockHelper(@NonNull Context context) {
-        super(context);
-    }
+    private ListDatabaseMockHelper() {}
 
 
     /*
@@ -127,7 +134,8 @@ public class ListDatabaseMockHelper extends DatabaseHelper {
     public static void addMockEntries(
             final int entriesNumber,
             @NonNull final SQLiteDatabase db,
-            @Nullable final CommonUtils.ProgressNotificationHelper notification) throws SQLiteException {
+            @Nullable final CommonUtils.ProgressNotificationHelper notification,
+            final boolean yieldIfContendedSafely) throws SQLiteException {
 
         final Random random = new Random();
 
@@ -157,6 +165,10 @@ public class ListDatabaseMockHelper extends DatabaseHelper {
                     percent = percentNew;
                     //
                     notification.setProgress(100, percentNew);
+                    //
+                    if (yieldIfContendedSafely) {
+                        db.yieldIfContendedSafely();
+                    }
                 }
             }
         }
