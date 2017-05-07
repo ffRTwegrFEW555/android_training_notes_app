@@ -1,4 +1,4 @@
-package com.gamaliev.list.common;
+package com.gamaliev.list.common.database;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -307,15 +307,15 @@ public final class DatabaseQueryBuilder {
 
     /**
      * Set sort order of query. If null or Empty, then set default value
-     * {@link com.gamaliev.list.common.DatabaseHelper#ORDER_COLUMN_DEFAULT}<br>
+     * {@link DatabaseHelper#ORDER_COLUMN_DEFAULT}<br>
      *     See also: <br>
-     *     {@link com.gamaliev.list.common.DatabaseHelper#BASE_COLUMN_ID}<br>
-     *     {@link com.gamaliev.list.common.DatabaseHelper#LIST_ITEMS_COLUMN_TITLE}<br>
-     *     {@link com.gamaliev.list.common.DatabaseHelper#LIST_ITEMS_COLUMN_DESCRIPTION}<br>
-     *     {@link com.gamaliev.list.common.DatabaseHelper#LIST_ITEMS_COLUMN_COLOR}<br>
-     *     {@link com.gamaliev.list.common.DatabaseHelper#LIST_ITEMS_COLUMN_CREATED}<br>
-     *     {@link com.gamaliev.list.common.DatabaseHelper#LIST_ITEMS_COLUMN_EDITED}<br>
-     *     {@link com.gamaliev.list.common.DatabaseHelper#LIST_ITEMS_COLUMN_VIEWED}<br>
+     *     {@link DatabaseHelper#BASE_COLUMN_ID}<br>
+     *     {@link DatabaseHelper#LIST_ITEMS_COLUMN_TITLE}<br>
+     *     {@link DatabaseHelper#LIST_ITEMS_COLUMN_DESCRIPTION}<br>
+     *     {@link DatabaseHelper#LIST_ITEMS_COLUMN_COLOR}<br>
+     *     {@link DatabaseHelper#LIST_ITEMS_COLUMN_CREATED}<br>
+     *     {@link DatabaseHelper#LIST_ITEMS_COLUMN_EDITED}<br>
+     *     {@link DatabaseHelper#LIST_ITEMS_COLUMN_VIEWED}<br>
      *
      * @param order Column.
      */
@@ -327,10 +327,10 @@ public final class DatabaseQueryBuilder {
 
     /**
      * Set ascending / descending of sorting order. If null or Empty, then set default value
-     * {@link com.gamaliev.list.common.DatabaseHelper#ORDER_ASC_DESC_DEFAULT}<br>
+     * {@link DatabaseHelper#ORDER_ASC_DESC_DEFAULT}<br>
      * @param ascDesc <br>
-     *     {@link com.gamaliev.list.common.DatabaseHelper#ORDER_ASCENDING}<br>
-     *     {@link com.gamaliev.list.common.DatabaseHelper#ORDER_DESCENDING}<br>
+     *     {@link DatabaseHelper#ORDER_ASCENDING}<br>
+     *     {@link DatabaseHelper#ORDER_DESCENDING}<br>
      */
     public void setAscDesc(@NonNull String ascDesc) {
         if (!TextUtils.isEmpty(ascDesc)) {

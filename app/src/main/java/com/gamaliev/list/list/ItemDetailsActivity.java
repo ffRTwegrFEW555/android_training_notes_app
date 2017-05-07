@@ -25,12 +25,13 @@ import android.widget.Toast;
 
 import com.gamaliev.list.R;
 import com.gamaliev.list.colorpicker.ColorPickerActivity;
+import com.gamaliev.list.list.database.ListDatabaseHelper;
 
 import static com.gamaliev.list.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.list.common.CommonUtils.getResourceColorApi;
 import static com.gamaliev.list.common.CommonUtils.getStringDateFormatSqlite;
 import static com.gamaliev.list.common.CommonUtils.showToast;
-import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
 import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_ADDED;
 import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_DELETED;
 import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_EDITED;

@@ -1,4 +1,4 @@
-package com.gamaliev.list.list;
+package com.gamaliev.list.list.database;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -10,16 +10,16 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.gamaliev.list.R;
-import com.gamaliev.list.common.DatabaseHelper;
+import com.gamaliev.list.common.database.DatabaseHelper;
 
 /**
  * @author Vadim Gamaliev
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-final class ListCursorAdapter extends CursorAdapter {
+public final class ListCursorAdapter extends CursorAdapter {
 
-    ListCursorAdapter(Context context, Cursor c, int flags) {
+    public ListCursorAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
     }
 

@@ -1,4 +1,4 @@
-package com.gamaliev.list.list;
+package com.gamaliev.list.list.database;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -16,13 +16,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.gamaliev.list.common.DatabaseHelper.BASE_COLUMN_ID;
-import static com.gamaliev.list.common.DatabaseHelper.FAVORITE_COLUMN_COLOR;
-import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_CREATED;
-import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_EDITED;
-import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_TITLE;
-import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
-import static com.gamaliev.list.common.DatabaseHelper.ORDER_ASC_DESC_DEFAULT;
+import static com.gamaliev.list.common.database.DatabaseHelper.BASE_COLUMN_ID;
+import static com.gamaliev.list.common.database.DatabaseHelper.FAVORITE_COLUMN_COLOR;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_CREATED;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_EDITED;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_TITLE;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
+import static com.gamaliev.list.common.database.DatabaseHelper.ORDER_ASC_DESC_DEFAULT;
 
 /**
  * @author Vadim Gamaliev

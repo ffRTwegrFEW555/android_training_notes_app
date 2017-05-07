@@ -24,6 +24,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.gamaliev.list.R;
+import com.gamaliev.list.colorpicker.database.ColorPickerDatabaseHelper;
 import com.gamaliev.list.common.SwitchableHorizontalScrollView;
 import com.gamaliev.list.list.ItemDetailsActivity;
 
@@ -380,7 +381,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
 
     /**
      * Open a new database helper.<br>
-     * See also: {@link com.gamaliev.list.colorpicker.ColorPickerDatabaseHelper}
+     * See also: {@link ColorPickerDatabaseHelper}
      */
     @Override
     protected void onResume() {
@@ -392,7 +393,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
 
     /**
      * Close database helper.<br>
-     * See also: {@link com.gamaliev.list.colorpicker.ColorPickerDatabaseHelper}
+     * See also: {@link ColorPickerDatabaseHelper}
      */
     @Override
     protected void onPause() {

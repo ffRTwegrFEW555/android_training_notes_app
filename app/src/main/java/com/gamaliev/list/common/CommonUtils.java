@@ -29,6 +29,7 @@ import android.view.ViewAnimationUtils;
 import android.widget.Toast;
 
 import com.gamaliev.list.R;
+import com.gamaliev.list.list.database.ListActivitySharedPreferencesUtils;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -38,7 +39,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_SYMBOL_DATE_SPLIT;
+import static com.gamaliev.list.list.database.ListActivitySharedPreferencesUtils.SP_FILTER_SYMBOL_DATE_SPLIT;
 
 /**
  * @author Vadim Gamaliev
@@ -550,9 +551,9 @@ public class CommonUtils {
      *
      * @param context           Context.
      * @param profileMap        Profile.
-     * @param filterCategory    {@link com.gamaliev.list.list.ListActivitySharedPreferencesUtils#SP_FILTER_CREATED},
-     *                          {@link com.gamaliev.list.list.ListActivitySharedPreferencesUtils#SP_FILTER_EDITED},
-     *                          {@link com.gamaliev.list.list.ListActivitySharedPreferencesUtils#SP_FILTER_VIEWED}.
+     * @param filterCategory    {@link ListActivitySharedPreferencesUtils#SP_FILTER_CREATED},
+     *                          {@link ListActivitySharedPreferencesUtils#SP_FILTER_EDITED},
+     *                          {@link ListActivitySharedPreferencesUtils#SP_FILTER_VIEWED}.
      * @param fromToBothResult  EXTRA_DATES_*.
      * @return                  date in different formats.
      */

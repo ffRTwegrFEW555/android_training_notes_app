@@ -19,7 +19,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.gamaliev.list.R;
-import com.gamaliev.list.list.ListDatabaseHelper;
+import com.gamaliev.list.common.database.DatabaseQueryBuilder;
+import com.gamaliev.list.list.database.ListDatabaseHelper;
 import com.gamaliev.list.list.ListEntry;
 
 import org.json.JSONArray;
@@ -41,12 +42,12 @@ import static com.gamaliev.list.common.CommonUtils.checkAndRequestPermissions;
 import static com.gamaliev.list.common.CommonUtils.getDateFromISO8601String;
 import static com.gamaliev.list.common.CommonUtils.getStringDateISO8601;
 import static com.gamaliev.list.common.CommonUtils.showToastRunOnUiThread;
-import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_COLOR;
-import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_CREATED;
-import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION;
-import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_EDITED;
-import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_TITLE;
-import static com.gamaliev.list.common.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_COLOR;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_CREATED;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_EDITED;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_TITLE;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
 import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_EXPORTED;
 import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_IMPORTED;
 

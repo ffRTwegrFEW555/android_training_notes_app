@@ -32,9 +32,11 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.gamaliev.list.R;
-import com.gamaliev.list.common.DatabaseHelper;
+import com.gamaliev.list.common.database.DatabaseHelper;
 import com.gamaliev.list.common.FileUtils;
 import com.gamaliev.list.common.OnCompleteListener;
+import com.gamaliev.list.list.database.ListCursorAdapter;
+import com.gamaliev.list.list.database.ListDatabaseHelper;
 
 import java.util.Locale;
 import java.util.Map;
@@ -50,9 +52,9 @@ import static com.gamaliev.list.common.FileUtils.REQUEST_CODE_PERMISSIONS_READ_E
 import static com.gamaliev.list.common.FileUtils.REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE;
 import static com.gamaliev.list.common.FileUtils.exportEntriesAsyncWithCheckPermission;
 import static com.gamaliev.list.common.FileUtils.importEntriesAsync;
-import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.convertProfileJsonToMap;
-import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.getSelectedProfileJson;
-import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.initSharedPreferences;
+import static com.gamaliev.list.list.database.ListActivitySharedPreferencesUtils.convertProfileJsonToMap;
+import static com.gamaliev.list.list.database.ListActivitySharedPreferencesUtils.getSelectedProfileJson;
+import static com.gamaliev.list.list.database.ListActivitySharedPreferencesUtils.initSharedPreferences;
 
 public final class ListActivity extends AppCompatActivity implements OnCompleteListener {
 
@@ -173,8 +175,8 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
     /**
      * Open a new database helper, get cursor, create and set adapter,
      * set on click listener, set filter query provider.<br>
-     * See also: {@link com.gamaliev.list.list.ListDatabaseHelper}
-     * See also: {@link com.gamaliev.list.list.ListDatabaseHelper}
+     * See also: {@link ListDatabaseHelper}
+     * See also: {@link ListDatabaseHelper}
      */
     private void refreshDbConnectAndView() {
         if (mDbHelper == null) {
@@ -451,7 +453,7 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
 
     /**
      * Close database helper.<br>
-     * See also: {@link com.gamaliev.list.list.ListDatabaseHelper}
+     * See also: {@link ListDatabaseHelper}
      */
     @Override
     protected void onPause() {

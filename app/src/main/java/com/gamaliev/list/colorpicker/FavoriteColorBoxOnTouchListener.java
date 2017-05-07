@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.gamaliev.list.R;
+import com.gamaliev.list.colorpicker.database.ColorPickerDatabaseHelper;
 
 import static com.gamaliev.list.common.CommonUtils.animateElevation;
 import static com.gamaliev.list.common.CommonUtils.animateScaleXY;

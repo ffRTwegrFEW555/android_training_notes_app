@@ -1,15 +1,14 @@
-package com.gamaliev.list.list;
+package com.gamaliev.list.list.database;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.gamaliev.list.colorpicker.ColorPickerDatabaseHelper;
-import com.gamaliev.list.common.DatabaseHelper;
+import com.gamaliev.list.colorpicker.database.ColorPickerDatabaseHelper;
+import com.gamaliev.list.common.database.DatabaseHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,15 +16,6 @@ import org.json.JSONObject;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
-
-import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_COLOR;
-import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_CREATED;
-import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_EDITED;
-import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_ID;
-import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_ORDER;
-import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_ORDER_ASC;
-import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_TITLE;
-import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_VIEWED;
 
 /**
  * @author Vadim Gamaliev
@@ -181,7 +171,7 @@ public class ListDatabaseMockHelper extends DatabaseHelper {
     /**
      * @param random Generator of pseudorandom numbers.
      * @return Random favorite color from
-     * {@link com.gamaliev.list.colorpicker.ColorPickerDatabaseHelper#FAVORITE_COLORS_DEFAULT}
+     * {@link ColorPickerDatabaseHelper#FAVORITE_COLORS_DEFAULT}
      */
     @NonNull
     private static String getRandomFavoriteColor(@NonNull final Random random) {
@@ -214,14 +204,14 @@ public class ListDatabaseMockHelper extends DatabaseHelper {
         for (String[] entry : SP_MOCK_DATA) {
             try {
                 jsonObject = new JSONObject();
-                jsonObject.put(SP_FILTER_ID,        entry[0]);
-                jsonObject.put(SP_FILTER_TITLE,     entry[1]);
-                jsonObject.put(SP_FILTER_COLOR,     entry[2]);
-                jsonObject.put(SP_FILTER_CREATED,   entry[3]);
-                jsonObject.put(SP_FILTER_EDITED,    entry[4]);
-                jsonObject.put(SP_FILTER_VIEWED,    entry[5]);
-                jsonObject.put(SP_FILTER_ORDER,     entry[6]);
-                jsonObject.put(SP_FILTER_ORDER_ASC, entry[7]);
+                jsonObject.put(ListActivitySharedPreferencesUtils.SP_FILTER_ID,        entry[0]);
+                jsonObject.put(ListActivitySharedPreferencesUtils.SP_FILTER_TITLE,     entry[1]);
+                jsonObject.put(ListActivitySharedPreferencesUtils.SP_FILTER_COLOR,     entry[2]);
+                jsonObject.put(ListActivitySharedPreferencesUtils.SP_FILTER_CREATED,   entry[3]);
+                jsonObject.put(ListActivitySharedPreferencesUtils.SP_FILTER_EDITED,    entry[4]);
+                jsonObject.put(ListActivitySharedPreferencesUtils.SP_FILTER_VIEWED,    entry[5]);
+                jsonObject.put(ListActivitySharedPreferencesUtils.SP_FILTER_ORDER,     entry[6]);
+                jsonObject.put(ListActivitySharedPreferencesUtils.SP_FILTER_ORDER_ASC, entry[7]);
 
                 profiles.add(jsonObject.toString());
 

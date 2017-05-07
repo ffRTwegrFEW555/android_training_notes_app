@@ -1,4 +1,4 @@
-package com.gamaliev.list.common;
+package com.gamaliev.list.common.database;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -11,8 +11,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.gamaliev.list.R;
-import com.gamaliev.list.colorpicker.ColorPickerDatabaseHelper;
-import com.gamaliev.list.list.ListDatabaseMockHelper;
+import com.gamaliev.list.colorpicker.database.ColorPickerDatabaseHelper;
+import com.gamaliev.list.list.database.ListDatabaseMockHelper;
 
 import static com.gamaliev.list.common.CommonUtils.showToast;
 

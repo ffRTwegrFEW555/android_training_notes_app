@@ -1,4 +1,4 @@
-package com.gamaliev.list.colorpicker;
+package com.gamaliev.list.colorpicker.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,7 +9,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.gamaliev.list.common.DatabaseHelper;
+import com.gamaliev.list.common.database.DatabaseHelper;
 
 import java.util.Locale;
 
@@ -53,7 +53,7 @@ public final class ColorPickerDatabaseHelper extends DatabaseHelper {
      * @param color Color.
      * @return True if update is success, otherwise false.
      */
-    boolean updateFavoriteColor(final int index, final int color) {
+    public boolean updateFavoriteColor(final int index, final int color) {
 
         try (SQLiteDatabase db = getWritableDatabase()) {
             final ContentValues cv = new ContentValues();

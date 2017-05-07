@@ -1,4 +1,4 @@
-package com.gamaliev.list.list;
+package com.gamaliev.list.list.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -13,8 +13,9 @@ import android.widget.Toast;
 
 import com.gamaliev.list.R;
 import com.gamaliev.list.common.CommonUtils;
-import com.gamaliev.list.common.DatabaseHelper;
-import com.gamaliev.list.common.DatabaseQueryBuilder;
+import com.gamaliev.list.common.database.DatabaseHelper;
+import com.gamaliev.list.common.database.DatabaseQueryBuilder;
+import com.gamaliev.list.list.ListEntry;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -29,12 +30,10 @@ import static com.gamaliev.list.common.CommonUtils.getDateFromProfileMap;
 import static com.gamaliev.list.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.list.common.CommonUtils.getStringDateFormatSqlite;
 import static com.gamaliev.list.common.CommonUtils.showToast;
-import static com.gamaliev.list.common.DatabaseQueryBuilder.OPERATOR_BETWEEN;
-import static com.gamaliev.list.common.DatabaseQueryBuilder.OPERATOR_EQUALS;
-import static com.gamaliev.list.common.DatabaseQueryBuilder.OPERATOR_LIKE;
+import static com.gamaliev.list.common.database.DatabaseQueryBuilder.OPERATOR_BETWEEN;
+import static com.gamaliev.list.common.database.DatabaseQueryBuilder.OPERATOR_EQUALS;
+import static com.gamaliev.list.common.database.DatabaseQueryBuilder.OPERATOR_LIKE;
 import static com.gamaliev.list.list.ListActivity.SEARCH_COLUMNS;
-import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_ORDER;
-import static com.gamaliev.list.list.ListActivitySharedPreferencesUtils.SP_FILTER_ORDER_ASC;
 
 /**
  * @author Vadim Gamaliev
@@ -141,7 +140,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      *                              {@link #LIST_ITEMS_COLUMN_VIEWED}.
      *                              If null, then default is {@link #LIST_ITEMS_COLUMN_EDITED}.
      */
-    boolean updateEntry(
+    public boolean updateEntry(
             @NonNull final ListEntry entry,
             @Nullable String editedViewedColumn) {
 
@@ -227,7 +226,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      * @return      Filled object. See {@link com.gamaliev.list.list.ListEntry}
      */
     @Nullable
-    ListEntry getEntry(@NonNull final Long id) {
+    public ListEntry getEntry(@NonNull final Long id) {
 
         // Create new entry.
         final ListEntry entry = new ListEntry();
@@ -287,7 +286,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      * @param id    Id of entry to be deleted.
      * @return      True if success, otherwise false.
      */
-    boolean deleteEntry(@NonNull final Long id) {
+    public boolean deleteEntry(@NonNull final Long id) {
         try (SQLiteDatabase db = getWritableDatabase()) {
 
             // Delete query.
@@ -315,7 +314,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      * Delete all rows from list table. See: {@link com.gamaliev.list.list.ListActivity}
      * @return true if ok, otherwise false.
      */
-    boolean removeAllEntries() {
+    public boolean removeAllEntries() {
 
         // Open database.
         try (SQLiteDatabase db = getWritableDatabase()) {
@@ -348,7 +347,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      * Add mock entries in list activity. See: {@link com.gamaliev.list.list.ListActivity}
      * @return Number of added entries. If error, then return "-1".
      */
-    int addMockEntries() {
+    public int addMockEntries() {
 
         // Open database.
         try (SQLiteDatabase db = getWritableDatabase()) {
@@ -386,7 +385,7 @@ public final class ListDatabaseHelper extends DatabaseHelper {
      * @return              Cursor, with given params.
      */
     @NonNull
-    Cursor getCursorWithParams(
+    public Cursor getCursorWithParams(
             @NonNull final Context context,
             @Nullable final CharSequence constraint,
             @NonNull final Map<String, String> profileMap) {
@@ -474,8 +473,8 @@ public final class ListDatabaseHelper extends DatabaseHelper {
         }
 
         // Set sort order.
-        resultQueryBuilder.setOrder(profileMap.get(SP_FILTER_ORDER));
-        resultQueryBuilder.setAscDesc(profileMap.get(SP_FILTER_ORDER_ASC));
+        resultQueryBuilder.setOrder(profileMap.get(ListActivitySharedPreferencesUtils.SP_FILTER_ORDER));
+        resultQueryBuilder.setAscDesc(profileMap.get(ListActivitySharedPreferencesUtils.SP_FILTER_ORDER_ASC));
 
         // Go-go-go.
         return getEntries(resultQueryBuilder);
