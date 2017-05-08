@@ -1,6 +1,7 @@
 package com.gamaliev.list.list;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -16,6 +17,7 @@ import android.support.v4.util.Pair;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -24,14 +26,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FilterQueryProvider;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.gamaliev.list.R;
-import com.gamaliev.list.common.CommonUtils;
 import com.gamaliev.list.common.ProgressNotificationHelper;
 import com.gamaliev.list.common.database.DatabaseHelper;
 import com.gamaliev.list.common.OnCompleteListener;
@@ -558,7 +562,7 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
 
                     // Add mock entries.
                     case R.id.activity_list_nav_drawer_item_add_mock_entries:
-                        addMockEntries();
+                        showInputDialogAddMockEntries();
                         break;
 
                     // Remove all entries.
@@ -580,7 +584,60 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
         };
     }
 
-    private void addMockEntries() {
+    /**
+     * Show a dialog box to enter the number of entries.
+     */
+    private void showInputDialogAddMockEntries() {
+
+        // Create builder.
+        final AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+        // Create edit text.
+        final EditText editText = new EditText(this);
+        editText.setText(
+                String.valueOf(
+                        getResources().getInteger(R.integer.mock_items_number_click)));
+
+        // Get string.
+        final String title = getString(R.string.activity_list_notification_add_mock_title);
+        final String save = getString(R.string.activity_list_notification_add_mock_ok);
+        final String cancel = getString(R.string.activity_list_notification_add_mock_cancel);
+
+        // Set title.
+        alert.setTitle(title);
+
+        // Create container, set margin, add exitText.
+        final FrameLayout container = new FrameLayout(this);
+        final FrameLayout.LayoutParams params =
+                new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+        int m = getResources().getDimensionPixelSize(R.dimen.activity_list_filter_dialog_input_title);
+        params.setMargins(m, 0, m, 0);
+        editText.setLayoutParams(params);
+        container.addView(editText);
+
+        // Set view.
+        alert.setView(container);
+
+        // Set save button listener.
+        alert.setPositiveButton(save, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+                final String enteredText = editText.getText().toString();
+                addMockEntries(Integer.parseInt(enteredText));
+            }
+        });
+
+        // Set cancel button listener.
+        alert.setNegativeButton(cancel, null);
+
+        // Show.
+        alert.show();
+    }
+
+    private void addMockEntries(
+            final int numberOfEntries) {
 
         new Thread(new Runnable() {
             @Override
@@ -607,7 +664,8 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                 // Add.
                 final int added = ListDatabaseHelper.addMockEntries(
                         ListActivity.this,
-                        notification);
+                        notification,
+                        numberOfEntries);
 
                 // Refresh view.
                 updateFilterAdapter();

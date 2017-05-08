@@ -121,7 +121,8 @@
                     android:layout_width="@dimen/activity_item_details_image_refresh_button_size"
                     android:layout_height="@dimen/activity_item_details_image_refresh_button_size"
                     android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="@dimen/activity_item_details_image_refresh_button_margin_top"
                     style="@style/Widget.AppCompat.Button.Borderless"
                     android:tint="@color/colorPrimary"
                     app:srcCompat="@drawable/ic_refresh_black_36dp"/>

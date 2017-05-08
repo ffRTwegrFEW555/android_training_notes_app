@@ -170,6 +170,7 @@ public class ListDatabaseMockHelper {
                     percent = percentNew;
                     //
                     notification.setProgress(100, percentNew);
+
                     //
                     if (yieldIfContendedSafely) {
                         db.yieldIfContendedSafely();

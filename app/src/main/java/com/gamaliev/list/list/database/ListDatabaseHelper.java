@@ -12,7 +12,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.gamaliev.list.R;
 import com.gamaliev.list.common.CommonUtils;
 import com.gamaliev.list.common.ProgressNotificationHelper;
 import com.gamaliev.list.common.database.DatabaseHelper;
@@ -421,7 +420,8 @@ public class ListDatabaseHelper {
      */
     public static int addMockEntries(
             @NonNull final Context context,
-            @Nullable final ProgressNotificationHelper notification) {
+            @Nullable final ProgressNotificationHelper notification,
+            final int numberOfEntries) {
 
         try {
             final SQLiteDatabase db = DB_HELPER.getWritableDatabase();
@@ -430,15 +430,17 @@ public class ListDatabaseHelper {
             db.beginTransaction();
 
             try {
-                // Number of adding entries.
-                int n = context.getResources().getInteger(R.integer.mock_items_number_click);
-
                 // Helper method for add entries.
-                ListDatabaseMockHelper.addMockEntries(context, n, db, notification, true);
+                ListDatabaseMockHelper.addMockEntries(
+                        context,
+                        numberOfEntries,
+                        db,
+                        notification,
+                        true);
 
                 // If ok.
                 db.setTransactionSuccessful();
-                return n;
+                return numberOfEntries;
 
             } finally {
                 db.endTransaction();

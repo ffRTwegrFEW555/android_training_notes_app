@@ -113,6 +113,7 @@
     <dimen name="activity_item_details_body_layout_padding">16dp</dimen>
     <dimen name="activity_item_details_image_url_text_layout_margin">16dp</dimen>
     <dimen name="activity_item_details_image_refresh_button_size">45dp</dimen>
+    <dimen name="activity_item_details_image_refresh_button_margin_top">8dp</dimen>
     <dimen name="activity_item_details_image_view_height">200dp</dimen>
     <dimen name="activity_item_details_image_view_margin">16dp</dimen>
     <dimen name="activity_item_details_image_view_progress_size">48dp</dimen>

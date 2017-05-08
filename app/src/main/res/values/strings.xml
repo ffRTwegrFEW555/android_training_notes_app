@@ -74,7 +74,7 @@
     <string name="activity_list_nav_drawer_open">Open navigation drawer</string>
     <string name="activity_list_nav_drawer_close">Close navigation drawer</string>
     <string name="activity_list_nav_drawer_text_mail">gamaliev-vadim@yandex.com</string>
-    <string name="activity_list_nav_drawer_item_add_mock_entries">Add 100_000 entries</string>
+    <string name="activity_list_nav_drawer_item_add_mock_entries">Add mock entries</string>
     <string name="activity_list_nav_drawer_item_delete_all_entries">Delete all</string>
     <string name="activity_list_nav_drawer_item_import_entries">Import notes</string>
     <string name="activity_list_nav_drawer_item_export_entries">Export notes</string>
@@ -94,6 +94,8 @@
     <string name="activity_list_notification_add_mock_title">Add mock entries</string>
     <string name="activity_list_notification_add_mock_text">Add in progress</string>
     <string name="activity_list_notification_add_mock_finish">Add mock complete</string>
+    <string name="activity_list_notification_add_mock_ok">Add</string>
+    <string name="activity_list_notification_add_mock_cancel">Cancel</string>
 
     <!-- Filter / sort dialog -->
     <string name="activity_item_details_delete_dialog_date_text_default">---</string>

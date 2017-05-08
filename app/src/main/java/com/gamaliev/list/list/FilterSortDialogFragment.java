@@ -307,32 +307,37 @@ public final class FilterSortDialogFragment extends DialogFragment {
                             Log.e(TAG, e.toString());
                         }
 
-                        // Get
-                        final long count = ListDatabaseHelper.getEntriesCount(
-                                getActivity(),
-                                ListDatabaseHelper.convertToQueryBuilder(
-                                        getActivity(),
-                                        null,
-                                        profileMap));
-
-                        // Caching
-                        mFoundedEntriesCache.put(id, String.valueOf(count));
-
                         // Update views, if attached.
+                        // Double check. Bug.
                         if (getActivity() != null && mDialog.isAttachedToWindow()) {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    // Set text.
-                                    foundTextView.setText("(" + count + ")");
 
-                                    // Hide progress bar.
-                                    progressBar.setVisibility(View.GONE);
+                            // Get number of entries.
+                            final long count = ListDatabaseHelper.getEntriesCount(
+                                    getActivity(),
+                                    ListDatabaseHelper.convertToQueryBuilder(
+                                            getActivity(),
+                                            null,
+                                            profileMap));
 
-                                    // Show found text view.
-                                    foundTextView.setVisibility(View.VISIBLE);
-                                }
-                            });
+                            // Caching
+                            mFoundedEntriesCache.put(id, String.valueOf(count));
+
+                            // Update view
+                            if (getActivity() != null && mDialog.isAttachedToWindow()) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // Set text.
+                                        foundTextView.setText("(" + count + ")");
+
+                                        // Hide progress bar.
+                                        progressBar.setVisibility(View.GONE);
+
+                                        // Show found text view.
+                                        foundTextView.setVisibility(View.VISIBLE);
+                                    }
+                                });
+                            }
                         }
                     }
                 });
@@ -1035,6 +1040,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        mSingleThreadExecutor.shutdownNow();
                         dismiss();
                     }
                 });
@@ -1044,7 +1050,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        mSingleThreadExecutor.shutdownNow();
                         dismiss();
                         refreshListActivity();
                     }
@@ -1112,34 +1118,38 @@ public final class FilterSortDialogFragment extends DialogFragment {
                 @Override
                 public void run() {
 
-                    // Get
-                    final long count = ListDatabaseHelper.getEntriesCount(
-                            getActivity(),
-                            ListDatabaseHelper.convertToQueryBuilder(
-                                    getActivity(),
-                                    null,
-                                    mProfileMap));
-
                     // Update views, if attached.
+                    // Double check. Bug.
                     if (getActivity() != null && mDialog.isAttachedToWindow()) {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                //
-                                final String text = getString(
-                                        R.string.activity_list_filter_dialog_profile_found_text)
-                                        + " " + count;
 
-                                // Set text.
-                                foundTextView.setText(text);
+                        // Get number of entries.
+                        final long count = ListDatabaseHelper.getEntriesCount(
+                                getActivity(),
+                                ListDatabaseHelper.convertToQueryBuilder(
+                                        getActivity(),
+                                        null,
+                                        mProfileMap));
+                        // Update view.
+                        if (getActivity() != null && mDialog.isAttachedToWindow()) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //
+                                    final String text = getString(
+                                            R.string.activity_list_filter_dialog_profile_found_text)
+                                            + " " + count;
 
-                                // Hide progress bar.
-                                progressBar.setVisibility(View.GONE);
+                                    // Set text.
+                                    foundTextView.setText(text);
 
-                                // Show found text view.
-                                foundTextView.setVisibility(View.VISIBLE);
-                            }
-                        });
+                                    // Hide progress bar.
+                                    progressBar.setVisibility(View.GONE);
+
+                                    // Show found text view.
+                                    foundTextView.setVisibility(View.VISIBLE);
+                                }
+                            });
+                        }
                     }
                 }
             });
