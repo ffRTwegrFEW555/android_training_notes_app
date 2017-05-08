@@ -22,7 +22,7 @@ import static com.gamaliev.list.common.CommonUtils.showToast;
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+public final class DatabaseHelper extends SQLiteOpenHelper {
 
     /* Logger */
     private static final String TAG = DatabaseHelper.class.getSimpleName();
@@ -78,9 +78,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "DROP TABLE " + LIST_ITEMS_TABLE_NAME + ";";
 
     /* Local */
-    @NonNull protected Context mContext;
-    @NonNull protected Resources mRes;
-    @NonNull protected String mDbFailMessage;
+    @NonNull private Context mContext;
+    @NonNull private Resources mRes;
+    @NonNull private String mDbFailMessage;
 
 
     /*

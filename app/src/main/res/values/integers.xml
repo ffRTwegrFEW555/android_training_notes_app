@@ -36,7 +36,6 @@
     <!--                -->
 
     <!-- Other -->
-    <integer name="activity_list_smooth_scroll_delay">200</integer>
     <integer name="activity_list_notification_panel_import_export_timer_enable">3000</integer>
     <integer name="activity_list_notification_panel_add_mock_timer_enable">3000</integer>
 

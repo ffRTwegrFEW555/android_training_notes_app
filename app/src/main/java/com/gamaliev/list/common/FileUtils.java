@@ -159,8 +159,8 @@ public class FileUtils {
         final JSONArray jsonArray = new JSONArray();
 
         // Create progress notification.
-        final CommonUtils.ProgressNotificationHelper notification =
-                new CommonUtils.ProgressNotificationHelper(
+        final ProgressNotificationHelper notification =
+                new ProgressNotificationHelper(
                         activity,
                         activity.getString(R.string.file_utils_export_notification_panel_title),
                         activity.getString(R.string.file_utils_export_notification_panel_text),
@@ -200,7 +200,7 @@ public class FileUtils {
     private static String getEntriesFromDatabase(
             @NonNull final Activity activity,
             @NonNull final JSONArray jsonArray,
-            @NonNull final CommonUtils.ProgressNotificationHelper notification) {
+            @NonNull final ProgressNotificationHelper notification) {
 
         // Get cursor.
         final Cursor cursor = ListDatabaseHelper.getEntries(activity, new DatabaseQueryBuilder());
@@ -308,7 +308,7 @@ public class FileUtils {
             @NonNull final JSONArray jsonArray,
             @NonNull final String result,
             @NonNull final OnCompleteListener onCompleteListener,
-            @NonNull final CommonUtils.ProgressNotificationHelper notification) {
+            @NonNull final ProgressNotificationHelper notification) {
 
         try {
             // Create file
@@ -395,8 +395,8 @@ public class FileUtils {
                 Toast.LENGTH_SHORT);
 
         // Create progress notification.
-        final CommonUtils.ProgressNotificationHelper notification =
-                new CommonUtils.ProgressNotificationHelper(
+        final ProgressNotificationHelper notification =
+                new ProgressNotificationHelper(
                         activity,
                         activity.getString(R.string.file_utils_import_notification_panel_title),
                         activity.getString(R.string.file_utils_import_notification_panel_text),
@@ -440,7 +440,7 @@ public class FileUtils {
                             new InputStreamReader(
                                     activity.getContentResolver().openInputStream(selectedFile)));
 
-            String line = null;
+            String line;
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
             }
@@ -472,7 +472,7 @@ public class FileUtils {
             @NonNull final Activity activity,
             @NonNull final String inputJson,
             @NonNull final OnCompleteListener onCompleteListener,
-            @NonNull final CommonUtils.ProgressNotificationHelper notification) {
+            @NonNull final ProgressNotificationHelper notification) {
 
         // Get database and start transaction.
         try {
@@ -570,7 +570,7 @@ public class FileUtils {
             @NonNull final Activity activity,
             @NonNull final JSONArray jsonArray,
             @NonNull final OnCompleteListener onCompleteListener,
-            @NonNull final CommonUtils.ProgressNotificationHelper notification) {
+            @NonNull final ProgressNotificationHelper notification) {
 
         // Notification panel success.
         notification.endProgress();

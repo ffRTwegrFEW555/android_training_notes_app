@@ -10,7 +10,7 @@ import android.util.Log;
 
 import com.gamaliev.list.R;
 import com.gamaliev.list.colorpicker.database.ColorPickerDatabaseHelper;
-import com.gamaliev.list.common.CommonUtils;
+import com.gamaliev.list.common.ProgressNotificationHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -138,7 +138,7 @@ public class ListDatabaseMockHelper {
             @NonNull final Context context,
             final int entriesNumber,
             @NonNull final SQLiteDatabase db,
-            @Nullable final CommonUtils.ProgressNotificationHelper notification,
+            @Nullable final ProgressNotificationHelper notification,
             final boolean yieldIfContendedSafely) throws SQLiteException {
 
         final Random random = new Random();

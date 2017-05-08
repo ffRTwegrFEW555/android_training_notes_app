@@ -6,7 +6,6 @@ import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -23,7 +22,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -41,10 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 import java.util.TimeZone;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static com.gamaliev.list.list.database.ListActivitySharedPreferencesUtils.SP_FILTER_SYMBOL_DATE_SPLIT;
 
@@ -691,119 +686,6 @@ public class CommonUtils {
 
         // If granted.
         return true;
-    }
-
-
-    /*
-        Progress notification
-     */
-
-    /**
-     * Helper to create a progress notification.
-     */
-    public final static class ProgressNotificationHelper {
-
-        @NonNull private final NotificationManager mManager;
-        @NonNull private final NotificationCompat.Builder mBuilder;
-
-        @NonNull private final String mTitle;
-        @NonNull private final String mText;
-        @NonNull private final String mComplete;
-
-        private final int mId;
-        private boolean mEnable;
-        private boolean mFinished;
-
-        /**
-         * To enable notification, you must use {@link #startTimerToEnableNotification}
-         *
-         * @param context   Context.
-         * @param title     Title of notification.
-         * @param text      Text of notification.
-         * @param complete  Complete text of notification.
-         */
-        public ProgressNotificationHelper(
-                @NonNull final Context context,
-                @NonNull final String title,
-                @NonNull final String text,
-                @NonNull final String complete) {
-
-            mManager    = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            mBuilder    = new NotificationCompat.Builder(context);
-
-            mTitle      = title;
-            mText       = text;
-            mComplete   = complete;
-
-            final Random random = new Random();
-            mId = random.nextInt();
-
-            // Create notification.
-            mBuilder.setContentTitle(mTitle)
-                    .setContentText(mText)
-                    .setSmallIcon(getNotificationIcon());
-        }
-
-        public void setProgress(final int max, final int progress) {
-            if (isEnable()) {
-                mBuilder.setProgress(max, progress, false);
-                mManager.notify(mId, mBuilder.build());
-            }
-        }
-
-        public void endProgress() {
-            mFinished = true;
-
-            if (isEnable()) {
-                mBuilder.setContentText(mComplete)
-                        .setProgress(0, 0, false);
-
-                mManager.cancel(mId);
-                mManager.notify(mId, mBuilder.build());
-
-                mEnable = false;
-            }
-        }
-
-        // Fix bug with color icon.
-        private int getNotificationIcon() {
-            return R.drawable.ic_import_export_white_24dp;
-        }
-
-        /**
-         * @param timeToStart Time to enable progress notification, in ms.
-         */
-        public void startTimerToEnableNotification(final int timeToStart) {
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(timeToStart);
-                        if (!mFinished) {
-                            setEnable(true);
-                            setProgress(100, 0);
-                        }
-
-                    } catch (InterruptedException e) {
-                        Log.e(TAG, e.toString());
-                    }
-                }
-            }).start();
-        }
-
-
-        /*
-            Setters and getters
-         */
-
-        public void setEnable(final boolean enable) {
-            mEnable = enable;
-        }
-
-        public boolean isEnable() {
-            return mEnable;
-        }
     }
 
 

@@ -29,7 +29,7 @@ import static com.gamaliev.list.common.database.DatabaseHelper.ORDER_ASC_DESC_DE
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class ListActivitySharedPreferencesUtils {
+public final class ListActivitySharedPreferencesUtils {
 
     /* Logger */
     private static final String TAG = ListActivitySharedPreferencesUtils.class.getSimpleName();

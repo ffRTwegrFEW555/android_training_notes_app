@@ -1,7 +1,6 @@
 package com.gamaliev.list.app;
 
 import android.app.Application;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.gamaliev.list.common.FileUtils;
 import com.gamaliev.list.common.database.DatabaseHelper;
@@ -39,7 +38,7 @@ public class ListApp extends Application {
      */
     private void initDataBase() {
         DatabaseHelper dbHelper = DatabaseHelper.getInstance(getApplicationContext());
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        dbHelper.getWritableDatabase();
     }
 
     /**

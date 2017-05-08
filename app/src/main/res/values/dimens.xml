@@ -110,6 +110,12 @@
     <dimen name="activity_item_details_ff_title_elevation">4dp</dimen>
     <dimen name="activity_item_details_ff_color_radius">56dp</dimen>
     <dimen name="activity_item_details_text_layout_name_margin">16dp</dimen>
-    <dimen name="activity_item_details_text_layout_description_margin">16dp</dimen>
+    <dimen name="activity_item_details_body_layout_padding">16dp</dimen>
+    <dimen name="activity_item_details_image_url_text_layout_margin">16dp</dimen>
+    <dimen name="activity_item_details_image_refresh_button_size">45dp</dimen>
+    <dimen name="activity_item_details_image_view_height">200dp</dimen>
+    <dimen name="activity_item_details_image_view_margin">16dp</dimen>
+    <dimen name="activity_item_details_image_view_progress_size">48dp</dimen>
+    <dimen name="activity_item_details_image_view_error_size">48dp</dimen>
 
 </resources>

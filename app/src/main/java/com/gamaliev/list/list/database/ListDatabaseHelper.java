@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.gamaliev.list.R;
 import com.gamaliev.list.common.CommonUtils;
+import com.gamaliev.list.common.ProgressNotificationHelper;
 import com.gamaliev.list.common.database.DatabaseHelper;
 import com.gamaliev.list.common.database.DatabaseQueryBuilder;
 import com.gamaliev.list.list.ListEntry;
@@ -420,7 +421,7 @@ public class ListDatabaseHelper {
      */
     public static int addMockEntries(
             @NonNull final Context context,
-            @Nullable final CommonUtils.ProgressNotificationHelper notification) {
+            @Nullable final ProgressNotificationHelper notification) {
 
         try {
             final SQLiteDatabase db = DB_HELPER.getWritableDatabase();

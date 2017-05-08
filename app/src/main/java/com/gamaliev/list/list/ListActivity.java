@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import com.gamaliev.list.R;
 import com.gamaliev.list.common.CommonUtils;
+import com.gamaliev.list.common.ProgressNotificationHelper;
 import com.gamaliev.list.common.database.DatabaseHelper;
 import com.gamaliev.list.common.OnCompleteListener;
 import com.gamaliev.list.list.database.ListCursorAdapter;
@@ -591,8 +592,8 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                         Toast.LENGTH_SHORT);
 
                 // Create progress notification.
-                final CommonUtils.ProgressNotificationHelper notification =
-                        new CommonUtils.ProgressNotificationHelper(
+                final ProgressNotificationHelper notification =
+                        new ProgressNotificationHelper(
                                 ListActivity.this,
                                 getString(R.string.activity_list_notification_add_mock_title),
                                 getString(R.string.activity_list_notification_add_mock_text),

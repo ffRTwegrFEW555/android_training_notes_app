@@ -42,8 +42,12 @@
     <string name="activity_item_details_title_edit">Edit entry</string>
     <string name="activity_item_details_text_view_title">Title</string>
     <string name="activity_item_details_text_view_description">Description</string>
+    <string name="activity_item_details_image_url_text_view">Image URL</string>
     <string name="activity_item_details_edit_mode_wrong_id">Entry with given id is not exists</string>
     <string name="activity_item_details_toast_demonstrative_pause">Demonstrative pause</string>
+    <string name="activity_item_details_image_url_error">Invalid URL</string>
+    <string name="activity_item_details_image_view_description">Image from URL</string>
+    <string name="activity_item_details_image_view_error">Loading image from URL failed</string>
 
     <!-- Info alert dialog -->
     <string name="activity_item_details_info_dialog_title">Info</string>

@@ -9,23 +9,31 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.transition.TransitionInflater;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.gamaliev.list.R;
 import com.gamaliev.list.colorpicker.ColorPickerActivity;
 import com.gamaliev.list.list.database.ListDatabaseHelper;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 import static com.gamaliev.list.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.list.common.CommonUtils.getResourceColorApi;
@@ -57,6 +65,9 @@ public final class ItemDetailsActivity extends AppCompatActivity {
     @NonNull private View mColorView;
     @NonNull private EditText mTitleEditText;
     @NonNull private EditText mDescEditText;
+    @NonNull private EditText mImageUrlEditText;
+    @NonNull private ImageView mImageView;
+    @NonNull private TextInputLayout mImageUrlEditTextLayout;
     @NonNull private ListEntry mEntry;
     @NonNull private Menu mMenu;
     @Nullable private Bundle mSavedInstanceState;
@@ -79,13 +90,20 @@ public final class ItemDetailsActivity extends AppCompatActivity {
 
         mActionBar      = getSupportActionBar();
         mColorView      = findViewById(R.id.activity_item_details_color);
-        mTitleEditText  = (EditText) findViewById(R.id.activity_item_details_text_view_title);
-        mDescEditText   = (EditText) findViewById(R.id.activity_item_details_text_view_description);
+        mTitleEditText  = (EditText) findViewById(R.id.activity_item_details_title_text_view);
+        mDescEditText   = (EditText) findViewById(R.id.activity_item_details_description_text_view);
+        mImageUrlEditText = (EditText) findViewById(R.id.activity_item_details_image_url_text_view);
+        mImageUrlEditTextLayout = (TextInputLayout) findViewById(
+                R.id.activity_item_details_image_url_text_input_layout);
+        mImageView      = (ImageView) findViewById(R.id.activity_item_details_image_view);
         mSavedInstanceState = savedInstanceState;
 
         enableEnterSharedTransition();
         setColorBoxListener();
         processAction();
+        initImageUrlValidation();
+        initImageView();
+        initRefreshImageButton();
     }
 
     /**
@@ -227,6 +245,89 @@ public final class ItemDetailsActivity extends AppCompatActivity {
         }
     }
 
+    private void initImageUrlValidation() {
+        //
+        checkUrlAndSetError(mImageUrlEditText.getText().toString());
+
+        // URL validation on change.
+        mImageUrlEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                checkUrlAndSetError(mImageUrlEditText.getText().toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    private void initImageView() {
+        final View loadingProgressBar = findViewById(R.id.activity_item_details_image_view_progress);
+        final View errorImageView = findViewById(R.id.activity_item_details_image_view_error);
+        final String pathToImage = mImageUrlEditText.getText().toString();
+
+        if (!TextUtils.isEmpty(pathToImage)) {
+            loadingProgressBar.setVisibility(View.VISIBLE);
+            mImageView.setVisibility(View.VISIBLE);
+            errorImageView.setVisibility(View.GONE);
+
+            Picasso.with(this)
+                    .load(pathToImage)
+                    .fit()
+                    .centerInside()
+                    .into(mImageView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            loadingProgressBar.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onError() {
+                            loadingProgressBar.setVisibility(View.GONE);
+                            mImageView.setVisibility(View.GONE);
+                            errorImageView.setVisibility(View.VISIBLE);
+                        }
+                    });
+
+        } else {
+            loadingProgressBar.setVisibility(View.GONE);
+            mImageView.setVisibility(View.GONE);
+            errorImageView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void initRefreshImageButton() {
+        findViewById(R.id.activity_item_details_image_url_refresh_button)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        initImageView();
+                    }
+                });
+    }
+
+    /**
+     * Check URL, and set error if needed.
+     * @param url Checked URL.
+     * @return True if invalid, otherwise false.
+     */
+    private boolean checkUrlAndSetError(
+            @NonNull final String url) {
+
+        if (!Patterns.WEB_URL.matcher(url).matches()) {
+            mImageUrlEditTextLayout.setError(
+                    getString(R.string.activity_item_details_image_url_error));
+            return true;
+
+        } else {
+            mImageUrlEditTextLayout.setError(null);
+            return false;
+        }
+    }
+
 
     /*
         Methods
@@ -238,6 +339,7 @@ public final class ItemDetailsActivity extends AppCompatActivity {
     private void fillActivityViews() {
         mTitleEditText.setText(mEntry.getTitle());
         mDescEditText.setText(mEntry.getDescription());
+        mImageUrlEditText.setText(mEntry.getImageUrl());
         refreshColorBox(mEntry.getColor());
     }
 
@@ -248,6 +350,7 @@ public final class ItemDetailsActivity extends AppCompatActivity {
         mEntry.setTitle(mTitleEditText.getText().toString());
         mEntry.setDescription(mDescEditText.getText().toString());
         mEntry.setColor(mColor);
+        mEntry.setImageUrl(mImageUrlEditText.getText().toString());
     }
 
     /**

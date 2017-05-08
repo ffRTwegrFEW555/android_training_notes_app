@@ -55,6 +55,7 @@
         <item name="colorAccent">@color/color_primary_contrast</item>
     </style>
 
+    <!-- Activity Item Details. Progress Header -->
     <style name="AppTheme.WhileColor">
         <item name="colorAccent">@color/color_white</item>
     </style>
