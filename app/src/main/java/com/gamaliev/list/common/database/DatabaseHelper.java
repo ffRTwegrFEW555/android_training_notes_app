@@ -51,6 +51,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String LIST_ITEMS_COLUMN_TITLE      = "title";
     public static final String LIST_ITEMS_COLUMN_DESCRIPTION = "description";
     public static final String LIST_ITEMS_COLUMN_COLOR      = "color";
+    public static final String LIST_ITEMS_COLUMN_IMAGE_URL  = "imageUrl";
     public static final String LIST_ITEMS_COLUMN_CREATED    = "created";
     public static final String LIST_ITEMS_COLUMN_EDITED     = "edited";
     public static final String LIST_ITEMS_COLUMN_VIEWED     = "viewed";
@@ -68,6 +69,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     LIST_ITEMS_COLUMN_TITLE +               " TEXT, " +
                     LIST_ITEMS_COLUMN_DESCRIPTION +         " TEXT, " +
                     LIST_ITEMS_COLUMN_COLOR +               " INTEGER, " +
+                    LIST_ITEMS_COLUMN_IMAGE_URL +           " TEXT, " +
                     LIST_ITEMS_COLUMN_CREATED + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                     LIST_ITEMS_COLUMN_EDITED +  " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                     LIST_ITEMS_COLUMN_VIEWED +  " DATETIME DEFAULT CURRENT_TIMESTAMP); ";
@@ -177,6 +179,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Adding mock entries in list activity.
         ListDatabaseMockHelper.addMockEntries(
+                mContext,
                 mRes.getInteger(R.integer.mock_items_number_start),
                 db,
                 null,

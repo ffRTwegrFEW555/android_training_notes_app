@@ -18,6 +18,7 @@ public class ListEntry implements Parcelable {
     @Nullable private String    mTitle;
     @Nullable private String    mDescription;
     @Nullable private Integer   mColor;
+    @Nullable private String    mImageUrl;
     @Nullable private Date      mCreated;
     @Nullable private Date      mEdited;
     @Nullable private Date      mViewed;
@@ -27,9 +28,10 @@ public class ListEntry implements Parcelable {
     private static final int RW_TITLE       = 2;
     private static final int RW_DESCRIPTION = 4;
     private static final int RW_COLOR       = 8;
-    private static final int RW_CREATED     = 16;
-    private static final int RW_EDITED      = 32;
-    private static final int RW_VIEWED      = 64;
+    private static final int RW_IMAGE_URL   = 16;
+    private static final int RW_CREATED     = 32;
+    private static final int RW_EDITED      = 64;
+    private static final int RW_VIEWED      = 128;
 
     public ListEntry() {}
 
@@ -45,6 +47,7 @@ public class ListEntry implements Parcelable {
         if ((whatToRead & RW_TITLE) > 0)        mTitle = in.readString();
         if ((whatToRead & RW_DESCRIPTION) > 0)  mDescription = in.readString();
         if ((whatToRead & RW_COLOR) > 0)        mColor = in.readInt();
+        if ((whatToRead & RW_IMAGE_URL) > 0)    mImageUrl = in.readString();
         if ((whatToRead & RW_CREATED) > 0)      mCreated = (Date) in.readSerializable();
         if ((whatToRead & RW_EDITED) > 0)       mEdited = (Date) in.readSerializable();
         if ((whatToRead & RW_VIEWED) > 0)       mViewed = (Date) in.readSerializable();
@@ -55,23 +58,25 @@ public class ListEntry implements Parcelable {
 
         // Compute what to write to parcel.
         int whatToWrite = 0;
-        if (mId != null)             whatToWrite |= RW_ID;
-        if (mTitle != null)          whatToWrite |= RW_TITLE;
-        if (mDescription != null)    whatToWrite |= RW_DESCRIPTION;
-        if (mColor != null)          whatToWrite |= RW_COLOR;
-        if (mCreated != null)        whatToWrite |= RW_CREATED;
-        if (mEdited != null)         whatToWrite |= RW_EDITED;
-        if (mViewed != null)         whatToWrite |= RW_VIEWED;
+        if (mId != null)            whatToWrite |= RW_ID;
+        if (mTitle != null)         whatToWrite |= RW_TITLE;
+        if (mDescription != null)   whatToWrite |= RW_DESCRIPTION;
+        if (mColor != null)         whatToWrite |= RW_COLOR;
+        if (mImageUrl != null)      whatToWrite |= RW_IMAGE_URL;
+        if (mCreated != null)       whatToWrite |= RW_CREATED;
+        if (mEdited != null)        whatToWrite |= RW_EDITED;
+        if (mViewed != null)        whatToWrite |= RW_VIEWED;
 
         // Write computed to parcel.
         dest.writeInt(whatToWrite);
-        if (mId != null)             dest.writeLong(mId);
-        if (mTitle != null)          dest.writeString(mTitle);
-        if (mDescription != null)    dest.writeString(mDescription);
-        if (mColor != null)          dest.writeInt(mColor);
-        if (mCreated != null)        dest.writeSerializable(mCreated);
-        if (mEdited != null)         dest.writeSerializable(mEdited);
-        if (mViewed != null)         dest.writeSerializable(mViewed);
+        if (mId != null)            dest.writeLong(mId);
+        if (mTitle != null)         dest.writeString(mTitle);
+        if (mDescription != null)   dest.writeString(mDescription);
+        if (mColor != null)         dest.writeInt(mColor);
+        if (mImageUrl != null)      dest.writeString(mImageUrl);
+        if (mCreated != null)       dest.writeSerializable(mCreated);
+        if (mEdited != null)        dest.writeSerializable(mEdited);
+        if (mViewed != null)        dest.writeSerializable(mViewed);
     }
 
     @Override
@@ -96,31 +101,35 @@ public class ListEntry implements Parcelable {
         Setters
      */
 
-    public void setId(@NonNull Long id) {
+    public void setId(@NonNull final Long id) {
         mId = id;
     }
 
-    public void setTitle(@NonNull String title) {
+    public void setTitle(@NonNull final String title) {
         mTitle = title;
     }
 
-    public void setDescription(@NonNull String description) {
+    public void setDescription(@NonNull final String description) {
         mDescription = description;
     }
 
-    public void setColor(@NonNull Integer color) {
+    public void setColor(@NonNull final Integer color) {
         mColor = color;
     }
 
-    public void setCreated(@NonNull Date created) {
+    public void setImageUrl(@NonNull final String imageUrl) {
+        mImageUrl = imageUrl;
+    }
+
+    public void setCreated(@NonNull final Date created) {
         mCreated = created;
     }
 
-    public void setEdited(@NonNull Date edited) {
+    public void setEdited(@NonNull final Date edited) {
         mEdited = edited;
     }
 
-    public void setViewed(@NonNull Date viewed) {
+    public void setViewed(@NonNull final Date viewed) {
         mViewed = viewed;
     }
 
@@ -147,6 +156,11 @@ public class ListEntry implements Parcelable {
     @Nullable
     public Integer getColor() {
         return mColor;
+    }
+
+    @Nullable
+    public String getImageUrl() {
+        return mImageUrl;
     }
 
     @Nullable

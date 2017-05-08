@@ -37,6 +37,7 @@ import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_CREATED;
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION;
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_EDITED;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_IMAGE_URL;
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_TITLE;
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_TABLE_NAME;
@@ -118,12 +119,14 @@ public class ListDatabaseHelper {
         final String title = entry.getTitle();
         final String description = entry.getDescription();
         final int color = entry.getColor() == null ? getDefaultColor(context) : entry.getColor();
+        final String imageUrl = entry.getImageUrl();
 
         // Content values
         final ContentValues cv = new ContentValues();
         cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
         cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
         cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
+        cv.put(LIST_ITEMS_COLUMN_IMAGE_URL,     imageUrl);
 
         String utcCreatedDate =
                 getStringDateFormatSqlite(
@@ -148,10 +151,11 @@ public class ListDatabaseHelper {
         // Insert
         if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
             final String error = String.format(Locale.ENGLISH,
-                    "[ERROR] Insert entry {%s: %s, %s: %s, %s: %d}",
+                    "[ERROR] Insert entry {%s: %s, %s: %s, %s: %d, %s: %s}",
                     LIST_ITEMS_COLUMN_TITLE, title,
                     LIST_ITEMS_COLUMN_DESCRIPTION, description,
-                    LIST_ITEMS_COLUMN_COLOR, color);
+                    LIST_ITEMS_COLUMN_COLOR, color,
+                    LIST_ITEMS_COLUMN_IMAGE_URL, imageUrl);
             throw new SQLiteException(error);
         }
     }
@@ -185,12 +189,14 @@ public class ListDatabaseHelper {
             final int color             = entry.getColor() == null
                                             ? getDefaultColor(context)
                                             : entry.getColor();
+            final String imageUrl       = entry.getImageUrl();
 
             // Content values
             final ContentValues cv = new ContentValues();
             cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
             cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
             cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
+            cv.put(LIST_ITEMS_COLUMN_IMAGE_URL,     imageUrl);
             cv.put(editedViewedColumn,              getStringDateFormatSqlite(context, new Date(), true));
 
             // Update
@@ -305,6 +311,7 @@ public class ListDatabaseHelper {
                 final int indexTitle        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_TITLE);
                 final int indexDescription  = cursor.getColumnIndex(LIST_ITEMS_COLUMN_DESCRIPTION);
                 final int indexColor        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_COLOR);
+                final int indexImageUrl     = cursor.getColumnIndex(LIST_ITEMS_COLUMN_IMAGE_URL);
                 final int indexCreated      = cursor.getColumnIndex(LIST_ITEMS_COLUMN_CREATED);
                 final int indexEdited       = cursor.getColumnIndex(LIST_ITEMS_COLUMN_EDITED);
                 final int indexViewed       = cursor.getColumnIndex(LIST_ITEMS_COLUMN_VIEWED);
@@ -313,6 +320,7 @@ public class ListDatabaseHelper {
                 entry.setTitle(         cursor.getString(   indexTitle));
                 entry.setDescription(   cursor.getString(   indexDescription));
                 entry.setColor(         cursor.getInt(      indexColor));
+                entry.setImageUrl(      cursor.getString(   indexImageUrl));
 
                 // Parse sqlite format (yyyy-MM-dd HH:mm:ss, UTC), in localtime.
                 DateFormat df = CommonUtils.getDateFormatSqlite(context, true);
@@ -425,7 +433,7 @@ public class ListDatabaseHelper {
                 int n = context.getResources().getInteger(R.integer.mock_items_number_click);
 
                 // Helper method for add entries.
-                ListDatabaseMockHelper.addMockEntries(n, db, notification, true);
+                ListDatabaseMockHelper.addMockEntries(context, n, db, notification, true);
 
                 // If ok.
                 db.setTransactionSuccessful();

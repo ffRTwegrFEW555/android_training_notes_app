@@ -139,6 +139,7 @@
 
     <!-- SQL -->
     <string name="sql_toast_fail">Database unavailable</string>
+    <string name="mock_entries_default_image">https://developer.android.com/images/brand/Android_Robot_100.png</string>
 
     <!-- Transition -->
     <string name="shared_transition_name_color_box">color_box</string>

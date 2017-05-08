@@ -39,6 +39,7 @@ import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_CREATED;
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION;
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_EDITED;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_IMAGE_URL;
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_TITLE;
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
 import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_EXPORTED;
@@ -268,12 +269,14 @@ public class FileUtils {
         final int indexTitle        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_TITLE);
         final int indexDescription  = cursor.getColumnIndex(LIST_ITEMS_COLUMN_DESCRIPTION);
         final int indexColor        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_COLOR);
+        final int indexImageUrl     = cursor.getColumnIndex(LIST_ITEMS_COLUMN_IMAGE_URL);
         final int indexCreated      = cursor.getColumnIndex(LIST_ITEMS_COLUMN_CREATED);
         final int indexEdited       = cursor.getColumnIndex(LIST_ITEMS_COLUMN_EDITED);
         final int indexViewed       = cursor.getColumnIndex(LIST_ITEMS_COLUMN_VIEWED);
 
         final String title          = cursor.getString(indexTitle);
         final String color          = cursor.getString(indexColor);
+        final String imageUrl       = cursor.getString(indexImageUrl);
         final String description    = cursor.getString(indexDescription);
         final String created        = cursor.getString(indexCreated);
         final String edited         = cursor.getString(indexEdited);
@@ -282,15 +285,16 @@ public class FileUtils {
         // Create entry map
         final Map<String, String> entryMap = new HashMap<>();
 
-        entryMap.put(LIST_ITEMS_COLUMN_TITLE,          title);
-        entryMap.put(LIST_ITEMS_COLUMN_COLOR,          String.format(
+        entryMap.put(LIST_ITEMS_COLUMN_TITLE,           title);
+        entryMap.put(LIST_ITEMS_COLUMN_COLOR,           String.format(
                 "#%06X",
                 (0xFFFFFF & Integer.parseInt(color))));
 
-        entryMap.put(LIST_ITEMS_COLUMN_DESCRIPTION,    description);
-        entryMap.put(LIST_ITEMS_COLUMN_CREATED,        getStringDateISO8601(activity, created));
-        entryMap.put(LIST_ITEMS_COLUMN_EDITED,         getStringDateISO8601(activity, edited));
-        entryMap.put(LIST_ITEMS_COLUMN_VIEWED,         getStringDateISO8601(activity, viewed));
+        entryMap.put(LIST_ITEMS_COLUMN_IMAGE_URL,       imageUrl);
+        entryMap.put(LIST_ITEMS_COLUMN_DESCRIPTION,     description);
+        entryMap.put(LIST_ITEMS_COLUMN_CREATED,         getStringDateISO8601(activity, created));
+        entryMap.put(LIST_ITEMS_COLUMN_EDITED,          getStringDateISO8601(activity, edited));
+        entryMap.put(LIST_ITEMS_COLUMN_VIEWED,          getStringDateISO8601(activity, viewed));
 
         //
         return new JSONObject(entryMap);
@@ -543,6 +547,7 @@ public class FileUtils {
         final String title          = jsonObject.optString(LIST_ITEMS_COLUMN_TITLE, null);
         final int color             = Color.parseColor(jsonObject.optString(
                                                             LIST_ITEMS_COLUMN_COLOR, null));
+        final String imageUrl       = jsonObject.optString(LIST_ITEMS_COLUMN_IMAGE_URL, null);
         final String description    = jsonObject.optString(LIST_ITEMS_COLUMN_DESCRIPTION, null);
         final String created        = jsonObject.optString(LIST_ITEMS_COLUMN_CREATED, null);
         final String edited         = jsonObject.optString(LIST_ITEMS_COLUMN_EDITED, null);
@@ -551,8 +556,9 @@ public class FileUtils {
         // Create entry model.
         final ListEntry entry = new ListEntry();
         entry.setTitle(title);
-        entry.setColor(color);
         entry.setDescription(description);
+        entry.setColor(color);
+        entry.setImageUrl(imageUrl);
         entry.setCreated(getDateFromISO8601String(activity, created));
         entry.setEdited(getDateFromISO8601String(activity, edited));
         entry.setViewed(getDateFromISO8601String(activity, viewed));

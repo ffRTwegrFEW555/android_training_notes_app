@@ -1,12 +1,14 @@
 package com.gamaliev.list.list.database;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.gamaliev.list.R;
 import com.gamaliev.list.colorpicker.database.ColorPickerDatabaseHelper;
 import com.gamaliev.list.common.CommonUtils;
 
@@ -21,6 +23,7 @@ import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_CREATED;
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION;
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_EDITED;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_IMAGE_URL;
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_TITLE;
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
 import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_TABLE_NAME;
@@ -132,6 +135,7 @@ public class ListDatabaseMockHelper {
      * @throws SQLiteException If insert error.
      */
     public static void addMockEntries(
+            @NonNull final Context context,
             final int entriesNumber,
             @NonNull final SQLiteDatabase db,
             @Nullable final CommonUtils.ProgressNotificationHelper notification,
@@ -148,6 +152,7 @@ public class ListDatabaseMockHelper {
             cv.put(LIST_ITEMS_COLUMN_TITLE,         getRandomMockName(random));
             cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   getRandomMockDescription(random));
             cv.put(LIST_ITEMS_COLUMN_COLOR,         getRandomFavoriteColor(random));
+            cv.put(LIST_ITEMS_COLUMN_IMAGE_URL,     getRandomImageUrl(context));
             cv.put(LIST_ITEMS_COLUMN_CREATED,       getRandomMockDate(random));
             cv.put(LIST_ITEMS_COLUMN_EDITED,        getRandomMockDate(random));
             cv.put(LIST_ITEMS_COLUMN_VIEWED,        getRandomMockDate(random));
@@ -211,6 +216,11 @@ public class ListDatabaseMockHelper {
     private static String getRandomFavoriteColor(@NonNull final Random random) {
         final int[] colors = ColorPickerDatabaseHelper.FAVORITE_COLORS_DEFAULT;
         return String.valueOf(colors[random.nextInt(colors.length)]);
+    }
+
+    @NonNull
+    private static String getRandomImageUrl(@NonNull final Context context) {
+        return context.getString(R.string.mock_entries_default_image);
     }
 
     /**

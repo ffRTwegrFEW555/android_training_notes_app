@@ -319,7 +319,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
                         mFoundedEntriesCache.put(id, String.valueOf(count));
 
                         // Update views, if attached.
-                        if (getActivity() != null) {
+                        if (getActivity() != null && mDialog.isAttachedToWindow()) {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -1121,7 +1121,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
                                     mProfileMap));
 
                     // Update views, if attached.
-                    if (getActivity() != null) {
+                    if (getActivity() != null && mDialog.isAttachedToWindow()) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
