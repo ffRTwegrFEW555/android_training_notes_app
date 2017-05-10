@@ -1,11 +1,28 @@
 package com.gamaliev.list.list;
 
+import android.app.Activity;
+import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Date;
+
+import static com.gamaliev.list.common.CommonUtils.getDateFromISO8601String;
+import static com.gamaliev.list.common.CommonUtils.getStringDateISO8601;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_COLOR;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_CREATED;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_EDITED;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_IMAGE_URL;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_TITLE;
+import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
 
 /**
  * @author Vadim Gamaliev
@@ -14,6 +31,10 @@ import java.util.Date;
 
 public class ListEntry implements Parcelable {
 
+    /* Logger */
+    private static final String TAG = ListEntry.class.getSimpleName();
+
+    /* ... */
     @Nullable private Long      mId;
     @Nullable private String    mTitle;
     @Nullable private String    mDescription;
@@ -176,5 +197,94 @@ public class ListEntry implements Parcelable {
     @Nullable
     public Date getViewed() {
         return mViewed;
+    }
+
+
+    /*
+        Util methods
+     */
+
+    /**
+     * Get filled JSONObject with data from current cursor position.
+     *
+     * @param activity  Activity.
+     * @param cursor    Cursor.
+     *
+     * @return Filled JSONObject with data from current cursor position.
+     * @throws IllegalStateException Usually happens when the data has been changed.
+     */
+    @Nullable
+    public static JSONObject getJsonObject(
+            @NonNull final Activity activity,
+            @NonNull final Cursor cursor) throws IllegalStateException {
+
+        //
+        final int indexTitle        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_TITLE);
+        final int indexDescription  = cursor.getColumnIndex(LIST_ITEMS_COLUMN_DESCRIPTION);
+        final int indexColor        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_COLOR);
+        final int indexImageUrl     = cursor.getColumnIndex(LIST_ITEMS_COLUMN_IMAGE_URL);
+        final int indexCreated      = cursor.getColumnIndex(LIST_ITEMS_COLUMN_CREATED);
+        final int indexEdited       = cursor.getColumnIndex(LIST_ITEMS_COLUMN_EDITED);
+        final int indexViewed       = cursor.getColumnIndex(LIST_ITEMS_COLUMN_VIEWED);
+
+        final String title          = cursor.getString(indexTitle);
+        final String color          = cursor.getString(indexColor);
+        final String imageUrl       = cursor.getString(indexImageUrl);
+        final String description    = cursor.getString(indexDescription);
+        final String created        = cursor.getString(indexCreated);
+        final String edited         = cursor.getString(indexEdited);
+        final String viewed         = cursor.getString(indexViewed);
+
+        //
+        final JSONObject jsonObject = new JSONObject();
+
+        try {
+            jsonObject.put(LIST_ITEMS_COLUMN_TITLE,         title);
+            jsonObject.put(LIST_ITEMS_COLUMN_COLOR,         String.format(
+                    "#%06X",
+                    (0xFFFFFF & Integer.parseInt(color))));
+
+            jsonObject.put(LIST_ITEMS_COLUMN_IMAGE_URL,    imageUrl);
+            jsonObject.put(LIST_ITEMS_COLUMN_DESCRIPTION,  description);
+            jsonObject.put(LIST_ITEMS_COLUMN_CREATED,      getStringDateISO8601(activity, created));
+            jsonObject.put(LIST_ITEMS_COLUMN_EDITED,       getStringDateISO8601(activity, edited));
+            jsonObject.put(LIST_ITEMS_COLUMN_VIEWED,       getStringDateISO8601(activity, viewed));
+
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+            return null;
+        }
+
+        //
+        return jsonObject;
+    }
+
+    @NonNull
+    public static ListEntry convertJsonToListEntry(
+            @NonNull final Activity activity,
+            @NonNull final JSONObject jsonObject) {
+
+        //
+        final String title          = jsonObject.optString(LIST_ITEMS_COLUMN_TITLE, null);
+        final int color             = Color.parseColor(jsonObject.optString(
+                LIST_ITEMS_COLUMN_COLOR, null));
+        final String imageUrl       = jsonObject.optString(LIST_ITEMS_COLUMN_IMAGE_URL, null);
+        final String description    = jsonObject.optString(LIST_ITEMS_COLUMN_DESCRIPTION, null);
+        final String created        = jsonObject.optString(LIST_ITEMS_COLUMN_CREATED, null);
+        final String edited         = jsonObject.optString(LIST_ITEMS_COLUMN_EDITED, null);
+        final String viewed         = jsonObject.optString(LIST_ITEMS_COLUMN_VIEWED, null);
+
+        //
+        final ListEntry entry = new ListEntry();
+
+        entry.setTitle(title);
+        entry.setDescription(description);
+        entry.setColor(color);
+        entry.setImageUrl(imageUrl);
+        entry.setCreated(getDateFromISO8601String(activity, created));
+        entry.setEdited(getDateFromISO8601String(activity, edited));
+        entry.setViewed(getDateFromISO8601String(activity, viewed));
+
+        return entry;
     }
 }

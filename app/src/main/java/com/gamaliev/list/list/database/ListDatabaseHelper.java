@@ -116,10 +116,12 @@ public class ListDatabaseHelper {
             @NonNull final SQLiteDatabase db) throws SQLiteException {
 
         // Variables
-        final String title = entry.getTitle();
-        final String description = entry.getDescription();
-        final int color = entry.getColor() == null ? getDefaultColor(context) : entry.getColor();
-        final String imageUrl = entry.getImageUrl();
+        final String title          = entry.getTitle();
+        final String description    = entry.getDescription();
+        final int color             = entry.getColor() == null
+                ? getDefaultColor(context)
+                : entry.getColor();
+        final String imageUrl       = entry.getImageUrl();
 
         // Content values
         final ContentValues cv = new ContentValues();
@@ -187,8 +189,8 @@ public class ListDatabaseHelper {
             final String title          = entry.getTitle();
             final String description    = entry.getDescription();
             final int color             = entry.getColor() == null
-                                            ? getDefaultColor(context)
-                                            : entry.getColor();
+                    ? getDefaultColor(context)
+                    : entry.getColor();
             final String imageUrl       = entry.getImageUrl();
 
             // Content values
@@ -246,12 +248,6 @@ public class ListDatabaseHelper {
             Log.e(TAG, e.toString());
             showToast(context, DB_HELPER.getDbFailMessage(), Toast.LENGTH_SHORT);
             return null;
-
-            // TODO: db.close -> cursor is close -> exception.
-        /*} finally {
-            if (db != null) {
-                db.close();
-            }*/
         }
     }
 

@@ -41,20 +41,17 @@ public final class ListCursorAdapter extends CursorAdapter {
         final ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         // Get values from current row.
-        final int indexId           = cursor.getColumnIndex(DatabaseHelper.BASE_COLUMN_ID);
         final int indexTitle        = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_TITLE);
         final int indexDescription  = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION);
         final int indexEdited       = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_EDITED);
         final int indexColor        = cursor.getColumnIndex(DatabaseHelper.LIST_ITEMS_COLUMN_COLOR);
 
-        final long id               = cursor.getLong(   indexId);
         final String title          = cursor.getString( indexTitle);
         final String description    = cursor.getString( indexDescription);
         final String edited         = cursor.getString( indexEdited).split(" ")[0];
         final int color             = cursor.getInt(    indexColor);
 
         // Fill view holder values.
-        viewHolder.mId = id;
         viewHolder.mTitleView.setText(title);
         viewHolder.mDescriptionView.setText(description);
         viewHolder.mEditedView.setText(edited);
@@ -65,7 +62,6 @@ public final class ListCursorAdapter extends CursorAdapter {
 
     // View holder, associated with activity_list_item.xml
     private static class ViewHolder {
-        private Long            mId;
         private final TextView  mTitleView;
         private final TextView  mDescriptionView;
         private final TextView  mEditedView;

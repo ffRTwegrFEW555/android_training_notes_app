@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -28,22 +27,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.gamaliev.list.common.CommonUtils.checkAndRequestPermissions;
-import static com.gamaliev.list.common.CommonUtils.getDateFromISO8601String;
-import static com.gamaliev.list.common.CommonUtils.getStringDateISO8601;
 import static com.gamaliev.list.common.CommonUtils.showToastRunOnUiThread;
-import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_COLOR;
-import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_CREATED;
-import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_DESCRIPTION;
-import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_EDITED;
-import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_IMAGE_URL;
-import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_TITLE;
-import static com.gamaliev.list.common.database.DatabaseHelper.LIST_ITEMS_COLUMN_VIEWED;
 import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_EXPORTED;
 import static com.gamaliev.list.list.ListActivity.RESULT_CODE_EXTRA_IMPORTED;
+import static com.gamaliev.list.list.ListEntry.convertJsonToListEntry;
+import static com.gamaliev.list.list.ListEntry.getJsonObject;
 
 /**
  * Class, for working with files, for exporting/importing entries from/to database.<br>
@@ -252,55 +242,6 @@ public class FileUtils {
     }
 
     /**
-     * Get filled JSONObject with data from current cursor position.
-     *
-     * @param activity  Activity.
-     * @param cursor    Cursor.
-     *
-     * @return Filled JSONObject with data from current cursor position.
-     * @throws IllegalStateException Usually happens when the data has been changed.
-     */
-    @NonNull
-    private static JSONObject getJsonObject(
-            @NonNull final Activity activity,
-            @NonNull final Cursor cursor) throws IllegalStateException {
-
-        // Get values from current row.
-        final int indexTitle        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_TITLE);
-        final int indexDescription  = cursor.getColumnIndex(LIST_ITEMS_COLUMN_DESCRIPTION);
-        final int indexColor        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_COLOR);
-        final int indexImageUrl     = cursor.getColumnIndex(LIST_ITEMS_COLUMN_IMAGE_URL);
-        final int indexCreated      = cursor.getColumnIndex(LIST_ITEMS_COLUMN_CREATED);
-        final int indexEdited       = cursor.getColumnIndex(LIST_ITEMS_COLUMN_EDITED);
-        final int indexViewed       = cursor.getColumnIndex(LIST_ITEMS_COLUMN_VIEWED);
-
-        final String title          = cursor.getString(indexTitle);
-        final String color          = cursor.getString(indexColor);
-        final String imageUrl       = cursor.getString(indexImageUrl);
-        final String description    = cursor.getString(indexDescription);
-        final String created        = cursor.getString(indexCreated);
-        final String edited         = cursor.getString(indexEdited);
-        final String viewed         = cursor.getString(indexViewed);
-
-        // Create entry map
-        final Map<String, String> entryMap = new HashMap<>();
-
-        entryMap.put(LIST_ITEMS_COLUMN_TITLE,           title);
-        entryMap.put(LIST_ITEMS_COLUMN_COLOR,           String.format(
-                "#%06X",
-                (0xFFFFFF & Integer.parseInt(color))));
-
-        entryMap.put(LIST_ITEMS_COLUMN_IMAGE_URL,       imageUrl);
-        entryMap.put(LIST_ITEMS_COLUMN_DESCRIPTION,     description);
-        entryMap.put(LIST_ITEMS_COLUMN_CREATED,         getStringDateISO8601(activity, created));
-        entryMap.put(LIST_ITEMS_COLUMN_EDITED,          getStringDateISO8601(activity, edited));
-        entryMap.put(LIST_ITEMS_COLUMN_VIEWED,          getStringDateISO8601(activity, viewed));
-
-        //
-        return new JSONObject(entryMap);
-    }
-
-    /**
      * Saving given string to file, and notifying.
      */
     private static void saveStringToFile(
@@ -493,8 +434,7 @@ public class FileUtils {
                 for (int i = 0; i < size; i++) {
 
                     // Get next Json-object.
-                    final String entryJson = jsonArray.getString(i);
-                    final JSONObject jsonObject = new JSONObject(entryJson);
+                    final JSONObject jsonObject = jsonArray.getJSONObject(i);
 
                     // Convert to entry.
                     final ListEntry entry = convertJsonToListEntry(activity, jsonObject);
@@ -536,34 +476,6 @@ public class FileUtils {
                     activity.getString(R.string.file_utils_import_toast_message_failed),
                     Toast.LENGTH_SHORT);
         }
-    }
-
-    @NonNull
-    private static ListEntry convertJsonToListEntry(
-            @NonNull final Activity activity,
-            @NonNull final JSONObject jsonObject) {
-
-        // Get strings
-        final String title          = jsonObject.optString(LIST_ITEMS_COLUMN_TITLE, null);
-        final int color             = Color.parseColor(jsonObject.optString(
-                                                            LIST_ITEMS_COLUMN_COLOR, null));
-        final String imageUrl       = jsonObject.optString(LIST_ITEMS_COLUMN_IMAGE_URL, null);
-        final String description    = jsonObject.optString(LIST_ITEMS_COLUMN_DESCRIPTION, null);
-        final String created        = jsonObject.optString(LIST_ITEMS_COLUMN_CREATED, null);
-        final String edited         = jsonObject.optString(LIST_ITEMS_COLUMN_EDITED, null);
-        final String viewed         = jsonObject.optString(LIST_ITEMS_COLUMN_VIEWED, null);
-
-        // Create entry model.
-        final ListEntry entry = new ListEntry();
-        entry.setTitle(title);
-        entry.setDescription(description);
-        entry.setColor(color);
-        entry.setImageUrl(imageUrl);
-        entry.setCreated(getDateFromISO8601String(activity, created));
-        entry.setEdited(getDateFromISO8601String(activity, edited));
-        entry.setViewed(getDateFromISO8601String(activity, viewed));
-
-        return entry;
     }
 
     private static void makeSuccessImportOperations(

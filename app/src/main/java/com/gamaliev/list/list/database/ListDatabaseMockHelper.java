@@ -135,11 +135,11 @@ public class ListDatabaseMockHelper {
      * @throws SQLiteException If insert error.
      */
     public static void addMockEntries(
-            @NonNull final Context context,
-            final int entriesNumber,
-            @NonNull final SQLiteDatabase db,
-            @Nullable final ProgressNotificationHelper notification,
-            final boolean yieldIfContendedSafely) throws SQLiteException {
+            @NonNull    final Context           context,
+                        final int               entriesNumber,
+            @NonNull    final SQLiteDatabase    db,
+            @Nullable   final ProgressNotificationHelper notification,
+                        final boolean           yieldIfContendedSafely) throws SQLiteException {
 
         final Random random = new Random();
 
