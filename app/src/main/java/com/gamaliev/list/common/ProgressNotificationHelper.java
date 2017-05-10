@@ -22,12 +22,8 @@ public final class ProgressNotificationHelper {
     /* Logger */
     private static final String TAG = ProgressNotificationHelper.class.getSimpleName();
 
-    @NonNull
-    private final NotificationManager mManager;
+    @NonNull private final NotificationManager mManager;
     @NonNull private final NotificationCompat.Builder mBuilder;
-
-    @NonNull private final String mTitle;
-    @NonNull private final String mText;
     @NonNull private final String mComplete;
 
     private final int mId;
@@ -37,10 +33,10 @@ public final class ProgressNotificationHelper {
     /**
      * To enable notification, you must use {@link #startTimerToEnableNotification}
      *
-     * @param context   Context.
-     * @param title     Title of notification.
-     * @param text      Text of notification.
-     * @param complete  Complete text of notification.
+     * @param context  Context.
+     * @param title    Title of notification.
+     * @param text     Text of notification.
+     * @param complete Complete text of notification.
      */
     public ProgressNotificationHelper(
             @NonNull final Context context,
@@ -48,19 +44,16 @@ public final class ProgressNotificationHelper {
             @NonNull final String text,
             @NonNull final String complete) {
 
-        mManager    = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        mBuilder    = new NotificationCompat.Builder(context);
-
-        mTitle      = title;
-        mText       = text;
-        mComplete   = complete;
+        mManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        mBuilder = new NotificationCompat.Builder(context);
+        mComplete = complete;
 
         final Random random = new Random();
         mId = random.nextInt();
 
         // Create notification.
-        mBuilder.setContentTitle(mTitle)
-                .setContentText(mText)
+        mBuilder.setContentTitle(title)
+                .setContentText(text)
                 .setSmallIcon(R.drawable.ic_import_export_white_24dp);
     }
 
@@ -108,9 +101,9 @@ public final class ProgressNotificationHelper {
     }
 
 
-        /*
-            Setters and getters
-         */
+    /*
+        Setters and getters
+    */
 
     public void setEnable(final boolean enable) {
         mEnable = enable;
