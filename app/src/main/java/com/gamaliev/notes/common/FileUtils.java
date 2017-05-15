@@ -1,12 +1,10 @@
 package com.gamaliev.notes.common;
 
-import android.Manifest;
 import android.app.Activity;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -22,13 +20,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-import static com.gamaliev.notes.common.CommonUtils.checkAndRequestPermissions;
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 import static com.gamaliev.notes.list.ListActivity.RESULT_CODE_EXTRA_EXPORTED;
 import static com.gamaliev.notes.list.ListActivity.RESULT_CODE_EXTRA_IMPORTED;
@@ -62,7 +58,7 @@ public class FileUtils {
     /* ... */
     public static final int REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE = 2;
-    private static final String FILE_NAME = "itemlist.ili";
+    public static final String FILE_NAME_EXPORT_DEFAULT = "itemlist.ili";
 
     /* Handler, Looper */
     private static final CommonUtils.LooperHandlerThread IMPORT_EXPORT_HANDLER_LOOPER_THREAD;
@@ -85,45 +81,22 @@ public class FileUtils {
      */
 
     /**
-     * Checking permission for export. If permission is granted, starting export,
-     * otherwise requesting permission from user.
-     *
-     * @param activity              Activity.
-     * @param onCompleteListener    Listener, who will be notified of the result.
-     */
-    public static void exportEntriesAsyncWithCheckPermission(
-            @NonNull final Activity activity,
-            @NonNull final OnCompleteListener onCompleteListener) {
-
-        // Check writable. If denied, make request, then break.
-        if (!checkAndRequestPermissions(
-                activity,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE)) {
-
-            return;
-        }
-
-        // If ok.
-        exportEntriesAsync(activity, onCompleteListener);
-    }
-
-
-    /**
      * Starting the export in asynchronous mode,
      * using a dedicated shared thread, with looper and message queue.<br>
      *
      * @param activity              Activity.
+     * @param selectedFile          Selected file.
      * @param onCompleteListener    Listener, who will be notified of the result.
      */
     public static void exportEntriesAsync(
             @NonNull final Activity activity,
+            @NonNull final Uri selectedFile,
             @NonNull final OnCompleteListener onCompleteListener) {
 
         IMPORT_EXPORT_HANDLER_LOOPER_THREAD.getHandler().post(new Runnable() {
             @Override
             public void run() {
-                exportEntries(activity, onCompleteListener);
+                exportEntries(activity, selectedFile, onCompleteListener);
             }
         });
     }
@@ -133,10 +106,12 @@ public class FileUtils {
      * If the operation time is longer than the specified time, then progress notification enable.
      *
      * @param activity              Activity.
+     * @param selectedFile          Selected file.
      * @param onCompleteListener    Listener, who will be notified of the result.
      */
     public static void exportEntries(
             @NonNull final Activity activity,
+            @NonNull final Uri selectedFile,
             @NonNull final OnCompleteListener onCompleteListener) {
 
         //
@@ -172,6 +147,7 @@ public class FileUtils {
                 activity,
                 jsonArray,
                 result,
+                selectedFile,
                 onCompleteListener,
                 notification);
 
@@ -248,23 +224,23 @@ public class FileUtils {
             @NonNull final Activity activity,
             @NonNull final JSONArray jsonArray,
             @NonNull final String result,
+            @NonNull final Uri selectedFile,
             @NonNull final OnCompleteListener onCompleteListener,
             @NonNull final ProgressNotificationHelper notification) {
 
         try {
-            // Create file
-            final File file = new File(Environment.getExternalStorageDirectory(), FILE_NAME);
+            //
+            final OutputStream os = activity
+                    .getContentResolver()
+                    .openOutputStream(selectedFile);
 
-            // Write to file
-            final FileOutputStream outputStream = new FileOutputStream(file);
-            outputStream.write(result.getBytes());
-            outputStream.close();
+            os.write(result.getBytes());
+            os.close();
 
             // Notification success.
             showToastRunOnUiThread(
                     activity,
                     activity.getString(R.string.file_utils_export_toast_message_success)
-                            + " : " + file.getPath()
                             + " (" + jsonArray.length() + ")",
                     Toast.LENGTH_LONG);
 
@@ -373,22 +349,22 @@ public class FileUtils {
 
         try {
             //
-            final StringBuilder sb = new StringBuilder();
+            final InputStream is = activity
+                    .getContentResolver()
+                    .openInputStream(selectedFile);
 
-            // Read from file
-            final BufferedReader reader =
-                    new BufferedReader(
-                            new InputStreamReader(
-                                    activity.getContentResolver().openInputStream(selectedFile)));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
+            final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            final byte[] buffer = new byte[1024];
+            int count;
+            while ((count = is.read(buffer)) != -1) {
+                bytes.write(buffer, 0, count);
             }
-            reader.close();
+
+            bytes.close();
+            is.close();
 
             //
-            inputJson = sb.toString();
+            inputJson = bytes.toString();
 
         } catch (IOException e) {
             Log.e(TAG, e.toString());

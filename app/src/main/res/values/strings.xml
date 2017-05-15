@@ -208,7 +208,7 @@
     <string name="file_utils_import_notification_panel_title">Import entries</string>
     <string name="file_utils_import_notification_panel_text">Import in progress</string>
     <string name="file_utils_import_notification_panel_finish">Import complete</string>
-    <string name="file_utils_export_toast_message_success">Export successfully</string>
+    <string name="file_utils_export_toast_message_success">Export successfully!</string>
     <string name="file_utils_export_toast_message_failed">Export failed</string>
     <string name="file_utils_import_intent_chooser_title">Choose import-file, *.ili</string>
     <string name="file_utils_import_toast_message_success">Import successfully!</string>

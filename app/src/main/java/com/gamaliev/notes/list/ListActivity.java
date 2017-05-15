@@ -37,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
+import com.gamaliev.notes.common.FileUtils;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import com.gamaliev.notes.user.UserActivity;
 import com.gamaliev.notes.common.ProgressNotificationHelper;
@@ -60,7 +61,7 @@ import static com.gamaliev.notes.common.CommonUtils.showToast;
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 import static com.gamaliev.notes.common.FileUtils.REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE;
 import static com.gamaliev.notes.common.FileUtils.REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE;
-import static com.gamaliev.notes.common.FileUtils.exportEntriesAsyncWithCheckPermission;
+import static com.gamaliev.notes.common.FileUtils.exportEntriesAsync;
 import static com.gamaliev.notes.common.FileUtils.importEntriesAsync;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
 
@@ -73,7 +74,8 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
     private static final int REQUEST_CODE_ADD           = 101;
     private static final int REQUEST_CODE_EDIT          = 102;
     private static final int REQUEST_CODE_IMPORT        = 103;
-    private static final int REQUEST_CODE_CHANGE_USER   = 104;
+    private static final int REQUEST_CODE_EXPORT        = 104;
+    private static final int REQUEST_CODE_CHANGE_USER   = 105;
 
     private static final String RESULT_CODE_EXTRA       = "resultCodeExtra";
     public static final int RESULT_CODE_FILTER_DIALOG   = 201;
@@ -355,6 +357,12 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                 // If file selected, then start import.
                 final Uri selectedFile = data.getData();
                 importEntriesAsync(this, selectedFile, this);
+
+            } else if (requestCode == REQUEST_CODE_EXPORT) {
+
+                // If file selected, then start export.
+                final Uri selectedFile = data.getData();
+                exportEntriesAsync(this, selectedFile, this);
             }
         }
         //
@@ -381,7 +389,7 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     //
-                    exportEntriesAsyncWithCheckPermission(this, this);
+                    startExportFileChooser();
                 } else {
 
                     // If denied, then make explanation notification.
@@ -560,14 +568,20 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                             //
                             startImportFileChooser();
                         }
-
                         break;
 
                     // Export entries.
                     case R.id.activity_list_nav_drawer_item_export_entries:
-                        exportEntriesAsyncWithCheckPermission(
+
+                        // Check writable. If denied, make request, then break.
+                        if (checkAndRequestPermissions(
                                 ListActivity.this,
-                                ListActivity.this);
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE)) {
+
+                            //
+                            startExportFileChooser();
+                        }
                         break;
 
                     // Add mock entries.
@@ -755,11 +769,22 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
      * with {@link #REQUEST_CODE_IMPORT}.
      */
     private void startImportFileChooser() {
-        final Intent intent = new Intent();
+        final Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(
-                Intent.createChooser(intent, getString(R.string.file_utils_import_intent_chooser_title)),
-                REQUEST_CODE_IMPORT);
+        startActivityForResult(intent, REQUEST_CODE_IMPORT);
+    }
+
+    /**
+     * Creating intent, and starting file chooser for export-file.<br>
+     * Then result handle by {@link #onActivityResult(int, int, Intent)},
+     * with {@link #REQUEST_CODE_EXPORT}.
+     */
+    private void startExportFileChooser() {
+        final Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_TITLE, FileUtils.FILE_NAME_EXPORT_DEFAULT);
+        startActivityForResult(intent, REQUEST_CODE_EXPORT);
     }
 }
