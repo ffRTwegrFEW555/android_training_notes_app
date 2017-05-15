@@ -202,7 +202,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
     private void initLocalVariables() {
         initFilterProfile();
-        initSelectedFilterProfile();
+        initSelectedIdFilterProfile();
         mFoundedEntriesCache = new HashMap<>();
     }
 
@@ -210,7 +210,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
         mFilterProfileMap = convertJsonToMap(getSelectedForCurrentUser(getActivity()));
     }
 
-    private void initSelectedFilterProfile() {
+    private void initSelectedIdFilterProfile() {
         mSelectedFilterProfile = getSelectedIdForCurrentUser(getActivity());
     }
 
@@ -1203,10 +1203,9 @@ public final class FilterSortDialogFragment extends DialogFragment {
                 mFilterProfileMap.put(SP_FILTER_ID, "");
                 mFilterProfileMap.put(SP_FILTER_TITLE, enteredText);
                 String newId = addForCurrentUser(getActivity(), mFilterProfileMap);
-                setSelectedForCurrentUser(getActivity(), newId);
+                mFilterProfileMap.put(SP_FILTER_ID, newId);
 
                 // Reinitialize
-                initLocalVariables();
                 initComponents();
             }
         });

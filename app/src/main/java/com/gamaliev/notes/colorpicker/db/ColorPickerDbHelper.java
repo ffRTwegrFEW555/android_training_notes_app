@@ -48,14 +48,17 @@ public class ColorPickerDbHelper {
         Database
      */
 
+    @NonNull
     private static SQLiteDatabase getWritableDb(@NonNull final Context context) {
         return DbHelper.getInstance(context).getWritableDatabase();
     }
 
+    @NonNull
     private static SQLiteDatabase getReadableDb(@NonNull final Context context) {
         return DbHelper.getInstance(context).getReadableDatabase();
     }
 
+    @NonNull
     private static String getDbFailMessage(@NonNull final Context context) {
         return DbHelper.getInstance(context).getDbFailMessage();
     }

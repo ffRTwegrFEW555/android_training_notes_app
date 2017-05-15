@@ -15,6 +15,8 @@ import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import java.util.Map;
 import java.util.Set;
 
+import static com.gamaliev.notes.user.UserActivity.REQUEST_CODE_CONFIGURE_USER;
+
 /**
  * @author Vadim Gamaliev
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
@@ -24,9 +26,6 @@ public class UserAdapter extends BaseAdapter {
 
     /* Logger */
     private static final String TAG = UserAdapter.class.getSimpleName();
-
-    /* Intents */
-    private static final int REQUEST_CODE_CONFIGURE_USER = 101;
 
     /* ... */
     @NonNull private final String[] mProfiles;

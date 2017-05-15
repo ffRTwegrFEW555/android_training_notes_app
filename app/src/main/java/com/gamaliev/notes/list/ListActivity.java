@@ -116,7 +116,7 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
 
         initFilterProfile();
         initToolbarAndNavigationDrawer();
-        setFabOnClickListener();
+        initFabOnClickListener();
         initAdapterAndListView();
     }
 
@@ -173,7 +173,7 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
      * Start {@link ItemDetailsActivity} activity for result,
      * with Add new entry action.
      */
-    private void setFabOnClickListener() {
+    private void initFabOnClickListener() {
         findViewById(R.id.activity_list_fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -166,6 +166,7 @@ public final class SpFilterProfiles {
      * @param context   Context.
      * @return          Filter profile in Json-format.
      */
+    @Nullable
     public static String getSelectedForCurrentUser(
             @NonNull final Context context) {
 

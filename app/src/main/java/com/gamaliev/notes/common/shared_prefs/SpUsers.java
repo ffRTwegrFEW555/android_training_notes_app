@@ -33,6 +33,7 @@ public final class SpUsers {
 
     /* Users, main */
     public static final String SP_USERS_FILENAME_PREFIX     = "Users";
+    public static final String SP_USERS_ID_COUNTER          = "usersIdCounter";
     public static final String SP_USERS_SET                 = "usersSet";
     public static final String SP_USERS_SELECTED_ID         = "usersSelectedId";
     public static final String SP_USERS_DEFAULT_USER_ID     = "-1";
@@ -67,7 +68,7 @@ public final class SpUsers {
 
         final Map<String, String> map = new HashMap<>();
         map.put(SP_USER_ID,             SP_USERS_DEFAULT_USER_ID);
-        map.put(SP_USER_EXTERNAL_ID,    "0");
+        map.put(SP_USER_EXTERNAL_ID,    "-1");
         map.put(SP_USER_EMAIL,          "no email");
         map.put(SP_USER_FIRST_NAME,     "no first name");
         map.put(SP_USER_LAST_NAME,      "no last name");
@@ -134,23 +135,49 @@ public final class SpUsers {
         return SP_USERS_FILENAME_PREFIX + "." + userId;
     }
 
+    @Nullable
+    public static String getNextUserId(@NonNull final Context context) {
+        int number = Integer.parseInt(getIdCounter(context));
+        final String nextNumber = String.valueOf(++number);
+        setIdCounter(context, String.valueOf(++number));
+        return nextNumber;
+    }
+
+    /**
+     * @param context   Context.
+     * @return          Number of id counter
+     */
+    @Nullable
+    public static String getIdCounter(@NonNull final Context context) {
+
+        final SharedPreferences sp = context.getSharedPreferences(SP_MAIN, MODE_PRIVATE);
+        return sp.getString(SP_USERS_ID_COUNTER, null);
+    }
+
 
     /*
         Setters
      */
 
     /**
-     * Add new user.
+     * Add new user, from given profile. If profile is null, then create default profile.
      * Creating new preferences file, with default settings.
      * Add user info.
      * Set new user as selected.
      * Update main preferences settings.
      * @param context   Context.
      * @param profile   User profile.
+     * @return Id of added user.
      */
-    public static void add(
+    public static String add(
             @NonNull final Context context,
-            @NonNull final Map<String, String> profile) {
+            @Nullable Map<String, String> profile) {
+
+        // If null, then create default, with next user id.
+        if (profile == null) {
+            profile = getDefaultProfile();
+            profile.put(SP_USER_ID, getNextUserId(context));
+        }
 
         // Create. Filename example: "Users.123"
         final SharedPreferences sp = context.getSharedPreferences(
@@ -199,6 +226,8 @@ public final class SpUsers {
 
         // Update main preferences.
         addToProfiles(context, profile.get(SP_USER_ID));
+
+        return profile.get(SP_USER_ID);
     }
 
     /**
@@ -243,6 +272,21 @@ public final class SpUsers {
         final SharedPreferences sp = context.getSharedPreferences(SP_MAIN, MODE_PRIVATE);
         sp      .edit()
                 .putString(SP_USERS_SELECTED_ID, userId)
+                .apply();
+    }
+
+    /**
+     * Set number of id counter.
+     * @param context   Context.
+     * @param number    Number of id counter.
+     */
+    public static void setIdCounter(
+            @NonNull final Context context,
+            @NonNull final String number) {
+
+        final SharedPreferences sp = context.getSharedPreferences(SP_MAIN, MODE_PRIVATE);
+        sp      .edit()
+                .putString(SP_USERS_ID_COUNTER, number)
                 .apply();
     }
 

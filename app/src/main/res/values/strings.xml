@@ -135,7 +135,9 @@
     <string name="activity_user">Users</string>
 
     <!-- Other -->
-    <string name="menu_user_preference_action_delete">Delete</string>
+    <string name="activity_user_item_configure_button_description">Configure user</string>
+    <string name="activity_user_item_photo_description">Photo</string>
+
 
     <!--                            -->
     <!-- Activity User Preference   -->
@@ -166,7 +168,7 @@
     <string name="activity_user_preference_delete_default_error">Can\'t delete default profile</string>
 
     <!-- Other -->
-    <string name="activity_user_item_configure_button_description">Configure user</string>
+    <string name="menu_user_preference_action_delete">Delete</string>
 
 
     <!--            -->

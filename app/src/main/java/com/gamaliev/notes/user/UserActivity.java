@@ -24,6 +24,8 @@ public class UserActivity extends AppCompatActivity {
     /* Logger */
     private static final String TAG = UserActivity.class.getSimpleName();
 
+    /* Intents */
+    public static final int REQUEST_CODE_CONFIGURE_USER = 101;
 
     /*
         Init
@@ -38,6 +40,7 @@ public class UserActivity extends AppCompatActivity {
 
     private void init() {
         initToolbar();
+        initFabOnClickListener();
     }
 
     private void initToolbar() {
@@ -52,6 +55,49 @@ public class UserActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    private void initListView() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Create adapter.
+                final UserAdapter adapter = new UserAdapter(getApplicationContext());
+
+                // Init list view
+                final ListView listView = (ListView) findViewById(R.id.activity_user_list_view);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        listView.setAdapter(adapter);
+                    }
+                });
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        SpUsers.setSelected(getApplicationContext(), String.valueOf(id));
+                        setResult(RESULT_OK);
+                        finish();
+                    }
+                });
+            }
+        }).start();
+    }
+
+    /**
+     * Add new user.
+     */
+    private void initFabOnClickListener() {
+        findViewById(R.id.activity_user_fab).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String newUserId = SpUsers.add(getApplicationContext(), null);
+                UserPreferenceActivity.startIntent(
+                        UserActivity.this,
+                        REQUEST_CODE_CONFIGURE_USER,
+                        newUserId);
+            }
+        });
     }
 
 
@@ -81,23 +127,5 @@ public class UserActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         initListView();
-    }
-
-    private void initListView() {
-
-        // Create adapter.
-        final UserAdapter adapter = new UserAdapter(getApplicationContext());
-
-        // Init list view
-        final ListView listView = (ListView) findViewById(R.id.activity_user_list_view);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                SpUsers.setSelected(getApplicationContext(), String.valueOf(id));
-                setResult(RESULT_OK);
-                finish();
-            }
-        });
     }
 }

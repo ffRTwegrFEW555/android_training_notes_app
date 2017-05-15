@@ -61,8 +61,10 @@ public final class SpCommon {
             // Add mock data.
             SpMock.addMockData(context);
 
+            // Set Id counter
             // Mark initialized.
             sp      .edit()
+                    .putString(SpUsers.SP_USERS_ID_COUNTER, "5")
                     .putBoolean(SP_INITIALIZED, true)
                     .apply();
         }
