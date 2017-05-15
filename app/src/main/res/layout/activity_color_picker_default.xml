@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
-    tools:context="com.gamaliev.list.colorpicker.ColorPickerActivity">
+    tools:context="com.gamaliev.notes.colorpicker.ColorPickerActivity">
 
 
     <!-- Favorite icons -->
@@ -64,7 +64,7 @@
 
 
     <!-- Palette bar -->
-    <com.gamaliev.list.common.SwitchableHorizontalScrollView
+    <com.gamaliev.notes.common.SwitchableHorizontalScrollView
         android:id="@+id/activity_color_picker_scroll_palette_bar"
         android:layout_alignParentTop="true"
         android:layout_width="match_parent"
@@ -79,7 +79,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
         </LinearLayout>
-    </com.gamaliev.list.common.SwitchableHorizontalScrollView>
+    </com.gamaliev.notes.common.SwitchableHorizontalScrollView>
 
 
     <!-- Favorite bar -->

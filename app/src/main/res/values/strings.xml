@@ -73,11 +73,12 @@
     <!-- Navigation drawer -->
     <string name="activity_list_nav_drawer_open">Open navigation drawer</string>
     <string name="activity_list_nav_drawer_close">Close navigation drawer</string>
-    <string name="activity_list_nav_drawer_text_mail">gamaliev-vadim@yandex.com</string>
     <string name="activity_list_nav_drawer_item_add_mock_entries">Add mock entries</string>
     <string name="activity_list_nav_drawer_item_delete_all_entries">Delete all</string>
     <string name="activity_list_nav_drawer_item_import_entries">Import notes</string>
     <string name="activity_list_nav_drawer_item_export_entries">Export notes</string>
+    <string name="activity_list_nav_drawer_item_change_user">Change user</string>
+    <string name="activity_list_nav_drawer_item_settings">Settings</string>
     <string name="activity_list_nav_drawable_header_image_view_description">Notes</string>
 
     <!-- Other -->
@@ -124,6 +125,48 @@
     <string name="activity_list_filter_dialog_profile_input_text_save_title">Save</string>
     <string name="activity_list_filter_dialog_profile_input_text_cancel_title">Cancel</string>
     <string name="activity_list_filter_dialog_profile_found_text">Found:</string>
+
+
+    <!--                -->
+    <!-- Activity User  -->
+    <!--                -->
+
+    <!-- Activity -->
+    <string name="activity_user">Users</string>
+
+    <!-- Other -->
+    <string name="menu_user_preference_action_delete">Delete</string>
+
+    <!--                            -->
+    <!-- Activity User Preference   -->
+    <!--                            -->
+
+    <!-- Activity -->
+    <string name="activity_user_preference">User preference</string>
+
+    <string name="activity_user_preference_category_name_title">Name</string>
+    <string name="activity_user_preference_first_name_title">First name</string>
+    <string name="activity_user_preference_last_name_title">Last name</string>
+    <string name="activity_user_preference_middle_name_title">Middle name</string>
+
+    <string name="activity_user_preference_category_additional_title">Additional</string>
+    <string name="activity_user_preference_email_title">Email</string>
+    <string name="activity_user_preference_description_title">Description</string>
+
+    <string name="activity_user_preference_category_identifiers_title">Identifiers</string>
+    <string name="activity_user_preference_user_id_title">User ID</string>
+    <string name="activity_user_preference_sync_id_title">Synchronization ID</string>
+
+
+    <!-- Delete alert dialog -->
+    <string name="activity_user_preference_delete_dialog_title">Delete</string>
+    <string name="activity_user_preference_delete_dialog_message">Do you really want to delete this user?</string>
+    <string name="activity_user_preference_delete_dialog_button_ok">Delete</string>
+    <string name="activity_user_preference_delete_dialog_button_cancel">Cancel</string>
+    <string name="activity_user_preference_delete_default_error">Can\'t delete default profile</string>
+
+    <!-- Other -->
+    <string name="activity_user_item_configure_button_description">Configure user</string>
 
 
     <!--            -->

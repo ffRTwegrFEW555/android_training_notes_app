@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.gamaliev.list">
+    package="com.gamaliev.notes">
 
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:name=".app.ListApp"
+        android:name="com.gamaliev.notes.app.NotesApp"
         android:allowBackup="true"
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
@@ -18,7 +18,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".list.ListActivity"
+            android:name="com.gamaliev.notes.list.ListActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:label="@string/activity_list_name">
             <intent-filter>
@@ -28,14 +28,24 @@
         </activity>
 
         <activity
-            android:name=".list.ItemDetailsActivity"
+            android:name="com.gamaliev.notes.item_details.ItemDetailsActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:label="@string/activity_list_details_name"/>
 
         <activity
-            android:name=".colorpicker.ColorPickerActivity"
+            android:name="com.gamaliev.notes.colorpicker.ColorPickerActivity"
             android:theme="@style/AppTheme.NoActionBar.Fullscreen"
             android:label="@string/activity_color_picker_name"/>
+
+        <activity
+            android:name="com.gamaliev.notes.user.UserActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/activity_user"/>
+
+        <activity
+            android:name="com.gamaliev.notes.user.UserPreferenceActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/activity_user_preference"/>
 
     </application>
 

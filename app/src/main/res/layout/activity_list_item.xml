@@ -10,7 +10,7 @@
         android:id="@+id/activity_list_item_color"
         android:layout_width="@dimen/activity_list_item_color_width"
         android:layout_height="@dimen/activity_list_item_color_height"
-        android:layout_marginEnd="@dimen/activity_list_item_color_margin_start"
+        android:layout_marginEnd="@dimen/activity_list_item_color_margin_end"
         android:background="@drawable/btn_oval"/>
 
     <LinearLayout

@@ -44,8 +44,8 @@
                 android:id="@+id/activity_item_details_color"
                 android:layout_width="@dimen/activity_item_details_ff_color_radius"
                 android:layout_height="@dimen/activity_item_details_ff_color_radius"
-                android:layout_marginStart="@dimen/activity_list_item_color_margin_start"
-                android:layout_marginBottom="@dimen/activity_list_item_color_margin_bottom"
+                android:layout_marginStart="@dimen/activity_item_details_ff_color_margin_start"
+                android:layout_marginBottom="@dimen/activity_item_details_ff_color_margin_bottom"
                 android:layout_gravity="bottom"
                 android:transitionName="@string/shared_transition_name_color_box"/>
 
@@ -54,8 +54,8 @@
                 android:id="@+id/activity_item_details_progress_bar_replacer"
                 android:layout_width="@dimen/activity_item_details_ff_color_radius"
                 android:layout_height="@dimen/activity_item_details_ff_color_radius"
-                android:layout_marginStart="@dimen/activity_list_item_color_margin_start"
-                android:layout_marginBottom="@dimen/activity_list_item_color_margin_bottom"
+                android:layout_marginStart="@dimen/activity_item_details_ff_color_margin_start"
+                android:layout_marginBottom="@dimen/activity_item_details_ff_color_margin_bottom"
                 android:layout_gravity="bottom"
                 android:theme="@style/AppTheme.WhileColor"
                 android:visibility="gone"/>

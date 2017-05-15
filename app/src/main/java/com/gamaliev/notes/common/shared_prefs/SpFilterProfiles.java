@@ -1,0 +1,451 @@
+package com.gamaliev.notes.common.shared_prefs;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import static android.content.Context.MODE_PRIVATE;
+import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
+import static com.gamaliev.notes.common.db.DbHelper.FAVORITE_COLUMN_COLOR;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_CREATED;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_TITLE;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
+import static com.gamaliev.notes.common.db.DbHelper.ORDER_ASC_DESC_DEFAULT;
+import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertMapToJson;
+import static com.gamaliev.notes.common.shared_prefs.SpCommon.setString;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPreferencesName;
+
+/**
+ * @author Vadim Gamaliev
+ *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
+ */
+
+public final class SpFilterProfiles {
+
+    /* Logger */
+    private static final String TAG = SpFilterProfiles.class.getSimpleName();
+
+    /* Filter, profiles */
+    public static final String SP_FILTER_PROFILE_SELECTED_ID = "filterProfileSelectedId";
+    public static final String SP_FILTER_PROFILE_DEFAULT    = "filterProfileDefault";
+    public static final String SP_FILTER_PROFILE_DEFAULT_ID = "-1";
+    public static final String SP_FILTER_PROFILE_CURRENT    = "filterProfileCurrent";
+    public static final String SP_FILTER_PROFILE_CURRENT_ID = "-2";
+    public static final String SP_FILTER_PROFILES_SET       = "filterProfilesSet";
+
+    /* Filter */
+    public static final String SP_FILTER_ID                 = BASE_COLUMN_ID;
+    public static final String SP_FILTER_TITLE              = "title";
+    public static final String SP_FILTER_COLOR              = FAVORITE_COLUMN_COLOR;
+    public static final String SP_FILTER_CREATED            = LIST_ITEMS_COLUMN_CREATED;
+    public static final String SP_FILTER_EDITED             = LIST_ITEMS_COLUMN_EDITED;
+    public static final String SP_FILTER_VIEWED             = LIST_ITEMS_COLUMN_VIEWED;
+
+    public static final String SP_FILTER_SYMBOL_DATE_SPLIT  = "#";
+    public static final String SP_FILTER_ORDER              = "order";
+    public static final String SP_FILTER_ORDER_ASC          = "orderAscDesc";
+
+
+    /*
+        Init
+     */
+
+    private SpFilterProfiles() {}
+
+
+    /*
+        Getters
+     */
+
+    /**
+     * Get hardcoded default filter profile.
+     * @return Default profile in Json-format.
+     */
+    @Nullable
+    public static String getDefaultProfile() {
+        final JSONObject jsonObject = new JSONObject();
+
+        try {
+            jsonObject.put(SP_FILTER_ID,        SP_FILTER_PROFILE_CURRENT_ID);
+            jsonObject.put(SP_FILTER_TITLE,     "");
+            jsonObject.put(SP_FILTER_COLOR,     "");
+            jsonObject.put(SP_FILTER_CREATED,   "");
+            jsonObject.put(SP_FILTER_EDITED,    "");
+            jsonObject.put(SP_FILTER_VIEWED,    "");
+            jsonObject.put(SP_FILTER_ORDER,     LIST_ITEMS_COLUMN_TITLE);
+            jsonObject.put(SP_FILTER_ORDER_ASC, ORDER_ASC_DESC_DEFAULT);
+
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+            return null;
+        }
+
+        return jsonObject.toString();
+    }
+
+    /**
+     * Get filter profile.
+     * @param context   Context.
+     * @param userId    User id.
+     * @param profileId Profile id.
+     * @return          Filter profile in Json-format if found, otherwise null.
+     */
+    @Nullable
+    public static String get(
+            @NonNull final Context context,
+            @NonNull final String userId,
+            @NonNull final String profileId) {
+
+        // Get profiles, found.
+        final Set<String> set = getProfiles(context, userId);
+        for (String profile : set) {
+
+            //
+            JSONObject jsonObject;
+            try {
+                jsonObject = new JSONObject(profile);
+            } catch (JSONException e) {
+                Log.e(TAG, e.toString());
+                return null;
+            }
+
+            // If found.
+            if (profileId.equals(jsonObject.optString(SP_FILTER_ID))) {
+                return profile;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get id of selected filter profile, for current user.
+     * @param context   Context.
+     * @return          Id of selected filter profile.
+     */
+    @Nullable
+    public static String getSelectedIdForCurrentUser(
+            @NonNull final Context context) {
+
+        return getSelectedId(
+                context,
+                SpUsers.getSelected(context));
+    }
+
+    /**
+     * Get id of selected filter profile.
+     * @param context   Context.
+     * @param userId    User id.
+     * @return          Id of selected filter profile.
+     */
+    @Nullable
+    public static String getSelectedId(
+            @NonNull final Context context,
+            @NonNull final String userId) {
+
+        final SharedPreferences sp = context.getSharedPreferences(
+                getPreferencesName(userId),
+                MODE_PRIVATE);
+        return sp.getString(SP_FILTER_PROFILE_SELECTED_ID, null);
+    }
+
+    /**
+     * Get selected filter profile from current user preferences.
+     * @param context   Context.
+     * @return          Filter profile in Json-format.
+     */
+    public static String getSelectedForCurrentUser(
+            @NonNull final Context context) {
+
+        return getSelected(
+                context,
+                SpUsers.getSelected(context));
+    }
+
+    /**
+     * Get selected filter profile from user preferences.
+     * @param context   Context.
+     * @param userId    User id.
+     * @return          Filter profile in Json-format.
+     */
+    @Nullable
+    public static String getSelected(
+            @NonNull final Context context,
+            @NonNull final String userId) {
+
+        // Get user preferences.
+        final SharedPreferences sp = context.getSharedPreferences(
+                getPreferencesName(userId),
+                MODE_PRIVATE);
+
+        // Get id of selected profile.
+        final String profileId = getSelectedId(context, userId);
+
+        // Default, current, other.
+        if (SP_FILTER_PROFILE_DEFAULT_ID.equals(profileId)) {
+            return sp.getString(SP_FILTER_PROFILE_DEFAULT, null);
+        } else if (SP_FILTER_PROFILE_CURRENT_ID.equals(profileId)) {
+            return sp.getString(SP_FILTER_PROFILE_CURRENT, null);
+        } else {
+            return get(context, userId, profileId);
+        }
+    }
+
+    /**
+     * Get all filter profiles from current user preferences.
+     * @param context   Context.
+     * @return          All filter profiles.
+     */
+    @NonNull
+    public static Set<String> getProfilesForCurrentUser(
+            @NonNull final Context context) {
+
+        return getProfiles(
+                context,
+                SpUsers.getSelected(context));
+    }
+
+    /**
+     * Get all filter profiles from user preferences.
+     * @param context   Context.
+     * @param userId    User id.
+     * @return          All filter profiles.
+     */
+    @NonNull
+    public static Set<String> getProfiles(
+            @NonNull final Context context,
+            @NonNull final String userId) {
+
+        final SharedPreferences sp = context.getSharedPreferences(
+                getPreferencesName(userId),
+                MODE_PRIVATE);
+        return sp.getStringSet(SP_FILTER_PROFILES_SET, new HashSet<String>());
+    }
+
+
+    /*
+        Setters
+     */
+
+    /**
+     * Add filter profile to current user preferences.
+     * @param context   Context.
+     * @param profile   Filter profile.
+     * @return          Id of added filter profile.
+     */
+    @NonNull
+    public static String addForCurrentUser(
+            @NonNull final Context context,
+            @NonNull final Map<String, String> profile) {
+
+        return add(context, SpUsers.getSelected(context), profile);
+    }
+
+    /**
+     * Add filter profile to user preferences.
+     * @param context   Context.
+     * @param userId    User id.
+     * @param profile   Filter profile.
+     * @return          Id of added filter profile.
+     */
+    @NonNull
+    public static String add(
+            @NonNull final Context context,
+            @NonNull final String userId,
+            @NonNull final Map<String, String> profile) {
+
+        // Generate id.
+        final UUID newId = UUID.randomUUID();
+        profile.put(SP_FILTER_ID, newId.toString());
+
+        // Get, add, save.
+        final Set<String> set = getProfiles(context, userId);
+        set.add(convertMapToJson(profile));
+        updateProfiles(context, userId, set);
+
+        return newId.toString();
+    }
+
+    /**
+     * Set id of selected filter profile to current user preferences.
+     * @param context   Context.
+     * @param profileId Profile id.
+     */
+    public static void setSelectedForCurrentUser(
+            @NonNull final Context context,
+            @NonNull final String profileId) {
+
+        setSelected(context, SpUsers.getSelected(context), profileId);
+    }
+
+    /**
+     * Set id of selected filter profile to user preferences.
+     * @param context   Context.
+     * @param userId    User id.
+     * @param profileId Profile id.
+     */
+    public static void setSelected(
+            @NonNull final Context context,
+            @NonNull final String userId,
+            @NonNull final String profileId) {
+
+        final SharedPreferences sp = context.getSharedPreferences(
+                getPreferencesName(userId),
+                MODE_PRIVATE);
+
+        sp      .edit()
+                .putString(SP_FILTER_PROFILE_SELECTED_ID, profileId)
+                .apply();
+    }
+
+    /**
+     * Update current profile in current user preferences, by given filter profile.
+     * @param context   Context.
+     * @param profile   Filter profile.
+     */
+    public static void updateCurrentForCurrentUser(
+            @NonNull final Context context,
+            @NonNull final Map<String, String> profile) {
+
+        updateCurrent(context, SpUsers.getSelected(context), profile);
+    }
+
+    /**
+     * Update current profile in user preferences, by given filter profile.
+     * @param context   Context.
+     * @param userId    User id.
+     * @param profile   Filter profile.
+     */
+    public static void updateCurrent(
+            @NonNull final Context context,
+            @NonNull final String userId,
+            @NonNull final Map<String, String> profile) {
+
+        final SharedPreferences sp = context.getSharedPreferences(
+                getPreferencesName(userId),
+                MODE_PRIVATE);
+
+        sp      .edit()
+                .putString(SP_FILTER_PROFILE_CURRENT, convertMapToJson(profile))
+                .apply();
+    }
+
+    /**
+     * Reset current profile filter to default, in user preferences.
+     * @param context   Context.
+     * @param userId    User id.
+     */
+    public static void resetCurrent(
+            @NonNull final Context context,
+            @NonNull final String userId) {
+
+        setString(
+                context,
+                getPreferencesName(userId),
+                SP_FILTER_PROFILE_CURRENT,
+                getDefaultProfile());
+
+        setSelected(
+                context,
+                userId,
+                SP_FILTER_PROFILE_CURRENT_ID);
+    }
+
+    /**
+     * Update filter profiles in user preferences.
+     * @param context   Context.
+     * @param userId    User id.
+     * @param profiles  Filter profiles.
+     */
+    public static void updateProfiles(
+            @NonNull final Context context,
+            @NonNull final String userId,
+            @NonNull final Set<String> profiles) {
+
+        final SharedPreferences sp = context.getSharedPreferences(
+                getPreferencesName(userId),
+                MODE_PRIVATE);
+
+        sp      .edit()
+                .putStringSet(SP_FILTER_PROFILES_SET, profiles)
+                .apply();
+    }
+
+    /**
+     * Delete filter profile from current user preferences.
+     * @param context       Context.
+     * @param profileId     Profile id.
+     */
+    public static void deleteForCurrentUser(
+            @NonNull final Context context,
+            @NonNull final String profileId) {
+
+        delete(context, SpUsers.getSelected(context), profileId);
+    }
+
+    /**
+     * Delete filter profile from user preferences.
+     * @param context       Context.
+     * @param userId        User id.
+     * @param profileId     Profile id.
+     */
+    public static void delete(
+            @NonNull final Context context,
+            @NonNull final String userId,
+            @NonNull final String profileId) {
+
+        // If default profile, then access denied.
+        if (SP_FILTER_PROFILE_DEFAULT_ID.equals(profileId)) {
+            return;
+        }
+
+        // If profile is current, then reset profile.
+        if (SP_FILTER_PROFILE_CURRENT_ID.equals(profileId)) {
+            resetCurrent(context, userId);
+            return;
+        }
+
+        // If "removed profile id" equals "selected profile id", then reset current profile.
+        if (profileId.equals(getSelectedId(context, userId))) {
+            resetCurrent(context, userId);
+        }
+
+        // Remove from profiles.
+        final Set<String> set = getProfiles(context, userId);
+
+        final Iterator<String> iterator = set.iterator();
+        while (iterator.hasNext()) {
+            final String next = iterator.next();
+
+            //
+            JSONObject jsonObject;
+            try {
+                jsonObject = new JSONObject(next);
+            } catch (JSONException e) {
+                Log.e(TAG, e.toString());
+                return;
+            }
+            final String id = jsonObject.optString(SP_FILTER_ID);
+
+            // Remove.
+            if (profileId.equals(id)) {
+                iterator.remove();
+                break;
+            }
+        }
+
+        updateProfiles(context, userId, set);
+    }
+}

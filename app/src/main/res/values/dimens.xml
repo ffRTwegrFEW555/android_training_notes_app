@@ -82,15 +82,14 @@
     <dimen name="activity_list_filter_dialog_max_height">400dp</dimen>
 
 
-    <!--                    -->
-    <!-- Activity ListItem  -->
-    <!--                    -->
+    <!--                            -->
+    <!-- Activity List. List Item   -->
+    <!--                            -->
 
     <!-- Color box -->
     <dimen name="activity_list_item_color_width">40dp</dimen>
     <dimen name="activity_list_item_color_height">40dp</dimen>
-    <dimen name="activity_list_item_color_margin_start">16dp</dimen>
-    <dimen name="activity_list_item_color_margin_bottom">16dp</dimen>
+    <dimen name="activity_list_item_color_margin_end">16dp</dimen>
 
     <!-- Other -->
     <dimen name="activity_list_item_height">88dp</dimen>
@@ -106,6 +105,8 @@
     <!--                        -->
 
     <!-- Other -->
+    <dimen name="activity_item_details_ff_color_margin_start">16dp</dimen>
+    <dimen name="activity_item_details_ff_color_margin_bottom">16dp</dimen>
     <dimen name="activity_item_details_ff_color_stroke_width">1dp</dimen>
     <dimen name="activity_item_details_ff_title_elevation">4dp</dimen>
     <dimen name="activity_item_details_ff_color_radius">56dp</dimen>
@@ -118,5 +119,29 @@
     <dimen name="activity_item_details_image_view_margin">16dp</dimen>
     <dimen name="activity_item_details_image_view_progress_size">48dp</dimen>
     <dimen name="activity_item_details_image_view_error_size">48dp</dimen>
+
+
+    <!--                -->
+    <!-- Activity User  -->
+    <!--                -->
+
+    <!-- Other -->
+    <dimen name="activity_user_fab_margin">16dp</dimen>
+    <dimen name="activity_user_padding_top">8dp</dimen>
+    <dimen name="activity_user_padding_bottom">8dp</dimen>
+    
+    <!-- list item. Photo box -->
+    <dimen name="activity_user_item_photo_width">40dp</dimen>
+    <dimen name="activity_user_item_photo_height">40dp</dimen>
+    <dimen name="activity_user_item_photo_margin_end">16dp</dimen>
+
+    <!-- list item. Other -->
+    <dimen name="activity_user_item_height">88dp</dimen>
+    <dimen name="activity_user_item_padding">16dp</dimen>
+    <dimen name="activity_user_item_padding_bottom">12dp</dimen>
+    <dimen name="activity_user_item_title_text_size">16sp</dimen>
+    <dimen name="activity_user_item_description_text_size">14sp</dimen>
+    <dimen name="activity_user_item_description_padding_end">8dp</dimen>
+    <dimen name="activity_user_item_button_width">56dp</dimen>
 
 </resources>

@@ -12,7 +12,7 @@
     <color name="color_picker_default">#bdbdbd</color>
     <color name="color_black">#000000</color>
     <color name="color_white">#ffffff</color>
-    <color name="activity_list_fab_color">@color/color_primary_contrast</color>
+    <color name="color_fab">@color/color_primary_contrast</color>
 
     <!-- Activity list nav drawer header gradient -->
     <color name="activity_list_nav_drawer_header_gradient_start">#BF360C</color>

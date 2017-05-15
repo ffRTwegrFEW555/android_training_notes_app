@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.gamaliev.notes.list.ListActivity">
+    tools:context="com.gamaliev.notes.user.UserActivity">
 
 
     <!-- Toolbar -->
@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/activity_list_toolbar"
+            android:id="@+id/activity_user_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
@@ -23,30 +23,19 @@
     </android.support.design.widget.AppBarLayout>
 
 
-    <!-- ListView -->
+    <!-- List -->
     <ListView
-        android:id="@+id/activity_list_listview"
+        android:id="@+id/activity_user_list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/activity_list_padding_top"
-        android:paddingBottom="@dimen/activity_list_padding_bottom"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
-
-
-    <!-- Found button -->
-    <Button
-        android:id="@+id/activity_list_button_found"
-        android:layout_width="@dimen/activity_list_button_found_width"
-        android:layout_height="@dimen/activity_list_button_found_height"
-        android:layout_gravity="top|end"
-        android:layout_margin="@dimen/activity_list_button_found_margin"
-        android:visibility="invisible"
+        android:paddingTop="@dimen/activity_user_padding_top"
+        android:paddingBottom="@dimen/activity_user_padding_bottom"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
 
     <!-- FAB -->
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/activity_list_fab"
+        android:id="@+id/activity_user_fab"
         android:src="@drawable/ic_add_white_24dp"
         android:clickable="true"
         app:fabSize="normal"
@@ -54,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/activity_list_fab_margin" />
+        android:layout_margin="@dimen/activity_user_fab_margin" />
 
 </android.support.design.widget.CoordinatorLayout>
 

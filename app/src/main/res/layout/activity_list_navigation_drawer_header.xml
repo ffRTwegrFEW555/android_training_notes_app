@@ -18,16 +18,17 @@
         android:contentDescription="@string/activity_list_nav_drawable_header_image_view_description" />
 
     <TextView
+        android:id="@+id/activity_list_nav_drawable_header_title_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/activity_list_nav_drawer_text_padding_top"
-        android:text="@string/activity_list_name"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:lines="1"/>
 
     <TextView
         android:id="@+id/activity_list_nav_drawable_header_mail_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/activity_list_nav_drawer_text_mail" />
+        android:lines="1"/>
 
 </LinearLayout>
