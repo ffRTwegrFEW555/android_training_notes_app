@@ -364,9 +364,17 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                 final Uri selectedFile = data.getData();
                 exportEntriesAsync(this, selectedFile, this);
             }
+
+            //
+            initFilterProfile();
+            updateFilterAdapter();
+
+        } else if (resultCode == RESULT_CANCELED) {
+            if (requestCode == REQUEST_CODE_CHANGE_USER) {
+                initFilterProfile();
+                updateFilterAdapter();
+            }
         }
-        //
-        init();
     }
 
     /**
@@ -439,7 +447,8 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                     Toast.LENGTH_SHORT);
         }
         //
-        init();
+        initFilterProfile();
+        updateFilterAdapter();
     }
 
 
@@ -702,7 +711,9 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        init();
+                        //
+                        initFilterProfile();
+                        updateFilterAdapter();
                     }
                 });
 
@@ -729,7 +740,9 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        init();
+                        //
+                        initFilterProfile();
+                        updateFilterAdapter();
                     }
                 });
                 // Show result notification.
