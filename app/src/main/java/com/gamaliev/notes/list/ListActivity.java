@@ -284,7 +284,7 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
             public boolean onMenuItemClick(MenuItem item) {
                 // Launch dialog.
                 FilterSortDialogFragment df = new FilterSortDialogFragment();
-                df.show(getFragmentManager(), null);
+                df.show(getSupportFragmentManager(), null);
                 return true;
             }
         });

@@ -47,7 +47,10 @@ public final class UserPreferenceActivity extends AppCompatActivity {
 
         initUserId();
         initToolbar();
-        initPreferenceFragment();
+
+        if (savedInstanceState == null) {
+            initPreferenceFragment();
+        }
     }
 
     private void initUserId() {
@@ -69,14 +72,11 @@ public final class UserPreferenceActivity extends AppCompatActivity {
     }
 
     private void initPreferenceFragment() {
-        final UserPreferenceFragment fragment = new UserPreferenceFragment();
-        final Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_USER_ID, mUserId);
-        fragment.setArguments(bundle);
+        final UserPreferenceFragment fragment = UserPreferenceFragment.getInstance(mUserId);
 
         getFragmentManager()
                 .beginTransaction()
-                .add(R.id.activity_user_toolbar_preference_fragment, fragment, null)
+                .replace(R.id.activity_user_toolbar_preference_fragment, fragment, null)
                 .commit();
     }
 
@@ -121,12 +121,20 @@ public final class UserPreferenceActivity extends AppCompatActivity {
     public static class UserPreferenceFragment extends PreferenceFragment {
         @NonNull private String mUserId;
 
+        @NonNull
+        public static UserPreferenceFragment getInstance(@NonNull final String userId) {
+            final UserPreferenceFragment fragment = new UserPreferenceFragment();
+            fragment.mUserId = userId;
+            return fragment;
+        }
+
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
 
-            //
-            mUserId = getArguments().getString(EXTRA_USER_ID);
+            if (savedInstanceState != null) {
+                mUserId = savedInstanceState.getString(EXTRA_USER_ID);
+            }
 
             // Change preference name to current user.
             final PreferenceManager manager = getPreferenceManager();
@@ -136,6 +144,12 @@ public final class UserPreferenceActivity extends AppCompatActivity {
 
             // Load the preferences from an XML resource
             addPreferencesFromResource(R.xml.preference_user);
+        }
+
+        @Override
+        public void onSaveInstanceState(Bundle outState) {
+            outState.putString(EXTRA_USER_ID, mUserId);
+            super.onSaveInstanceState(outState);
         }
     }
 

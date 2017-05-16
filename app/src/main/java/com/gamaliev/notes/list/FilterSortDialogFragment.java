@@ -1,13 +1,13 @@
 package com.gamaliev.notes.list;
 
 import android.app.DatePickerDialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayout;
 import android.text.SpannableString;
