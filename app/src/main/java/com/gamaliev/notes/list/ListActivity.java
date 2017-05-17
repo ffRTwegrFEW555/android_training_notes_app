@@ -375,7 +375,8 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
             updateFilterAdapter();
 
         } else if (resultCode == RESULT_CANCELED) {
-            if (requestCode == REQUEST_CODE_CHANGE_USER) {
+            if (requestCode == REQUEST_CODE_CHANGE_USER
+                    || requestCode == REQUEST_CODE_SYNC_NOTES) {
                 initFilterProfile();
                 updateFilterAdapter();
             }
@@ -610,10 +611,10 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                         showInputDialogAddMockEntries();
                         break;
 
-                    // Remove all entries.
+                    /*// Remove all entries.
                     case R.id.activity_list_nav_drawer_item_delete_all_entries:
                         deleteAllEntries();
-                        break;
+                        break;*/
 
                     // Change user.
                     case R.id.activity_list_nav_drawer_item_change_user:

@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.util.Random;
 
+import static com.gamaliev.notes.common.db.DbHelper.SYNC_COLUMN_ACTION;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_COLUMN_AMOUNT;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_COLUMN_FINISHED;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_COLUMN_STATUS;
@@ -27,8 +28,18 @@ public class SyncDbMockHelper {
 
     /* Mock data */
     @NonNull public static final int[] STATUS = {
-            SyncDbHelper.STATUS_OK,
-            SyncDbHelper.STATUS_ERROR
+            SyncDbHelper.STATUS_ERROR,
+            SyncDbHelper.STATUS_OK
+    };
+
+    @NonNull public static final int[] ACTION = {
+            SyncDbHelper.ACTION_ADDED_TO_SERVER,
+            SyncDbHelper.ACTION_ADDED_TO_LOCAL,
+            SyncDbHelper.ACTION_DELETED_FROM_SERVER,
+            SyncDbHelper.ACTION_DELETED_FROM_LOCAL,
+            SyncDbHelper.ACTION_UPDATED_ON_SERVER,
+            SyncDbHelper.ACTION_UPDATED_ON_LOCAL,
+            SyncDbHelper.ACTION_COMPLETE
     };
 
     private static final String[] MOCK_DATE = {
@@ -74,6 +85,7 @@ public class SyncDbMockHelper {
                 // Content values.
                 final ContentValues cv = new ContentValues();
                 cv.put(SYNC_COLUMN_FINISHED,    getRandomMockDate(random));
+                cv.put(SYNC_COLUMN_ACTION,      String.valueOf(random.nextInt(ACTION.length)));
                 cv.put(SYNC_COLUMN_STATUS,      String.valueOf(random.nextInt(STATUS.length)));
                 cv.put(SYNC_COLUMN_AMOUNT,      String.valueOf(random.nextInt(1000) + 100));
 

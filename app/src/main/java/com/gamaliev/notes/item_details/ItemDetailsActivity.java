@@ -546,7 +546,11 @@ public final class ItemDetailsActivity extends AppCompatActivity {
                 .append("\n\n")
                 .append(getString(R.string.activity_item_details_info_dialog_message_viewed))
                 .append("\n")
-                .append(getStringDateFormatSqlite(this, mEntry.getViewed(), false));
+                .append(getStringDateFormatSqlite(this, mEntry.getViewed(), false))
+                .append("\n\n")
+                .append(getString(R.string.activity_item_details_info_dialog_message_sync_id))
+                .append("\n")
+                .append(mEntry.getSyncId());
 
         // Create alert dialog.
         final AlertDialog.Builder builder = new AlertDialog.Builder(ItemDetailsActivity.this);
@@ -625,7 +629,7 @@ public final class ItemDetailsActivity extends AppCompatActivity {
                         break;
 
                     case RESULT_CODE_EXTRA_DELETED:
-                        ListDbHelper.deleteEntry(ItemDetailsActivity.this, mEntry.getId());
+                        ListDbHelper.deleteEntry(ItemDetailsActivity.this, mEntry.getId(), true);
                         break;
 
                     default:

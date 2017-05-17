@@ -54,6 +54,7 @@
     <string name="activity_item_details_info_dialog_message_created">Created:</string>
     <string name="activity_item_details_info_dialog_message_edited">Last edited:</string>
     <string name="activity_item_details_info_dialog_message_viewed">Last viewed:</string>
+    <string name="activity_item_details_info_dialog_message_sync_id">Sync id:</string>
     <string name="activity_item_details_info_dialog_button_ok">OK</string>
 
     <!-- Delete alert dialog -->
@@ -181,11 +182,27 @@
 
     <!-- Other -->
     <string name="menu_sync_action_synchronize">Synchronize</string>
+    <string name="menu_sync_action_delete_all_from_server">Delete all from server</string>
+    <string name="activity_sync_item_amount_prefix">Amount</string>
+    <string name="activity_sync_item_icon_description">Result icon</string>
+
+    <!-- Status -->
     <string name="activity_sync_item_status_prefix">Status</string>
     <string name="activity_sync_item_status_success">successfully</string>
     <string name="activity_sync_item_status_error">error</string>
-    <string name="activity_sync_item_amount_prefix">Amount</string>
-    <string name="activity_sync_item_icon_description">Result icon</string>
+
+    <!-- Action -->
+    <string name="activity_sync_item_action_nothing">Error</string>
+    <string name="activity_sync_item_action_add_to_server">Add to server</string>
+    <string name="activity_sync_item_action_add_to_local">Add to local</string>
+    <string name="activity_sync_item_action_delete_from_server">Delete from server</string>
+    <string name="activity_sync_item_action_delete_all_from_server_start">Delete all from server start</string>
+    <string name="activity_sync_item_action_delete_all_from_server_completed">Delete all from server completed</string>
+    <string name="activity_sync_item_action_delete_from_local">Delete from local</string>
+    <string name="activity_sync_item_action_updated_on_server">Updated on server</string>
+    <string name="activity_sync_item_action_updated_on_local">Updated on local</string>
+    <string name="activity_sync_item_action_started">Synchronization start</string>
+    <string name="activity_sync_item_action_completed">Synchronization completed</string>
 
 
     <!--                    -->
@@ -201,6 +218,7 @@
     <string name="activity_settings_preference_sync_enable_summary">Auto synchronization</string>
     <string name="activity_settings_preference_sync_wifi_title">Wi-fi</string>
     <string name="activity_settings_preference_sync_wifi_summary">Synchronization wi-fi only</string>
+    <string name="activity_settings_preference_sync_api_url_title">Base API url</string>
 
     <string name="activity_settings_preference_category_mock_entries_title">Mock entries</string>
     <string name="activity_settings_preference_mock_entries_default_value_title">Default number</string>
@@ -217,6 +235,7 @@
     <string name="activity_settings_default_progress_notification_timer">3000</string>
     <string name="activity_settings_default_sync">true</string>
     <string name="activity_settings_default_sync_wifi">false</string>
+    <string name="activity_settings_default_sync_api_url">https://notesbackend-yufimtsev.rhcloud.com/</string>
 
 
     <!--            -->

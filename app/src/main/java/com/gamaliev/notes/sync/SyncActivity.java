@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.gamaliev.notes.R;
+import com.gamaliev.notes.common.OnCompleteListener;
 import com.gamaliev.notes.sync.db.SyncCursorAdapter;
 import com.gamaliev.notes.sync.db.SyncDbHelper;
 
@@ -21,7 +22,7 @@ import com.gamaliev.notes.sync.db.SyncDbHelper;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class SyncActivity extends AppCompatActivity {
+public class SyncActivity extends AppCompatActivity implements OnCompleteListener {
 
     /* Logger */
     private static final String TAG = SyncActivity.class.getSimpleName();
@@ -57,20 +58,20 @@ public class SyncActivity extends AppCompatActivity {
     }
 
     private void initListView() {
-        new Thread(new Runnable() {
+        // Create adapter.
+        final CursorAdapter adapter = new SyncCursorAdapter(
+                getApplicationContext(),
+                SyncDbHelper.getAll(getApplicationContext()),
+                0);
+
+        // Init list view
+        final ListView listView = (ListView) findViewById(R.id.activity_sync_list_view);
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // Create adapter.
-                final CursorAdapter adapter = new SyncCursorAdapter(
-                        getApplicationContext(),
-                        SyncDbHelper.getAll(getApplicationContext()),
-                        0);
-
-                // Init list view
-                final ListView listView = (ListView) findViewById(R.id.activity_sync_list_view);
                 listView.setAdapter(adapter);
             }
-        }).start();
+        });
     }
 
 
@@ -96,6 +97,12 @@ public class SyncActivity extends AppCompatActivity {
 
             // Synchronize button
             case R.id.menu_sync_synchronize:
+                SyncUtils.synchronize(getApplicationContext());
+                break;
+
+            // Delete all from server button
+            case R.id.menu_sync_delete_all_from_server:
+                SyncUtils.deleteAllFromServerAsync(getApplicationContext());
                 break;
 
             default:
@@ -130,7 +137,19 @@ public class SyncActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        SyncUtils.addObserver(TAG, this);
         super.onResume();
+        initListView();
+    }
+
+    @Override
+    protected void onPause() {
+        SyncUtils.removeObserver(TAG);
+        super.onPause();
+    }
+
+    @Override
+    public void onComplete(int code) {
         initListView();
     }
 }

@@ -40,6 +40,7 @@ public final class DbHelper extends SQLiteOpenHelper {
     /* Synchronization table */
     public static final String SYNC_TABLE_NAME              = "sync_journal";
     public static final String SYNC_COLUMN_FINISHED         = "finished";
+    public static final String SYNC_COLUMN_ACTION           = "action";
     public static final String SYNC_COLUMN_STATUS           = "status";
     public static final String SYNC_COLUMN_AMOUNT           = "amount";
 
@@ -52,6 +53,7 @@ public final class DbHelper extends SQLiteOpenHelper {
     public static final String LIST_ITEMS_TABLE_NAME        = "list_items";
     public static final String LIST_ITEMS_COLUMN_TITLE      = "title";
     public static final String LIST_ITEMS_COLUMN_SYNC_ID    = "sync_id";
+    public static final String LIST_ITEMS_COLUMN_SYNC_ID_JSON = "id";
     public static final String LIST_ITEMS_COLUMN_DESCRIPTION = "description";
     public static final String LIST_ITEMS_COLUMN_COLOR      = "color";
     public static final String LIST_ITEMS_COLUMN_IMAGE_URL  = "imageUrl";
@@ -59,20 +61,25 @@ public final class DbHelper extends SQLiteOpenHelper {
     public static final String LIST_ITEMS_COLUMN_EDITED     = "edited";
     public static final String LIST_ITEMS_COLUMN_VIEWED     = "viewed";
 
+    /* Deleted table */
+    public static final String DELETED_TABLE_NAME           = "deleted";
+    public static final String DELETED_COLUMN_SYNC_ID       = "sync_id";
+
     /*
         Queries
     */
 
     /* Synchronization journal */
-    protected static final String SQL_SYNC_CREATE_TABLE =
+    private static final String SQL_SYNC_CREATE_TABLE =
             "CREATE TABLE " + SYNC_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     SYNC_COLUMN_FINISHED +                  " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                    SYNC_COLUMN_ACTION +                    " INTEGER NOT NULL, " +
                     SYNC_COLUMN_STATUS +                    " INTEGER NOT NULL, " +
                     SYNC_COLUMN_AMOUNT +                    " INTEGER NOT NULL); ";
 
     /* Colors */
-    protected static final String SQL_FAVORITE_CREATE_TABLE =
+    private static final String SQL_FAVORITE_CREATE_TABLE =
             "CREATE TABLE " + FAVORITE_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     FAVORITE_COLUMN_INDEX +                 " INTEGER NOT NULL, " +
@@ -90,6 +97,12 @@ public final class DbHelper extends SQLiteOpenHelper {
                     LIST_ITEMS_COLUMN_CREATED + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                     LIST_ITEMS_COLUMN_EDITED +  " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                     LIST_ITEMS_COLUMN_VIEWED +  " DATETIME DEFAULT CURRENT_TIMESTAMP); ";
+
+    /* Deleted */
+    private static final String SQL_DELETED_CREATE_TABLE =
+            "CREATE TABLE " + DELETED_TABLE_NAME + " (" +
+                    BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    DELETED_COLUMN_SYNC_ID +                " INTEGER NOT NULL); ";
 
     /* Drop entries */
     public static final String SQL_LIST_ITEMS_DROP_TABLE =
@@ -184,6 +197,7 @@ public final class DbHelper extends SQLiteOpenHelper {
                 db.execSQL(SQL_SYNC_CREATE_TABLE);
                 db.execSQL(SQL_FAVORITE_CREATE_TABLE);
                 db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
+                db.execSQL(SQL_DELETED_CREATE_TABLE);
 
                 // Populating.
                 populateDatabase(db);

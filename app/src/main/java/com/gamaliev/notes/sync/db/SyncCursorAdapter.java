@@ -42,39 +42,37 @@ public final class SyncCursorAdapter extends CursorAdapter {
 
         // Get values from current row.
         final int indexFinished = cursor.getColumnIndex(DbHelper.SYNC_COLUMN_FINISHED);
+        final int indexAction   = cursor.getColumnIndex(DbHelper.SYNC_COLUMN_ACTION);
         final int indexStatus   = cursor.getColumnIndex(DbHelper.SYNC_COLUMN_STATUS);
         final int indexAmount   = cursor.getColumnIndex(DbHelper.SYNC_COLUMN_AMOUNT);
 
-        final String finished = CommonUtils
+        final String finished   = CommonUtils
                 .convertUtcToLocal(context, cursor.getString(indexFinished));
+        final int actionIndex   = Integer.parseInt(cursor.getString(indexAction));
+        final String action     = context.getString(SyncDbHelper.ACTION_TEXT[actionIndex]);
+        final int statusIndex   = Integer.parseInt(cursor.getString(indexStatus));
+        final String status     = context.getString(SyncDbHelper.STATUS_TEXT[statusIndex]);
+        final String amount     = cursor.getString(indexAmount);
 
-        final int statusIndex = Integer.parseInt(cursor.getString(indexStatus));
-        final String status =
-                context.getString(R.string.activity_sync_item_status_prefix)
-                        + ": "
-                        + context.getString(SyncDbHelper.STATUS_TEXT[statusIndex]);
-
-        final String amount =
-                context.getString(R.string.activity_sync_item_amount_prefix)
-                        + ": "
-                        + cursor.getString(indexAmount);
+        final String description =
+                context.getString(R.string.activity_sync_item_status_prefix) + ": "
+                        + action + ", "
+                        + status + " ("
+                        + amount + ")";
 
         // Fill view holder values.
-        viewHolder.mFinishedView    .setText(finished);
-        viewHolder.mStatusView      .setText(status);
-        viewHolder.mAmountView      .setText(amount);
+        viewHolder.mFinishedView.setText(finished);
+        viewHolder.mDescriptionView.setText(description);
     }
 
     // View holder, associated with activity_list_item.xml
     private static class ViewHolder {
         private final TextView mFinishedView;
-        private final TextView mStatusView;
-        private final TextView mAmountView;
+        private final TextView mDescriptionView;
 
         ViewHolder(View view) {
-            mFinishedView   = (TextView) view.findViewById(R.id.activity_sync_item_finished);
-            mStatusView     = (TextView) view.findViewById(R.id.activity_sync_item_status);
-            mAmountView     = (TextView) view.findViewById(R.id.activity_sync_item_amount);
+            mFinishedView       = (TextView) view.findViewById(R.id.activity_sync_item_finished);
+            mDescriptionView    = (TextView) view.findViewById(R.id.activity_sync_item_description);
         }
     }
 }

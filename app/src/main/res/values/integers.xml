@@ -61,7 +61,7 @@
     <!--        -->
 
     <!-- Mock entries -->
-    <integer name="mock_items_number_start">400</integer>
+    <integer name="mock_items_number_start">20</integer>
 
     <!-- Shared transition -->
     <integer name="shared_transition_animation_duration">200</integer>

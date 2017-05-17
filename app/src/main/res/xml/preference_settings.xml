@@ -5,16 +5,25 @@
     <PreferenceCategory
         android:title="@string/activity_settings_preference_category_sync_title">
 
-        <SwitchPreference
+        <!--<SwitchPreference
             android:key="sync"
             android:title="@string/activity_settings_preference_sync_enable_title"
-            android:summary="@string/activity_settings_preference_sync_enable_summary"/>
+            android:summary="@string/activity_settings_preference_sync_enable_summary"/>-->
 
         <SwitchPreference
             android:key="sync_wifi"
             android:title="@string/activity_settings_preference_sync_wifi_title"
-            android:summary="@string/activity_settings_preference_sync_wifi_summary"
-            android:dependency="sync"/>
+            android:summary="@string/activity_settings_preference_sync_wifi_summary"/>
+
+        <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
+            android:key="sync_api_url"
+            android:selectAllOnFocus="true"
+            android:title="@string/activity_settings_preference_sync_api_url_title"/>
+
+        <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
+            android:key="ext_id"
+            android:selectAllOnFocus="true"
+            android:title="@string/activity_user_preference_sync_id_title"/>
 
     </PreferenceCategory>
 

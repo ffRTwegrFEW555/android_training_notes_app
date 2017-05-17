@@ -41,7 +41,7 @@ public final class SpUsers {
 
     /* User, details */
     public static final String SP_USER_ID                   = "id";
-    public static final String SP_USER_EXTERNAL_ID          = "ext_id";
+    public static final String SP_USER_SYNC_ID              = "ext_id";
     public static final String SP_USER_EMAIL                = "email";
     public static final String SP_USER_FIRST_NAME           = "f_name";
     public static final String SP_USER_LAST_NAME            = "l_name";
@@ -51,6 +51,7 @@ public final class SpUsers {
     public static final String SP_USER_PROGRESS_NOTIF_TIMER = "progress_notification_timer";
     public static final String SP_USER_SYNC                 = "sync";
     public static final String SP_USER_SYNC_WIFI            = "sync_wifi";
+    public static final String SP_USER_SYNC_API_URL         = "sync_api_url";
 
 
     /*
@@ -73,7 +74,7 @@ public final class SpUsers {
 
         final Map<String, String> map = new HashMap<>();
         map.put(SP_USER_ID,             SP_USERS_DEFAULT_USER_ID);
-        map.put(SP_USER_EXTERNAL_ID,    context.getString(R.string.activity_settings_default_external_id));
+        map.put(SP_USER_SYNC_ID,        context.getString(R.string.activity_settings_default_external_id));
         map.put(SP_USER_EMAIL,          context.getString(R.string.activity_settings_default_email));
         map.put(SP_USER_FIRST_NAME,     context.getString(R.string.activity_settings_default_first_name));
         map.put(SP_USER_LAST_NAME,      context.getString(R.string.activity_settings_default_last_name));
@@ -82,6 +83,7 @@ public final class SpUsers {
         map.put(SP_USER_PROGRESS_NOTIF_TIMER, context.getString(R.string.activity_settings_default_progress_notification_timer));
         map.put(SP_USER_SYNC,           context.getString(R.string.activity_settings_default_sync));
         map.put(SP_USER_SYNC_WIFI,      context.getString(R.string.activity_settings_default_sync_wifi));
+        map.put(SP_USER_SYNC_API_URL,   context.getString(R.string.activity_settings_default_sync_api_url));
 
         return map;
     }
@@ -105,7 +107,7 @@ public final class SpUsers {
 
         final Map<String, String> map = new HashMap<>();
         map.put(SP_USER_ID,         userId);
-        map.put(SP_USER_EXTERNAL_ID,sp.getString(SP_USER_EXTERNAL_ID,   defaultProfile.get(SP_USER_EXTERNAL_ID)));
+        map.put(SP_USER_SYNC_ID,    sp.getString(SP_USER_SYNC_ID,       defaultProfile.get(SP_USER_SYNC_ID)));
         map.put(SP_USER_EMAIL,      sp.getString(SP_USER_EMAIL,         defaultProfile.get(SP_USER_EMAIL)));
         map.put(SP_USER_FIRST_NAME, sp.getString(SP_USER_FIRST_NAME,    defaultProfile.get(SP_USER_FIRST_NAME)));
         map.put(SP_USER_LAST_NAME,  sp.getString(SP_USER_LAST_NAME,     defaultProfile.get(SP_USER_LAST_NAME)));
@@ -115,6 +117,8 @@ public final class SpUsers {
         map.put(SP_USER_PROGRESS_NOTIF_TIMER, sp.getString(SP_USER_PROGRESS_NOTIF_TIMER, defaultProfile.get(SP_USER_PROGRESS_NOTIF_TIMER)));
         map.put(SP_USER_SYNC,       String.valueOf(sp.getBoolean(SP_USER_SYNC,      Boolean.valueOf(defaultProfile.get(SP_USER_SYNC)))));
         map.put(SP_USER_SYNC_WIFI,  String.valueOf(sp.getBoolean(SP_USER_SYNC_WIFI, Boolean.valueOf(defaultProfile.get(SP_USER_SYNC)))));
+        map.put(SP_USER_SYNC_API_URL,sp.getString(SP_USER_SYNC_API_URL, defaultProfile.get(SP_USER_SYNC_API_URL)));
+
 
         return map;
     }
@@ -203,6 +207,47 @@ public final class SpUsers {
         return sp.getString(SP_USERS_ID_COUNTER, null);
     }
 
+    /**
+     * @param context   Context.
+     * @return          Sync Wi-fi only status.
+     */
+    public static boolean getSyncWifiOnlyForCurrentUser(@NonNull final Context context) {
+
+        final SharedPreferences sp = context.getSharedPreferences(
+                getPreferencesName(getSelected(context)),
+                MODE_PRIVATE);
+
+        return sp.getBoolean(SP_USER_SYNC_WIFI, false);
+    }
+
+    /**
+     * @param context   Context.
+     * @return          Api url for current user.
+     */
+    @Nullable
+    public static String getApiUrlForCurrentUser(@NonNull final Context context) {
+
+        final SharedPreferences sp = context.getSharedPreferences(
+                getPreferencesName(getSelected(context)),
+                MODE_PRIVATE);
+
+        return sp.getString(SP_USER_SYNC_API_URL, null);
+    }
+
+    /**
+     * @param context   Context.
+     * @return          Sync id for current user.
+     */
+    @Nullable
+    public static String getSyncIdForCurrentUser(@NonNull final Context context) {
+
+        final SharedPreferences sp = context.getSharedPreferences(
+                getPreferencesName(getSelected(context)),
+                MODE_PRIVATE);
+
+        return sp.getString(SP_USER_SYNC_ID, null);
+    }
+
 
     /*
         Setters
@@ -242,7 +287,7 @@ public final class SpUsers {
          */
 
         editor  .putString(SP_USER_ID,          profile.get(SP_USER_ID))
-                .putString(SP_USER_EXTERNAL_ID, profile.get(SP_USER_EXTERNAL_ID))
+                .putString(SP_USER_SYNC_ID,     profile.get(SP_USER_SYNC_ID))
                 .putString(SP_USER_EMAIL,       profile.get(SP_USER_EMAIL))
                 .putString(SP_USER_FIRST_NAME,  profile.get(SP_USER_FIRST_NAME))
                 .putString(SP_USER_LAST_NAME,   profile.get(SP_USER_LAST_NAME))
@@ -251,7 +296,8 @@ public final class SpUsers {
                 .putString(SP_USER_MOCK_ENTRIES_DEFAULT, profile.get(SP_USER_MOCK_ENTRIES_DEFAULT))
                 .putString(SP_USER_PROGRESS_NOTIF_TIMER, profile.get(SP_USER_PROGRESS_NOTIF_TIMER))
                 .putBoolean(SP_USER_SYNC,       Boolean.parseBoolean(profile.get(SP_USER_SYNC)))
-                .putBoolean(SP_USER_SYNC_WIFI,  Boolean.parseBoolean(profile.get(SP_USER_SYNC_WIFI)));
+                .putBoolean(SP_USER_SYNC_WIFI,  Boolean.parseBoolean(profile.get(SP_USER_SYNC_WIFI)))
+                .putString(SP_USER_SYNC_API_URL,profile.get(SP_USER_SYNC_API_URL));
 
 
         /*

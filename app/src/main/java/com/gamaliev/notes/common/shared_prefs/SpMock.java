@@ -34,7 +34,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_VIEWED;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_DESCRIPTION;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_EMAIL;
-import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_EXTERNAL_ID;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_ID;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_FIRST_NAME;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_ID;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_LAST_NAME;
@@ -42,6 +42,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_MIDDLE_NAME
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_MOCK_ENTRIES_DEFAULT;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_PROGRESS_NOTIF_TIMER;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_API_URL;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_WIFI;
 
 /**
@@ -112,7 +113,8 @@ public final class SpMock {
                     "100000",
                     "3000",
                     "true",
-                    "false"},
+                    "false",
+                    "https://notesbackend-yufimtsev.rhcloud.com/"},
 
             {"1",
                     "778",
@@ -124,7 +126,8 @@ public final class SpMock {
                     "500",
                     "3000",
                     "true",
-                    "false"}
+                    "false",
+                    "https://notesbackend-yufimtsev.rhcloud.com/"},
     };
 
 
@@ -179,10 +182,10 @@ public final class SpMock {
                     DbHelper.getInstance(context).getWritableDatabase(),
                     null,
                     false);
-            entriesCount += 100;
+            entriesCount += entriesCount;
 
-            // Add mock synchronization
-            SyncDbMockHelper.addMockSync(context);
+            /*// Add mock synchronization
+            SyncDbMockHelper.addMockSync(context);*/
         }
     }
 
@@ -240,7 +243,7 @@ public final class SpMock {
 
             map = new HashMap<>();
             map.put(SP_USER_ID,             entry[0]);
-            map.put(SP_USER_EXTERNAL_ID,    entry[1]);
+            map.put(SP_USER_SYNC_ID,        entry[1]);
             map.put(SP_USER_EMAIL,          entry[2]);
             map.put(SP_USER_FIRST_NAME,     entry[3]);
             map.put(SP_USER_LAST_NAME,      entry[4]);
@@ -250,6 +253,7 @@ public final class SpMock {
             map.put(SP_USER_PROGRESS_NOTIF_TIMER, entry[8]);
             map.put(SP_USER_SYNC,           entry[9]);
             map.put(SP_USER_SYNC_WIFI,      entry[10]);
+            map.put(SP_USER_SYNC_API_URL,   entry[11]);
 
             set.add(map);
         }

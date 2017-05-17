@@ -19,7 +19,7 @@ public class NotesApp extends Application {
     private static final String TAG = NotesApp.class.getSimpleName();
 
     /* ... */
-    @NonNull private static Context appContext;
+    @NonNull private static Context sAppContext;
 
 
     /*
@@ -33,7 +33,7 @@ public class NotesApp extends Application {
     }
 
     private void init() {
-        appContext = getApplicationContext();
+        sAppContext = getApplicationContext();
 
         initSharedPreferences();
         initDataBase();
@@ -69,6 +69,6 @@ public class NotesApp extends Application {
      */
 
     public static Context getAppContext() {
-        return appContext;
+        return sAppContext;
     }
 }

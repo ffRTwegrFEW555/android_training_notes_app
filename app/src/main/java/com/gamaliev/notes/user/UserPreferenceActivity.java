@@ -119,22 +119,24 @@ public final class UserPreferenceActivity extends AppCompatActivity {
      */
 
     public static class UserPreferenceFragment extends PreferenceFragment {
+
+        private static final String ARG_USER_ID = "userId";
+
         @NonNull private String mUserId;
 
         @NonNull
         public static UserPreferenceFragment getInstance(@NonNull final String userId) {
+            final Bundle args = new Bundle();
+            args.putString(ARG_USER_ID, userId);
             final UserPreferenceFragment fragment = new UserPreferenceFragment();
-            fragment.mUserId = userId;
+            fragment.setArguments(args);
             return fragment;
         }
 
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-
-            if (savedInstanceState != null) {
-                mUserId = savedInstanceState.getString(EXTRA_USER_ID);
-            }
+            mUserId = getArguments().getString(ARG_USER_ID);
 
             // Change preference name to current user.
             final PreferenceManager manager = getPreferenceManager();
@@ -144,12 +146,6 @@ public final class UserPreferenceActivity extends AppCompatActivity {
 
             // Load the preferences from an XML resource
             addPreferencesFromResource(R.xml.preference_user);
-        }
-
-        @Override
-        public void onSaveInstanceState(Bundle outState) {
-            outState.putString(EXTRA_USER_ID, mUserId);
-            super.onSaveInstanceState(outState);
         }
     }
 

@@ -46,11 +46,6 @@
             android:title="@string/activity_user_preference_user_id_title"
             android:enabled="false"/>
 
-        <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
-            android:key="ext_id"
-            android:selectAllOnFocus="true"
-            android:title="@string/activity_user_preference_sync_id_title"/>
-
     </PreferenceCategory>
 
 </PreferenceScreen>

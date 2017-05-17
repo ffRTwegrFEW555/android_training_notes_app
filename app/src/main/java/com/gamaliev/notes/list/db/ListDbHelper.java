@@ -33,12 +33,15 @@ import static com.gamaliev.notes.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.notes.common.CommonUtils.getStringDateFormatSqlite;
 import static com.gamaliev.notes.common.CommonUtils.showToast;
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
+import static com.gamaliev.notes.common.db.DbHelper.DELETED_COLUMN_SYNC_ID;
+import static com.gamaliev.notes.common.db.DbHelper.DELETED_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.FAVORITE_COLUMN_COLOR;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_COLOR;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_CREATED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_IMAGE_URL;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_TITLE;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
@@ -113,6 +116,9 @@ public class ListDbHelper {
             @NonNull final SQLiteDatabase db) throws SQLiteException {
 
         // Variables
+        final String syncId         = entry.getSyncId() == null
+                ? null
+                : entry.getSyncId().toString();
         final String title          = entry.getTitle();
         final String description    = entry.getDescription();
         final int color             = entry.getColor() == null
@@ -122,6 +128,7 @@ public class ListDbHelper {
 
         // Content values
         final ContentValues cv = new ContentValues();
+        cv.put(LIST_ITEMS_COLUMN_SYNC_ID,       syncId);
         cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
         cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
         cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
@@ -183,6 +190,9 @@ public class ListDbHelper {
 
             // Variables
             final long id               = entry.getId();
+            final String syncId         = entry.getSyncId() == null
+                    ? null
+                    : entry.getSyncId().toString();
             final String title          = entry.getTitle();
             final String description    = entry.getDescription();
             final int color             = entry.getColor() == null
@@ -192,6 +202,7 @@ public class ListDbHelper {
 
             // Content values
             final ContentValues cv = new ContentValues();
+            cv.put(LIST_ITEMS_COLUMN_SYNC_ID,       syncId);
             cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
             cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
             cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
@@ -210,6 +221,39 @@ public class ListDbHelper {
             }
 
             // If ok
+            return true;
+
+        } catch (SQLiteException e) {
+            Log.e(TAG, e.toString());
+            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            return false;
+        }
+    }
+
+    public static boolean updateSyncId(
+            @NonNull final Context context,
+            @NonNull final String id,
+            @NonNull final String syncId) {
+
+        try {
+            final SQLiteDatabase db = getWritableDb(context);
+
+            // Content values
+            final ContentValues cv = new ContentValues();
+            cv.put(LIST_ITEMS_COLUMN_SYNC_ID, syncId);
+
+            // Update
+            final int updateResult = db.update(
+                    LIST_ITEMS_TABLE_NAME,
+                    cv,
+                    BASE_COLUMN_ID + " = ?",
+                    new String[]{id});
+
+            if (updateResult == 0) {
+                throw new SQLiteException("[ERROR] The number of rows affected is 0");
+            }
+
+            // If ok.
             return true;
 
         } catch (SQLiteException e) {
@@ -249,6 +293,33 @@ public class ListDbHelper {
     }
 
     /**
+     * Get all entries from database.
+     * @return Result cursor.
+     */
+    @Nullable
+    public static Cursor getEntries(@NonNull final Context context) {
+
+        try {
+            final SQLiteDatabase db = getReadableDb(context);
+
+            // Make query and return cursor, if ok;
+            return db.query(
+                    LIST_ITEMS_TABLE_NAME,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null);
+
+        } catch (SQLiteException e) {
+            Log.e(TAG, e.toString());
+            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            return null;
+        }
+    }
+
+    /**
      * Get count of entries from database with specified parameters.
      * @return Count of rows.
      */
@@ -270,6 +341,34 @@ public class ListDbHelper {
             Log.e(TAG, e.toString());
             showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
             return -1;
+        }
+    }
+
+    /**
+     * Get entries from database, where sync id is null.
+     * @return Result cursor.
+     */
+    @Nullable
+    public static Cursor getNewEntries(
+            @NonNull final Context context) {
+
+        try {
+            final SQLiteDatabase db = getReadableDb(context);
+
+            // Make query and return cursor, if ok;
+            return db.query(
+                    LIST_ITEMS_TABLE_NAME,
+                    null,
+                    LIST_ITEMS_COLUMN_SYNC_ID + " is NULL",
+                    null,
+                    null,
+                    null,
+                    null);
+
+        } catch (SQLiteException e) {
+            Log.e(TAG, e.toString());
+            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            return null;
         }
     }
 
@@ -301,6 +400,7 @@ public class ListDbHelper {
             // Fill new entry.
             if (cursor.moveToFirst()) {
                 final int indexId           = cursor.getColumnIndex(BASE_COLUMN_ID);
+                final int indexSyncId       = cursor.getColumnIndex(LIST_ITEMS_COLUMN_SYNC_ID);
                 final int indexTitle        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_TITLE);
                 final int indexDescription  = cursor.getColumnIndex(LIST_ITEMS_COLUMN_DESCRIPTION);
                 final int indexColor        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_COLOR);
@@ -310,6 +410,7 @@ public class ListDbHelper {
                 final int indexViewed       = cursor.getColumnIndex(LIST_ITEMS_COLUMN_VIEWED);
 
                 entry.setId(            cursor.getLong(     indexId));
+                entry.setSyncId(        cursor.getLong(     indexSyncId));
                 entry.setTitle(         cursor.getString(   indexTitle));
                 entry.setDescription(   cursor.getString(   indexDescription));
                 entry.setColor(         cursor.getInt(      indexColor));
@@ -347,20 +448,43 @@ public class ListDbHelper {
      */
     public static boolean deleteEntry(
             @NonNull final Context context,
-            @NonNull final Long id) {
+            @NonNull final Long id,
+            final boolean addToDeletedTable) {
+
+        ListEntry entry = null;
+        if (addToDeletedTable) {
+            entry = getEntry(context, id);
+        }
 
         try {
             final SQLiteDatabase db = getWritableDb(context);
+            db.beginTransaction();
 
-            // Delete query.
-            final int deleteResult = db.delete(
-                    LIST_ITEMS_TABLE_NAME,
-                    BASE_COLUMN_ID + " = ?",
-                    new String[]{id.toString()});
+            int deleteResult;
+            try {
+                // Delete query.
+                deleteResult = db.delete(
+                        LIST_ITEMS_TABLE_NAME,
+                        BASE_COLUMN_ID + " = ?",
+                        new String[]{id.toString()});
 
-            // If error.
-            if (deleteResult == 0) {
-                throw new SQLiteException("[ERROR] The number of rows affected is 0");
+                //
+                if (addToDeletedTable) {
+                    final Long syncId = entry.getSyncId();
+                    if (syncId != null) {
+                        insertEntryToDeleted(context, syncId, db);
+                    }
+                }
+
+                // If error.
+                if (deleteResult == 0) {
+                    throw new SQLiteException("[ERROR] The number of rows affected is 0");
+                }
+
+                db.setTransactionSuccessful();
+
+            } finally {
+                db.endTransaction();
             }
 
             // If ok.
@@ -567,5 +691,104 @@ public class ListDbHelper {
         resultQueryBuilder.setAscDesc(profileMap.get(SpFilterProfiles.SP_FILTER_ORDER_ASC));
 
         return resultQueryBuilder;
+    }
+
+
+    /*
+        Deleted table
+     */
+
+    /**
+     * Insert new entry in database.
+     * @param syncId    Sync Id of deleted entry.
+     * @param db        Database.
+     */
+    public static boolean insertEntryToDeleted(
+            @NonNull final Context context,
+            @NonNull final Long syncId,
+            @NonNull final SQLiteDatabase db) {
+
+        try {
+            // Content values
+            final ContentValues cv = new ContentValues();
+            cv.put(DELETED_COLUMN_SYNC_ID, syncId);
+
+            // Insert
+            if (db.insert(DELETED_TABLE_NAME, null, cv) == -1) {
+                final String error = String.format(Locale.ENGLISH,
+                        "[ERROR] Insert entry {%s: %d}",
+                        DELETED_COLUMN_SYNC_ID, syncId);
+                throw new SQLiteException(error);
+            }
+
+            // If ok
+            return true;
+
+        } catch (SQLiteException e) {
+            Log.e(TAG, e.toString());
+            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            return false;
+        }
+    }
+
+    /**
+     * Get deleted entries from database.
+     * @return Result cursor.
+     */
+    @Nullable
+    public static Cursor getDeleted(
+            @NonNull final Context context) {
+
+        try {
+            final SQLiteDatabase db = getReadableDb(context);
+
+            // Make query and return cursor, if ok;
+            return db.query(
+                    DELETED_TABLE_NAME,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null);
+
+        } catch (SQLiteException e) {
+            Log.e(TAG, e.toString());
+            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            return null;
+        }
+    }
+
+    /**
+     * Delete entry from database, with given id.
+     * @param syncId    Sync Id of entry to be deleted.
+     * @return          True if success, otherwise false.
+     */
+    public static boolean deleteEntryFromDeleted(
+            @NonNull final Context context,
+            @NonNull final String syncId) {
+
+        try {
+            final SQLiteDatabase db = getWritableDb(context);
+
+                // Delete query.
+                int deleteResult = db.delete(
+                        DELETED_TABLE_NAME,
+                        DELETED_COLUMN_SYNC_ID + " = ?",
+                        new String[]{syncId});
+
+                // If error.
+                if (deleteResult == 0) {
+                    throw new SQLiteException("[ERROR] The number of rows affected is 0");
+                }
+
+            // If ok.
+            return true;
+
+        } catch (SQLiteException e) {
+            Log.e(TAG, e.toString());
+            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            return false;
+        }
     }
 }

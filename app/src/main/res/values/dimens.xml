@@ -156,7 +156,6 @@
     <!-- List item. Other -->
     <dimen name="activity_sync_item_height">88dp</dimen>
     <dimen name="activity_sync_item_padding">16dp</dimen>
-    <dimen name="activity_sync_item_padding_bottom">12dp</dimen>
     <dimen name="activity_sync_item_title_text_size">16sp</dimen>
     <dimen name="activity_sync_item_description_text_size">14sp</dimen>
 

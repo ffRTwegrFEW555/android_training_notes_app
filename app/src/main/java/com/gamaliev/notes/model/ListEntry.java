@@ -1,6 +1,6 @@
 package com.gamaliev.notes.model;
 
-import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Parcel;
@@ -21,6 +21,7 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_CREATED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_IMAGE_URL;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID_JSON;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_TITLE;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
 
@@ -36,6 +37,7 @@ public class ListEntry implements Parcelable {
 
     /* ... */
     @Nullable private Long      mId;
+    @Nullable private Long      mSyncId;
     @Nullable private String    mTitle;
     @Nullable private String    mDescription;
     @Nullable private Integer   mColor;
@@ -46,13 +48,14 @@ public class ListEntry implements Parcelable {
 
     // What to Write and Read flags.
     private static final int RW_ID          = 1;
-    private static final int RW_TITLE       = 2;
-    private static final int RW_DESCRIPTION = 4;
-    private static final int RW_COLOR       = 8;
-    private static final int RW_IMAGE_URL   = 16;
-    private static final int RW_CREATED     = 32;
-    private static final int RW_EDITED      = 64;
-    private static final int RW_VIEWED      = 128;
+    private static final int RW_SYNC_ID     = 2;
+    private static final int RW_TITLE       = 4;
+    private static final int RW_DESCRIPTION = 8;
+    private static final int RW_COLOR       = 16;
+    private static final int RW_IMAGE_URL   = 32;
+    private static final int RW_CREATED     = 64;
+    private static final int RW_EDITED      = 128;
+    private static final int RW_VIEWED      = 256;
 
     public ListEntry() {}
 
@@ -65,6 +68,7 @@ public class ListEntry implements Parcelable {
 
         int whatToRead = in.readInt();
         if ((whatToRead & RW_ID) > 0)           mId = in.readLong();
+        if ((whatToRead & RW_SYNC_ID) > 0)      mSyncId = in.readLong();
         if ((whatToRead & RW_TITLE) > 0)        mTitle = in.readString();
         if ((whatToRead & RW_DESCRIPTION) > 0)  mDescription = in.readString();
         if ((whatToRead & RW_COLOR) > 0)        mColor = in.readInt();
@@ -80,6 +84,7 @@ public class ListEntry implements Parcelable {
         // Compute what to write to parcel.
         int whatToWrite = 0;
         if (mId != null)            whatToWrite |= RW_ID;
+        if (mSyncId != null)        whatToWrite |= RW_SYNC_ID;
         if (mTitle != null)         whatToWrite |= RW_TITLE;
         if (mDescription != null)   whatToWrite |= RW_DESCRIPTION;
         if (mColor != null)         whatToWrite |= RW_COLOR;
@@ -91,6 +96,7 @@ public class ListEntry implements Parcelable {
         // Write computed to parcel.
         dest.writeInt(whatToWrite);
         if (mId != null)            dest.writeLong(mId);
+        if (mSyncId != null)        dest.writeLong(mSyncId);
         if (mTitle != null)         dest.writeString(mTitle);
         if (mDescription != null)   dest.writeString(mDescription);
         if (mColor != null)         dest.writeInt(mColor);
@@ -124,6 +130,10 @@ public class ListEntry implements Parcelable {
 
     public void setId(@NonNull final Long id) {
         mId = id;
+    }
+
+    public void setSyncId(@NonNull final Long syncId) {
+        mSyncId = syncId;
     }
 
     public void setTitle(@NonNull final String title) {
@@ -162,6 +172,11 @@ public class ListEntry implements Parcelable {
     @Nullable
     public Long getId() {
         return mId;
+    }
+
+    @Nullable
+    public Long getSyncId() {
+        return mSyncId;
     }
 
     @Nullable
@@ -207,7 +222,7 @@ public class ListEntry implements Parcelable {
     /**
      * Get filled JSONObject with data from current cursor position.
      *
-     * @param activity  Activity.
+     * @param context   Context.
      * @param cursor    Cursor.
      *
      * @return Filled JSONObject with data from current cursor position.
@@ -215,10 +230,10 @@ public class ListEntry implements Parcelable {
      */
     @Nullable
     public static JSONObject getJsonObject(
-            @NonNull final Activity activity,
+            @NonNull final Context context,
             @NonNull final Cursor cursor) throws IllegalStateException {
 
-        //
+        // without syncId, according to task.
         final int indexTitle        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_TITLE);
         final int indexDescription  = cursor.getColumnIndex(LIST_ITEMS_COLUMN_DESCRIPTION);
         final int indexColor        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_COLOR);
@@ -246,9 +261,9 @@ public class ListEntry implements Parcelable {
 
             jsonObject.put(LIST_ITEMS_COLUMN_IMAGE_URL,    imageUrl);
             jsonObject.put(LIST_ITEMS_COLUMN_DESCRIPTION,  description);
-            jsonObject.put(LIST_ITEMS_COLUMN_CREATED,      getStringDateISO8601(activity, created));
-            jsonObject.put(LIST_ITEMS_COLUMN_EDITED,       getStringDateISO8601(activity, edited));
-            jsonObject.put(LIST_ITEMS_COLUMN_VIEWED,       getStringDateISO8601(activity, viewed));
+            jsonObject.put(LIST_ITEMS_COLUMN_CREATED,      getStringDateISO8601(context, created));
+            jsonObject.put(LIST_ITEMS_COLUMN_EDITED,       getStringDateISO8601(context, edited));
+            jsonObject.put(LIST_ITEMS_COLUMN_VIEWED,       getStringDateISO8601(context, viewed));
 
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
@@ -261,10 +276,12 @@ public class ListEntry implements Parcelable {
 
     @NonNull
     public static ListEntry convertJsonToListEntry(
-            @NonNull final Activity activity,
+            @NonNull final Context context,
             @NonNull final JSONObject jsonObject) {
 
         //
+        final String syncId         = jsonObject.optString(LIST_ITEMS_COLUMN_SYNC_ID_JSON, null);
+        final Long syncIdLong       = syncId == null ? null : Long.parseLong(syncId);
         final String title          = jsonObject.optString(LIST_ITEMS_COLUMN_TITLE, null);
         final int color             = Color.parseColor(jsonObject.optString(
                 LIST_ITEMS_COLUMN_COLOR, null));
@@ -277,13 +294,14 @@ public class ListEntry implements Parcelable {
         //
         final ListEntry entry = new ListEntry();
 
+        entry.setSyncId(syncIdLong);
         entry.setTitle(title);
         entry.setDescription(description);
         entry.setColor(color);
         entry.setImageUrl(imageUrl);
-        entry.setCreated(getDateFromISO8601String(activity, created));
-        entry.setEdited(getDateFromISO8601String(activity, edited));
-        entry.setViewed(getDateFromISO8601String(activity, viewed));
+        entry.setCreated(getDateFromISO8601String(context, created));
+        entry.setEdited(getDateFromISO8601String(context, edited));
+        entry.setViewed(getDateFromISO8601String(context, viewed));
 
         return entry;
     }
