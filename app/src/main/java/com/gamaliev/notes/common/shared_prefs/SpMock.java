@@ -8,6 +8,7 @@ import android.util.Log;
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.db.DbHelper;
 import com.gamaliev.notes.list.db.ListDbMockHelper;
+import com.gamaliev.notes.sync.db.SyncDbMockHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,6 +39,10 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_FIRST_NAME;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_ID;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_LAST_NAME;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_MIDDLE_NAME;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_MOCK_ENTRIES_DEFAULT;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_PROGRESS_NOTIF_TIMER;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_WIFI;
 
 /**
  * @author Vadim Gamaliev
@@ -103,7 +108,11 @@ public final class SpMock {
                     "Vadim",
                     "Gamaliev",
                     "Rafisovich",
-                    "Description description"},
+                    "Description description",
+                    "100000",
+                    "3000",
+                    "true",
+                    "false"},
 
             {"1",
                     "778",
@@ -111,7 +120,11 @@ public final class SpMock {
                     "User",
                     "Userov",
                     "Userovich",
-                    "Description... 123"}
+                    "Description... 123",
+                    "500",
+                    "3000",
+                    "true",
+                    "false"}
     };
 
 
@@ -167,6 +180,9 @@ public final class SpMock {
                     null,
                     false);
             entriesCount += 100;
+
+            // Add mock synchronization
+            SyncDbMockHelper.addMockSync(context);
         }
     }
 
@@ -223,13 +239,17 @@ public final class SpMock {
         for (String[] entry : SP_MOCK_USER_PROFILES) {
 
             map = new HashMap<>();
-            map.put(SP_USER_ID, entry[0]);
-            map.put(SP_USER_EXTERNAL_ID, entry[1]);
-            map.put(SP_USER_EMAIL, entry[2]);
-            map.put(SP_USER_FIRST_NAME, entry[3]);
-            map.put(SP_USER_LAST_NAME, entry[4]);
-            map.put(SP_USER_MIDDLE_NAME, entry[5]);
-            map.put(SP_USER_DESCRIPTION, entry[6]);
+            map.put(SP_USER_ID,             entry[0]);
+            map.put(SP_USER_EXTERNAL_ID,    entry[1]);
+            map.put(SP_USER_EMAIL,          entry[2]);
+            map.put(SP_USER_FIRST_NAME,     entry[3]);
+            map.put(SP_USER_LAST_NAME,      entry[4]);
+            map.put(SP_USER_MIDDLE_NAME,    entry[5]);
+            map.put(SP_USER_DESCRIPTION,    entry[6]);
+            map.put(SP_USER_MOCK_ENTRIES_DEFAULT, entry[7]);
+            map.put(SP_USER_PROGRESS_NOTIF_TIMER, entry[8]);
+            map.put(SP_USER_SYNC,           entry[9]);
+            map.put(SP_USER_SYNC_WIFI,      entry[10]);
 
             set.add(map);
         }

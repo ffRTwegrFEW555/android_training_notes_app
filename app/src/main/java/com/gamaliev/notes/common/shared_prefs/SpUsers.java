@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.db.DbHelper;
 
 import java.util.HashMap;
@@ -46,6 +47,10 @@ public final class SpUsers {
     public static final String SP_USER_LAST_NAME            = "l_name";
     public static final String SP_USER_MIDDLE_NAME          = "m_name";
     public static final String SP_USER_DESCRIPTION          = "desc";
+    public static final String SP_USER_MOCK_ENTRIES_DEFAULT = "mock_entries";
+    public static final String SP_USER_PROGRESS_NOTIF_TIMER = "progress_notification_timer";
+    public static final String SP_USER_SYNC                 = "sync";
+    public static final String SP_USER_SYNC_WIFI            = "sync_wifi";
 
 
     /*
@@ -64,16 +69,19 @@ public final class SpUsers {
      * @return Default user profile.
      */
     @NonNull
-    public static Map<String, String> getDefaultProfile() {
+    public static Map<String, String> getDefaultProfile(@NonNull final Context context) {
 
         final Map<String, String> map = new HashMap<>();
         map.put(SP_USER_ID,             SP_USERS_DEFAULT_USER_ID);
-        map.put(SP_USER_EXTERNAL_ID,    "-1");
-        map.put(SP_USER_EMAIL,          "no email");
-        map.put(SP_USER_FIRST_NAME,     "no first name");
-        map.put(SP_USER_LAST_NAME,      "no last name");
-        map.put(SP_USER_MIDDLE_NAME,    "no middle name");
-        map.put(SP_USER_DESCRIPTION,    "no description");
+        map.put(SP_USER_EXTERNAL_ID,    context.getString(R.string.activity_settings_default_external_id));
+        map.put(SP_USER_EMAIL,          context.getString(R.string.activity_settings_default_email));
+        map.put(SP_USER_FIRST_NAME,     context.getString(R.string.activity_settings_default_first_name));
+        map.put(SP_USER_LAST_NAME,      context.getString(R.string.activity_settings_default_last_name));
+        map.put(SP_USER_MIDDLE_NAME,    context.getString(R.string.activity_settings_default_middle_name));
+        map.put(SP_USER_MOCK_ENTRIES_DEFAULT, context.getString(R.string.activity_settings_default_number_mock_entries));
+        map.put(SP_USER_PROGRESS_NOTIF_TIMER, context.getString(R.string.activity_settings_default_progress_notification_timer));
+        map.put(SP_USER_SYNC,           context.getString(R.string.activity_settings_default_sync));
+        map.put(SP_USER_SYNC_WIFI,      context.getString(R.string.activity_settings_default_sync_wifi));
 
         return map;
     }
@@ -93,14 +101,20 @@ public final class SpUsers {
                 getPreferencesName(userId),
                 MODE_PRIVATE);
 
+        final Map<String, String> defaultProfile = getDefaultProfile(context);
+
         final Map<String, String> map = new HashMap<>();
-        map.put(SP_USER_ID,             userId);
-        map.put(SP_USER_EXTERNAL_ID,    sp.getString(SP_USER_EXTERNAL_ID,   "0"));
-        map.put(SP_USER_EMAIL,          sp.getString(SP_USER_EMAIL,         "no email"));
-        map.put(SP_USER_FIRST_NAME,     sp.getString(SP_USER_FIRST_NAME,    "no first name"));
-        map.put(SP_USER_LAST_NAME,      sp.getString(SP_USER_LAST_NAME,     "no last name"));
-        map.put(SP_USER_MIDDLE_NAME,    sp.getString(SP_USER_MIDDLE_NAME,   "no middle name"));
-        map.put(SP_USER_DESCRIPTION,    sp.getString(SP_USER_DESCRIPTION,   "no description"));
+        map.put(SP_USER_ID,         userId);
+        map.put(SP_USER_EXTERNAL_ID,sp.getString(SP_USER_EXTERNAL_ID,   defaultProfile.get(SP_USER_EXTERNAL_ID)));
+        map.put(SP_USER_EMAIL,      sp.getString(SP_USER_EMAIL,         defaultProfile.get(SP_USER_EMAIL)));
+        map.put(SP_USER_FIRST_NAME, sp.getString(SP_USER_FIRST_NAME,    defaultProfile.get(SP_USER_FIRST_NAME)));
+        map.put(SP_USER_LAST_NAME,  sp.getString(SP_USER_LAST_NAME,     defaultProfile.get(SP_USER_LAST_NAME)));
+        map.put(SP_USER_MIDDLE_NAME,sp.getString(SP_USER_MIDDLE_NAME,   defaultProfile.get(SP_USER_MIDDLE_NAME)));
+        map.put(SP_USER_DESCRIPTION,sp.getString(SP_USER_DESCRIPTION,   defaultProfile.get(SP_USER_DESCRIPTION)));
+        map.put(SP_USER_MOCK_ENTRIES_DEFAULT, sp.getString(SP_USER_MOCK_ENTRIES_DEFAULT, defaultProfile.get(SP_USER_MOCK_ENTRIES_DEFAULT)));
+        map.put(SP_USER_PROGRESS_NOTIF_TIMER, sp.getString(SP_USER_PROGRESS_NOTIF_TIMER, defaultProfile.get(SP_USER_PROGRESS_NOTIF_TIMER)));
+        map.put(SP_USER_SYNC,       String.valueOf(sp.getBoolean(SP_USER_SYNC,      Boolean.valueOf(defaultProfile.get(SP_USER_SYNC)))));
+        map.put(SP_USER_SYNC_WIFI,  String.valueOf(sp.getBoolean(SP_USER_SYNC_WIFI, Boolean.valueOf(defaultProfile.get(SP_USER_SYNC)))));
 
         return map;
     }
@@ -145,6 +159,41 @@ public final class SpUsers {
 
     /**
      * @param context   Context.
+     * @return          Number of mock entries for current user.
+     */
+    public static int getNumberMockEntriesForCurrentUser(@NonNull final Context context) {
+
+        final SharedPreferences sp = context.getSharedPreferences(
+                getPreferencesName(getSelected(context)),
+                MODE_PRIVATE);
+
+        final String string = sp.getString(
+                SP_USER_MOCK_ENTRIES_DEFAULT,
+                context.getString(R.string.activity_settings_default_number_mock_entries));
+
+        return Integer.parseInt(string);
+    }
+
+    /**
+     * @param context   Context.
+     * @return          Progress notification timer for current user, ms.
+     */
+    public static int getProgressNotificationTimerForCurrentUser(@NonNull final Context context) {
+
+        final SharedPreferences sp = context.getSharedPreferences(
+                getPreferencesName(getSelected(context)),
+                MODE_PRIVATE);
+
+        final String string = sp.getString(
+                SP_USER_PROGRESS_NOTIF_TIMER,
+                context.getString(R.string.activity_settings_default_progress_notification_timer));
+
+        return Integer.parseInt(string);
+
+    }
+
+    /**
+     * @param context   Context.
      * @return          Number of id counter
      */
     @Nullable
@@ -175,7 +224,7 @@ public final class SpUsers {
 
         // If null, then create default, with next user id.
         if (profile == null) {
-            profile = getDefaultProfile();
+            profile = getDefaultProfile(context);
             profile.put(SP_USER_ID, getNextUserId(context));
         }
 
@@ -198,7 +247,11 @@ public final class SpUsers {
                 .putString(SP_USER_FIRST_NAME,  profile.get(SP_USER_FIRST_NAME))
                 .putString(SP_USER_LAST_NAME,   profile.get(SP_USER_LAST_NAME))
                 .putString(SP_USER_MIDDLE_NAME, profile.get(SP_USER_MIDDLE_NAME))
-                .putString(SP_USER_DESCRIPTION, profile.get(SP_USER_DESCRIPTION));
+                .putString(SP_USER_DESCRIPTION, profile.get(SP_USER_DESCRIPTION))
+                .putString(SP_USER_MOCK_ENTRIES_DEFAULT, profile.get(SP_USER_MOCK_ENTRIES_DEFAULT))
+                .putString(SP_USER_PROGRESS_NOTIF_TIMER, profile.get(SP_USER_PROGRESS_NOTIF_TIMER))
+                .putBoolean(SP_USER_SYNC,       Boolean.parseBoolean(profile.get(SP_USER_SYNC)))
+                .putBoolean(SP_USER_SYNC_WIFI,  Boolean.parseBoolean(profile.get(SP_USER_SYNC_WIFI)));
 
 
         /*

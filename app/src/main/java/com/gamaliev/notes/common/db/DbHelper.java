@@ -1,7 +1,6 @@
 package com.gamaliev.notes.common.db;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -9,16 +8,14 @@ import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.gamaliev.notes.R;
+import com.gamaliev.notes.app.NotesApp;
 import com.gamaliev.notes.colorpicker.db.ColorPickerDbHelper;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static com.gamaliev.notes.common.CommonUtils.showToast;
 
 /**
  * @author Vadim Gamaliev
@@ -40,6 +37,12 @@ public final class DbHelper extends SQLiteOpenHelper {
     public static final String ORDER_ASC_DESC_DEFAULT       = ORDER_ASCENDING;
     public static final String ORDER_COLUMN_DEFAULT         = BASE_COLUMN_ID;
 
+    /* Synchronization table */
+    public static final String SYNC_TABLE_NAME              = "sync_journal";
+    public static final String SYNC_COLUMN_FINISHED         = "finished";
+    public static final String SYNC_COLUMN_STATUS           = "status";
+    public static final String SYNC_COLUMN_AMOUNT           = "amount";
+
     /* Favorite table */
     public static final String FAVORITE_TABLE_NAME          = "favorite_colors";
     public static final String FAVORITE_COLUMN_INDEX        = "tbl_index";
@@ -48,6 +51,7 @@ public final class DbHelper extends SQLiteOpenHelper {
     /* List items table */
     public static final String LIST_ITEMS_TABLE_NAME        = "list_items";
     public static final String LIST_ITEMS_COLUMN_TITLE      = "title";
+    public static final String LIST_ITEMS_COLUMN_SYNC_ID    = "sync_id";
     public static final String LIST_ITEMS_COLUMN_DESCRIPTION = "description";
     public static final String LIST_ITEMS_COLUMN_COLOR      = "color";
     public static final String LIST_ITEMS_COLUMN_IMAGE_URL  = "imageUrl";
@@ -55,17 +59,31 @@ public final class DbHelper extends SQLiteOpenHelper {
     public static final String LIST_ITEMS_COLUMN_EDITED     = "edited";
     public static final String LIST_ITEMS_COLUMN_VIEWED     = "viewed";
 
-    /* Queries */
+    /*
+        Queries
+    */
+
+    /* Synchronization journal */
+    protected static final String SQL_SYNC_CREATE_TABLE =
+            "CREATE TABLE " + SYNC_TABLE_NAME + " (" +
+                    BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    SYNC_COLUMN_FINISHED +                  " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                    SYNC_COLUMN_STATUS +                    " INTEGER NOT NULL, " +
+                    SYNC_COLUMN_AMOUNT +                    " INTEGER NOT NULL); ";
+
+    /* Colors */
     protected static final String SQL_FAVORITE_CREATE_TABLE =
             "CREATE TABLE " + FAVORITE_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     FAVORITE_COLUMN_INDEX +                 " INTEGER NOT NULL, " +
                     FAVORITE_COLUMN_COLOR +                 " INTEGER NOT NULL); ";
 
+    /* Entries */
     public static final String SQL_LIST_ITEMS_CREATE_TABLE =
             "CREATE TABLE " + LIST_ITEMS_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     LIST_ITEMS_COLUMN_TITLE +               " TEXT, " +
+                    LIST_ITEMS_COLUMN_SYNC_ID +             " INTEGER, " +
                     LIST_ITEMS_COLUMN_DESCRIPTION +         " TEXT, " +
                     LIST_ITEMS_COLUMN_COLOR +               " INTEGER, " +
                     LIST_ITEMS_COLUMN_IMAGE_URL +           " TEXT, " +
@@ -73,15 +91,15 @@ public final class DbHelper extends SQLiteOpenHelper {
                     LIST_ITEMS_COLUMN_EDITED +  " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                     LIST_ITEMS_COLUMN_VIEWED +  " DATETIME DEFAULT CURRENT_TIMESTAMP); ";
 
+    /* Drop entries */
     public static final String SQL_LIST_ITEMS_DROP_TABLE =
             "DROP TABLE " + LIST_ITEMS_TABLE_NAME + ";";
+
 
     /* Instances */
     @NonNull private static Map<String, DbHelper> sInstances;
 
-    /* Local */
-    @NonNull private static Context mContext;
-    @NonNull private static Resources mRes;
+    /* ... */
     @NonNull private static String mDbFailMessage;
 
 
@@ -102,18 +120,21 @@ public final class DbHelper extends SQLiteOpenHelper {
     public static synchronized DbHelper getInstance(
             @NonNull final Context context) {
 
-        mContext = context.getApplicationContext();
-
-        final String userId = SpUsers.getSelected(mContext);
+        final String userId = SpUsers.getSelected(context);
         if (userId == null) {
             return null;
+        }
+
+        //
+        if (mDbFailMessage == null) {
+            mDbFailMessage = context.getString(R.string.sql_toast_fail);
         }
 
         // Use the application context, which will ensure that you
         // don't accidentally leak an Activity's context.
         // See this article for more information: http://bit.ly/6LRzfx
         if (sInstances.get(userId) == null) {
-            sInstances.put(userId, new DbHelper(mContext, userId));
+            sInstances.put(userId, new DbHelper(context.getApplicationContext(), userId));
         }
         return sInstances.get(userId);
     }
@@ -124,13 +145,6 @@ public final class DbHelper extends SQLiteOpenHelper {
 
         // userId as Database name.
         super(context, userId, null, DB_VERSION);
-        init(context);
-    }
-
-    private void init(@NonNull final Context context) {
-        mContext = context.getApplicationContext();
-        mRes = mContext.getResources();
-        mDbFailMessage = mRes.getString(R.string.sql_toast_fail);
     }
 
 
@@ -167,6 +181,7 @@ public final class DbHelper extends SQLiteOpenHelper {
 
             try {
                 // Create tables
+                db.execSQL(SQL_SYNC_CREATE_TABLE);
                 db.execSQL(SQL_FAVORITE_CREATE_TABLE);
                 db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
 
@@ -178,7 +193,6 @@ public final class DbHelper extends SQLiteOpenHelper {
 
             } catch (SQLiteException e) {
                 Log.e(TAG, e.toString());
-                showToast(mContext, mDbFailMessage, Toast.LENGTH_SHORT);
 
             } finally {
                 db.endTransaction();
@@ -191,8 +205,13 @@ public final class DbHelper extends SQLiteOpenHelper {
      * @param db Database.
      */
     private void populateDatabase(@NonNull final SQLiteDatabase db) {
+
         // Adding default favorite colors;
-        final int boxesNumber = mRes.getInteger(R.integer.activity_color_picker_favorite_boxes_number);
+        final int boxesNumber = NotesApp
+                .getAppContext()
+                .getResources()
+                .getInteger(R.integer.activity_color_picker_favorite_boxes_number);
+
         for (int i = 0; i < boxesNumber; i++) {
             ColorPickerDbHelper.insertFavoriteColor(
                     db,
@@ -207,7 +226,17 @@ public final class DbHelper extends SQLiteOpenHelper {
      */
 
     @NonNull
-    public String getDbFailMessage() {
+    public static SQLiteDatabase getWritableDb(@NonNull final Context context) {
+        return getInstance(context).getWritableDatabase();
+    }
+
+    @NonNull
+    public static SQLiteDatabase getReadableDb(@NonNull final Context context) {
+        return getInstance(context).getReadableDatabase();
+    }
+
+    @NonNull
+    public static String getDbFailMessage() {
         return mDbFailMessage;
     }
 

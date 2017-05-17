@@ -58,7 +58,7 @@ public final class UserPreferenceActivity extends AppCompatActivity {
     }
 
     private void initToolbar() {
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.activity_user_toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.activity_user_preference_toolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -76,7 +76,7 @@ public final class UserPreferenceActivity extends AppCompatActivity {
 
         getFragmentManager()
                 .beginTransaction()
-                .replace(R.id.activity_user_toolbar_preference_fragment, fragment, null)
+                .replace(R.id.activity_user_preference_fragment, fragment, null)
                 .commit();
     }
 

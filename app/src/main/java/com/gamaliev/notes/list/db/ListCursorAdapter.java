@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.gamaliev.notes.R;
+import com.gamaliev.notes.common.CommonUtils;
 import com.gamaliev.notes.common.db.DbHelper;
 
 /**
@@ -46,10 +47,12 @@ public final class ListCursorAdapter extends CursorAdapter {
         final int indexEdited       = cursor.getColumnIndex(DbHelper.LIST_ITEMS_COLUMN_EDITED);
         final int indexColor        = cursor.getColumnIndex(DbHelper.LIST_ITEMS_COLUMN_COLOR);
 
-        final String title          = cursor.getString( indexTitle);
-        final String description    = cursor.getString( indexDescription);
-        final String edited         = cursor.getString( indexEdited).split(" ")[0];
-        final int color             = cursor.getInt(    indexColor);
+        final String title          = cursor.getString(indexTitle);
+        final String description    = cursor.getString(indexDescription);
+        final String edited         = CommonUtils
+                .convertUtcToLocal(context, cursor.getString(indexEdited))
+                .split(" ")[0];
+        final int color             = cursor.getInt(indexColor);
 
         // Fill view holder values.
         viewHolder.mTitleView.setText(title);

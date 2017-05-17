@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.getProgressNotificationTimerForCurrentUser;
 import static com.gamaliev.notes.list.ListActivity.RESULT_CODE_EXTRA_EXPORTED;
 import static com.gamaliev.notes.list.ListActivity.RESULT_CODE_EXTRA_IMPORTED;
 import static com.gamaliev.notes.model.ListEntry.convertJsonToListEntry;
@@ -133,8 +134,7 @@ public class FileUtils {
 
         // Timer for notification enable
         notification.startTimerToEnableNotification(
-                activity.getResources().getInteger(
-                        R.integer.activity_list_notification_panel_import_export_timer_enable));
+                getProgressNotificationTimerForCurrentUser(activity.getApplicationContext()));
 
         // Retrieve data from database in Json-format.
         final String result = getEntriesFromDatabase(
@@ -321,8 +321,7 @@ public class FileUtils {
 
         // Timer for notification enable
         notification.startTimerToEnableNotification(
-                activity.getResources().getInteger(
-                        R.integer.activity_list_notification_panel_import_export_timer_enable));
+                getProgressNotificationTimerForCurrentUser(activity.getApplicationContext()));
 
         // Get Json-string from file.
         final String inputJson = getStringFromFile(activity, selectedFile);

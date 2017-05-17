@@ -21,6 +21,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -39,6 +40,8 @@ import android.widget.Toast;
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.FileUtils;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
+import com.gamaliev.notes.settings.SettingsPreferenceActivity;
+import com.gamaliev.notes.sync.SyncActivity;
 import com.gamaliev.notes.user.UserActivity;
 import com.gamaliev.notes.common.ProgressNotificationHelper;
 import com.gamaliev.notes.common.db.DbHelper;
@@ -76,6 +79,8 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
     private static final int REQUEST_CODE_IMPORT        = 103;
     private static final int REQUEST_CODE_EXPORT        = 104;
     private static final int REQUEST_CODE_CHANGE_USER   = 105;
+    private static final int REQUEST_CODE_SYNC_NOTES    = 106;
+    private static final int REQUEST_CODE_SETTINGS      = 107;
 
     private static final String RESULT_CODE_EXTRA       = "resultCodeExtra";
     public static final int RESULT_CODE_FILTER_DIALOG   = 201;
@@ -593,6 +598,13 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                         }
                         break;
 
+                    // Synchronization notes.
+                    case R.id.activity_list_nav_drawer_item_sync_notes:
+                        SyncActivity.startIntent(
+                                ListActivity.this,
+                                REQUEST_CODE_SYNC_NOTES);
+                        break;
+
                     // Add mock entries.
                     case R.id.activity_list_nav_drawer_item_add_mock_entries:
                         showInputDialogAddMockEntries();
@@ -608,6 +620,13 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                         UserActivity.startIntent(
                                 ListActivity.this,
                                 REQUEST_CODE_CHANGE_USER);
+                        break;
+
+                    // Settings.
+                    case R.id.activity_list_nav_drawer_item_settings:
+                        SettingsPreferenceActivity.startIntent(
+                                ListActivity.this,
+                                REQUEST_CODE_SETTINGS);
                         break;
 
                     //
@@ -635,8 +654,8 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
         // Create edit text.
         final EditText editText = new EditText(this);
         editText.setText(
-                String.valueOf(
-                        getResources().getInteger(R.integer.mock_items_number_click)));
+                String.valueOf(SpUsers.getNumberMockEntriesForCurrentUser(getApplicationContext())));
+        editText.setInputType(InputType.TYPE_CLASS_NUMBER);
 
         // Get string.
         final String title = getString(R.string.activity_list_notification_add_mock_title);
@@ -698,8 +717,7 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
 
                 // Timer for notification enable
                 notification.startTimerToEnableNotification(
-                        getResources().getInteger(
-                                R.integer.activity_list_notification_panel_add_mock_timer_enable));
+                        SpUsers.getProgressNotificationTimerForCurrentUser(getApplicationContext()));
 
                 // Add.
                 final int added = ListDbHelper.addMockEntries(

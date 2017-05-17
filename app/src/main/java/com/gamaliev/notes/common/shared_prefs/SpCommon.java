@@ -55,7 +55,7 @@ public final class SpCommon {
         if (!sp.getBoolean(SP_INITIALIZED, false)) {
 
             // Add default user.
-            final Map<String, String> map = SpUsers.getDefaultProfile();
+            final Map<String, String> map = SpUsers.getDefaultProfile(context);
             SpUsers.add(context, map);
 
             // Add mock data.

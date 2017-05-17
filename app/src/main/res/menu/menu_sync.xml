@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Synchronize -->
+    <item
+        android:id="@+id/menu_sync_synchronize"
+        android:icon="@drawable/ic_sync_white_24dp"
+        android:title="@string/menu_sync_action_synchronize"
+        android:orderInCategory="10"
+        app:showAsAction="always"/>
+
+</menu>

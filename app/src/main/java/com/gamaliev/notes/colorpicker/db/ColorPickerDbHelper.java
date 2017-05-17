@@ -17,6 +17,9 @@ import static com.gamaliev.notes.common.CommonUtils.showToast;
 import static com.gamaliev.notes.common.db.DbHelper.FAVORITE_COLUMN_COLOR;
 import static com.gamaliev.notes.common.db.DbHelper.FAVORITE_COLUMN_INDEX;
 import static com.gamaliev.notes.common.db.DbHelper.FAVORITE_TABLE_NAME;
+import static com.gamaliev.notes.common.db.DbHelper.getDbFailMessage;
+import static com.gamaliev.notes.common.db.DbHelper.getReadableDb;
+import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
 
 /**
  * @author Vadim Gamaliev
@@ -43,25 +46,6 @@ public class ColorPickerDbHelper {
 
     private ColorPickerDbHelper() {}
 
-
-    /*
-        Database
-     */
-
-    @NonNull
-    private static SQLiteDatabase getWritableDb(@NonNull final Context context) {
-        return DbHelper.getInstance(context).getWritableDatabase();
-    }
-
-    @NonNull
-    private static SQLiteDatabase getReadableDb(@NonNull final Context context) {
-        return DbHelper.getInstance(context).getReadableDatabase();
-    }
-
-    @NonNull
-    private static String getDbFailMessage(@NonNull final Context context) {
-        return DbHelper.getInstance(context).getDbFailMessage();
-    }
 
     /*
         Methods
@@ -92,7 +76,7 @@ public class ColorPickerDbHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(context), Toast.LENGTH_SHORT);
+            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
             return false;
         }
     }
@@ -125,7 +109,7 @@ public class ColorPickerDbHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(context), Toast.LENGTH_SHORT);
+            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
             return color;
         }
     }

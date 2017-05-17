@@ -47,6 +47,16 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:label="@string/activity_user_preference"/>
 
+        <activity
+            android:name="com.gamaliev.notes.sync.SyncActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/activity_sync"/>
+
+        <activity
+            android:name="com.gamaliev.notes.settings.SettingsPreferenceActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/activity_settings_preference"/>
+
     </application>
 
 </manifest>

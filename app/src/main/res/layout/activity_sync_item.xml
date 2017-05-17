@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/activity_sync_item_height"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_sync_item_padding_bottom"
+    android:paddingEnd="@dimen/activity_sync_item_padding"
+    android:paddingStart="@dimen/activity_sync_item_padding"
+    android:paddingTop="@dimen/activity_sync_item_padding">
+
+    <TextView
+        android:id="@+id/activity_sync_item_finished"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:lines="1"
+        android:textColor="@android:color/primary_text_light"
+        android:textSize="@dimen/activity_sync_item_title_text_size"/>
+
+    <TextView
+        android:id="@+id/activity_sync_item_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:lines="1"
+        android:textSize="@dimen/activity_sync_item_description_text_size"/>
+
+    <TextView
+        android:id="@+id/activity_sync_item_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:lines="1"
+        android:textSize="@dimen/activity_sync_item_description_text_size"/>
+
+</LinearLayout>

@@ -1,6 +1,8 @@
 package com.gamaliev.notes.app;
 
 import android.app.Application;
+import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.gamaliev.notes.common.FileUtils;
 import com.gamaliev.notes.common.db.DbHelper;
@@ -16,6 +18,9 @@ public class NotesApp extends Application {
     /* Logger */
     private static final String TAG = NotesApp.class.getSimpleName();
 
+    /* ... */
+    @NonNull private static Context appContext;
+
 
     /*
         Init
@@ -28,6 +33,8 @@ public class NotesApp extends Application {
     }
 
     private void init() {
+        appContext = getApplicationContext();
+
         initSharedPreferences();
         initDataBase();
         initFileUtils();
@@ -54,5 +61,14 @@ public class NotesApp extends Application {
      */
     private void initFileUtils() {
         FileUtils.getImportExportHandlerLooperThread();
+    }
+
+
+    /*
+        Getters
+     */
+
+    public static Context getAppContext() {
+        return appContext;
     }
 }
