@@ -65,6 +65,10 @@ public final class DbHelper extends SQLiteOpenHelper {
     public static final String DELETED_TABLE_NAME           = "deleted";
     public static final String DELETED_COLUMN_SYNC_ID       = "sync_id";
 
+    /* Sync conflict table */
+    public static final String SYNC_CONFLICT_TABLE_NAME     = "sync_conflict";
+    public static final String SYNC_CONFLICT_COLUMN_SYNC_ID = "sync_id";
+
     /*
         Queries
     */
@@ -103,6 +107,12 @@ public final class DbHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + DELETED_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     DELETED_COLUMN_SYNC_ID +                " INTEGER NOT NULL); ";
+
+    /* Sync conflict */
+    private static final String SQL_SYNC_CONFLICT_CREATE_TABLE =
+            "CREATE TABLE " + SYNC_CONFLICT_TABLE_NAME + " (" +
+                    BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    SYNC_CONFLICT_COLUMN_SYNC_ID +          " INTEGER NOT NULL); ";
 
     /* Drop entries */
     public static final String SQL_LIST_ITEMS_DROP_TABLE =
@@ -198,6 +208,7 @@ public final class DbHelper extends SQLiteOpenHelper {
                 db.execSQL(SQL_FAVORITE_CREATE_TABLE);
                 db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
                 db.execSQL(SQL_DELETED_CREATE_TABLE);
+                db.execSQL(SQL_SYNC_CONFLICT_CREATE_TABLE);
 
                 // Populating.
                 populateDatabase(db);

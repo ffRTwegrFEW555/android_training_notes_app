@@ -472,7 +472,12 @@ public class ListDbHelper {
                 if (addToDeletedTable) {
                     final Long syncId = entry.getSyncId();
                     if (syncId != null) {
-                        insertEntryToDeleted(context, syncId, db);
+                        insertSyncIdEntry(
+                                context,
+                                syncId,
+                                db,
+                                DELETED_TABLE_NAME,
+                                DELETED_COLUMN_SYNC_ID);
                     }
                 }
 
@@ -695,29 +700,39 @@ public class ListDbHelper {
 
 
     /*
-        Deleted table
+        Sync Id tables
      */
 
     /**
-     * Insert new entry in database.
-     * @param syncId    Sync Id of deleted entry.
-     * @param db        Database.
+     * Insert entry with single syncId field, in database.
+     * @param context       Context.
+     * @param syncId        Sync Id.
+     * @param db            Database. If null, then get new.
+     * @param tableName     Table, where to insert a entry.
+     * @param columnName    Column name.
+     * @return              True if ok, otherwise false.
      */
-    public static boolean insertEntryToDeleted(
+    public static boolean insertSyncIdEntry(
             @NonNull final Context context,
             @NonNull final Long syncId,
-            @NonNull final SQLiteDatabase db) {
+            @Nullable SQLiteDatabase db,
+            @NonNull final String tableName,
+            @NonNull final String columnName) {
+
+        if (db == null) {
+            db = DbHelper.getWritableDb(context);
+        }
 
         try {
             // Content values
             final ContentValues cv = new ContentValues();
-            cv.put(DELETED_COLUMN_SYNC_ID, syncId);
+            cv.put(columnName, syncId);
 
             // Insert
-            if (db.insert(DELETED_TABLE_NAME, null, cv) == -1) {
+            if (db.insert(tableName, null, cv) == -1) {
                 final String error = String.format(Locale.ENGLISH,
                         "[ERROR] Insert entry {%s: %d}",
-                        DELETED_COLUMN_SYNC_ID, syncId);
+                        columnName, syncId);
                 throw new SQLiteException(error);
             }
 
@@ -732,19 +747,22 @@ public class ListDbHelper {
     }
 
     /**
-     * Get deleted entries from database.
+     * Get entries, with single sync id field, from database.
+     * @param context   Context.
+     * @param tableName Table name.
      * @return Result cursor.
      */
     @Nullable
-    public static Cursor getDeleted(
-            @NonNull final Context context) {
+    public static Cursor getEntriesWithSyncIdField(
+            @NonNull final Context context,
+            @NonNull final String tableName) {
 
         try {
             final SQLiteDatabase db = getReadableDb(context);
 
             // Make query and return cursor, if ok;
             return db.query(
-                    DELETED_TABLE_NAME,
+                    tableName,
                     null,
                     null,
                     null,
@@ -760,21 +778,26 @@ public class ListDbHelper {
     }
 
     /**
-     * Delete entry from database, with given id.
-     * @param syncId    Sync Id of entry to be deleted.
-     * @return          True if success, otherwise false.
+     * Delete entry with single sync id from database.
+     * @param context       Context.
+     * @param syncId        Sync Id of entry to be deleted.
+     * @param tableName     Table, where to delete a entry.
+     * @param columnName    Column name.
+     * @return              True if success, otherwise false.
      */
-    public static boolean deleteEntryFromDeleted(
+    public static boolean deleteEntryWithSingleSyncId(
             @NonNull final Context context,
-            @NonNull final String syncId) {
+            @NonNull final String syncId,
+            @NonNull final String tableName,
+            @NonNull final String columnName) {
 
         try {
             final SQLiteDatabase db = getWritableDb(context);
 
                 // Delete query.
                 int deleteResult = db.delete(
-                        DELETED_TABLE_NAME,
-                        DELETED_COLUMN_SYNC_ID + " = ?",
+                        tableName,
+                        columnName + " = ?",
                         new String[]{syncId});
 
                 // If error.

@@ -134,7 +134,8 @@ public class FileUtils {
 
         // Timer for notification enable
         notification.startTimerToEnableNotification(
-                getProgressNotificationTimerForCurrentUser(activity.getApplicationContext()));
+                getProgressNotificationTimerForCurrentUser(activity.getApplicationContext()),
+                false);
 
         // Retrieve data from database in Json-format.
         final String result = getEntriesFromDatabase(
@@ -321,7 +322,8 @@ public class FileUtils {
 
         // Timer for notification enable
         notification.startTimerToEnableNotification(
-                getProgressNotificationTimerForCurrentUser(activity.getApplicationContext()));
+                getProgressNotificationTimerForCurrentUser(activity.getApplicationContext()),
+                false);
 
         // Get Json-string from file.
         final String inputJson = getStringFromFile(activity, selectedFile);

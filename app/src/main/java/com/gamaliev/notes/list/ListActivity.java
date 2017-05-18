@@ -718,7 +718,8 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
 
                 // Timer for notification enable
                 notification.startTimerToEnableNotification(
-                        SpUsers.getProgressNotificationTimerForCurrentUser(getApplicationContext()));
+                        SpUsers.getProgressNotificationTimerForCurrentUser(getApplicationContext()),
+                        false);
 
                 // Add.
                 final int added = ListDbHelper.addMockEntries(

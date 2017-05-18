@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.NetworkUtils;
 import com.gamaliev.notes.common.OnCompleteListener;
+import com.gamaliev.notes.common.ProgressNotificationHelper;
 import com.gamaliev.notes.common.db.DbQueryBuilder;
 import com.gamaliev.notes.common.shared_prefs.SpCommon;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
@@ -35,15 +36,20 @@ import retrofit2.Response;
 import static com.gamaliev.notes.common.CommonUtils.showToast;
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
 import static com.gamaliev.notes.common.db.DbHelper.DELETED_COLUMN_SYNC_ID;
+import static com.gamaliev.notes.common.db.DbHelper.DELETED_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID_JSON;
+import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_COLUMN_SYNC_ID;
+import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.getProgressNotificationTimerForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
 import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntry;
-import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntryFromDeleted;
-import static com.gamaliev.notes.list.db.ListDbHelper.getDeleted;
+import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntryWithSingleSyncId;
+import static com.gamaliev.notes.list.db.ListDbHelper.getEntriesWithSyncIdField;
 import static com.gamaliev.notes.list.db.ListDbHelper.getEntries;
 import static com.gamaliev.notes.list.db.ListDbHelper.getNewEntries;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertEntry;
+import static com.gamaliev.notes.list.db.ListDbHelper.insertSyncIdEntry;
 import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
 
 /**
@@ -146,11 +152,27 @@ public final class SyncUtils {
                 context.getString(R.string.activity_sync_item_action_started),
                 RESULT_CODE_START);
 
+        // Continuing Progress notifications start.
+        final ProgressNotificationHelper notification =
+                new ProgressNotificationHelper(
+                        context,
+                        context.getString(R.string.activity_sync_notification_panel_title),
+                        context.getString(R.string.activity_sync_notification_panel_text),
+                        context.getString(R.string.activity_sync_notification_panel_complete));
+
+        // Timer for notification enable
+        notification.startTimerToEnableNotification(
+                getProgressNotificationTimerForCurrentUser(context.getApplicationContext()),
+                true);
+
         //
         int added   = addNewToServer(context);
         int deleted = deleteFromServer(context);
         int updated = synchronizeFromServer(context);
-        int sum = added + deleted + updated;
+        int sum     = added + deleted + updated;
+
+        // Notification complete
+        notification.endProgress();
 
         //
         final SyncEntry entryFinish = new SyncEntry();
@@ -229,7 +251,7 @@ public final class SyncUtils {
 
         int counter = 0;
 
-        final Cursor cursor = getDeleted(context);
+        final Cursor cursor = getEntriesWithSyncIdField(context, DELETED_TABLE_NAME);
         while (cursor.moveToNext()) {
             final String syncId = cursor.getString(cursor.getColumnIndex(DELETED_COLUMN_SYNC_ID));
 
@@ -245,7 +267,11 @@ public final class SyncUtils {
                     final String status = jsonResponse.optString(API_KEY_STATUS);
 
                     if (status.equals(API_STATUS_OK)) {
-                        deleteEntryFromDeleted(context, syncId);
+                        deleteEntryWithSingleSyncId(
+                                context,
+                                syncId,
+                                DELETED_TABLE_NAME,
+                                DELETED_COLUMN_SYNC_ID);
                         counter++;
 
                     } else {
@@ -284,8 +310,7 @@ public final class SyncUtils {
 
         //
         int counterAddedOnLocal     = 0;
-        int counterUpdatedOnServer  = 0;
-        int counterUpdatedOnLocal   = 0;
+        int counterConflicted       = 0;
         int counterDeletedOnLocal   = 0;
 
         //
@@ -341,6 +366,7 @@ public final class SyncUtils {
 
                         // Delete from local and seek changes
                         final Cursor cursor = getEntries(context);
+                        start:
                         while (cursor.moveToNext()) {
                             final String syncIdLocal = cursor
                                     .getString(cursor.getColumnIndex(LIST_ITEMS_COLUMN_SYNC_ID));
@@ -351,6 +377,7 @@ public final class SyncUtils {
                                     final String syncIdServer = jsonServer
                                             .optString(LIST_ITEMS_COLUMN_SYNC_ID_JSON, null);
 
+                                    // If sync id equals.
                                     if (syncIdLocal.equals(syncIdServer)) {
                                         final JSONObject jsonLocal =
                                                 ListEntry.getJsonObject(context, cursor);
@@ -360,16 +387,27 @@ public final class SyncUtils {
                                                 SpCommon.convertJsonToMap(data.getString(i));
                                         mapServer.remove(API_KEY_ID);
                                         mapServer.remove(API_KEY_EXTRA);
-                                        boolean equals = mapLocal.equals(mapServer);
-                                        // TODO: chutok ostalos
-                                        break;
-                                    }
 
-                                    if (i == data.length() - 1) {
-                                        deleteEntry(context, Long.parseLong(syncIdLocal), false);
-                                        counterDeletedOnLocal++;
+                                        // If entries not equals, then add to conflict table.
+                                        if(!mapLocal.equals(mapServer)) {
+                                            insertSyncIdEntry(
+                                                    context,
+                                                    Long.parseLong(syncIdLocal),
+                                                    null,
+                                                    SYNC_CONFLICT_TABLE_NAME,
+                                                    SYNC_CONFLICT_COLUMN_SYNC_ID);
+                                            counterConflicted++;
+                                        }
+                                        continue start;
                                     }
                                 }
+
+                                // Delete from local, if syncId not exists on server
+                                deleteEntry(
+                                        context,
+                                        cursor.getLong(cursor.getColumnIndex(BASE_COLUMN_ID)),
+                                        false);
+                                counterDeletedOnLocal++;
                             }
                         }
                         cursor.close();
@@ -387,30 +425,17 @@ public final class SyncUtils {
                                 context.getString(R.string.activity_sync_item_action_delete_from_local),
                                 RESULT_CODE_SUCCESS);
 
-                        // Update on local finish
-                        final SyncEntry localChangesFinish = new SyncEntry();
-                        localChangesFinish.setFinished(new Date());
-                        localChangesFinish.setAction(SyncDbHelper.ACTION_UPDATED_ON_LOCAL);
-                        localChangesFinish.setStatus(SyncDbHelper.STATUS_OK);
-                        localChangesFinish.setAmount(counterUpdatedOnLocal);
+                        // Conflicted finish
+                        final SyncEntry conflictedFinish = new SyncEntry();
+                        conflictedFinish.setFinished(new Date());
+                        conflictedFinish.setAction(SyncDbHelper.ACTION_CONFLICTED_ADDED);
+                        conflictedFinish.setStatus(SyncDbHelper.STATUS_OK);
+                        conflictedFinish.setAmount(counterConflicted);
                         makeOperations(
                                 context,
-                                localChangesFinish,
+                                conflictedFinish,
                                 false,
-                                context.getString(R.string.activity_sync_item_action_updated_on_local),
-                                RESULT_CODE_SUCCESS);
-
-                        // Update on server finish
-                        final SyncEntry serverChangesFinish = new SyncEntry();
-                        serverChangesFinish.setFinished(new Date());
-                        serverChangesFinish.setAction(SyncDbHelper.ACTION_UPDATED_ON_SERVER);
-                        serverChangesFinish.setStatus(SyncDbHelper.STATUS_OK);
-                        serverChangesFinish.setAmount(counterUpdatedOnServer);
-                        makeOperations(
-                                context,
-                                serverChangesFinish,
-                                false,
-                                context.getString(R.string.activity_sync_item_action_updated_on_server),
+                                context.getString(R.string.activity_sync_item_action_conflict),
                                 RESULT_CODE_SUCCESS);
                     }
 
@@ -428,9 +453,8 @@ public final class SyncUtils {
 
         //
         return counterAddedOnLocal
-                + counterDeletedOnLocal
-                + counterUpdatedOnLocal
-                + counterUpdatedOnServer;
+                + counterConflicted
+                + counterDeletedOnLocal;
     }
 
 
@@ -479,6 +503,19 @@ public final class SyncUtils {
                 context.getString(R.string.activity_sync_item_action_delete_all_from_server_start),
                 RESULT_CODE_SUCCESS);
 
+        // Continuing Progress notifications start.
+        final ProgressNotificationHelper notification =
+                new ProgressNotificationHelper(
+                        context,
+                        context.getString(R.string.activity_sync_notification_panel_del_all_title),
+                        context.getString(R.string.activity_sync_notification_panel_del_all_text),
+                        context.getString(R.string.activity_sync_notification_panel_del_all_complete));
+
+        // Timer for notification enable
+        notification.startTimerToEnableNotification(
+                getProgressNotificationTimerForCurrentUser(context.getApplicationContext()),
+                true);
+
         // Main
         final NoteApi noteApi = getNoteApi();
         final String currentUser = getSyncIdForCurrentUser(context);
@@ -518,6 +555,9 @@ public final class SyncUtils {
         } catch (IOException | JSONException e) {
             Log.e(TAG, e.toString());
         }
+
+        // Notification complete
+        notification.endProgress();
 
         // Finish
         final SyncEntry entryFinish = new SyncEntry();

@@ -64,6 +64,13 @@ public final class ProgressNotificationHelper {
         }
     }
 
+    public void setContinuingProgress() {
+        if (isEnable()) {
+            mBuilder.setProgress(0, 0, true);
+            mManager.notify(mId, mBuilder.build());
+        }
+    }
+
     public void endProgress() {
         mFinished = true;
 
@@ -81,7 +88,9 @@ public final class ProgressNotificationHelper {
     /**
      * @param timeToStart Time to enable progress notification, in ms.
      */
-    public void startTimerToEnableNotification(final int timeToStart) {
+    public void startTimerToEnableNotification(
+            final int timeToStart,
+            final boolean continuing) {
 
         new Thread(new Runnable() {
             @Override
@@ -90,7 +99,11 @@ public final class ProgressNotificationHelper {
                     Thread.sleep(timeToStart);
                     if (!mFinished) {
                         setEnable(true);
-                        setProgress(100, 0);
+                        if (continuing) {
+                            setContinuingProgress();
+                        } else {
+                            setProgress(100, 0);
+                        }
                     }
 
                 } catch (InterruptedException e) {

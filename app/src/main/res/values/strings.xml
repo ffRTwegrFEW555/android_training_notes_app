@@ -201,8 +201,18 @@
     <string name="activity_sync_item_action_delete_from_local">Delete from local</string>
     <string name="activity_sync_item_action_updated_on_server">Updated on server</string>
     <string name="activity_sync_item_action_updated_on_local">Updated on local</string>
+    <string name="activity_sync_item_action_conflict">Conflicted added</string>
     <string name="activity_sync_item_action_started">Synchronization start</string>
     <string name="activity_sync_item_action_completed">Synchronization completed</string>
+
+    <!-- Progress notification -->
+    <string name="activity_sync_notification_panel_title">Synchronizing notes</string>
+    <string name="activity_sync_notification_panel_text">Sync in progress</string>
+    <string name="activity_sync_notification_panel_complete">Synchronizing complete</string>
+
+    <string name="activity_sync_notification_panel_del_all_title">Deleting all notes from server</string>
+    <string name="activity_sync_notification_panel_del_all_text">Deleting in progress</string>
+    <string name="activity_sync_notification_panel_del_all_complete">Deleting all notes from server complete</string>
 
 
     <!--                    -->

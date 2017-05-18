@@ -51,6 +51,7 @@ public class SyncDbHelper {
     public static final int ACTION_START                = 7;
     public static final int ACTION_COMPLETE             = 8;
     public static final int ACTION_DELETE_ALL_FROM_SERVER_START = 9;
+    public static final int ACTION_CONFLICTED_ADDED     = 10;
 
     public static final int[] STATUS_TEXT = {
             R.string.activity_sync_item_status_error,
@@ -67,7 +68,8 @@ public class SyncDbHelper {
             R.string.activity_sync_item_action_updated_on_local,
             R.string.activity_sync_item_action_started,
             R.string.activity_sync_item_action_completed,
-            R.string.activity_sync_item_action_delete_all_from_server_start
+            R.string.activity_sync_item_action_delete_all_from_server_start,
+            R.string.activity_sync_item_action_conflict
     };
 
 
