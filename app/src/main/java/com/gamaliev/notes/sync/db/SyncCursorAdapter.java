@@ -28,7 +28,7 @@ public final class SyncCursorAdapter extends CursorAdapter {
 
         // Create new view, new view holder, and binding.
         final View view = LayoutInflater
-                .from(context)
+                .from(parent.getContext())
                 .inflate(R.layout.activity_sync_item, parent, false);
         final ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
