@@ -159,4 +159,16 @@
     <dimen name="activity_sync_item_title_text_size">16sp</dimen>
     <dimen name="activity_sync_item_description_text_size">14sp</dimen>
 
+
+    <!--                -->
+    <!-- Activity Sync  -->
+    <!--                -->
+
+    <!-- Other -->
+    <dimen name="activity_conflict_fragment_margin_top">8dp</dimen>
+    <dimen name="activity_conflict_fragment_margin_bottom">8dp</dimen>
+    <dimen name="activity_conflict_fragment_card_view_height">72dp</dimen>
+    <dimen name="activity_conflict_fragment_card_view_text_margin_start">16dp</dimen>
+    <dimen name="activity_conflict_fragment_card_view_text_margin_top">16dp</dimen>
+
 </resources>

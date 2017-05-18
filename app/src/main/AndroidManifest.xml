@@ -68,6 +68,11 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:label="@string/activity_settings_preference"/>
 
+        <activity
+            android:name="com.gamaliev.notes.conflict.ConflictActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/activity_conflict"/>
+
     </application>
 
 </manifest>

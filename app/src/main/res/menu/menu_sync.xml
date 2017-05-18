@@ -11,12 +11,20 @@
         android:orderInCategory="10"
         app:showAsAction="always"/>
 
+    <!-- Show conflicted -->
+    <item
+        android:id="@+id/menu_sync_show_conflicted"
+        android:icon="@drawable/ic_warning_white_24dp"
+        android:title="@string/menu_sync_action_show_conflicted"
+        android:orderInCategory="20"
+        app:showAsAction="always"/>
+
     <!-- Delete all from Server -->
     <item
         android:id="@+id/menu_sync_delete_all_from_server"
         android:icon="@drawable/ic_delete_forever_white_24dp"
         android:title="@string/menu_sync_action_delete_all_from_server"
-        android:orderInCategory="20"
+        android:orderInCategory="30"
         app:showAsAction="always"/>
 
 </menu>

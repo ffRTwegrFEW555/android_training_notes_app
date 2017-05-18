@@ -14,6 +14,7 @@ import android.widget.ListView;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.OnCompleteListener;
+import com.gamaliev.notes.conflict.ConflictActivity;
 import com.gamaliev.notes.sync.db.SyncCursorAdapter;
 import com.gamaliev.notes.sync.db.SyncDbHelper;
 
@@ -30,6 +31,8 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
     /* ... */
     @NonNull private CursorAdapter mAdapter;
     @NonNull private ListView mListView;
+
+    public static final int REQUEST_CODE_START_CONFLICTED = 0;
 
 
     /*
@@ -119,6 +122,13 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
             // Synchronize button
             case R.id.menu_sync_synchronize:
                 SyncUtils.synchronize(getApplicationContext());
+                break;
+
+            // Show conflicted
+            case R.id.menu_sync_show_conflicted:
+                ConflictActivity.startIntent(
+                        this,
+                        REQUEST_CODE_START_CONFLICTED);
                 break;
 
             // Delete all from server button

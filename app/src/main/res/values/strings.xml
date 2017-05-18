@@ -182,6 +182,7 @@
 
     <!-- Other -->
     <string name="menu_sync_action_synchronize">Synchronize</string>
+    <string name="menu_sync_action_show_conflicted">Show conflicted</string>
     <string name="menu_sync_action_delete_all_from_server">Delete all from server</string>
     <string name="activity_sync_item_amount_prefix">Amount</string>
     <string name="activity_sync_item_icon_description">Result icon</string>
@@ -256,6 +257,14 @@
     <string name="activity_settings_default_sync">true</string>
     <string name="activity_settings_default_sync_wifi">false</string>
     <string name="activity_settings_default_sync_api_url">https://notesbackend-yufimtsev.rhcloud.com/</string>
+
+
+    <!--                    -->
+    <!-- Activity Conflict  -->
+    <!--                    -->
+
+    <!-- Activity -->
+    <string name="activity_conflict">Conflicted entries</string>
 
 
     <!--            -->
