@@ -43,6 +43,8 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_MOCK_ENTRIE
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_PROGRESS_NOTIF_TIMER;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_API_URL;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_PENDING;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_PENDING_FALSE;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_WIFI;
 
 /**
@@ -114,7 +116,8 @@ public final class SpMock {
                     "3000",
                     "true",
                     "false",
-                    "https://notesbackend-yufimtsev.rhcloud.com/"},
+                    "https://notesbackend-yufimtsev.rhcloud.com/",
+                    SP_USER_SYNC_PENDING_FALSE},
 
             {"1",
                     "778",
@@ -127,7 +130,8 @@ public final class SpMock {
                     "3000",
                     "true",
                     "false",
-                    "https://notesbackend-yufimtsev.rhcloud.com/"},
+                    "https://notesbackend-yufimtsev.rhcloud.com/",
+                    SP_USER_SYNC_PENDING_FALSE},
     };
 
 
@@ -254,6 +258,7 @@ public final class SpMock {
             map.put(SP_USER_SYNC,           entry[9]);
             map.put(SP_USER_SYNC_WIFI,      entry[10]);
             map.put(SP_USER_SYNC_API_URL,   entry[11]);
+            map.put(SP_USER_SYNC_PENDING,   entry[12]);
 
             set.add(map);
         }

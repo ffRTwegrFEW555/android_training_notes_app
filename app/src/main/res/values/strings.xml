@@ -198,10 +198,20 @@
     <string name="activity_sync_item_action_delete_from_server">Delete from server</string>
     <string name="activity_sync_item_action_delete_all_from_server_start">Delete all from server start</string>
     <string name="activity_sync_item_action_delete_all_from_server_completed">Delete all from server completed</string>
+    <string name="activity_sync_item_action_delete_all_from_server_no_wifi">
+        Deleting all notes from server is allowed only if you have a WI-FI. Try later.
+    </string>
+    <string name="activity_sync_item_action_delete_all_from_server_no_internet">No internet. Try later.</string>
     <string name="activity_sync_item_action_delete_from_local">Delete from local</string>
     <string name="activity_sync_item_action_updated_on_server">Updated on server</string>
     <string name="activity_sync_item_action_updated_on_local">Updated on local</string>
     <string name="activity_sync_item_action_conflict">Conflicted added</string>
+    <string name="activity_sync_item_action_pending_start_no_wifi">
+        Synchronization is allowed only if you have a WI-FI. It will be executed when the permission appears
+    </string>
+    <string name="activity_sync_item_action_pending_start_no_internet">
+        No Internet. Synchronization will be performed when the Internet appears
+    </string>
     <string name="activity_sync_item_action_started">Synchronization start</string>
     <string name="activity_sync_item_action_completed">Synchronization completed</string>
 

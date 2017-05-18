@@ -27,6 +27,10 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
     /* Logger */
     private static final String TAG = SyncActivity.class.getSimpleName();
 
+    /* ... */
+    @NonNull private CursorAdapter mAdapter;
+    @NonNull private ListView mListView;
+
 
     /*
         Init
@@ -41,6 +45,7 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
 
     private void init() {
         initToolbar();
+        initListView();
     }
 
     private void initToolbar() {
@@ -59,17 +64,33 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
 
     private void initListView() {
         // Create adapter.
-        final CursorAdapter adapter = new SyncCursorAdapter(
+        mAdapter = new SyncCursorAdapter(
                 getApplicationContext(),
                 SyncDbHelper.getAll(getApplicationContext()),
                 0);
 
         // Init list view
-        final ListView listView = (ListView) findViewById(R.id.activity_sync_list_view);
+        mListView = (ListView) findViewById(R.id.activity_sync_list_view);
+        mListView.setAdapter(mAdapter);
+        scrollListViewToBottom();
+    }
+
+    private void notifyDataSetChangedAndScrollToEnd() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                listView.setAdapter(adapter);
+                mAdapter.changeCursor(SyncDbHelper.getAll(getApplicationContext()));
+                mAdapter.notifyDataSetChanged();
+                scrollListViewToBottom();
+            }
+        });
+    }
+
+    private void scrollListViewToBottom() {
+        mListView.post(new Runnable() {
+            @Override
+            public void run() {
+                mListView.setSelection(mAdapter.getCount() - 1);
             }
         });
     }
@@ -139,7 +160,6 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
     protected void onResume() {
         SyncUtils.addObserver(TAG, this);
         super.onResume();
-        initListView();
     }
 
     @Override
@@ -150,6 +170,6 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
 
     @Override
     public void onComplete(int code) {
-        initListView();
+        notifyDataSetChangedAndScrollToEnd();
     }
 }

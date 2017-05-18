@@ -1,4 +1,4 @@
-package com.gamaliev.notes.common;
+package com.gamaliev.notes.common.network;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

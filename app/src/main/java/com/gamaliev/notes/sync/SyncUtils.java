@@ -10,7 +10,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.common.NetworkUtils;
+import com.gamaliev.notes.common.network.NetworkUtils;
 import com.gamaliev.notes.common.OnCompleteListener;
 import com.gamaliev.notes.common.ProgressNotificationHelper;
 import com.gamaliev.notes.common.db.DbQueryBuilder;
@@ -41,8 +41,12 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID_JSON;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_PENDING_FALSE;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_PENDING_TRUE;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPendingSyncStatusForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getProgressNotificationTimerForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.setPendingSyncStatusForCurrentUser;
 import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntry;
 import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntryWithSingleSyncId;
 import static com.gamaliev.notes.list.db.ListDbHelper.getEntriesWithSyncIdField;
@@ -51,6 +55,18 @@ import static com.gamaliev.notes.list.db.ListDbHelper.getNewEntries;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertEntry;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertSyncIdEntry;
 import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
+import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_LOCAL;
+import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_SERVER;
+import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_COMPLETE;
+import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_CONFLICTED_ADDED;
+import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_DELETED_FROM_LOCAL;
+import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_DELETED_FROM_SERVER;
+import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_DELETE_ALL_FROM_SERVER_START;
+import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_PENDING_START_NO_INET;
+import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_PENDING_START_NO_WIFI;
+import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_START;
+import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_TEXT;
+import static com.gamaliev.notes.sync.db.SyncDbHelper.STATUS_OK;
 
 /**
  * @author Vadim Gamaliev
@@ -63,8 +79,10 @@ public final class SyncUtils {
     private static final String TAG = SyncUtils.class.getSimpleName();
 
     /* ... */
+    public static final int RESULT_CODE_PENDING_START = 0;
     public static final int RESULT_CODE_START       = 1;
     public static final int RESULT_CODE_SUCCESS     = 2;
+    public static final int RESULT_CODE_FAILED      = 3;
 
     private static final String API_KEY_STATUS      = "status";
     private static final String API_KEY_DATA        = "data";
@@ -74,6 +92,8 @@ public final class SyncUtils {
     private static final String API_KEY_EXTRA       = "extra";
 
     private static final Map<String, OnCompleteListener> OBSERVERS;
+
+    private static boolean sSyncRunning = false;
 
 
     /*
@@ -103,13 +123,25 @@ public final class SyncUtils {
 
 
     /*
-        ...
+        Sync is Running
+     */
+
+    public static synchronized boolean isSyncRunning() {
+        return sSyncRunning;
+    }
+
+    public static synchronized void setSyncRunning(final boolean syncRunning) {
+        sSyncRunning = syncRunning;
+    }
+
+    /*
+        Main
      */
 
     public static void synchronize(@NonNull final Context context) {
         new Thread(new Runnable() {
-            @Override
-            public void run() {
+                @Override
+                public void run() {
                 checkNetworkAndUserSettings(context);
             }
         }).start();
@@ -120,8 +152,23 @@ public final class SyncUtils {
         switch (NetworkUtils.checkNetwork(context)) {
             case NetworkUtils.NETWORK_MOBILE:
                 if (SpUsers.getSyncWifiOnlyForCurrentUser(context)) {
-                    // TODO: +Pending
-                    makeSynchronize(context);
+                    if (!getPendingSyncStatusForCurrentUser(context)
+                            .equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
+                        //
+                        setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_TRUE);
+                        //
+                        final SyncEntry pendingStart = new SyncEntry();
+                        pendingStart.setFinished(new Date());
+                        pendingStart.setAction(ACTION_PENDING_START_NO_WIFI);
+                        pendingStart.setStatus(STATUS_OK);
+                        pendingStart.setAmount(0);
+                        makeOperations(
+                                context,
+                                pendingStart,
+                                true,
+                                context.getString(ACTION_TEXT[ACTION_PENDING_START_NO_WIFI]),
+                                RESULT_CODE_PENDING_START);
+                    }
                     break;
                 }
 
@@ -131,8 +178,23 @@ public final class SyncUtils {
 
             case NetworkUtils.NETWORK_NO:
             default:
-                // TODO: +Pending
-                makeSynchronize(context);
+                if (!getPendingSyncStatusForCurrentUser(context)
+                        .equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
+                    //
+                    setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_TRUE);
+                    //
+                    final SyncEntry pendingStart = new SyncEntry();
+                    pendingStart.setFinished(new Date());
+                    pendingStart.setAction(ACTION_PENDING_START_NO_INET);
+                    pendingStart.setStatus(STATUS_OK);
+                    pendingStart.setAmount(0);
+                    makeOperations(
+                            context,
+                            pendingStart,
+                            true,
+                            context.getString(ACTION_TEXT[ACTION_PENDING_START_NO_INET]),
+                            RESULT_CODE_PENDING_START);
+                }
                 break;
         }
     }
@@ -140,16 +202,24 @@ public final class SyncUtils {
     public static boolean makeSynchronize(@NonNull final Context context) {
 
         //
+        if (isSyncRunning()) {
+            return false;
+        }
+
+        //
+        setSyncRunning(true);
+
+        //
         final SyncEntry entryStart = new SyncEntry();
         entryStart.setFinished(new Date());
-        entryStart.setAction(SyncDbHelper.ACTION_START);
-        entryStart.setStatus(SyncDbHelper.STATUS_OK);
+        entryStart.setAction(ACTION_START);
+        entryStart.setStatus(STATUS_OK);
         entryStart.setAmount(0);
         makeOperations(
                 context,
                 entryStart,
                 true,
-                context.getString(R.string.activity_sync_item_action_started),
+                context.getString(ACTION_TEXT[ACTION_START]),
                 RESULT_CODE_START);
 
         // Continuing Progress notifications start.
@@ -177,15 +247,21 @@ public final class SyncUtils {
         //
         final SyncEntry entryFinish = new SyncEntry();
         entryFinish.setFinished(new Date());
-        entryFinish.setAction(SyncDbHelper.ACTION_COMPLETE);
-        entryFinish.setStatus(SyncDbHelper.STATUS_OK);
+        entryFinish.setAction(ACTION_COMPLETE);
+        entryFinish.setStatus(STATUS_OK);
         entryFinish.setAmount(sum);
         makeOperations(
                 context,
                 entryFinish,
                 true,
-                context.getString(R.string.activity_sync_item_action_completed),
+                context.getString(ACTION_TEXT[ACTION_COMPLETE]),
                 RESULT_CODE_SUCCESS);
+
+        //
+        setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_FALSE);
+
+        //
+        setSyncRunning(false);
 
         return false;
     }
@@ -234,14 +310,14 @@ public final class SyncUtils {
         // Add result to journal
         final SyncEntry entry = new SyncEntry();
         entry.setFinished(new Date());
-        entry.setAction(SyncDbHelper.ACTION_ADDED_TO_SERVER);
-        entry.setStatus(SyncDbHelper.STATUS_OK);
+        entry.setAction(ACTION_ADDED_TO_SERVER);
+        entry.setStatus(STATUS_OK);
         entry.setAmount(counter);
         makeOperations(
                 context,
                 entry,
                 false,
-                context.getString(R.string.activity_sync_item_action_add_to_server),
+                context.getString(ACTION_TEXT[ACTION_ADDED_TO_SERVER]),
                 RESULT_CODE_SUCCESS);
 
         return counter;
@@ -293,14 +369,14 @@ public final class SyncUtils {
         // Add result to journal
         final SyncEntry entry = new SyncEntry();
         entry.setFinished(new Date());
-        entry.setAction(SyncDbHelper.ACTION_DELETED_FROM_SERVER);
-        entry.setStatus(SyncDbHelper.STATUS_OK);
+        entry.setAction(ACTION_DELETED_FROM_SERVER);
+        entry.setStatus(STATUS_OK);
         entry.setAmount(counter);
         makeOperations(
                 context,
                 entry,
                 false,
-                context.getString(R.string.activity_sync_item_action_delete_from_server),
+                context.getString(ACTION_TEXT[ACTION_DELETED_FROM_SERVER]),
                 RESULT_CODE_SUCCESS);
 
         return counter;
@@ -354,14 +430,14 @@ public final class SyncUtils {
                         // Add to local finish.
                         final SyncEntry addToLocalFinish = new SyncEntry();
                         addToLocalFinish.setFinished(new Date());
-                        addToLocalFinish.setAction(SyncDbHelper.ACTION_ADDED_TO_LOCAL);
-                        addToLocalFinish.setStatus(SyncDbHelper.STATUS_OK);
+                        addToLocalFinish.setAction(ACTION_ADDED_TO_LOCAL);
+                        addToLocalFinish.setStatus(STATUS_OK);
                         addToLocalFinish.setAmount(counterAddedOnLocal);
                         makeOperations(
                                 context,
                                 addToLocalFinish,
                                 false,
-                                context.getString(R.string.activity_sync_item_action_add_to_local),
+                                context.getString(ACTION_TEXT[ACTION_ADDED_TO_LOCAL]),
                                 RESULT_CODE_SUCCESS);
 
                         // Delete from local and seek changes
@@ -415,27 +491,27 @@ public final class SyncUtils {
                         // Delete on local finish
                         final SyncEntry deleteFromLocalFinish = new SyncEntry();
                         deleteFromLocalFinish.setFinished(new Date());
-                        deleteFromLocalFinish.setAction(SyncDbHelper.ACTION_DELETED_FROM_LOCAL);
-                        deleteFromLocalFinish.setStatus(SyncDbHelper.STATUS_OK);
+                        deleteFromLocalFinish.setAction(ACTION_DELETED_FROM_LOCAL);
+                        deleteFromLocalFinish.setStatus(STATUS_OK);
                         deleteFromLocalFinish.setAmount(counterDeletedOnLocal);
                         makeOperations(
                                 context,
                                 deleteFromLocalFinish,
                                 false,
-                                context.getString(R.string.activity_sync_item_action_delete_from_local),
+                                context.getString(ACTION_TEXT[ACTION_DELETED_FROM_LOCAL]),
                                 RESULT_CODE_SUCCESS);
 
                         // Conflicted finish
                         final SyncEntry conflictedFinish = new SyncEntry();
                         conflictedFinish.setFinished(new Date());
-                        conflictedFinish.setAction(SyncDbHelper.ACTION_CONFLICTED_ADDED);
-                        conflictedFinish.setStatus(SyncDbHelper.STATUS_OK);
+                        conflictedFinish.setAction(ACTION_CONFLICTED_ADDED);
+                        conflictedFinish.setStatus(STATUS_OK);
                         conflictedFinish.setAmount(counterConflicted);
                         makeOperations(
                                 context,
                                 conflictedFinish,
                                 false,
-                                context.getString(R.string.activity_sync_item_action_conflict),
+                                context.getString(ACTION_TEXT[ACTION_CONFLICTED_ADDED]),
                                 RESULT_CODE_SUCCESS);
                     }
 
@@ -476,6 +552,12 @@ public final class SyncUtils {
         switch (NetworkUtils.checkNetwork(context)) {
             case NetworkUtils.NETWORK_MOBILE:
                 if (SpUsers.getSyncWifiOnlyForCurrentUser(context)) {
+                    makeOperations(
+                            context,
+                            null,
+                            true,
+                            context.getString(R.string.activity_sync_item_action_delete_all_from_server_no_wifi),
+                            RESULT_CODE_FAILED);
                     break;
                 }
             case NetworkUtils.NETWORK_WIFI:
@@ -483,6 +565,12 @@ public final class SyncUtils {
                 break;
 
             case NetworkUtils.NETWORK_NO:
+                makeOperations(
+                        context,
+                        null,
+                        true,
+                        context.getString(R.string.activity_sync_item_action_delete_all_from_server_no_internet),
+                        RESULT_CODE_FAILED);
             default:
                 break;
         }
@@ -493,14 +581,14 @@ public final class SyncUtils {
         // Start
         final SyncEntry entryStart = new SyncEntry();
         entryStart.setFinished(new Date());
-        entryStart.setAction(SyncDbHelper.ACTION_DELETE_ALL_FROM_SERVER_START);
-        entryStart.setStatus(SyncDbHelper.STATUS_OK);
+        entryStart.setAction(ACTION_DELETE_ALL_FROM_SERVER_START);
+        entryStart.setStatus(STATUS_OK);
         entryStart.setAmount(0);
         makeOperations(
                 context,
                 entryStart,
                 true,
-                context.getString(R.string.activity_sync_item_action_delete_all_from_server_start),
+                context.getString(ACTION_TEXT[ACTION_DELETE_ALL_FROM_SERVER_START]),
                 RESULT_CODE_SUCCESS);
 
         // Continuing Progress notifications start.
@@ -562,14 +650,14 @@ public final class SyncUtils {
         // Finish
         final SyncEntry entryFinish = new SyncEntry();
         entryFinish.setFinished(new Date());
-        entryFinish.setAction(SyncDbHelper.ACTION_DELETED_FROM_SERVER);
-        entryFinish.setStatus(SyncDbHelper.STATUS_OK);
+        entryFinish.setAction(ACTION_DELETED_FROM_SERVER);
+        entryFinish.setStatus(STATUS_OK);
         entryFinish.setAmount(counter);
         makeOperations(
                 context,
                 entryFinish,
                 true,
-                context.getString(R.string.activity_sync_item_action_delete_all_from_server_completed),
+                context.getString(ACTION_TEXT[ACTION_DELETED_FROM_SERVER]),
                 RESULT_CODE_SUCCESS);
     }
 
@@ -580,7 +668,7 @@ public final class SyncUtils {
 
     private static boolean makeOperations(
             @NonNull final Context context,
-            final SyncEntry entry,
+            @Nullable final SyncEntry entry,
             final boolean syncStartShowToast,
             @Nullable final String message,
             final int resultCode) {
@@ -589,7 +677,9 @@ public final class SyncUtils {
         Log.i(TAG, message);
 
         // to Database.
-        SyncDbHelper.insertEntry(context, entry);
+        if (entry != null) {
+            SyncDbHelper.insertEntry(context, entry);
+        }
 
         // Toast
         if (syncStartShowToast) {
@@ -597,7 +687,7 @@ public final class SyncUtils {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    showToast(context, message, Toast.LENGTH_SHORT);
+                    showToast(context, message, Toast.LENGTH_LONG);
                 }
             });
         }

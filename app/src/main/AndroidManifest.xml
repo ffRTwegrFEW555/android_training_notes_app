@@ -18,6 +18,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+
+        <!-- Receivers -->
+        <receiver android:name=".common.network.NetworkBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+            </intent-filter>
+        </receiver>
+
+
+        <!-- Activity -->
         <activity
             android:name="com.gamaliev.notes.list.ListActivity"
             android:theme="@style/AppTheme.NoActionBar"

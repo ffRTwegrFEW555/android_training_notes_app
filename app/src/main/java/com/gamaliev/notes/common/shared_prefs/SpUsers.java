@@ -1,12 +1,16 @@
 package com.gamaliev.notes.common.shared_prefs;
 
 import android.content.Context;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.db.DbHelper;
+import com.gamaliev.notes.common.network.NetworkBroadcastReceiver;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.SP_INITIALIZED;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.SP_MAIN;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_PROFILE_CURRENT;
@@ -52,6 +57,11 @@ public final class SpUsers {
     public static final String SP_USER_SYNC                 = "sync";
     public static final String SP_USER_SYNC_WIFI            = "sync_wifi";
     public static final String SP_USER_SYNC_API_URL         = "sync_api_url";
+    public static final String SP_USER_SYNC_PENDING         = "sync_pending";
+
+    /* Pending Sync */
+    public static final String SP_USER_SYNC_PENDING_TRUE    = "true";
+    public static final String SP_USER_SYNC_PENDING_FALSE   = "false";
 
 
     /*
@@ -84,6 +94,7 @@ public final class SpUsers {
         map.put(SP_USER_SYNC,           context.getString(R.string.activity_settings_default_sync));
         map.put(SP_USER_SYNC_WIFI,      context.getString(R.string.activity_settings_default_sync_wifi));
         map.put(SP_USER_SYNC_API_URL,   context.getString(R.string.activity_settings_default_sync_api_url));
+        map.put(SP_USER_SYNC_PENDING,   SP_USER_SYNC_PENDING_FALSE);
 
         return map;
     }
@@ -118,6 +129,7 @@ public final class SpUsers {
         map.put(SP_USER_SYNC,       String.valueOf(sp.getBoolean(SP_USER_SYNC,      Boolean.valueOf(defaultProfile.get(SP_USER_SYNC)))));
         map.put(SP_USER_SYNC_WIFI,  String.valueOf(sp.getBoolean(SP_USER_SYNC_WIFI, Boolean.valueOf(defaultProfile.get(SP_USER_SYNC)))));
         map.put(SP_USER_SYNC_API_URL,sp.getString(SP_USER_SYNC_API_URL, defaultProfile.get(SP_USER_SYNC_API_URL)));
+        map.put(SP_USER_SYNC_PENDING,sp.getString(SP_USER_SYNC_PENDING, defaultProfile.get(SP_USER_SYNC_PENDING)));
 
 
         return map;
@@ -248,6 +260,20 @@ public final class SpUsers {
         return sp.getString(SP_USER_SYNC_ID, null);
     }
 
+    /**
+     * @param context   Context.
+     * @return          Pending sync status for current user.
+     */
+    @Nullable
+    public static String getPendingSyncStatusForCurrentUser(@NonNull final Context context) {
+
+        final SharedPreferences sp = context.getSharedPreferences(
+                getPreferencesName(getSelected(context)),
+                MODE_PRIVATE);
+
+        return sp.getString(SP_USER_SYNC_PENDING, null);
+    }
+
 
     /*
         Setters
@@ -297,7 +323,8 @@ public final class SpUsers {
                 .putString(SP_USER_PROGRESS_NOTIF_TIMER, profile.get(SP_USER_PROGRESS_NOTIF_TIMER))
                 .putBoolean(SP_USER_SYNC,       Boolean.parseBoolean(profile.get(SP_USER_SYNC)))
                 .putBoolean(SP_USER_SYNC_WIFI,  Boolean.parseBoolean(profile.get(SP_USER_SYNC_WIFI)))
-                .putString(SP_USER_SYNC_API_URL,profile.get(SP_USER_SYNC_API_URL));
+                .putString(SP_USER_SYNC_API_URL,profile.get(SP_USER_SYNC_API_URL))
+                .putString(SP_USER_SYNC_PENDING,profile.get(SP_USER_SYNC_PENDING));
 
 
         /*
@@ -387,6 +414,43 @@ public final class SpUsers {
         sp      .edit()
                 .putString(SP_USERS_ID_COUNTER, number)
                 .apply();
+    }
+
+    /**
+     * Set pending sync status for current user.
+     * @param context   Context.
+     * @param status    See:    {@link #SP_USER_SYNC_PENDING_TRUE},
+     *                          {@link #SP_USER_SYNC_PENDING_FALSE},
+     */
+    public static void setPendingSyncStatusForCurrentUser(
+            @NonNull final Context context,
+            @NonNull final String status) {
+
+        final SharedPreferences sp = context.getSharedPreferences(
+                getPreferencesName(getSelected(context)),
+                MODE_PRIVATE);
+
+        sp      .edit()
+                .putString(SP_USER_SYNC_PENDING, status)
+                .apply();
+
+        // Register / Unregister broadcast receiver manually
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (status.equals(SP_USER_SYNC_PENDING_TRUE)) {
+                IntentFilter intentFilter = new IntentFilter();
+                intentFilter.addAction(CONNECTIVITY_ACTION);
+                context.registerReceiver(
+                        NetworkBroadcastReceiver.getInstance(),
+                        intentFilter);
+
+            } else if (status.equals(SP_USER_SYNC_PENDING_FALSE)) {
+                try {
+                    context.unregisterReceiver(NetworkBroadcastReceiver.getInstance());
+                } catch (Exception e) {
+                    Log.e(TAG, e.toString());
+                }
+            }
+        }
     }
 
     /**
