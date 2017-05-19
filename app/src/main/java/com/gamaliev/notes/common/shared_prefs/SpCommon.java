@@ -128,10 +128,8 @@ public final class SpCommon {
     public static Map<String, String> convertJsonToMap(
             @NonNull final String json) {
 
-        //
         final Map<String, String> map = new HashMap<>();
 
-        //
         JSONObject jsonObject;
         try {
             jsonObject = new JSONObject(json);
@@ -140,7 +138,6 @@ public final class SpCommon {
             return null;
         }
 
-        //
         final Iterator<String> keys = jsonObject.keys();
         while (keys.hasNext()) {
             final String key = keys.next();
@@ -148,6 +145,37 @@ public final class SpCommon {
         }
 
         return map;
+    }
+
+    /**
+     * Convert Json-format to Formatted string with line breaks.
+     * @param json  Json-format.
+     * @return      Formatted string, with line breaks.
+     */
+    @Nullable
+    public static String convertJsonToString(
+            @NonNull final String json) {
+
+        final StringBuilder sb = new StringBuilder();
+
+        JSONObject jsonObject;
+        try {
+            jsonObject = new JSONObject(json);
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+            return null;
+        }
+
+        final Iterator<String> keys = jsonObject.keys();
+        while (keys.hasNext()) {
+            final String key = keys.next();
+            sb      .append(key)
+                    .append(": ")
+                    .append(jsonObject.optString(key, ""))
+                    .append("\n\n");
+        }
+
+        return sb.toString();
     }
 
     /**
@@ -161,5 +189,25 @@ public final class SpCommon {
 
         final JSONObject jsonObject = new JSONObject(map);
         return jsonObject.toString();
+    }
+
+    /**
+     * Convert Map-format to Formatted string with line breaks.
+     * @param map   Map-format.
+     * @return      Formatted string, with line breaks.
+     */
+    @Nullable
+    public static String convertMapToString(
+            @NonNull final Map<String, String> map) {
+
+        final StringBuilder sb = new StringBuilder();
+
+        for (Map.Entry<String, String> pair : map.entrySet()) {
+            sb      .append(pair.getKey())
+                    .append(": ")
+                    .append(pair.getValue())
+                    .append("\n\n");
+        }
+        return sb.toString();
     }
 }

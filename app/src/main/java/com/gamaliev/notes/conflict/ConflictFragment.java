@@ -34,6 +34,13 @@ public class ConflictFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
 
+        // Adapter.
+        final ConflictRecyclerViewAdapter adapter =
+                new ConflictRecyclerViewAdapter(
+                        getContext(),
+                        getChildFragmentManager());
+
+        // RecyclerView
         final RecyclerView recyclerView = (RecyclerView) inflater.inflate(
                 R.layout.fragment_conflict,
                 container,
@@ -41,7 +48,7 @@ public class ConflictFragment extends Fragment {
         recyclerView.addItemDecoration(
                 new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(new ConflictRecyclerViewAdapter(getContext()));
+        recyclerView.setAdapter(adapter);
 
         return recyclerView;
     }

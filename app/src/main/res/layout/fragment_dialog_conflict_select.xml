@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- Main panel -->
+    <ScrollView
+        android:id="@+id/fragment_dialog_conflict_select_main_sv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Server header and body -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fragment_dialog_conflict_select_border_margin"
+                android:layout_marginStart="@dimen/fragment_dialog_conflict_select_border_margin"
+                android:layout_marginTop="@dimen/fragment_dialog_conflict_select_border_margin"
+                android:orientation="vertical">
+
+                <!-- Header -->
+                <TextView
+                    android:id="@+id/fragment_dialog_conflict_select_server_header_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@android:style/TextAppearance.DialogWindowTitle"/>
+
+                <!-- Body -->
+                <TextView
+                    android:id="@+id/fragment_dialog_conflict_select_server_body_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/fragment_dialog_conflict_select_body_tv_margin_top"/>
+
+            </LinearLayout>
+
+            <!-- Save server button -->
+            <Button
+                android:id="@+id/fragment_dialog_conflict_select_server_save_btn"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fragment_dialog_conflict_select_save_btn"
+                android:layout_gravity="end"
+                android:text="@string/fragment_dialog_conflict_select_save_btn_text"/>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/fragment_dialog_conflict_select_divider_height"
+                android:background="@android:color/darker_gray"/>
+
+            <!-- Local header and body -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fragment_dialog_conflict_select_border_margin"
+                android:layout_marginStart="@dimen/fragment_dialog_conflict_select_border_margin"
+                android:layout_marginTop="@dimen/fragment_dialog_conflict_select_border_margin"
+                android:orientation="vertical">
+
+                <!-- Header -->
+                <TextView
+                    android:id="@+id/fragment_dialog_conflict_select_local_header_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@android:style/TextAppearance.DialogWindowTitle"/>
+
+                <!-- Body -->
+                <TextView
+                    android:id="@+id/fragment_dialog_conflict_select_local_body_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/fragment_dialog_conflict_select_body_tv_margin_top"/>
+
+            </LinearLayout>
+
+
+            <!-- Save local button -->
+            <Button
+                android:id="@+id/fragment_dialog_conflict_select_local_save_btn"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fragment_dialog_conflict_select_save_btn"
+                android:layout_gravity="end"
+                android:text="@string/fragment_dialog_conflict_select_save_btn_text"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

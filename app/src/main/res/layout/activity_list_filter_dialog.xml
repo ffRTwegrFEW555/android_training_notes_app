@@ -28,9 +28,9 @@
         <!-- Progress bar -->
         <ProgressBar
             android:id="@+id/activity_list_filter_dialog_found_progress_bar"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="24dp"
+            android:layout_width="@dimen/activity_list_filter_dialog_found_progress_bar_width"
+            android:layout_height="@dimen/activity_list_filter_dialog_found_progress_bar_height"
+            android:layout_marginStart="@dimen/activity_list_filter_dialog_found_progress_bar_margin_start"
             android:theme="@style/AppTheme.ContrastColorAccent"
             android:visibility="gone"/>
 

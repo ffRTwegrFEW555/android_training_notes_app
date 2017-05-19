@@ -3,9 +3,11 @@ package com.gamaliev.notes.conflict;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -23,11 +25,30 @@ import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
 public final class ConflictRecyclerViewAdapter
         extends RecyclerView.Adapter<ConflictRecyclerViewAdapter.ViewHolder> {
 
-    @NonNull private Cursor mCursor;
+    /* Logger */
+    private static final String TAG = ConflictRecyclerViewAdapter.class.getSimpleName();
 
-    public ConflictRecyclerViewAdapter(@NonNull final Context context) {
+    /* ... */
+    @NonNull private Cursor mCursor;
+    @NonNull private FragmentManager mFragmentManager;
+
+
+    /*
+        Init
+     */
+
+    public ConflictRecyclerViewAdapter(
+            @NonNull final Context context,
+            @NonNull final FragmentManager fragmentManager) {
+
         mCursor = ListDbHelper.getEntriesWithSyncIdField(context, SYNC_CONFLICT_TABLE_NAME);
+        mFragmentManager = fragmentManager;
     }
+
+
+    /*
+        Lifecycle
+     */
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -41,15 +62,29 @@ public final class ConflictRecyclerViewAdapter
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         mCursor.moveToPosition(position);
-        holder  .mTextView
-                .setText(mCursor.getString(
-                                mCursor.getColumnIndex(SYNC_CONFLICT_COLUMN_SYNC_ID)));
+        final String syncId = mCursor.getString(mCursor.getColumnIndex(SYNC_CONFLICT_COLUMN_SYNC_ID));
+        holder.mTextView.setText(syncId);
+
+        holder.mCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Launch dialog.
+                ConflictSelectDialogFragment df =
+                        ConflictSelectDialogFragment.newInstance(syncId);
+                df.show(mFragmentManager , null);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
         return mCursor.getCount();
     }
+
+
+    /*
+        ViewHolder
+     */
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         private final CardView mCardView;

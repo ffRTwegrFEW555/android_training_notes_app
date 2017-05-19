@@ -184,12 +184,12 @@ public final class FilterSortDialogFragment extends DialogFragment {
     public void onResume() {
 
         // Set max size of dialog. ( XML is not work :/ )
-        DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
-        ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
+        final DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
+        final ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
         params.width = Math.min(
                 displayMetrics.widthPixels,
                 getActivity().getResources().getDimensionPixelSize(
-                        R.dimen.activity_list_filter_dialog_max_height));
+                        R.dimen.activity_list_filter_dialog_max_width));
         params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
         getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
 

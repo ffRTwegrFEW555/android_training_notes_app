@@ -84,12 +84,12 @@ public final class SyncUtils {
     public static final int RESULT_CODE_SUCCESS     = 2;
     public static final int RESULT_CODE_FAILED      = 3;
 
-    private static final String API_KEY_STATUS      = "status";
-    private static final String API_KEY_DATA        = "data";
-    private static final String API_STATUS_OK       = "ok";
-    private static final String API_STATUS_ERROR    = "error";
-    private static final String API_KEY_ID          = "id";
-    private static final String API_KEY_EXTRA       = "extra";
+    public static final String API_KEY_STATUS      = "status";
+    public static final String API_KEY_DATA        = "data";
+    public static final String API_STATUS_OK       = "ok";
+    public static final String API_STATUS_ERROR    = "error";
+    public static final String API_KEY_ID          = "id";
+    public static final String API_KEY_EXTRA       = "extra";
 
     private static final Map<String, OnCompleteListener> OBSERVERS;
 
