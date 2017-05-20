@@ -37,13 +37,6 @@ public final class DbHelper extends SQLiteOpenHelper {
     public static final String ORDER_ASC_DESC_DEFAULT       = ORDER_ASCENDING;
     public static final String ORDER_COLUMN_DEFAULT         = BASE_COLUMN_ID;
 
-    /* Synchronization table */
-    public static final String SYNC_TABLE_NAME              = "sync_journal";
-    public static final String SYNC_COLUMN_FINISHED         = "finished";
-    public static final String SYNC_COLUMN_ACTION           = "action";
-    public static final String SYNC_COLUMN_STATUS           = "status";
-    public static final String SYNC_COLUMN_AMOUNT           = "amount";
-
     /* Favorite table */
     public static final String FAVORITE_TABLE_NAME          = "favorite_colors";
     public static final String FAVORITE_COLUMN_INDEX        = "tbl_index";
@@ -61,26 +54,25 @@ public final class DbHelper extends SQLiteOpenHelper {
     public static final String LIST_ITEMS_COLUMN_EDITED     = "edited";
     public static final String LIST_ITEMS_COLUMN_VIEWED     = "viewed";
 
-    /* Deleted table */
-    public static final String DELETED_TABLE_NAME           = "deleted";
-    public static final String DELETED_COLUMN_SYNC_ID       = "sync_id";
+    /* Sync. Journal table */
+    public static final String SYNC_TABLE_NAME              = "sync_journal";
+    public static final String SYNC_COLUMN_FINISHED         = "finished";
+    public static final String SYNC_COLUMN_ACTION           = "action";
+    public static final String SYNC_COLUMN_STATUS           = "status";
+    public static final String SYNC_COLUMN_AMOUNT           = "amount";
 
-    /* Sync conflict table */
+    /* Sync. Conflict table */
     public static final String SYNC_CONFLICT_TABLE_NAME     = "sync_conflict";
     public static final String SYNC_CONFLICT_COLUMN_SYNC_ID = "sync_id";
+
+    /* Sync. Deleted table */
+    public static final String SYNC_DELETED_TABLE_NAME      = "deleted";
+    public static final String SYNC_DELETED_COLUMN_SYNC_ID  = "sync_id";
+
 
     /*
         Queries
     */
-
-    /* Synchronization journal */
-    private static final String SQL_SYNC_CREATE_TABLE =
-            "CREATE TABLE " + SYNC_TABLE_NAME + " (" +
-                    BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    SYNC_COLUMN_FINISHED +                  " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
-                    SYNC_COLUMN_ACTION +                    " INTEGER NOT NULL, " +
-                    SYNC_COLUMN_STATUS +                    " INTEGER NOT NULL, " +
-                    SYNC_COLUMN_AMOUNT +                    " INTEGER NOT NULL); ";
 
     /* Colors */
     private static final String SQL_FAVORITE_CREATE_TABLE =
@@ -102,22 +94,30 @@ public final class DbHelper extends SQLiteOpenHelper {
                     LIST_ITEMS_COLUMN_EDITED +  " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                     LIST_ITEMS_COLUMN_VIEWED +  " DATETIME DEFAULT CURRENT_TIMESTAMP); ";
 
-    /* Deleted */
-    private static final String SQL_DELETED_CREATE_TABLE =
-            "CREATE TABLE " + DELETED_TABLE_NAME + " (" +
-                    BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    DELETED_COLUMN_SYNC_ID +                " INTEGER NOT NULL); ";
+    /* Drop entries */
+    public static final String SQL_LIST_ITEMS_DROP_TABLE =
+            "DROP TABLE " + LIST_ITEMS_TABLE_NAME + ";";
 
-    /* Sync conflict */
+    /* Sync. Journal table */
+    private static final String SQL_SYNC_CREATE_TABLE =
+            "CREATE TABLE " + SYNC_TABLE_NAME + " (" +
+                    BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    SYNC_COLUMN_FINISHED +                  " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                    SYNC_COLUMN_ACTION +                    " INTEGER NOT NULL, " +
+                    SYNC_COLUMN_STATUS +                    " INTEGER NOT NULL, " +
+                    SYNC_COLUMN_AMOUNT +                    " INTEGER NOT NULL); ";
+
+    /* Sync. Conflict table */
     private static final String SQL_SYNC_CONFLICT_CREATE_TABLE =
             "CREATE TABLE " + SYNC_CONFLICT_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     SYNC_CONFLICT_COLUMN_SYNC_ID +          " INTEGER NOT NULL); ";
 
-    /* Drop entries */
-    public static final String SQL_LIST_ITEMS_DROP_TABLE =
-            "DROP TABLE " + LIST_ITEMS_TABLE_NAME + ";";
-
+    /* Sync. Deleted table */
+    private static final String SQL_SYNC_DELETED_CREATE_TABLE =
+            "CREATE TABLE " + SYNC_DELETED_TABLE_NAME + " (" +
+                    BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    SYNC_DELETED_COLUMN_SYNC_ID +                " INTEGER NOT NULL); ";
 
     /* Instances */
     @NonNull private static Map<String, DbHelper> sInstances;
@@ -204,11 +204,11 @@ public final class DbHelper extends SQLiteOpenHelper {
 
             try {
                 // Create tables
-                db.execSQL(SQL_SYNC_CREATE_TABLE);
                 db.execSQL(SQL_FAVORITE_CREATE_TABLE);
                 db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
-                db.execSQL(SQL_DELETED_CREATE_TABLE);
+                db.execSQL(SQL_SYNC_CREATE_TABLE);
                 db.execSQL(SQL_SYNC_CONFLICT_CREATE_TABLE);
+                db.execSQL(SQL_SYNC_DELETED_CREATE_TABLE);
 
                 // Populating.
                 populateDatabase(db);

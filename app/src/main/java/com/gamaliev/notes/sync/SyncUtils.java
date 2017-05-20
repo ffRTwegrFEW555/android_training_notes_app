@@ -35,8 +35,8 @@ import retrofit2.Response;
 
 import static com.gamaliev.notes.common.CommonUtils.showToast;
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
-import static com.gamaliev.notes.common.db.DbHelper.DELETED_COLUMN_SYNC_ID;
-import static com.gamaliev.notes.common.db.DbHelper.DELETED_TABLE_NAME;
+import static com.gamaliev.notes.common.db.DbHelper.SYNC_DELETED_COLUMN_SYNC_ID;
+import static com.gamaliev.notes.common.db.DbHelper.SYNC_DELETED_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID_JSON;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_COLUMN_SYNC_ID;
@@ -52,8 +52,8 @@ import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntryWithSingleSyncI
 import static com.gamaliev.notes.list.db.ListDbHelper.getEntriesWithSyncIdField;
 import static com.gamaliev.notes.list.db.ListDbHelper.getEntries;
 import static com.gamaliev.notes.list.db.ListDbHelper.getNewEntries;
-import static com.gamaliev.notes.list.db.ListDbHelper.insertEntry;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertSyncIdEntry;
+import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
 import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_LOCAL;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_SERVER;
@@ -327,9 +327,9 @@ public final class SyncUtils {
 
         int counter = 0;
 
-        final Cursor cursor = getEntriesWithSyncIdField(context, DELETED_TABLE_NAME);
+        final Cursor cursor = getEntriesWithSyncIdField(context, SYNC_DELETED_TABLE_NAME);
         while (cursor.moveToNext()) {
-            final String syncId = cursor.getString(cursor.getColumnIndex(DELETED_COLUMN_SYNC_ID));
+            final String syncId = cursor.getString(cursor.getColumnIndex(SYNC_DELETED_COLUMN_SYNC_ID));
 
             try {
                 final Response<String> response = getNoteApi()
@@ -346,8 +346,8 @@ public final class SyncUtils {
                         deleteEntryWithSingleSyncId(
                                 context,
                                 syncId,
-                                DELETED_TABLE_NAME,
-                                DELETED_COLUMN_SYNC_ID);
+                                SYNC_DELETED_TABLE_NAME,
+                                SYNC_DELETED_COLUMN_SYNC_ID);
                         counter++;
 
                     } else {
@@ -419,9 +419,12 @@ public final class SyncUtils {
                                 final long entriesCount = ListDbHelper.getEntriesCount(context, queryBuilder);
 
                                 if (entriesCount == 0) {
-                                    insertEntry(context, ListEntry.convertJsonToListEntry(
+                                    insertUpdateEntry(
                                             context,
-                                            jsonObject));
+                                            ListEntry.convertJsonToListEntry(
+                                                    context,
+                                                    jsonObject),
+                                            false);
                                     counterAddedOnLocal++;
                                 }
                             }
@@ -666,10 +669,10 @@ public final class SyncUtils {
         ...
      */
 
-    private static boolean makeOperations(
+    public static boolean makeOperations(
             @NonNull final Context context,
             @Nullable final SyncEntry entry,
-            final boolean syncStartShowToast,
+            final boolean showToast,
             @Nullable final String message,
             final int resultCode) {
 
@@ -682,7 +685,7 @@ public final class SyncUtils {
         }
 
         // Toast
-        if (syncStartShowToast) {
+        if (showToast) {
             final Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
                 @Override

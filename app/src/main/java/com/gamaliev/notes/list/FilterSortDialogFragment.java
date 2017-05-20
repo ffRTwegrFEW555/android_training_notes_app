@@ -53,10 +53,12 @@ import static com.gamaliev.notes.common.CommonUtils.EXTRA_DATES_FROM_DATETIME;
 import static com.gamaliev.notes.common.CommonUtils.EXTRA_DATES_FROM_DATE_UTC_TO_LOCALTIME;
 import static com.gamaliev.notes.common.CommonUtils.EXTRA_DATES_TO_DATETIME;
 import static com.gamaliev.notes.common.CommonUtils.EXTRA_DATES_TO_DATE_UTC_TO_LOCALTIME;
+import static com.gamaliev.notes.common.CommonUtils.EXTRA_REVEAL_ANIM_CENTER_TOP_END;
 import static com.gamaliev.notes.common.CommonUtils.convertLocalToUtc;
 import static com.gamaliev.notes.common.CommonUtils.getDateFromProfileMap;
 import static com.gamaliev.notes.common.CommonUtils.getResourceColorApi;
 import static com.gamaliev.notes.common.CommonUtils.getStringDateFormatSqlite;
+import static com.gamaliev.notes.common.DialogFragmentUtils.initCircularRevealAnimation;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_CREATED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_TITLE;
@@ -116,7 +118,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
 
     /*
-        Methods
+        Lifecycle
      */
 
     @Override
@@ -134,26 +136,16 @@ public final class FilterSortDialogFragment extends DialogFragment {
             @Nullable ViewGroup container,
             Bundle savedInstanceState) {
 
-        // Inflate custom layout
         mDialog = inflater.inflate(R.layout.activity_list_filter_dialog, null);
+        initCircularRevealAnimation(
+                mDialog,
+                true,
+                EXTRA_REVEAL_ANIM_CENTER_TOP_END);
 
         // Disable title for more space.
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
         return mDialog;
-    }
-
-
-    /*
-        On save / restore instance save.
-     */
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable(EXTRA_PROFILE_MAP, (HashMap) mFilterProfileMap);
-        outState.putSerializable(EXTRA_FOUNDED_MAP, (HashMap) mFoundedEntriesCache);
-        outState.putString(EXTRA_SELECTED_ID, mSelectedFilterProfile);
-        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -182,7 +174,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
     @Override
     public void onResume() {
-
         // Set max size of dialog. ( XML is not work :/ )
         final DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
         final ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
@@ -195,6 +186,15 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
         super.onResume();
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(EXTRA_PROFILE_MAP, (HashMap) mFilterProfileMap);
+        outState.putSerializable(EXTRA_FOUNDED_MAP, (HashMap) mFoundedEntriesCache);
+        outState.putString(EXTRA_SELECTED_ID, mSelectedFilterProfile);
+        super.onSaveInstanceState(outState);
+    }
+
 
     /*
         Init components

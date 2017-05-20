@@ -56,6 +56,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.gamaliev.notes.common.CommonUtils.EXTRA_REVEAL_ANIM_CENTER_CENTER;
 import static com.gamaliev.notes.common.CommonUtils.checkAndRequestPermissions;
 import static com.gamaliev.notes.common.CommonUtils.circularRevealAnimationOff;
 import static com.gamaliev.notes.common.CommonUtils.circularRevealAnimationOn;
@@ -372,12 +373,14 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
 
             //
             initFilterProfile();
+            initToolbarAndNavigationDrawer();
             updateFilterAdapter();
 
         } else if (resultCode == RESULT_CANCELED) {
             if (requestCode == REQUEST_CODE_CHANGE_USER
                     || requestCode == REQUEST_CODE_SYNC_NOTES) {
                 initFilterProfile();
+                initToolbarAndNavigationDrawer();
                 updateFilterAdapter();
             }
         }
@@ -500,7 +503,10 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                     if (mFoundView.getVisibility() == View.INVISIBLE) {
                         // Show notification. If API >= 21, then with circular reveal animation.
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            circularRevealAnimationOn(mFoundView);
+                            circularRevealAnimationOn(
+                                    mFoundView,
+                                    EXTRA_REVEAL_ANIM_CENTER_CENTER,
+                                    getResources().getInteger(R.integer.circular_reveal_animation_default_value));
                         } else {
                             mFoundView.setVisibility(View.VISIBLE);
                         }
@@ -518,7 +524,10 @@ public final class ListActivity extends AppCompatActivity implements OnCompleteL
                                         @Override
                                         public void run() {
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                                circularRevealAnimationOff(mFoundView);
+                                                circularRevealAnimationOff(
+                                                        mFoundView,
+                                                        EXTRA_REVEAL_ANIM_CENTER_CENTER,
+                                                        getResources().getInteger(R.integer.circular_reveal_animation_default_value));
                                             } else {
                                                 mFoundView.setVisibility(View.INVISIBLE);
                                             }

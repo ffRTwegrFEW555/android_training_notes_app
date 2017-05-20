@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 import com.gamaliev.notes.R;
@@ -27,6 +28,7 @@ public class UserActivity extends AppCompatActivity {
     /* Intents */
     public static final int REQUEST_CODE_CONFIGURE_USER = 101;
 
+
     /*
         Init
      */
@@ -41,6 +43,7 @@ public class UserActivity extends AppCompatActivity {
     private void init() {
         initToolbar();
         initFabOnClickListener();
+        initListView();
     }
 
     private void initToolbar() {
@@ -58,30 +61,20 @@ public class UserActivity extends AppCompatActivity {
     }
 
     private void initListView() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // Create adapter.
-                final UserAdapter adapter = new UserAdapter(getApplicationContext());
+        // Create adapter.
+        final BaseAdapter adapter = new UserAdapter(getApplicationContext());
 
-                // Init list view
-                final ListView listView = (ListView) findViewById(R.id.activity_user_list_view);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        listView.setAdapter(adapter);
-                    }
-                });
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        SpUsers.setSelected(getApplicationContext(), String.valueOf(id));
-                        setResult(RESULT_OK);
-                        finish();
-                    }
-                });
+        // Init list view
+        final ListView listView = (ListView) findViewById(R.id.activity_user_list_view);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                SpUsers.setSelected(getApplicationContext(), String.valueOf(id));
+                setResult(RESULT_OK);
+                finish();
             }
-        }).start();
+        });
     }
 
     /**
@@ -107,8 +100,9 @@ public class UserActivity extends AppCompatActivity {
 
     /**
      * Start intent.
-     * @param context       Context.
-     * @param requestCode   This code will be returned in onActivityResult() when the activity exits.
+     *
+     * @param context     Context.
+     * @param requestCode This code will be returned in onActivityResult() when the activity exits.
      */
     public static void startIntent(
             @NonNull final Context context,
@@ -118,14 +112,12 @@ public class UserActivity extends AppCompatActivity {
         ((Activity) context).startActivityForResult(starter, requestCode);
     }
 
-
-    /*
-        ...
-     */
-
     @Override
-    protected void onResume() {
-        super.onResume();
-        initListView();
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_CANCELED) {
+            if (requestCode == REQUEST_CODE_CONFIGURE_USER) {
+                initListView();
+            }
+        }
     }
 }

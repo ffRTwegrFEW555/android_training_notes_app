@@ -53,15 +53,19 @@ public class CommonUtils {
     private static final String TAG = CommonUtils.class.getSimpleName();
 
     /* Extra */
-    public static final int EXTRA_DATES_FROM_DATETIME              = 0;
-    public static final int EXTRA_DATES_FROM_DATE_UTC_TO_LOCALTIME = 1;
-    public static final int EXTRA_DATES_FROM_DATE_LOCALTIME_TO_UTC = 2;
-    public static final int EXTRA_DATES_FROM_DATE                  = 3;
-    public static final int EXTRA_DATES_TO_DATETIME                = 4;
-    public static final int EXTRA_DATES_TO_DATE_UTC_TO_LOCALTIME   = 5;
-    public static final int EXTRA_DATES_TO_DATE_LOCALTIME_TO_UTC   = 6;
-    public static final int EXTRA_DATES_TO_DATE                    = 7;
-    public static final int EXTRA_DATES_BOTH                       = 8;
+    public static final int EXTRA_DATES_FROM_DATETIME               = 0;
+    public static final int EXTRA_DATES_FROM_DATE_UTC_TO_LOCALTIME  = 1;
+    public static final int EXTRA_DATES_FROM_DATE_LOCALTIME_TO_UTC  = 2;
+    public static final int EXTRA_DATES_FROM_DATE                   = 3;
+    public static final int EXTRA_DATES_TO_DATETIME                 = 4;
+    public static final int EXTRA_DATES_TO_DATE_UTC_TO_LOCALTIME    = 5;
+    public static final int EXTRA_DATES_TO_DATE_LOCALTIME_TO_UTC    = 6;
+    public static final int EXTRA_DATES_TO_DATE                     = 7;
+    public static final int EXTRA_DATES_BOTH                        = 8;
+
+    /* Animation */
+    public static final int EXTRA_REVEAL_ANIM_CENTER_CENTER        = 101;
+    public static final int EXTRA_REVEAL_ANIM_CENTER_TOP_END       = 102;
 
 
     /*
@@ -162,20 +166,43 @@ public class CommonUtils {
 
     /**
      * Animate show circular reveal effect on given view. Work if API >= 21.
-     * @param view Previously invisible view.
+     * @param view              Animated view.
+     * @param animationCenter   Center of animation start.
+     * @param duration          Duration of the animation. If -1, then using default value.
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static void circularRevealAnimationOn(@NonNull final View view) {
-        // Get the center for the clipping circle.
-        int cx = view.getWidth() / 2;
-        int cy = view.getHeight() / 2;
+    public static void circularRevealAnimationOn(
+            @NonNull final View view,
+            final int animationCenter,
+            final int duration) {
 
-        // Get the final radius for the clipping circle.
-        float finalRadius = (float) Math.hypot(cx, cy);
+        int x = 0;
+        int y = 0;
+        float radius = 0;
 
-        // Create the animator for this view (the start radius is zero).
+        switch(animationCenter) {
+            case EXTRA_REVEAL_ANIM_CENTER_CENTER:
+                x = view.getWidth() / 2;
+                y = view.getHeight() / 2;
+                radius = (float) Math.hypot(x, y);
+                break;
+
+            case EXTRA_REVEAL_ANIM_CENTER_TOP_END:
+                x = view.getWidth();
+                y = 0;
+                radius = (float) Math.hypot(view.getWidth(), view.getHeight());
+                break;
+
+            default:
+                break;
+        }
+
+        //
         Animator anim =
-                ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, finalRadius);
+                ViewAnimationUtils.createCircularReveal(view, x, y, 0, radius);
+        if (duration > 0) {
+            anim.setDuration(duration);
+        }
 
         // Make the view visible and start the animation.
         view.setVisibility(View.VISIBLE);
@@ -184,10 +211,15 @@ public class CommonUtils {
 
     /**
      * Animate hide circular reveal effect on given view. Work if API >= 21.
-     * @param view Previously visible view.
+     * @param view              Animated view.
+     * @param animationCenter   Center of animation end.
+     * @param duration          Duration of the animation. If -1, then using default value.
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static void circularRevealAnimationOff(@NonNull final View view) {
+    public static void circularRevealAnimationOff(
+            @NonNull final View view,
+            final int animationCenter,
+            final int duration) {
 
         /*
             Why the condition? Fix bug with change orientation.
@@ -195,16 +227,33 @@ public class CommonUtils {
         */
         if (view.isAttachedToWindow()) {
 
-            // Get the center for the clipping circle.
-            int cx = view.getWidth() / 2;
-            int cy = view.getHeight() / 2;
+            int x = 0;
+            int y = 0;
+            float radius = 0;
 
-            // Get the initial radius for the clipping circle.
-            float initialRadius = (float) Math.hypot(cx, cy);
+            switch(animationCenter) {
+                case EXTRA_REVEAL_ANIM_CENTER_CENTER:
+                    x = view.getWidth() / 2;
+                    y = view.getHeight() / 2;
+                    radius = (float) Math.hypot(x, y);
+                    break;
 
-            // Create the animation (the final radius is zero).
+                case EXTRA_REVEAL_ANIM_CENTER_TOP_END:
+                    x = view.getWidth();
+                    y = 0;
+                    radius = (float) Math.hypot(view.getWidth(), view.getHeight());
+                    break;
+
+                default:
+                    break;
+            }
+
+            //
             Animator anim =
-                    ViewAnimationUtils.createCircularReveal(view, cx, cy, initialRadius, 0);
+                    ViewAnimationUtils.createCircularReveal(view, x, y, radius, 0);
+            if (duration > 0) {
+                anim.setDuration(duration);
+            }
 
             // Make the view invisible when the animation is done.
             anim.addListener(new AnimatorListenerAdapter() {

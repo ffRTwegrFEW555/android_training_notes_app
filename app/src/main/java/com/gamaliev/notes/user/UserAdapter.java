@@ -10,6 +10,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.gamaliev.notes.R;
+import com.gamaliev.notes.common.CommonUtils;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 
 import java.util.Map;
@@ -64,11 +65,13 @@ public class UserAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, final ViewGroup parent) {
 
+        final Context context = parent.getContext();
+
         // Get or new.
         ViewHolder holder;
         if (convertView == null) {
             convertView = LayoutInflater
-                    .from(parent.getContext())
+                    .from(context)
                     .inflate(R.layout.activity_user_item, parent, false);
 
             holder = new ViewHolder(convertView);
@@ -79,7 +82,7 @@ public class UserAdapter extends BaseAdapter {
         }
 
         // Update.
-        final Map<String, String> userProfile = SpUsers.get(parent.getContext(), mProfiles[position]);
+        final Map<String, String> userProfile = SpUsers.get(context, mProfiles[position]);
         holder.mTitleView.setText(
                         userProfile.get(SpUsers.SP_USER_FIRST_NAME) + " " +
                         userProfile.get(SpUsers.SP_USER_LAST_NAME) + " " +
@@ -90,11 +93,19 @@ public class UserAdapter extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 UserPreferenceActivity.startIntent(
-                        parent.getContext(),
+                        context,
                         REQUEST_CODE_CONFIGURE_USER,
                         mProfiles[position]);
             }
         });
+
+        // Coloring current user
+        final String selected = SpUsers.getSelected(context);
+        final String fromProfile = userProfile.get(SpUsers.SP_USER_ID);
+        if (selected.equals(fromProfile)) {
+            holder.mTitleView.setTextColor(
+                    CommonUtils.getResourceColorApi(context, R.color.colorPrimary));
+        }
 
         return convertView;
     }

@@ -41,6 +41,7 @@ import static com.gamaliev.notes.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.notes.common.CommonUtils.getResourceColorApi;
 import static com.gamaliev.notes.common.CommonUtils.getStringDateFormatSqlite;
 import static com.gamaliev.notes.common.CommonUtils.showToast;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
 import static com.gamaliev.notes.list.ListActivity.RESULT_CODE_EXTRA_ADDED;
 import static com.gamaliev.notes.list.ListActivity.RESULT_CODE_EXTRA_DELETED;
@@ -620,12 +621,18 @@ public final class ItemDetailsActivity extends AppCompatActivity {
 
                     case RESULT_CODE_EXTRA_ADDED:
                         refreshEntry();
-                        ListDbHelper.insertEntry(ItemDetailsActivity.this, mEntry);
+                        ListDbHelper.insertUpdateEntry(
+                                ItemDetailsActivity.this,
+                                mEntry,
+                                false);
                         break;
 
                     case RESULT_CODE_EXTRA_EDITED:
                         refreshEntry();
-                        ListDbHelper.updateEntry(ItemDetailsActivity.this, mEntry, null);
+                        ListDbHelper.updateEntry(
+                                ItemDetailsActivity.this,
+                                mEntry,
+                                LIST_ITEMS_COLUMN_EDITED);
                         break;
 
                     case RESULT_CODE_EXTRA_DELETED:
@@ -635,9 +642,6 @@ public final class ItemDetailsActivity extends AppCompatActivity {
                     default:
                         break;
                 }
-
-                //
-                makeDemonstrativePause();
 
                 // Finish activity with result.
                 runOnUiThread(new Runnable() {
@@ -665,28 +669,6 @@ public final class ItemDetailsActivity extends AppCompatActivity {
         mMenu.findItem(R.id.menu_list_item_details_done).setVisible(false);
         mMenu.findItem(R.id.menu_list_item_details_cancel).setVisible(false);
         mMenu.findItem(R.id.menu_list_item_details_delete).setVisible(false);
-    }
-
-    private void makeDemonstrativePause() {
-        //
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                showToast(
-                        ItemDetailsActivity.this,
-                        getString(R.string.activity_item_details_toast_demonstrative_pause),
-                        Toast.LENGTH_SHORT);
-            }
-        });
-
-        //
-        try {
-            Thread.sleep(getResources().getInteger(
-                    R.integer.activity_item_detail_demonstrative_pause));
-        } catch (InterruptedException e) {
-            Log.e(TAG, e.toString());
-        }
-
     }
 
 

@@ -38,6 +38,14 @@
     <!-- Other -->
 
 
+    <!--                            -->
+    <!-- Fragment Dialog. Filter    -->
+    <!--                            -->
+
+    <!-- Other -->
+    <integer name="circular_reveal_animation_value">500</integer>
+
+
     <!--                        -->
     <!-- Activity ItemDetails   -->
     <!--                        -->
@@ -66,5 +74,8 @@
     <!-- Shared transition -->
     <integer name="shared_transition_animation_duration">200</integer>
     <integer name="shared_transition_animation_start_delay">100</integer>
+
+    <!-- Reveal animation -->
+    <integer name="circular_reveal_animation_default_value">-1</integer>
 
 </resources>

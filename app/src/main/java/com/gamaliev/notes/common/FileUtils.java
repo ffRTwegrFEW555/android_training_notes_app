@@ -419,7 +419,7 @@ public class FileUtils {
                     final ListEntry entry = convertJsonToListEntry(activity, jsonObject);
 
                     // Insert
-                    ListDbHelper.insertEntry(activity, entry, db);
+                    ListDbHelper.insertUpdateEntry(activity, entry, db, false);
 
                     // Update progress. Without flooding. 0-100%
                     final int percentNew = i * 100 / size;

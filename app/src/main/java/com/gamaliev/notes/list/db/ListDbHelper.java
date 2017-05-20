@@ -33,8 +33,8 @@ import static com.gamaliev.notes.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.notes.common.CommonUtils.getStringDateFormatSqlite;
 import static com.gamaliev.notes.common.CommonUtils.showToast;
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
-import static com.gamaliev.notes.common.db.DbHelper.DELETED_COLUMN_SYNC_ID;
-import static com.gamaliev.notes.common.db.DbHelper.DELETED_TABLE_NAME;
+import static com.gamaliev.notes.common.db.DbHelper.SYNC_DELETED_COLUMN_SYNC_ID;
+import static com.gamaliev.notes.common.db.DbHelper.SYNC_DELETED_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.FAVORITE_COLUMN_COLOR;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_COLOR;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_CREATED;
@@ -84,16 +84,18 @@ public class ListDbHelper {
      */
 
     /**
-     * Insert new entry in database.
-     * @param entry Entry, contains title, description, color.
+     * Insert new entry in database, or update if sync id flag is setting.
+     * @param entry             Entry, contains title, description, color.
+     * @param updateBySyncId    If true, then update current entry in database, by sync id.
      */
-    public static boolean insertEntry(
+    public static boolean insertUpdateEntry(
             @NonNull final Context context,
-            @NonNull final ListEntry entry) {
+            @NonNull final ListEntry entry,
+            final boolean updateBySyncId) {
 
         try {
             final SQLiteDatabase db = getWritableDb(context);
-            insertEntry(context, entry, db);
+            insertUpdateEntry(context, entry, db, updateBySyncId);
 
             // If ok
             return true;
@@ -106,14 +108,16 @@ public class ListDbHelper {
     }
 
     /**
-     * Insert new entry in database.
-     * @param entry Entry, contains title, description, color.
-     * @param db    Opened writable database.
+     * Insert new entry in database, or update if sync id flag is setting.
+     * @param entry             Entry, contains title, description, color.
+     * @param db                Opened writable database.
+     * @param updateBySyncId    If true, then update current entry in database, by sync id.
      */
-    public static void insertEntry(
+    public static void insertUpdateEntry(
             @NonNull final Context context,
             @NonNull final ListEntry entry,
-            @NonNull final SQLiteDatabase db) throws SQLiteException {
+            @NonNull final SQLiteDatabase db,
+            final boolean updateBySyncId) throws SQLiteException {
 
         // Variables
         final String syncId         = entry.getSyncId() == null
@@ -154,15 +158,29 @@ public class ListDbHelper {
         cv.put(LIST_ITEMS_COLUMN_EDITED,    utcEditedDate);
         cv.put(LIST_ITEMS_COLUMN_VIEWED,    utcViewedDate);
 
-        // Insert
-        if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
-            final String error = String.format(Locale.ENGLISH,
-                    "[ERROR] Insert entry {%s: %s, %s: %s, %s: %d, %s: %s}",
-                    LIST_ITEMS_COLUMN_TITLE, title,
-                    LIST_ITEMS_COLUMN_DESCRIPTION, description,
-                    LIST_ITEMS_COLUMN_COLOR, color,
-                    LIST_ITEMS_COLUMN_IMAGE_URL, imageUrl);
-            throw new SQLiteException(error);
+        if (updateBySyncId) {
+            // Update
+            final int updateResult = db.update(
+                    LIST_ITEMS_TABLE_NAME,
+                    cv,
+                    LIST_ITEMS_COLUMN_SYNC_ID + " = ?",
+                    new String[]{syncId});
+
+            if (updateResult == 0) {
+                throw new SQLiteException("[ERROR] The number of rows affected is 0");
+            }
+
+        } else {
+            // Insert
+            if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
+                final String error = String.format(Locale.ENGLISH,
+                        "[ERROR] Insert entry {%s: %s, %s: %s, %s: %d, %s: %s}",
+                        LIST_ITEMS_COLUMN_TITLE,        title,
+                        LIST_ITEMS_COLUMN_DESCRIPTION,  description,
+                        LIST_ITEMS_COLUMN_COLOR,        color,
+                        LIST_ITEMS_COLUMN_IMAGE_URL,    imageUrl);
+                throw new SQLiteException(error);
+            }
         }
     }
 
@@ -476,8 +494,8 @@ public class ListDbHelper {
                                 context,
                                 syncId,
                                 db,
-                                DELETED_TABLE_NAME,
-                                DELETED_COLUMN_SYNC_ID);
+                                SYNC_DELETED_TABLE_NAME,
+                                SYNC_DELETED_COLUMN_SYNC_ID);
                     }
                 }
 
