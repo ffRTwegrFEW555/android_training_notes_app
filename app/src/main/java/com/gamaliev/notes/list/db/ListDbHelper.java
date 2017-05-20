@@ -32,7 +32,10 @@ import static com.gamaliev.notes.common.CommonUtils.getDateFromProfileMap;
 import static com.gamaliev.notes.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.notes.common.CommonUtils.getStringDateFormatSqlite;
 import static com.gamaliev.notes.common.CommonUtils.showToast;
+import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
+import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_COLUMN_SYNC_ID;
+import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_DELETED_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_DELETED_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.FAVORITE_COLUMN_COLOR;
@@ -469,9 +472,10 @@ public class ListDbHelper {
             @NonNull final Long id,
             final boolean addToDeletedTable) {
 
-        ListEntry entry = null;
-        if (addToDeletedTable) {
-            entry = getEntry(context, id);
+        final ListEntry entry = getEntry(context, id);
+        Long syncId = null;
+        if (entry != null) {
+            syncId = entry.getSyncId();
         }
 
         try {
@@ -486,17 +490,27 @@ public class ListDbHelper {
                         BASE_COLUMN_ID + " = ?",
                         new String[]{id.toString()});
 
-                //
+                // Add to deleted table.
                 if (addToDeletedTable) {
-                    final Long syncId = entry.getSyncId();
-                    if (syncId != null) {
-                        insertSyncIdEntry(
+                    if (syncId != null && syncId > 0) {
+                        insertEntryWithSingleSyncId(
                                 context,
                                 syncId,
                                 db,
                                 SYNC_DELETED_TABLE_NAME,
                                 SYNC_DELETED_COLUMN_SYNC_ID);
                     }
+                }
+
+                // Delete from conflicted table.
+                if (syncId != null && syncId > 0) {
+                    deleteEntryWithSingleSyncIdColumn(
+                            context,
+                            syncId.toString(),
+                            SYNC_CONFLICT_TABLE_NAME,
+                            SYNC_CONFLICT_COLUMN_SYNC_ID,
+                            db,
+                            false);
                 }
 
                 // If error.
@@ -722,7 +736,7 @@ public class ListDbHelper {
      */
 
     /**
-     * Insert entry with single syncId field, in database.
+     * Insert entry with single syncId column, in database.
      * @param context       Context.
      * @param syncId        Sync Id.
      * @param db            Database. If null, then get new.
@@ -730,7 +744,7 @@ public class ListDbHelper {
      * @param columnName    Column name.
      * @return              True if ok, otherwise false.
      */
-    public static boolean insertSyncIdEntry(
+    public static boolean insertEntryWithSingleSyncId(
             @NonNull final Context context,
             @NonNull final Long syncId,
             @Nullable SQLiteDatabase db,
@@ -765,13 +779,13 @@ public class ListDbHelper {
     }
 
     /**
-     * Get entries, with single sync id field, from database.
+     * Get entries, with single sync id column, from database.
      * @param context   Context.
      * @param tableName Table name.
      * @return Result cursor.
      */
     @Nullable
-    public static Cursor getEntriesWithSyncIdField(
+    public static Cursor getEntriesWithSyncIdColumn(
             @NonNull final Context context,
             @NonNull final String tableName) {
 
@@ -796,23 +810,28 @@ public class ListDbHelper {
     }
 
     /**
-     * Delete entry with single sync id from database.
+     * Delete entry with single sync id column from database.
      * @param context       Context.
      * @param syncId        Sync Id of entry to be deleted.
      * @param tableName     Table, where to delete a entry.
      * @param columnName    Column name.
+     * @param db            Opened database. If null, then get new writable db.
      * @return              True if success, otherwise false.
      */
-    public static boolean deleteEntryWithSingleSyncId(
+    public static boolean deleteEntryWithSingleSyncIdColumn(
             @NonNull final Context context,
             @NonNull final String syncId,
             @NonNull final String tableName,
-            @NonNull final String columnName) {
+            @NonNull final String columnName,
+            @Nullable SQLiteDatabase db,
+            final boolean handleException) {
 
         try {
-            final SQLiteDatabase db = getWritableDb(context);
+            if (db == null) {
+                db = getWritableDb(context);
+            }
 
-                // Delete query.
+            // Delete query.
                 int deleteResult = db.delete(
                         tableName,
                         columnName + " = ?",
@@ -827,9 +846,13 @@ public class ListDbHelper {
             return true;
 
         } catch (SQLiteException e) {
-            Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return false;
+            if (handleException) {
+                Log.e(TAG, e.toString());
+                showToastRunOnUiThread(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+                return false;
+            } else {
+                return true;
+            }
         }
     }
 }

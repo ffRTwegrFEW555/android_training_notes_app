@@ -323,20 +323,20 @@ public class CommonUtils {
      * Shows a toast-message on Ui thread of given activity.<br>
      * See also: {@link Toast#makeText(Context, CharSequence, int)}<br>
      *
-     * @param activity  Activity.
+     * @param context   Context.
      * @param message   Message to show.
      * @param duration  Duration of shows.
      */
     public static void showToastRunOnUiThread(
-            @NonNull final Activity activity,
+            @NonNull final Context context,
             @NonNull final String message,
             final int duration) {
 
-        activity.runOnUiThread(new Runnable() {
+        final Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
             @Override
             public void run() {
-                Toast   .makeText(activity, message, duration)
-                        .show();
+                showToast(context, message, duration);
             }
         });
     }

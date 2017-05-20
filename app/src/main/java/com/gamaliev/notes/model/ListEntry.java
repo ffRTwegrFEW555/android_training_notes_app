@@ -274,6 +274,21 @@ public class ListEntry implements Parcelable {
         return jsonObject;
     }
 
+    @Nullable
+    public static ListEntry convertJsonToListEntry(
+            @NonNull final Context context,
+            @NonNull final String json) {
+
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = new JSONObject(json);
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+            return null;
+        }
+        return convertJsonToListEntry(context, jsonObject);
+    }
+
     @NonNull
     public static ListEntry convertJsonToListEntry(
             @NonNull final Context context,

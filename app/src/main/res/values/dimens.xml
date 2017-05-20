@@ -190,7 +190,7 @@
     <dimen name="fragment_dialog_conflict_select_max_width">400dp</dimen>
     <dimen name="fragment_dialog_conflict_select_border_margin">24dp</dimen>
     <dimen name="fragment_dialog_conflict_select_body_tv_margin_top">20dp</dimen>
-    <dimen name="fragment_dialog_conflict_select_save_btn">8dp</dimen>
+    <dimen name="fragment_dialog_conflict_select_save_btn_margin">8dp</dimen>
     <dimen name="fragment_dialog_conflict_select_divider_height">0.5dp</dimen>
 
 

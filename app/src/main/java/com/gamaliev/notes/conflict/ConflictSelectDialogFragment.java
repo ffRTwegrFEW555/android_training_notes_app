@@ -1,6 +1,8 @@
 package com.gamaliev.notes.conflict;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,6 +17,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.db.DbQueryBuilder;
@@ -33,9 +36,16 @@ import java.util.Map;
 
 import retrofit2.Response;
 
+import static android.app.Activity.RESULT_OK;
 import static com.gamaliev.notes.common.CommonUtils.EXTRA_REVEAL_ANIM_CENTER_CENTER;
+import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 import static com.gamaliev.notes.common.DialogFragmentUtils.initCircularRevealAnimation;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID;
+import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_COLUMN_SYNC_ID;
+import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
+import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
+import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntryWithSingleSyncIdColumn;
+import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
 import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
 import static com.gamaliev.notes.sync.SyncUtils.API_KEY_DATA;
 import static com.gamaliev.notes.sync.SyncUtils.API_KEY_EXTRA;
@@ -60,9 +70,11 @@ public class ConflictSelectDialogFragment extends DialogFragment {
 
     /* ... */
     private static final String ARG_SYNC_ID = "syncId";
+    private static final String ARG_POSITION = "position";
 
     @Nullable private View mDialog;
     @NonNull private String mSyncId;
+    @NonNull private int mPosition;
 
 
     /*
@@ -72,10 +84,13 @@ public class ConflictSelectDialogFragment extends DialogFragment {
     public ConflictSelectDialogFragment() {}
 
     public static ConflictSelectDialogFragment newInstance(
-            @NonNull final String syncId) {
+            @NonNull final String syncId,
+            final int position) {
 
         final Bundle args = new Bundle();
         args.putString(ARG_SYNC_ID, syncId);
+        args.putInt(ARG_POSITION, position);
+
         final ConflictSelectDialogFragment fragment = new ConflictSelectDialogFragment();
         fragment.setArguments(args);
         return fragment;
@@ -90,6 +105,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSyncId = getArguments().getString(ARG_SYNC_ID);
+        mPosition = getArguments().getInt(ARG_POSITION);
     }
 
     @Nullable
@@ -164,15 +180,12 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                         mapServer.remove(API_KEY_ID);
                         mapServer.remove(API_KEY_EXTRA);
 
-                        //
+                        // Header and body text.
                         final TextView serverHeaderTv = (TextView) mDialog
                                 .findViewById(R.id.fragment_dialog_conflict_select_server_header_tv);
                         final TextView serverBodyTv = (TextView) mDialog
                                 .findViewById(R.id.fragment_dialog_conflict_select_server_body_tv);
-                        final Button serverSaveBtn = (Button) mDialog
-                                .findViewById(R.id.fragment_dialog_conflict_select_server_save_btn);
 
-                        //
                         final String textServer = SpCommon.convertMapToString(mapServer);
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
@@ -184,34 +197,11 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                                 serverBodyTv.setText(textServer);
                             }
                         });
-                        serverSaveBtn.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                // Create entry
-                                final ListEntry entry = ListEntry
-                                        .convertJsonToListEntry(getContext(), jsonResponse);
-                                entry.setSyncId(Long.parseLong(mSyncId));
 
-                                // Update
-                                ListDbHelper.insertUpdateEntry(
-                                        getContext(),
-                                        entry,
-                                        true);
-
-                                // Add to journal. Add to local finish.
-                                final SyncEntry addToLocalFinish = new SyncEntry();
-                                addToLocalFinish.setFinished(new Date());
-                                addToLocalFinish.setAction(ACTION_ADDED_TO_LOCAL);
-                                addToLocalFinish.setStatus(STATUS_OK);
-                                addToLocalFinish.setAmount(1);
-                                makeOperations(
-                                        getContext(),
-                                        addToLocalFinish,
-                                        true,
-                                        getContext().getString(ACTION_TEXT[ACTION_ADDED_TO_LOCAL]),
-                                        RESULT_CODE_SUCCESS);
-                            }
-                        });
+                        // Save button.
+                        final Button serverSaveBtn = (Button) mDialog
+                                .findViewById(R.id.fragment_dialog_conflict_select_server_save_btn);
+                        serverSaveBtn.setOnClickListener(getSrvBtnSaveOnClickListener(data));
                     }
                 }
             }
@@ -234,25 +224,102 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         final String textLocal = SpCommon.convertJsonToString(jsonObject.toString());
         entryCursor.close();
 
-        //
+        // Header and body text.
         final TextView localHeaderTv = (TextView) mDialog
                 .findViewById(R.id.fragment_dialog_conflict_select_local_header_tv);
         final TextView localBodyTv = (TextView) mDialog
                 .findViewById(R.id.fragment_dialog_conflict_select_local_body_tv);
-        final Button localSaveBtn = (Button) mDialog
-                .findViewById(R.id.fragment_dialog_conflict_select_local_save_btn);
 
-        //
         localHeaderTv.setText(
                 getString(R.string.fragment_dialog_conflict_select_local_header_prefix)
                         + ": "
                         + mSyncId);
         localBodyTv.setText(textLocal);
+
+        // Save button.
+        final Button localSaveBtn = (Button) mDialog
+                .findViewById(R.id.fragment_dialog_conflict_select_local_save_btn);
         localSaveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
             }
         });
+    }
+
+    @NonNull
+    private View.OnClickListener getSrvBtnSaveOnClickListener(@NonNull final String data) {
+
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create entry
+                final ListEntry entry = ListEntry
+                        .convertJsonToListEntry(getContext(), data);
+                entry.setSyncId(Long.parseLong(mSyncId));
+
+                // Begin transaction.
+                final SQLiteDatabase db = getWritableDb(getContext());
+                db.beginTransaction();
+
+                try {
+                    // Update in local.
+                    insertUpdateEntry(
+                            getContext(),
+                            entry,
+                            db,
+                            true);
+
+                    // Delete from conflicted table.
+                    final boolean result = deleteEntryWithSingleSyncIdColumn(
+                            getContext(),
+                            mSyncId,
+                            SYNC_CONFLICT_TABLE_NAME,
+                            SYNC_CONFLICT_COLUMN_SYNC_ID,
+                            db,
+                            true);
+
+                    if (!result) {
+                        throw new SQLiteException(
+                                "[ERROR] Delete entry from conflict table is failed.");
+                    }
+
+                    // If ok.
+                    db.setTransactionSuccessful();
+
+                    // Add to journal. Add to local finish.
+                    final SyncEntry addToLocalFinish = new SyncEntry();
+                    addToLocalFinish.setFinished(new Date());
+                    addToLocalFinish.setAction(ACTION_ADDED_TO_LOCAL);
+                    addToLocalFinish.setStatus(STATUS_OK);
+                    addToLocalFinish.setAmount(1);
+                    makeOperations(
+                            getContext(),
+                            addToLocalFinish,
+                            true,
+                            getContext().getString(ACTION_TEXT[ACTION_ADDED_TO_LOCAL]),
+                            RESULT_CODE_SUCCESS);
+
+                    // Callback
+                    getTargetFragment().onActivityResult(
+                            getTargetRequestCode(),
+                            RESULT_OK,
+                            ConflictFragment.getResultIntent(mPosition));
+
+                } catch (SQLiteException e) {
+                    Log.e(TAG, e.toString());
+                    showToastRunOnUiThread(
+                            getActivity(),
+                            getString(R.string.fragment_dialog_conflict_resolution_failed),
+                            Toast.LENGTH_LONG);
+
+                } finally {
+                    db.endTransaction();
+                }
+
+                //
+                dismiss();
+            }
+        };
     }
 }

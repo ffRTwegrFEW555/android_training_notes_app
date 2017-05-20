@@ -182,4 +182,13 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
     public void onComplete(int code) {
         notifyDataSetChangedAndScrollToEnd();
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_CANCELED) {
+            if (requestCode == REQUEST_CODE_START_CONFLICTED) {
+                notifyDataSetChangedAndScrollToEnd();
+            }
+        }
+    }
 }

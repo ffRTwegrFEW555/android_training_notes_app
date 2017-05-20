@@ -48,11 +48,11 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.getProgressNotifica
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.setPendingSyncStatusForCurrentUser;
 import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntry;
-import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntryWithSingleSyncId;
-import static com.gamaliev.notes.list.db.ListDbHelper.getEntriesWithSyncIdField;
+import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntryWithSingleSyncIdColumn;
+import static com.gamaliev.notes.list.db.ListDbHelper.getEntriesWithSyncIdColumn;
 import static com.gamaliev.notes.list.db.ListDbHelper.getEntries;
 import static com.gamaliev.notes.list.db.ListDbHelper.getNewEntries;
-import static com.gamaliev.notes.list.db.ListDbHelper.insertSyncIdEntry;
+import static com.gamaliev.notes.list.db.ListDbHelper.insertEntryWithSingleSyncId;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
 import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_LOCAL;
@@ -327,7 +327,7 @@ public final class SyncUtils {
 
         int counter = 0;
 
-        final Cursor cursor = getEntriesWithSyncIdField(context, SYNC_DELETED_TABLE_NAME);
+        final Cursor cursor = getEntriesWithSyncIdColumn(context, SYNC_DELETED_TABLE_NAME);
         while (cursor.moveToNext()) {
             final String syncId = cursor.getString(cursor.getColumnIndex(SYNC_DELETED_COLUMN_SYNC_ID));
 
@@ -343,11 +343,13 @@ public final class SyncUtils {
                     final String status = jsonResponse.optString(API_KEY_STATUS);
 
                     if (status.equals(API_STATUS_OK)) {
-                        deleteEntryWithSingleSyncId(
+                        deleteEntryWithSingleSyncIdColumn(
                                 context,
                                 syncId,
                                 SYNC_DELETED_TABLE_NAME,
-                                SYNC_DELETED_COLUMN_SYNC_ID);
+                                SYNC_DELETED_COLUMN_SYNC_ID,
+                                null,
+                                true);
                         counter++;
 
                     } else {
@@ -469,7 +471,7 @@ public final class SyncUtils {
 
                                         // If entries not equals, then add to conflict table.
                                         if(!mapLocal.equals(mapServer)) {
-                                            insertSyncIdEntry(
+                                            insertEntryWithSingleSyncId(
                                                     context,
                                                     Long.parseLong(syncIdLocal),
                                                     null,
@@ -695,11 +697,14 @@ public final class SyncUtils {
             });
         }
 
-        // Notify observers
+        notifyObservers(resultCode);
+
+        return true;
+    }
+
+    public static void notifyObservers(int resultCode) {
         for (OnCompleteListener value : OBSERVERS.values()) {
             value.onComplete(resultCode);
         }
-
-        return true;
     }
 }

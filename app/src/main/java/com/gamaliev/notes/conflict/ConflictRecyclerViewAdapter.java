@@ -3,7 +3,7 @@ package com.gamaliev.notes.conflict;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -29,8 +29,10 @@ public final class ConflictRecyclerViewAdapter
     private static final String TAG = ConflictRecyclerViewAdapter.class.getSimpleName();
 
     /* ... */
+    public static final int REQUEST_CODE_CONFLICT_SELECT = 101;
+
     @NonNull private Cursor mCursor;
-    @NonNull private FragmentManager mFragmentManager;
+    @NonNull private Fragment mFragment;
 
 
     /*
@@ -39,10 +41,10 @@ public final class ConflictRecyclerViewAdapter
 
     public ConflictRecyclerViewAdapter(
             @NonNull final Context context,
-            @NonNull final FragmentManager fragmentManager) {
+            @NonNull final Fragment fragment) {
 
-        mCursor = ListDbHelper.getEntriesWithSyncIdField(context, SYNC_CONFLICT_TABLE_NAME);
-        mFragmentManager = fragmentManager;
+        updateCursor(context);
+        mFragment = fragment;
     }
 
 
@@ -60,7 +62,7 @@ public final class ConflictRecyclerViewAdapter
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         mCursor.moveToPosition(position);
         final String syncId = mCursor.getString(mCursor.getColumnIndex(SYNC_CONFLICT_COLUMN_SYNC_ID));
         holder.mTextView.setText(syncId);
@@ -70,8 +72,9 @@ public final class ConflictRecyclerViewAdapter
             public void onClick(View v) {
                 // Launch dialog.
                 ConflictSelectDialogFragment df =
-                        ConflictSelectDialogFragment.newInstance(syncId);
-                df.show(mFragmentManager , null);
+                        ConflictSelectDialogFragment.newInstance(syncId, position);
+                df.setTargetFragment(mFragment, REQUEST_CODE_CONFLICT_SELECT);
+                df.show(mFragment.getFragmentManager() , null);
             }
         });
     }
@@ -95,5 +98,14 @@ public final class ConflictRecyclerViewAdapter
             mCardView = itemView;
             mTextView = (TextView) mCardView.findViewById(R.id.fragment_conflict_item_text_view);
         }
+    }
+
+
+    /*
+        ...
+     */
+
+    public void updateCursor(@NonNull final Context context) {
+        mCursor = ListDbHelper.getEntriesWithSyncIdColumn(context, SYNC_CONFLICT_TABLE_NAME);
     }
 }

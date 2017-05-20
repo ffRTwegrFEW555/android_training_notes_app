@@ -194,16 +194,16 @@
 
     <!-- Action -->
     <string name="activity_sync_item_action_nothing">Error</string>
-    <string name="activity_sync_item_action_add_to_server">Add to server</string>
-    <string name="activity_sync_item_action_add_to_local">Add to local</string>
-    <string name="activity_sync_item_action_delete_from_server">Delete from server</string>
-    <string name="activity_sync_item_action_delete_all_from_server_start">Delete all from server start</string>
-    <string name="activity_sync_item_action_delete_all_from_server_completed">Delete all from server completed</string>
+    <string name="activity_sync_item_action_add_to_server">Added to server</string>
+    <string name="activity_sync_item_action_add_to_local">Added to local</string>
+    <string name="activity_sync_item_action_delete_from_server">Deleted from server</string>
+    <string name="activity_sync_item_action_delete_from_local">Deleted from local</string>
+    <string name="activity_sync_item_action_delete_all_from_server_start">Deleting all from server start</string>
+    <string name="activity_sync_item_action_delete_all_from_server_completed">Deleting all from server completed</string>
     <string name="activity_sync_item_action_delete_all_from_server_no_wifi">
         Deleting all notes from server is allowed only if you have a WI-FI. Try later.
     </string>
     <string name="activity_sync_item_action_delete_all_from_server_no_internet">No internet. Try later.</string>
-    <string name="activity_sync_item_action_delete_from_local">Delete from local</string>
     <string name="activity_sync_item_action_updated_on_server">Updated on server</string>
     <string name="activity_sync_item_action_updated_on_local">Updated on local</string>
     <string name="activity_sync_item_action_conflict">Conflicted added</string>
@@ -320,14 +320,15 @@
     <string name="common_utils_message_dialog_ok_action">OK</string>
 
 
-    <!--                        -->
-    <!-- Fragment dialog select -->
-    <!--                        -->
+    <!--                                    -->
+    <!-- Fragment dialog conflict select    -->
+    <!--                                    -->
 
     <!-- Other -->
     <string name="fragment_dialog_conflict_select_action_btn_panel_btn_cancel_title">Cancel</string>
     <string name="fragment_dialog_conflict_select_server_header_prefix">Server sync id</string>
     <string name="fragment_dialog_conflict_select_local_header_prefix">Local sync id</string>
     <string name="fragment_dialog_conflict_select_save_btn_text">Save</string>
+    <string name="fragment_dialog_conflict_resolution_failed">Conflict resolution failed. Please try later</string>
 
 </resources>
