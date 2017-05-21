@@ -1,5 +1,7 @@
 package com.gamaliev.notes.conflict;
 
+import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -22,10 +24,10 @@ import android.widget.Toast;
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.db.DbQueryBuilder;
 import com.gamaliev.notes.common.shared_prefs.SpCommon;
-import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.model.ListEntry;
 import com.gamaliev.notes.model.SyncEntry;
+import com.gamaliev.notes.sync.SyncUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,6 +46,7 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
 import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntryWithSingleSyncIdColumn;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
 import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
@@ -55,6 +58,7 @@ import static com.gamaliev.notes.sync.SyncUtils.API_STATUS_OK;
 import static com.gamaliev.notes.sync.SyncUtils.RESULT_CODE_SUCCESS;
 import static com.gamaliev.notes.sync.SyncUtils.makeOperations;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_LOCAL;
+import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_SERVER;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_TEXT;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.STATUS_OK;
 
@@ -125,7 +129,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
         initServerLayoutAsync();
-        initLocalLayout();
+        initLocalLayoutAsync();
 
         return mDialog;
     }
@@ -165,7 +169,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         // Get entry from server.
         try {
             final Response<String> response = getNoteApi()
-                    .get(SpUsers.getSyncIdForCurrentUser(getContext()), mSyncId)
+                    .get(getSyncIdForCurrentUser(getContext()), mSyncId)
                     .execute();
 
             if (response.isSuccessful()) {
@@ -201,13 +205,23 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                         // Save button.
                         final Button serverSaveBtn = (Button) mDialog
                                 .findViewById(R.id.fragment_dialog_conflict_select_server_save_btn);
-                        serverSaveBtn.setOnClickListener(getSrvBtnSaveOnClickListener(data));
+                        serverSaveBtn.setOnClickListener(
+                                getSrvBtnSaveOnClickListener(getActivity(), data));
                     }
                 }
             }
         } catch (IOException | JSONException e) {
             Log.e(TAG, e.toString());
         }
+    }
+
+    private void initLocalLayoutAsync() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                initLocalLayout();
+            }
+        }).start();
     }
 
     private void initLocalLayout() {
@@ -239,44 +253,158 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         // Save button.
         final Button localSaveBtn = (Button) mDialog
                 .findViewById(R.id.fragment_dialog_conflict_select_local_save_btn);
-        localSaveBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
+        localSaveBtn.setOnClickListener(
+                getLocalBtnSaveOnClickListener(getActivity(), jsonObject.toString()));
     }
 
     @NonNull
-    private View.OnClickListener getSrvBtnSaveOnClickListener(@NonNull final String data) {
+    private View.OnClickListener getSrvBtnSaveOnClickListener(
+            @NonNull final Activity activity,
+            @NonNull final String data) {
 
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Create entry
-                final ListEntry entry = ListEntry
-                        .convertJsonToListEntry(getContext(), data);
-                entry.setSyncId(Long.parseLong(mSyncId));
 
-                // Begin transaction.
-                final SQLiteDatabase db = getWritableDb(getContext());
-                db.beginTransaction();
+                SyncUtils.getSingleThreadExecutor().submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateOnServer(activity, data);
+                    }
+                });
 
-                try {
-                    // Update in local.
-                    insertUpdateEntry(
-                            getContext(),
-                            entry,
-                            db,
-                            true);
+                dismiss();
+            }
+        };
+    }
 
+    private void updateOnServer(
+            @NonNull final Activity activity,
+            @NonNull final String data) {
+
+        final Context context = activity.getApplicationContext();
+
+        // Create entry
+        final ListEntry entry = ListEntry
+                .convertJsonToListEntry(context, data);
+        entry.setSyncId(Long.parseLong(mSyncId));
+
+        // Begin transaction.
+        final SQLiteDatabase db = getWritableDb(context);
+        db.beginTransaction();
+
+        try {
+            // Update in local.
+            insertUpdateEntry(
+                    context,
+                    entry,
+                    db,
+                    true);
+
+            // Delete from conflicted table.
+            final boolean result = deleteEntryWithSingleSyncIdColumn(
+                    context,
+                    mSyncId,
+                    SYNC_CONFLICT_TABLE_NAME,
+                    SYNC_CONFLICT_COLUMN_SYNC_ID,
+                    db,
+                    true);
+
+            if (!result) {
+                throw new SQLiteException(
+                        "[ERROR] Delete entry from conflict table is failed.");
+            }
+
+            // If ok.
+            db.setTransactionSuccessful();
+
+            // Add to journal. Add to local finish.
+            final SyncEntry addToLocalFinish = new SyncEntry();
+            addToLocalFinish.setFinished(new Date());
+            addToLocalFinish.setAction(ACTION_ADDED_TO_LOCAL);
+            addToLocalFinish.setStatus(STATUS_OK);
+            addToLocalFinish.setAmount(1);
+            makeOperations(
+                    context,
+                    addToLocalFinish,
+                    true,
+                    context.getString(ACTION_TEXT[ACTION_ADDED_TO_LOCAL]),
+                    RESULT_CODE_SUCCESS);
+
+            // Callback
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getTargetFragment().onActivityResult(
+                            getTargetRequestCode(),
+                            RESULT_OK,
+                            ConflictFragment.getResultIntent(mPosition));
+                }
+            });
+
+        } catch (SQLiteException e) {
+            Log.e(TAG, e.toString());
+            showToastRunOnUiThread(
+                    context,
+                    getString(R.string.fragment_dialog_conflict_resolution_failed),
+                    Toast.LENGTH_LONG);
+
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    @NonNull
+    private View.OnClickListener getLocalBtnSaveOnClickListener(
+            @NonNull final Activity activity,
+            @NonNull final String jsonEntry) {
+
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                SyncUtils.getSingleThreadExecutor().submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateOnLocal(activity, jsonEntry);
+                    }
+                });
+
+                dismiss();
+            }
+        };
+    }
+
+    private void updateOnLocal(
+            @NonNull final Activity activity,
+            @NonNull final String jsonEntry) {
+
+        final Context context = activity.getApplicationContext();
+
+        // Update on server.
+        Response<String> response;
+        try {
+            response = getNoteApi()
+                    .update(
+                            getSyncIdForCurrentUser(context),
+                            mSyncId,
+                            jsonEntry)
+                    .execute();
+
+            // If 200 OK
+            if (response.isSuccessful()) {
+                final JSONObject jsonResponse = new JSONObject(response.body());
+                final String status = jsonResponse.optString(API_KEY_STATUS);
+
+                // If json OK
+                if (status.equals(API_STATUS_OK)) {
                     // Delete from conflicted table.
                     final boolean result = deleteEntryWithSingleSyncIdColumn(
-                            getContext(),
+                            context,
                             mSyncId,
                             SYNC_CONFLICT_TABLE_NAME,
                             SYNC_CONFLICT_COLUMN_SYNC_ID,
-                            db,
+                            null,
                             true);
 
                     if (!result) {
@@ -284,42 +412,34 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                                 "[ERROR] Delete entry from conflict table is failed.");
                     }
 
-                    // If ok.
-                    db.setTransactionSuccessful();
-
-                    // Add to journal. Add to local finish.
-                    final SyncEntry addToLocalFinish = new SyncEntry();
-                    addToLocalFinish.setFinished(new Date());
-                    addToLocalFinish.setAction(ACTION_ADDED_TO_LOCAL);
-                    addToLocalFinish.setStatus(STATUS_OK);
-                    addToLocalFinish.setAmount(1);
+                    // Add to journal. Add to Server finish.
+                    final SyncEntry addToServerFinish = new SyncEntry();
+                    addToServerFinish.setFinished(new Date());
+                    addToServerFinish.setAction(ACTION_ADDED_TO_SERVER);
+                    addToServerFinish.setStatus(STATUS_OK);
+                    addToServerFinish.setAmount(1);
                     makeOperations(
-                            getContext(),
-                            addToLocalFinish,
+                            context,
+                            addToServerFinish,
                             true,
-                            getContext().getString(ACTION_TEXT[ACTION_ADDED_TO_LOCAL]),
+                            context.getString(ACTION_TEXT[ACTION_ADDED_TO_SERVER]),
                             RESULT_CODE_SUCCESS);
 
                     // Callback
-                    getTargetFragment().onActivityResult(
-                            getTargetRequestCode(),
-                            RESULT_OK,
-                            ConflictFragment.getResultIntent(mPosition));
-
-                } catch (SQLiteException e) {
-                    Log.e(TAG, e.toString());
-                    showToastRunOnUiThread(
-                            getActivity(),
-                            getString(R.string.fragment_dialog_conflict_resolution_failed),
-                            Toast.LENGTH_LONG);
-
-                } finally {
-                    db.endTransaction();
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            getTargetFragment().onActivityResult(
+                                    getTargetRequestCode(),
+                                    RESULT_OK,
+                                    ConflictFragment.getResultIntent(mPosition));
+                        }
+                    });
                 }
-
-                //
-                dismiss();
             }
-        };
+
+        } catch (IOException | JSONException e) {
+            Log.e(TAG, e.toString());
+        }
     }
 }

@@ -101,13 +101,13 @@ public final class FilterSortDialogFragment extends DialogFragment {
     private static final String EXTRA_SELECTED_ID = "FilterSortDialogFragment.EXTRA_SELECTED_ID";
 
     /* ... */
-    @Nullable private View mDialog;
-    @Nullable private Map<String, String> mFilterProfileMap;
-    @Nullable private Map<String, String> mFoundedEntriesCache;
-    @Nullable private String mSelectedFilterProfile;
-    @Nullable private OnCompleteListener mOnCompleteListener;
+    @NonNull private View mDialog;
+    @NonNull private Map<String, String> mFilterProfileMap;
+    @NonNull private Map<String, String> mFoundedEntriesCache;
+    @NonNull private String mSelectedFilterProfile;
     @NonNull private ExecutorService mSingleThreadExecutor;
     @NonNull private Set<Runnable> mRunnableTasks;
+    @Nullable private OnCompleteListener mOnCompleteListener;
 
 
     /*

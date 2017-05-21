@@ -2,8 +2,6 @@ package com.gamaliev.notes.sync;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -30,10 +28,12 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import retrofit2.Response;
 
-import static com.gamaliev.notes.common.CommonUtils.showToast;
+import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_DELETED_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_DELETED_TABLE_NAME;
@@ -92,6 +92,7 @@ public final class SyncUtils {
     public static final String API_KEY_EXTRA       = "extra";
 
     private static final Map<String, OnCompleteListener> OBSERVERS;
+    private static final ExecutorService SINGLE_THREAD_EXECUTOR;
 
     private static boolean sSyncRunning = false;
 
@@ -102,6 +103,7 @@ public final class SyncUtils {
 
     static {
         OBSERVERS = new WeakHashMap<>();
+        SINGLE_THREAD_EXECUTOR = Executors.newSingleThreadExecutor();
     }
 
     private SyncUtils() {}
@@ -119,6 +121,12 @@ public final class SyncUtils {
 
     public static void removeObserver(@NonNull final String key) {
         OBSERVERS.remove(key);
+    }
+
+    public static void notifyObservers(int resultCode) {
+        for (OnCompleteListener value : OBSERVERS.values()) {
+            value.onComplete(resultCode);
+        }
     }
 
 
@@ -139,12 +147,12 @@ public final class SyncUtils {
      */
 
     public static void synchronize(@NonNull final Context context) {
-        new Thread(new Runnable() {
+        SINGLE_THREAD_EXECUTOR.submit(new Runnable() {
                 @Override
                 public void run() {
                 checkNetworkAndUserSettings(context);
             }
-        }).start();
+        });
     }
 
     private static void checkNetworkAndUserSettings(@NonNull final Context context) {
@@ -544,12 +552,12 @@ public final class SyncUtils {
      */
 
     public static void deleteAllFromServerAsync(@NonNull final Context context) {
-        new Thread(new Runnable() {
+        SINGLE_THREAD_EXECUTOR.submit(new Runnable() {
             @Override
             public void run() {
                 deleteAllFromServer(context);
             }
-        }).start();
+        });
     }
 
     private static void deleteAllFromServer(@NonNull final Context context) {
@@ -688,13 +696,7 @@ public final class SyncUtils {
 
         // Toast
         if (showToast) {
-            final Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    showToast(context, message, Toast.LENGTH_LONG);
-                }
-            });
+            showToastRunOnUiThread(context, message, Toast.LENGTH_LONG);
         }
 
         notifyObservers(resultCode);
@@ -702,9 +704,12 @@ public final class SyncUtils {
         return true;
     }
 
-    public static void notifyObservers(int resultCode) {
-        for (OnCompleteListener value : OBSERVERS.values()) {
-            value.onComplete(resultCode);
-        }
+
+    /*
+        Getters
+     */
+
+    public static ExecutorService getSingleThreadExecutor() {
+        return SINGLE_THREAD_EXECUTOR;
     }
 }

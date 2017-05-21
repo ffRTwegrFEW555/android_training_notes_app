@@ -106,6 +106,9 @@ public final class ConflictRecyclerViewAdapter
      */
 
     public void updateCursor(@NonNull final Context context) {
+        if (mCursor != null && !mCursor.isClosed()) {
+            mCursor.close();
+        }
         mCursor = ListDbHelper.getEntriesWithSyncIdColumn(context, SYNC_CONFLICT_TABLE_NAME);
     }
 }

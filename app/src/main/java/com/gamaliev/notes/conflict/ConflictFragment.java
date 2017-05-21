@@ -77,7 +77,6 @@ public class ConflictFragment extends Fragment {
                 }
             }
         }
-
     }
 
 
