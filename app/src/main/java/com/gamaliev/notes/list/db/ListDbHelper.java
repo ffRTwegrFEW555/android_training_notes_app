@@ -755,6 +755,12 @@ public class ListDbHelper {
             db = DbHelper.getWritableDb(context);
         }
 
+        // Check if not exists.
+        final Cursor cursor = getEntriesWithSyncIdColumn(context, tableName);
+        if (cursor.getCount() > 0) {
+            return true;
+        }
+
         try {
             // Content values
             final ContentValues cv = new ContentValues();

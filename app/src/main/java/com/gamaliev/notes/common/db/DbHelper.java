@@ -78,7 +78,7 @@ public final class DbHelper extends SQLiteOpenHelper {
     private static final String SQL_FAVORITE_CREATE_TABLE =
             "CREATE TABLE " + FAVORITE_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    FAVORITE_COLUMN_INDEX +                 " INTEGER NOT NULL, " +
+                    FAVORITE_COLUMN_INDEX +                 " INTEGER NOT NULL UNIQUE, " +
                     FAVORITE_COLUMN_COLOR +                 " INTEGER NOT NULL); ";
 
     /* Entries */
@@ -111,13 +111,13 @@ public final class DbHelper extends SQLiteOpenHelper {
     private static final String SQL_SYNC_CONFLICT_CREATE_TABLE =
             "CREATE TABLE " + SYNC_CONFLICT_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    SYNC_CONFLICT_COLUMN_SYNC_ID +          " INTEGER NOT NULL); ";
+                    SYNC_CONFLICT_COLUMN_SYNC_ID +          " INTEGER NOT NULL UNIQUE); ";
 
     /* Sync. Deleted table */
     private static final String SQL_SYNC_DELETED_CREATE_TABLE =
             "CREATE TABLE " + SYNC_DELETED_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    SYNC_DELETED_COLUMN_SYNC_ID +                " INTEGER NOT NULL); ";
+                    SYNC_DELETED_COLUMN_SYNC_ID +           " INTEGER NOT NULL UNIQUE); ";
 
     /* Instances */
     @NonNull private static Map<String, DbHelper> sInstances;

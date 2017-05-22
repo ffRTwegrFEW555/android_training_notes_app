@@ -6,6 +6,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.gamaliev.notes.R;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,6 +16,13 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static android.content.Context.MODE_PRIVATE;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_COLOR;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_CREATED;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_IMAGE_URL;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_TITLE;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
 
 /**
  * @author Vadim Gamaliev
@@ -154,6 +163,7 @@ public final class SpCommon {
      */
     @Nullable
     public static String convertJsonToString(
+            @NonNull final Context context,
             @NonNull final String json) {
 
         final StringBuilder sb = new StringBuilder();
@@ -166,14 +176,46 @@ public final class SpCommon {
             return null;
         }
 
-        final Iterator<String> keys = jsonObject.keys();
-        while (keys.hasNext()) {
-            final String key = keys.next();
-            sb      .append(key)
-                    .append(": ")
-                    .append(jsonObject.optString(key, ""))
-                    .append("\n\n");
-        }
+        final String title = jsonObject.optString(LIST_ITEMS_COLUMN_TITLE, "");
+        sb      .append(context.getString(R.string.fragment_dialog_conflict_select_body_title))
+                .append(":\n")
+                .append(title)
+                .append("\n\n");
+
+        final String description = jsonObject.optString(LIST_ITEMS_COLUMN_DESCRIPTION, "");
+        sb      .append(context.getString(R.string.fragment_dialog_conflict_select_body_description))
+                .append(":\n")
+                .append(description)
+                .append("\n\n");
+
+        final String color = jsonObject.optString(LIST_ITEMS_COLUMN_COLOR, "");
+        sb      .append(context.getString(R.string.fragment_dialog_conflict_select_body_color))
+                .append(":\n")
+                .append(color)
+                .append("\n\n");
+
+        final String imageUrl = jsonObject.optString(LIST_ITEMS_COLUMN_IMAGE_URL, "");
+        sb      .append(context.getString(R.string.fragment_dialog_conflict_select_body_image_url))
+                .append(":\n")
+                .append(imageUrl)
+                .append("\n\n");
+
+        final String created = jsonObject.optString(LIST_ITEMS_COLUMN_CREATED, "");
+        sb      .append(context.getString(R.string.fragment_dialog_conflict_select_body_created))
+                .append(":\n")
+                .append(created)
+                .append("\n\n");
+
+        final String edited = jsonObject.optString(LIST_ITEMS_COLUMN_EDITED, "");
+        sb      .append(context.getString(R.string.fragment_dialog_conflict_select_body_edited))
+                .append(":\n")
+                .append(edited)
+                .append("\n\n");
+
+        final String viewed = jsonObject.optString(LIST_ITEMS_COLUMN_VIEWED, "");
+        sb      .append(context.getString(R.string.fragment_dialog_conflict_select_body_viewed))
+                .append(":\n")
+                .append(viewed);
 
         return sb.toString();
     }
@@ -189,25 +231,5 @@ public final class SpCommon {
 
         final JSONObject jsonObject = new JSONObject(map);
         return jsonObject.toString();
-    }
-
-    /**
-     * Convert Map-format to Formatted string with line breaks.
-     * @param map   Map-format.
-     * @return      Formatted string, with line breaks.
-     */
-    @Nullable
-    public static String convertMapToString(
-            @NonNull final Map<String, String> map) {
-
-        final StringBuilder sb = new StringBuilder();
-
-        for (Map.Entry<String, String> pair : map.entrySet()) {
-            sb      .append(pair.getKey())
-                    .append(": ")
-                    .append(pair.getValue())
-                    .append("\n\n");
-        }
-        return sb.toString();
     }
 }

@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.db.DbQueryBuilder;
-import com.gamaliev.notes.common.shared_prefs.SpCommon;
 import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.model.ListEntry;
 import com.gamaliev.notes.model.SyncEntry;
@@ -46,6 +45,9 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
+import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
+import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToString;
+import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertMapToJson;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
 import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntryWithSingleSyncIdColumn;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
@@ -180,7 +182,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                     final String data = jsonResponse.getString(API_KEY_DATA);
 
                     if (!TextUtils.isEmpty(data)) {
-                        final Map<String, String> mapServer = SpCommon.convertJsonToMap(data);
+                        final Map<String, String> mapServer = convertJsonToMap(data);
                         mapServer.remove(API_KEY_ID);
                         mapServer.remove(API_KEY_EXTRA);
 
@@ -190,7 +192,11 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                         final TextView serverBodyTv = (TextView) mDialog
                                 .findViewById(R.id.fragment_dialog_conflict_select_server_body_tv);
 
-                        final String textServer = SpCommon.convertMapToString(mapServer);
+                        final String textServer =
+                                convertJsonToString(
+                                        getContext(),
+                                        convertMapToJson(mapServer));
+
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -235,7 +241,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         final Cursor entryCursor = ListDbHelper.getEntries(getContext(), queryBuilder);
         entryCursor.moveToFirst();
         final JSONObject jsonObject = ListEntry.getJsonObject(getContext(), entryCursor);
-        final String textLocal = SpCommon.convertJsonToString(jsonObject.toString());
+        final String textLocal = convertJsonToString(getContext(), jsonObject.toString());
         entryCursor.close();
 
         // Header and body text.
