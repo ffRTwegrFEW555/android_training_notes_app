@@ -180,12 +180,13 @@
     <!-- Activity -->
     <string name="activity_sync">Synchronization</string>
 
-    <!-- Other -->
+    <!-- Menu options -->
     <string name="menu_sync_action_synchronize">Synchronize</string>
     <string name="menu_sync_action_show_conflicted">Show conflicted</string>
     <string name="menu_sync_action_delete_all_from_server">Delete all from server</string>
-    <string name="activity_sync_item_amount_prefix">Amount</string>
-    <string name="activity_sync_item_icon_description">Result icon</string>
+    <string name="menu_sync_action_clear_journal">Clear journal</string>
+    <string name="menu_sync_action_clear_journal_success">Sync journal cleared</string>
+    <string name="menu_sync_action_clear_journal_failed">Sync journal clearing failed</string>
 
     <!-- Status -->
     <string name="activity_sync_item_status_prefix">Status</string>
@@ -224,6 +225,23 @@
     <string name="activity_sync_notification_panel_del_all_title">Deleting all notes from server</string>
     <string name="activity_sync_notification_panel_del_all_text">Deleting in progress</string>
     <string name="activity_sync_notification_panel_del_all_complete">Deleting all notes from server complete</string>
+
+    <!-- Status bar notification -->
+    <string name="activity_sync_notification_status_bar_conflict_exists_title">Sync conflict</string>
+    <string name="activity_sync_notification_status_bar_conflict_exists_body">Conflicting entries is exists. Tap to check</string>
+
+    <!-- Confirm Dialogs -->
+    <string name="activity_sync_dialog_confirm_delete_all_from_server_title">Delete all from server</string>
+    <string name="activity_sync_dialog_confirm_delete_all_from_server_body">Do you really want to delete all entries from server?</string>
+    <string name="activity_sync_dialog_confirm_delete_all_from_server_btn_delete">Delete</string>
+    <string name="activity_sync_dialog_confirm_delete_all_from_server_btn_cancel">Cancel</string>
+
+    <string name="activity_sync_dialog_confirm_clear_journal_title">Clear journal</string>
+    <string name="activity_sync_dialog_confirm_clear_journal_body">Do you really want to clear journal?</string>
+    <string name="activity_sync_dialog_confirm_clear_journal_btn_clear">Clear</string>
+    <string name="activity_sync_dialog_confirm_clear_journal_btn_cancel">Cancel</string>
+
+    <!-- Other -->
 
 
     <!--                    -->

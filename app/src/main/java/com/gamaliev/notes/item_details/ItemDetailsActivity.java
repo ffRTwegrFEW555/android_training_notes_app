@@ -576,7 +576,6 @@ public final class ItemDetailsActivity extends AppCompatActivity {
      */
     private void showConfirmDeleteDialog() {
 
-        // Create alert dialog.
         final AlertDialog.Builder builder = new AlertDialog.Builder(ItemDetailsActivity.this);
         builder .setTitle(getString(R.string.activity_item_details_delete_dialog_title))
                 .setMessage(getString(R.string.activity_item_details_delete_dialog_message))
@@ -594,8 +593,6 @@ public final class ItemDetailsActivity extends AppCompatActivity {
                         null);
 
         final AlertDialog alert = builder.create();
-
-        // Show
         alert.show();
     }
 

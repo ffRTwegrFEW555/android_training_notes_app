@@ -2,21 +2,26 @@ package com.gamaliev.notes.sync;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.OnCompleteListener;
 import com.gamaliev.notes.conflict.ConflictActivity;
 import com.gamaliev.notes.sync.db.SyncCursorAdapter;
 import com.gamaliev.notes.sync.db.SyncDbHelper;
+
+import static com.gamaliev.notes.common.CommonUtils.showToast;
 
 /**
  * @author Vadim Gamaliev
@@ -36,7 +41,7 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
 
 
     /*
-        Init
+        Lifecycle
      */
 
     @Override
@@ -45,6 +50,23 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
         setContentView(R.layout.activity_sync);
         init();
     }
+
+    @Override
+    protected void onResume() {
+        SyncUtils.addObserver(TAG, this);
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        SyncUtils.removeObserver(TAG);
+        super.onPause();
+    }
+
+
+    /*
+        Init
+     */
 
     private void init() {
         initToolbar();
@@ -76,26 +98,6 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
         mListView = (ListView) findViewById(R.id.activity_sync_list_view);
         mListView.setAdapter(mAdapter);
         scrollListViewToBottom();
-    }
-
-    private void notifyDataSetChangedAndScrollToEnd() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mAdapter.changeCursor(SyncDbHelper.getAll(getApplicationContext()));
-                mAdapter.notifyDataSetChanged();
-                scrollListViewToBottom();
-            }
-        });
-    }
-
-    private void scrollListViewToBottom() {
-        mListView.post(new Runnable() {
-            @Override
-            public void run() {
-                mListView.setSelection(mAdapter.getCount() - 1);
-            }
-        });
     }
 
 
@@ -133,7 +135,12 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
 
             // Delete all from server button
             case R.id.menu_sync_delete_all_from_server:
-                SyncUtils.deleteAllFromServerAsync(getApplicationContext());
+                showConfirmDeleteAllFromServerDialog();
+                break;
+
+            // Clear journal
+            case R.id.menu_sync_clear_journal:
+                showConfirmClearJournalDialog();
                 break;
 
             default:
@@ -163,20 +170,8 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
 
 
     /*
-        ...
+        Callback
      */
-
-    @Override
-    protected void onResume() {
-        SyncUtils.addObserver(TAG, this);
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        SyncUtils.removeObserver(TAG);
-        super.onPause();
-    }
 
     @Override
     public void onComplete(int code) {
@@ -190,5 +185,90 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
                 notifyDataSetChangedAndScrollToEnd();
             }
         }
+    }
+
+
+    /*
+        ...
+     */
+
+    private void notifyDataSetChangedAndScrollToEnd() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mAdapter.changeCursor(SyncDbHelper.getAll(getApplicationContext()));
+                mAdapter.notifyDataSetChanged();
+                scrollListViewToBottom();
+            }
+        });
+    }
+
+    private void scrollListViewToBottom() {
+        mListView.post(new Runnable() {
+            @Override
+            public void run() {
+                mListView.setSelection(mAdapter.getCount() - 1);
+            }
+        });
+    }
+
+
+    /*
+        Confirm operations.
+     */
+
+    private void showConfirmDeleteAllFromServerDialog() {
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(SyncActivity.this);
+        builder .setTitle(getString(R.string.activity_sync_dialog_confirm_delete_all_from_server_title))
+                .setMessage(getString(R.string.activity_sync_dialog_confirm_delete_all_from_server_body))
+                .setPositiveButton(getString(R.string.activity_sync_dialog_confirm_delete_all_from_server_btn_delete),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                //
+                                dialog.cancel();
+                                //
+                                SyncUtils.deleteAllFromServerAsync(getApplicationContext());
+                            }
+                        })
+                .setNegativeButton(
+                        getString(R.string.activity_sync_dialog_confirm_delete_all_from_server_btn_cancel),
+                        null);
+
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void showConfirmClearJournalDialog() {
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(SyncActivity.this);
+        builder .setTitle(getString(R.string.activity_sync_dialog_confirm_clear_journal_title))
+                .setMessage(getString(R.string.activity_sync_dialog_confirm_clear_journal_body))
+                .setPositiveButton(getString(R.string.activity_sync_dialog_confirm_clear_journal_btn_clear),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                //
+                                dialog.cancel();
+                                //
+                                if (SyncDbHelper.clear(getApplicationContext())) {
+                                    showToast(
+                                            getApplicationContext(),
+                                            getString(R.string.menu_sync_action_clear_journal_success),
+                                            Toast.LENGTH_SHORT);
+                                } else {
+                                    showToast(
+                                            getApplicationContext(),
+                                            getString(R.string.menu_sync_action_clear_journal_failed),
+                                            Toast.LENGTH_SHORT);
+                                }
+                                notifyDataSetChangedAndScrollToEnd();
+                            }
+                        })
+                .setNegativeButton(
+                        getString(R.string.activity_sync_dialog_confirm_clear_journal_btn_cancel),
+                        null);
+
+        final AlertDialog alert = builder.create();
+        alert.show();
     }
 }

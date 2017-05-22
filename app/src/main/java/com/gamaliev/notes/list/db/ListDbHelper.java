@@ -757,8 +757,14 @@ public class ListDbHelper {
 
         // Check if not exists.
         final Cursor cursor = getEntriesWithSyncIdColumn(context, tableName);
-        if (cursor.getCount() > 0) {
-            return true;
+        if (cursor != null) {
+            try {
+                if (cursor.getCount() > 0) {
+                    return true;
+                }
+            } finally {
+                cursor.close();
+            }
         }
 
         try {

@@ -1,14 +1,23 @@
 package com.gamaliev.notes.conflict;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.gamaliev.notes.R;
+import com.gamaliev.notes.list.db.ListDbHelper;
+
+import java.util.Random;
+
+import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
 
 /**
  * @author Vadim Gamaliev
@@ -64,7 +73,58 @@ public class ConflictActivity extends AppCompatActivity {
             @NonNull final Context context,
             final int requestCode) {
 
-        Intent starter = new Intent(context, ConflictActivity.class);
+        final Intent starter = new Intent(context, ConflictActivity.class);
         ((Activity) context).startActivityForResult(starter, requestCode);
+    }
+
+    public static PendingIntent getPendingIntentForStatusBarNotification(
+            @NonNull final Context context) {
+
+        final Intent intent = new Intent(context, ConflictActivity.class);
+        return PendingIntent.getActivity(context, 0, intent, 0);
+    }
+
+
+    /*
+        Status bar notification.
+     */
+
+    public static void checkConflictedExistsAndShowNotification(
+            @NonNull final Context context) {
+
+        final Cursor cursor = ListDbHelper.getEntriesWithSyncIdColumn(
+                context,
+                SYNC_CONFLICT_TABLE_NAME);
+
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                showConflictNotification(context);
+            }
+            cursor.close();
+        }
+    }
+
+    private static void showConflictNotification(
+            @NonNull final Context context) {
+
+        final Context appContext = context.getApplicationContext();
+
+        final NotificationManager manager =
+                (NotificationManager) appContext
+                        .getSystemService(Context.NOTIFICATION_SERVICE);
+        final NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(appContext);
+
+        builder .setContentTitle(appContext.getString(R.string.activity_sync_notification_status_bar_conflict_exists_title))
+                .setContentText(appContext.getString(R.string.activity_sync_notification_status_bar_conflict_exists_body))
+                .setSmallIcon(R.drawable.ic_warning_white_24dp)
+                .setContentIntent(
+                        ConflictActivity.getPendingIntentForStatusBarNotification(
+                                appContext));
+
+        final Random random = new Random();
+        final int id = random.nextInt();
+
+        manager.notify(id, builder.build());
     }
 }

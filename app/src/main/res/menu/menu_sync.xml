@@ -9,7 +9,7 @@
         android:icon="@drawable/ic_sync_white_24dp"
         android:title="@string/menu_sync_action_synchronize"
         android:orderInCategory="10"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom"/>
 
     <!-- Show conflicted -->
     <item
@@ -17,7 +17,7 @@
         android:icon="@drawable/ic_warning_white_24dp"
         android:title="@string/menu_sync_action_show_conflicted"
         android:orderInCategory="20"
-        app:showAsAction="always"/>
+        app:showAsAction="never"/>
 
     <!-- Delete all from Server -->
     <item
@@ -25,6 +25,14 @@
         android:icon="@drawable/ic_delete_forever_white_24dp"
         android:title="@string/menu_sync_action_delete_all_from_server"
         android:orderInCategory="30"
-        app:showAsAction="always"/>
+        app:showAsAction="never"/>
+
+    <!-- Clear journal -->
+    <item
+        android:id="@+id/menu_sync_clear_journal"
+        android:icon="@drawable/ic_delete_forever_white_24dp"
+        android:title="@string/menu_sync_action_clear_journal"
+        android:orderInCategory="40"
+        app:showAsAction="never"/>
 
 </menu>

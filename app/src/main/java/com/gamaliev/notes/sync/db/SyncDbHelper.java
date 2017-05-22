@@ -18,6 +18,8 @@ import java.util.Locale;
 
 import static com.gamaliev.notes.common.CommonUtils.getStringDateFormatSqlite;
 import static com.gamaliev.notes.common.CommonUtils.showToast;
+import static com.gamaliev.notes.common.db.DbHelper.SQL_SYNC_CREATE_TABLE;
+import static com.gamaliev.notes.common.db.DbHelper.SQL_SYNC_DROP_TABLE;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_COLUMN_ACTION;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_COLUMN_AMOUNT;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_COLUMN_FINISHED;
@@ -163,5 +165,39 @@ public class SyncDbHelper {
             showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
             return null;
         }
+    }
+
+    /**
+     * Delete all rows from Sync journal table.
+     * @return true if ok, otherwise false.
+     */
+    public static boolean clear(
+            @NonNull final Context context) {
+
+        try {
+            final SQLiteDatabase db = getWritableDb(context);
+
+            // Begin transaction.
+            db.beginTransaction();
+
+            try {
+                // Exec SQL queries.
+                db.execSQL(SQL_SYNC_DROP_TABLE);
+                db.execSQL(SQL_SYNC_CREATE_TABLE);
+
+                // If ok.
+                db.setTransactionSuccessful();
+                return true;
+
+            } finally {
+                db.endTransaction();
+            }
+
+        } catch (SQLiteException e) {
+            Log.e(TAG, e.toString());
+            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+        }
+
+        return false;
     }
 }

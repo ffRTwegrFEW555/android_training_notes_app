@@ -47,6 +47,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPendingSyncStatu
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getProgressNotificationTimerForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.setPendingSyncStatusForCurrentUser;
+import static com.gamaliev.notes.conflict.ConflictActivity.checkConflictedExistsAndShowNotification;
 import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntry;
 import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntryWithSingleSyncIdColumn;
 import static com.gamaliev.notes.list.db.ListDbHelper.getEntriesWithSyncIdColumn;
@@ -183,7 +184,6 @@ public final class SyncUtils {
             case NetworkUtils.NETWORK_WIFI:
                 makeSynchronize(context);
                 break;
-
             case NetworkUtils.NETWORK_NO:
             default:
                 if (!getPendingSyncStatusForCurrentUser(context)
@@ -248,6 +248,9 @@ public final class SyncUtils {
         int deleted = deleteFromServer(context);
         int updated = synchronizeFromServer(context);
         int sum     = added + deleted + updated;
+
+        // Notify, if conflicted exists.
+        checkConflictedExistsAndShowNotification(context);
 
         // Notification complete
         notification.endProgress();

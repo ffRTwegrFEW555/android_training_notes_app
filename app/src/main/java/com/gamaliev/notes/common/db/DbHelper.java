@@ -94,18 +94,22 @@ public final class DbHelper extends SQLiteOpenHelper {
                     LIST_ITEMS_COLUMN_EDITED +  " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                     LIST_ITEMS_COLUMN_VIEWED +  " DATETIME DEFAULT CURRENT_TIMESTAMP); ";
 
-    /* Drop entries */
+    /* Entries. Drop */
     public static final String SQL_LIST_ITEMS_DROP_TABLE =
             "DROP TABLE " + LIST_ITEMS_TABLE_NAME + ";";
 
     /* Sync. Journal table */
-    private static final String SQL_SYNC_CREATE_TABLE =
+    public static final String SQL_SYNC_CREATE_TABLE =
             "CREATE TABLE " + SYNC_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     SYNC_COLUMN_FINISHED +                  " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                     SYNC_COLUMN_ACTION +                    " INTEGER NOT NULL, " +
                     SYNC_COLUMN_STATUS +                    " INTEGER NOT NULL, " +
                     SYNC_COLUMN_AMOUNT +                    " INTEGER NOT NULL); ";
+
+    /* Sync. Journal table. Drop */
+    public static final String SQL_SYNC_DROP_TABLE =
+            "DROP TABLE " + SYNC_TABLE_NAME + ";";
 
     /* Sync. Conflict table */
     private static final String SQL_SYNC_CONFLICT_CREATE_TABLE =
