@@ -3,7 +3,6 @@ package com.gamaliev.notes.list.db;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.support.annotation.NonNull;
@@ -32,27 +31,27 @@ import static com.gamaliev.notes.common.CommonUtils.getDateFromProfileMap;
 import static com.gamaliev.notes.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.notes.common.CommonUtils.getStringDateFormatSqlite;
 import static com.gamaliev.notes.common.CommonUtils.showToast;
-import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
-import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_COLUMN_SYNC_ID;
-import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
-import static com.gamaliev.notes.common.db.DbHelper.SYNC_DELETED_COLUMN_SYNC_ID;
-import static com.gamaliev.notes.common.db.DbHelper.SYNC_DELETED_TABLE_NAME;
+import static com.gamaliev.notes.common.db.DbHelper.COMMON_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.FAVORITE_COLUMN_COLOR;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_COLOR;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_CREATED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_IMAGE_URL;
-import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_TITLE;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.SQL_LIST_ITEMS_CREATE_TABLE;
 import static com.gamaliev.notes.common.db.DbHelper.SQL_LIST_ITEMS_DROP_TABLE;
+import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
+import static com.gamaliev.notes.common.db.DbHelper.SYNC_DELETED_TABLE_NAME;
+import static com.gamaliev.notes.common.db.DbHelper.deleteEntryWithSingle;
 import static com.gamaliev.notes.common.db.DbHelper.getDbFailMessage;
+import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 import static com.gamaliev.notes.common.db.DbHelper.getReadableDb;
 import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
+import static com.gamaliev.notes.common.db.DbHelper.insertEntryWithSingleValue;
 import static com.gamaliev.notes.common.db.DbQueryBuilder.OPERATOR_BETWEEN;
 import static com.gamaliev.notes.common.db.DbQueryBuilder.OPERATOR_EQUALS;
 import static com.gamaliev.notes.common.db.DbQueryBuilder.OPERATOR_LIKE;
@@ -135,7 +134,7 @@ public class ListDbHelper {
 
         // Content values
         final ContentValues cv = new ContentValues();
-        cv.put(LIST_ITEMS_COLUMN_SYNC_ID,       syncId);
+        cv.put(COMMON_COLUMN_SYNC_ID,           syncId);
         cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
         cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
         cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
@@ -166,7 +165,7 @@ public class ListDbHelper {
             final int updateResult = db.update(
                     LIST_ITEMS_TABLE_NAME,
                     cv,
-                    LIST_ITEMS_COLUMN_SYNC_ID + " = ?",
+                    COMMON_COLUMN_SYNC_ID + " = ?",
                     new String[]{syncId});
 
             if (updateResult == 0) {
@@ -223,7 +222,7 @@ public class ListDbHelper {
 
             // Content values
             final ContentValues cv = new ContentValues();
-            cv.put(LIST_ITEMS_COLUMN_SYNC_ID,       syncId);
+            cv.put(COMMON_COLUMN_SYNC_ID,           syncId);
             cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
             cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   description);
             cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
@@ -261,7 +260,7 @@ public class ListDbHelper {
 
             // Content values
             final ContentValues cv = new ContentValues();
-            cv.put(LIST_ITEMS_COLUMN_SYNC_ID, syncId);
+            cv.put(COMMON_COLUMN_SYNC_ID, syncId);
 
             // Update
             final int updateResult = db.update(
@@ -285,87 +284,6 @@ public class ListDbHelper {
     }
 
     /**
-     * Get entries from database with specified parameters.
-     * @return Result cursor.
-     */
-    @Nullable
-    public static Cursor getEntries(
-            @NonNull final Context context,
-            @NonNull final DbQueryBuilder queryBuilder) {
-
-        try {
-            final SQLiteDatabase db = getReadableDb(context);
-
-            // Make query and return cursor, if ok;
-            return db.query(
-                    LIST_ITEMS_TABLE_NAME,
-                    null,
-                    queryBuilder.getSelectionResult(),
-                    queryBuilder.getSelectionArgs(),
-                    null,
-                    null,
-                    queryBuilder.getSortOrder());
-
-        } catch (SQLiteException e) {
-            Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return null;
-        }
-    }
-
-    /**
-     * Get all entries from database.
-     * @return Result cursor.
-     */
-    @Nullable
-    public static Cursor getEntries(@NonNull final Context context) {
-
-        try {
-            final SQLiteDatabase db = getReadableDb(context);
-
-            // Make query and return cursor, if ok;
-            return db.query(
-                    LIST_ITEMS_TABLE_NAME,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null);
-
-        } catch (SQLiteException e) {
-            Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return null;
-        }
-    }
-
-    /**
-     * Get count of entries from database with specified parameters.
-     * @return Count of rows.
-     */
-    public static long getEntriesCount(
-            @NonNull final Context context,
-            @NonNull final DbQueryBuilder queryBuilder) {
-
-        try {
-            final SQLiteDatabase db = getReadableDb(context);
-
-            // Make query and return count of result rows;
-            return DatabaseUtils.queryNumEntries(
-                    db,
-                    LIST_ITEMS_TABLE_NAME,
-                    queryBuilder.getSelectionResult(),
-                    queryBuilder.getSelectionArgs());
-
-        } catch (SQLiteException e) {
-            Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return -1;
-        }
-    }
-
-    /**
      * Get entries from database, where sync id is null.
      * @return Result cursor.
      */
@@ -380,7 +298,7 @@ public class ListDbHelper {
             return db.query(
                     LIST_ITEMS_TABLE_NAME,
                     null,
-                    LIST_ITEMS_COLUMN_SYNC_ID + " is NULL",
+                    COMMON_COLUMN_SYNC_ID + " is NULL",
                     null,
                     null,
                     null,
@@ -421,7 +339,7 @@ public class ListDbHelper {
             // Fill new entry.
             if (cursor.moveToFirst()) {
                 final int indexId           = cursor.getColumnIndex(BASE_COLUMN_ID);
-                final int indexSyncId       = cursor.getColumnIndex(LIST_ITEMS_COLUMN_SYNC_ID);
+                final int indexSyncId       = cursor.getColumnIndex(COMMON_COLUMN_SYNC_ID);
                 final int indexTitle        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_TITLE);
                 final int indexDescription  = cursor.getColumnIndex(LIST_ITEMS_COLUMN_DESCRIPTION);
                 final int indexColor        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_COLOR);
@@ -493,23 +411,23 @@ public class ListDbHelper {
                 // Add to deleted table.
                 if (addToDeletedTable) {
                     if (syncId != null && syncId > 0) {
-                        insertEntryWithSingleSyncId(
+                        insertEntryWithSingleValue(
                                 context,
-                                syncId,
                                 db,
                                 SYNC_DELETED_TABLE_NAME,
-                                SYNC_DELETED_COLUMN_SYNC_ID);
+                                COMMON_COLUMN_SYNC_ID,
+                                syncId.toString());
                     }
                 }
 
                 // Delete from conflicted table.
                 if (syncId != null && syncId > 0) {
-                    deleteEntryWithSingleSyncIdColumn(
+                    deleteEntryWithSingle(
                             context,
-                            syncId.toString(),
-                            SYNC_CONFLICT_TABLE_NAME,
-                            SYNC_CONFLICT_COLUMN_SYNC_ID,
                             db,
+                            SYNC_CONFLICT_TABLE_NAME,
+                            COMMON_COLUMN_SYNC_ID,
+                            syncId.toString(),
                             false);
                 }
 
@@ -626,7 +544,7 @@ public class ListDbHelper {
                         context, constraint, profileMap);
 
         //
-        return getEntries(context, resultQueryBuilder);
+        return getEntries(context, LIST_ITEMS_TABLE_NAME, resultQueryBuilder);
     }
 
     /**
@@ -728,143 +646,5 @@ public class ListDbHelper {
         resultQueryBuilder.setAscDesc(profileMap.get(SpFilterProfiles.SP_FILTER_ORDER_ASC));
 
         return resultQueryBuilder;
-    }
-
-
-    /*
-        Sync Id tables
-     */
-
-    /**
-     * Insert entry with single syncId column, in database.
-     * @param context       Context.
-     * @param syncId        Sync Id.
-     * @param db            Database. If null, then get new.
-     * @param tableName     Table, where to insert a entry.
-     * @param columnName    Column name.
-     * @return              True if ok, otherwise false.
-     */
-    public static boolean insertEntryWithSingleSyncId(
-            @NonNull final Context context,
-            @NonNull final Long syncId,
-            @Nullable SQLiteDatabase db,
-            @NonNull final String tableName,
-            @NonNull final String columnName) {
-
-        if (db == null) {
-            db = DbHelper.getWritableDb(context);
-        }
-
-        // Check if not exists.
-        final Cursor cursor = getEntriesWithSyncIdColumn(context, tableName);
-        if (cursor != null) {
-            try {
-                if (cursor.getCount() > 0) {
-                    return true;
-                }
-            } finally {
-                cursor.close();
-            }
-        }
-
-        try {
-            // Content values
-            final ContentValues cv = new ContentValues();
-            cv.put(columnName, syncId);
-
-            // Insert
-            if (db.insert(tableName, null, cv) == -1) {
-                final String error = String.format(Locale.ENGLISH,
-                        "[ERROR] Insert entry {%s: %d}",
-                        columnName, syncId);
-                throw new SQLiteException(error);
-            }
-
-            // If ok
-            return true;
-
-        } catch (SQLiteException e) {
-            Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return false;
-        }
-    }
-
-    /**
-     * Get entries, with single sync id column, from database.
-     * @param context   Context.
-     * @param tableName Table name.
-     * @return Result cursor.
-     */
-    @Nullable
-    public static Cursor getEntriesWithSyncIdColumn(
-            @NonNull final Context context,
-            @NonNull final String tableName) {
-
-        try {
-            final SQLiteDatabase db = getReadableDb(context);
-
-            // Make query and return cursor, if ok;
-            return db.query(
-                    tableName,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null);
-
-        } catch (SQLiteException e) {
-            Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return null;
-        }
-    }
-
-    /**
-     * Delete entry with single sync id column from database.
-     * @param context       Context.
-     * @param syncId        Sync Id of entry to be deleted.
-     * @param tableName     Table, where to delete a entry.
-     * @param columnName    Column name.
-     * @param db            Opened database. If null, then get new writable db.
-     * @return              True if success, otherwise false.
-     */
-    public static boolean deleteEntryWithSingleSyncIdColumn(
-            @NonNull final Context context,
-            @NonNull final String syncId,
-            @NonNull final String tableName,
-            @NonNull final String columnName,
-            @Nullable SQLiteDatabase db,
-            final boolean handleException) {
-
-        try {
-            if (db == null) {
-                db = getWritableDb(context);
-            }
-
-            // Delete query.
-                int deleteResult = db.delete(
-                        tableName,
-                        columnName + " = ?",
-                        new String[]{syncId});
-
-                // If error.
-                if (deleteResult == 0) {
-                    throw new SQLiteException("[ERROR] The number of rows affected is 0");
-                }
-
-            // If ok.
-            return true;
-
-        } catch (SQLiteException e) {
-            if (handleException) {
-                Log.e(TAG, e.toString());
-                showToastRunOnUiThread(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-                return false;
-            } else {
-                return true;
-            }
-        }
     }
 }

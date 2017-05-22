@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.db.DbQueryBuilder;
-import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.model.ListEntry;
 import com.gamaliev.notes.model.SyncEntry;
 import com.gamaliev.notes.sync.SyncUtils;
@@ -41,15 +40,16 @@ import static android.app.Activity.RESULT_OK;
 import static com.gamaliev.notes.common.CommonUtils.EXTRA_REVEAL_ANIM_CENTER_CENTER;
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 import static com.gamaliev.notes.common.DialogFragmentUtils.initCircularRevealAnimation;
-import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID;
-import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_COLUMN_SYNC_ID;
+import static com.gamaliev.notes.common.db.DbHelper.COMMON_COLUMN_SYNC_ID;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
+import static com.gamaliev.notes.common.db.DbHelper.deleteEntryWithSingle;
+import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToString;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertMapToJson;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
-import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntryWithSingleSyncIdColumn;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
 import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
 import static com.gamaliev.notes.sync.SyncUtils.API_KEY_DATA;
@@ -235,10 +235,13 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         // Get entry from database
         final DbQueryBuilder queryBuilder = new DbQueryBuilder();
         queryBuilder.addOr(
-                LIST_ITEMS_COLUMN_SYNC_ID,
+                COMMON_COLUMN_SYNC_ID,
                 DbQueryBuilder.OPERATOR_EQUALS,
                 new String[]{mSyncId});
-        final Cursor entryCursor = ListDbHelper.getEntries(getContext(), queryBuilder);
+        final Cursor entryCursor = getEntries(
+                getContext(),
+                LIST_ITEMS_TABLE_NAME,
+                queryBuilder);
         entryCursor.moveToFirst();
         final JSONObject jsonObject = ListEntry.getJsonObject(getContext(), entryCursor);
         final String textLocal = convertJsonToString(getContext(), jsonObject.toString());
@@ -308,12 +311,12 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                     true);
 
             // Delete from conflicted table.
-            final boolean result = deleteEntryWithSingleSyncIdColumn(
+            final boolean result = deleteEntryWithSingle(
                     context,
-                    mSyncId,
-                    SYNC_CONFLICT_TABLE_NAME,
-                    SYNC_CONFLICT_COLUMN_SYNC_ID,
                     db,
+                    SYNC_CONFLICT_TABLE_NAME,
+                    COMMON_COLUMN_SYNC_ID,
+                    mSyncId,
                     true);
 
             if (!result) {
@@ -405,12 +408,12 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                 // If json OK
                 if (status.equals(API_STATUS_OK)) {
                     // Delete from conflicted table.
-                    final boolean result = deleteEntryWithSingleSyncIdColumn(
+                    final boolean result = deleteEntryWithSingle(
                             context,
-                            mSyncId,
-                            SYNC_CONFLICT_TABLE_NAME,
-                            SYNC_CONFLICT_COLUMN_SYNC_ID,
                             null,
+                            SYNC_CONFLICT_TABLE_NAME,
+                            COMMON_COLUMN_SYNC_ID,
+                            mSyncId,
                             true);
 
                     if (!result) {

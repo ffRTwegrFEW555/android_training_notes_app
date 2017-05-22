@@ -303,6 +303,7 @@
     <!--                                    -->
 
     <!-- Other -->
+    <string name="fragment_dialog_conflict_select_item_title_prefix">Entry, sync id</string>
     <string name="fragment_dialog_conflict_select_action_btn_panel_btn_cancel_title">Cancel</string>
     <string name="fragment_dialog_conflict_select_server_header_prefix">Server sync id</string>
     <string name="fragment_dialog_conflict_select_local_header_prefix">Local sync id</string>

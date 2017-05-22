@@ -8,10 +8,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.common.network.NetworkUtils;
 import com.gamaliev.notes.common.OnCompleteListener;
 import com.gamaliev.notes.common.ProgressNotificationHelper;
 import com.gamaliev.notes.common.db.DbQueryBuilder;
+import com.gamaliev.notes.common.network.NetworkUtils;
 import com.gamaliev.notes.common.shared_prefs.SpCommon;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import com.gamaliev.notes.list.db.ListDbHelper;
@@ -35,12 +35,15 @@ import retrofit2.Response;
 
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
-import static com.gamaliev.notes.common.db.DbHelper.SYNC_DELETED_COLUMN_SYNC_ID;
-import static com.gamaliev.notes.common.db.DbHelper.SYNC_DELETED_TABLE_NAME;
-import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID;
+import static com.gamaliev.notes.common.db.DbHelper.COMMON_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID_JSON;
-import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_COLUMN_SYNC_ID;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
+import static com.gamaliev.notes.common.db.DbHelper.SYNC_DELETED_TABLE_NAME;
+import static com.gamaliev.notes.common.db.DbHelper.deleteEntryWithSingle;
+import static com.gamaliev.notes.common.db.DbHelper.getEntries;
+import static com.gamaliev.notes.common.db.DbHelper.getEntriesCount;
+import static com.gamaliev.notes.common.db.DbHelper.insertEntryWithSingleValue;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_PENDING_FALSE;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_PENDING_TRUE;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPendingSyncStatusForCurrentUser;
@@ -49,11 +52,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrent
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.setPendingSyncStatusForCurrentUser;
 import static com.gamaliev.notes.conflict.ConflictActivity.checkConflictedExistsAndShowNotification;
 import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntry;
-import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntryWithSingleSyncIdColumn;
-import static com.gamaliev.notes.list.db.ListDbHelper.getEntriesWithSyncIdColumn;
-import static com.gamaliev.notes.list.db.ListDbHelper.getEntries;
 import static com.gamaliev.notes.list.db.ListDbHelper.getNewEntries;
-import static com.gamaliev.notes.list.db.ListDbHelper.insertEntryWithSingleSyncId;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
 import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_LOCAL;
@@ -143,11 +142,18 @@ public final class SyncUtils {
         sSyncRunning = syncRunning;
     }
 
+
     /*
         Main
      */
 
     public static void synchronize(@NonNull final Context context) {
+
+        //
+        if (isSyncRunning()) {
+            return;
+        }
+
         SINGLE_THREAD_EXECUTOR.submit(new Runnable() {
                 @Override
                 public void run() {
@@ -163,9 +169,7 @@ public final class SyncUtils {
                 if (SpUsers.getSyncWifiOnlyForCurrentUser(context)) {
                     if (!getPendingSyncStatusForCurrentUser(context)
                             .equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
-                        //
-                        setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_TRUE);
-                        //
+
                         final SyncEntry pendingStart = new SyncEntry();
                         pendingStart.setFinished(new Date());
                         pendingStart.setAction(ACTION_PENDING_START_NO_WIFI);
@@ -178,6 +182,7 @@ public final class SyncUtils {
                                 context.getString(ACTION_TEXT[ACTION_PENDING_START_NO_WIFI]),
                                 RESULT_CODE_PENDING_START);
                     }
+                    setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_TRUE);
                     break;
                 }
 
@@ -188,9 +193,7 @@ public final class SyncUtils {
             default:
                 if (!getPendingSyncStatusForCurrentUser(context)
                         .equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
-                    //
-                    setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_TRUE);
-                    //
+
                     final SyncEntry pendingStart = new SyncEntry();
                     pendingStart.setFinished(new Date());
                     pendingStart.setAction(ACTION_PENDING_START_NO_INET);
@@ -203,16 +206,12 @@ public final class SyncUtils {
                             context.getString(ACTION_TEXT[ACTION_PENDING_START_NO_INET]),
                             RESULT_CODE_PENDING_START);
                 }
+                setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_TRUE);
                 break;
         }
     }
 
     public static boolean makeSynchronize(@NonNull final Context context) {
-
-        //
-        if (isSyncRunning()) {
-            return false;
-        }
 
         //
         setSyncRunning(true);
@@ -338,9 +337,13 @@ public final class SyncUtils {
 
         int counter = 0;
 
-        final Cursor cursor = getEntriesWithSyncIdColumn(context, SYNC_DELETED_TABLE_NAME);
+        final Cursor cursor = getEntries(
+                context,
+                SYNC_DELETED_TABLE_NAME,
+                null);
+
         while (cursor.moveToNext()) {
-            final String syncId = cursor.getString(cursor.getColumnIndex(SYNC_DELETED_COLUMN_SYNC_ID));
+            final String syncId = cursor.getString(cursor.getColumnIndex(COMMON_COLUMN_SYNC_ID));
 
             try {
                 final Response<String> response = getNoteApi()
@@ -354,12 +357,12 @@ public final class SyncUtils {
                     final String status = jsonResponse.optString(API_KEY_STATUS);
 
                     if (status.equals(API_STATUS_OK)) {
-                        deleteEntryWithSingleSyncIdColumn(
+                        deleteEntryWithSingle(
                                 context,
-                                syncId,
-                                SYNC_DELETED_TABLE_NAME,
-                                SYNC_DELETED_COLUMN_SYNC_ID,
                                 null,
+                                SYNC_DELETED_TABLE_NAME,
+                                COMMON_COLUMN_SYNC_ID,
+                                syncId,
                                 true);
                         counter++;
 
@@ -426,10 +429,13 @@ public final class SyncUtils {
                             if (syncId != null) {
                                 final DbQueryBuilder queryBuilder = new DbQueryBuilder();
                                 queryBuilder.addOr(
-                                        LIST_ITEMS_COLUMN_SYNC_ID,
+                                        COMMON_COLUMN_SYNC_ID,
                                         DbQueryBuilder.OPERATOR_EQUALS,
                                         new String[]{syncId});
-                                final long entriesCount = ListDbHelper.getEntriesCount(context, queryBuilder);
+                                final long entriesCount = getEntriesCount(
+                                        context,
+                                        LIST_ITEMS_TABLE_NAME,
+                                        queryBuilder);
 
                                 if (entriesCount == 0) {
                                     insertUpdateEntry(
@@ -457,11 +463,14 @@ public final class SyncUtils {
                                 RESULT_CODE_SUCCESS);
 
                         // Delete from local and seek changes
-                        final Cursor cursor = getEntries(context);
+                        final Cursor cursor = getEntries(
+                                context,
+                                LIST_ITEMS_TABLE_NAME,
+                                null);
                         start:
                         while (cursor.moveToNext()) {
                             final String syncIdLocal = cursor
-                                    .getString(cursor.getColumnIndex(LIST_ITEMS_COLUMN_SYNC_ID));
+                                    .getString(cursor.getColumnIndex(COMMON_COLUMN_SYNC_ID));
 
                             if (syncIdLocal != null) {
                                 for (int i = 0; i < data.length(); i++) {
@@ -482,12 +491,12 @@ public final class SyncUtils {
 
                                         // If entries not equals, then add to conflict table.
                                         if(!mapLocal.equals(mapServer)) {
-                                            insertEntryWithSingleSyncId(
+                                            insertEntryWithSingleValue(
                                                     context,
-                                                    Long.parseLong(syncIdLocal),
                                                     null,
                                                     SYNC_CONFLICT_TABLE_NAME,
-                                                    SYNC_CONFLICT_COLUMN_SYNC_ID);
+                                                    COMMON_COLUMN_SYNC_ID,
+                                                    syncIdLocal);
                                             counterConflicted++;
                                         }
                                         continue start;
@@ -707,6 +716,14 @@ public final class SyncUtils {
         return true;
     }
 
+    public static boolean checkPendingSyncAndStart(@NonNull final Context context) {
+        if (getPendingSyncStatusForCurrentUser(context)
+                .equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
+            SyncUtils.synchronize(context);
+            return true;
+        }
+        return false;
+    }
 
     /*
         Getters

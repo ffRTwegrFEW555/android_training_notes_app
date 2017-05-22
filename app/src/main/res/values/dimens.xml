@@ -177,9 +177,9 @@
     <!--                            -->
 
     <!-- Other -->
-    <dimen name="fragment_conflict_item_card_view_height">72dp</dimen>
-    <dimen name="fragment_conflict_item_card_view_text_margin_start">16dp</dimen>
-    <dimen name="fragment_conflict_item_card_view_text_margin_top">16dp</dimen>
+    <dimen name="fragment_conflict_item_title_text_size">16sp</dimen>
+    <dimen name="fragment_conflict_item_card_view_height">56dp</dimen>
+    <dimen name="fragment_conflict_item_title_padding">16dp</dimen>
 
 
     <!--                        -->

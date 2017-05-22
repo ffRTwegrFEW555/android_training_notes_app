@@ -39,17 +39,17 @@ import android.widget.Toast;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.FileUtils;
-import com.gamaliev.notes.common.shared_prefs.SpUsers;
-import com.gamaliev.notes.settings.SettingsPreferenceActivity;
-import com.gamaliev.notes.sync.SyncActivity;
-import com.gamaliev.notes.user.UserActivity;
+import com.gamaliev.notes.common.OnCompleteListener;
 import com.gamaliev.notes.common.ProgressNotificationHelper;
 import com.gamaliev.notes.common.db.DbHelper;
-import com.gamaliev.notes.common.OnCompleteListener;
 import com.gamaliev.notes.common.shared_prefs.SpFilterProfiles;
+import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import com.gamaliev.notes.item_details.ItemDetailsActivity;
 import com.gamaliev.notes.list.db.ListCursorAdapter;
 import com.gamaliev.notes.list.db.ListDbHelper;
+import com.gamaliev.notes.settings.SettingsPreferenceActivity;
+import com.gamaliev.notes.sync.SyncActivity;
+import com.gamaliev.notes.user.UserActivity;
 
 import java.util.Locale;
 import java.util.Map;

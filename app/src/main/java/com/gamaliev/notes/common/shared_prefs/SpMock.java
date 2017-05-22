@@ -8,7 +8,6 @@ import android.util.Log;
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.db.DbHelper;
 import com.gamaliev.notes.list.db.ListDbMockHelper;
-import com.gamaliev.notes.sync.db.SyncDbMockHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,7 +33,6 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_VIEWED;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_DESCRIPTION;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_EMAIL;
-import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_ID;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_FIRST_NAME;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_ID;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_LAST_NAME;
@@ -43,6 +41,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_MOCK_ENTRIE
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_PROGRESS_NOTIF_TIMER;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_API_URL;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_ID;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_PENDING;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_PENDING_FALSE;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_WIFI;

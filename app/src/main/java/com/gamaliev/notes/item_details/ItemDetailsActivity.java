@@ -32,8 +32,8 @@ import android.widget.Toast;
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.colorpicker.ColorPickerActivity;
 import com.gamaliev.notes.list.ListActivity;
-import com.gamaliev.notes.model.ListEntry;
 import com.gamaliev.notes.list.db.ListDbHelper;
+import com.gamaliev.notes.model.ListEntry;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 

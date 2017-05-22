@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.db.DbHelper;
-import com.gamaliev.notes.common.db.DbQueryBuilder;
 import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.model.ListEntry;
 
@@ -26,6 +25,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
+import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getProgressNotificationTimerForCurrentUser;
 import static com.gamaliev.notes.list.ListActivity.RESULT_CODE_EXTRA_EXPORTED;
 import static com.gamaliev.notes.list.ListActivity.RESULT_CODE_EXTRA_IMPORTED;
@@ -170,7 +171,10 @@ public class FileUtils {
             @NonNull final ProgressNotificationHelper notification) {
 
         // Get cursor.
-        final Cursor cursor = ListDbHelper.getEntries(activity, new DbQueryBuilder());
+        final Cursor cursor = getEntries(
+                activity,
+                LIST_ITEMS_TABLE_NAME,
+                null);
 
         // Create json object;
         JSONObject jsonObject;

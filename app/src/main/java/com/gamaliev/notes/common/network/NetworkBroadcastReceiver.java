@@ -5,10 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 
-import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import com.gamaliev.notes.sync.SyncUtils;
-
-import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPendingSyncStatusForCurrentUser;
 
 /**
  * @author Vadim Gamaliev
@@ -30,9 +27,6 @@ public class NetworkBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (getPendingSyncStatusForCurrentUser(context)
-                .equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
-            SyncUtils.synchronize(context);
-        }
+        SyncUtils.checkPendingSyncAndStart(context);
     }
 }

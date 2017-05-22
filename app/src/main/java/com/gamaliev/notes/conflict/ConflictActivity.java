@@ -13,11 +13,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.list.db.ListDbHelper;
-
-import java.util.Random;
 
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
+import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 
 /**
  * @author Vadim Gamaliev
@@ -28,6 +26,9 @@ public class ConflictActivity extends AppCompatActivity {
 
     /* Logger */
     private static final String TAG = ConflictActivity.class.getSimpleName();
+
+    /* ... */
+    private static final int EXTRA_ID_CONFLICT_STATUS_BAR_NOTIFICATION = 101;
 
 
     /*
@@ -92,9 +93,10 @@ public class ConflictActivity extends AppCompatActivity {
     public static void checkConflictedExistsAndShowNotification(
             @NonNull final Context context) {
 
-        final Cursor cursor = ListDbHelper.getEntriesWithSyncIdColumn(
+        final Cursor cursor = getEntries(
                 context,
-                SYNC_CONFLICT_TABLE_NAME);
+                SYNC_CONFLICT_TABLE_NAME,
+                null);
 
         if (cursor != null) {
             if (cursor.getCount() > 0) {
@@ -120,11 +122,11 @@ public class ConflictActivity extends AppCompatActivity {
                 .setSmallIcon(R.drawable.ic_warning_white_24dp)
                 .setContentIntent(
                         ConflictActivity.getPendingIntentForStatusBarNotification(
-                                appContext));
+                                appContext))
+                .setAutoCancel(true);
 
-        final Random random = new Random();
-        final int id = random.nextInt();
-
-        manager.notify(id, builder.build());
+        manager.notify(
+                EXTRA_ID_CONFLICT_STATUS_BAR_NOTIFICATION,
+                builder.build());
     }
 }

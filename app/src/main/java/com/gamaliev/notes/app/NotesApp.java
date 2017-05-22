@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import com.gamaliev.notes.common.FileUtils;
 import com.gamaliev.notes.common.db.DbHelper;
 import com.gamaliev.notes.common.shared_prefs.SpCommon;
+import com.gamaliev.notes.conflict.ConflictActivity;
+import com.gamaliev.notes.sync.SyncUtils;
 
 /**
  * @author Vadim Gamaliev
@@ -38,6 +40,7 @@ public class NotesApp extends Application {
         initSharedPreferences();
         initDataBase();
         initFileUtils();
+        initSync();
     }
 
     private void initSharedPreferences() {
@@ -61,6 +64,11 @@ public class NotesApp extends Application {
      */
     private void initFileUtils() {
         FileUtils.getImportExportHandlerLooperThread();
+    }
+
+    private void initSync() {
+        SyncUtils.checkPendingSyncAndStart(sAppContext);
+        ConflictActivity.checkConflictedExistsAndShowNotification(sAppContext);
     }
 
 

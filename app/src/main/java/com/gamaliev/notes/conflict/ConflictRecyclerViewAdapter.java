@@ -12,10 +12,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.list.db.ListDbHelper;
 
-import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_COLUMN_SYNC_ID;
+import static com.gamaliev.notes.common.db.DbHelper.COMMON_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
+import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 
 /**
  * @author Vadim Gamaliev
@@ -64,8 +64,12 @@ public final class ConflictRecyclerViewAdapter
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         mCursor.moveToPosition(position);
-        final String syncId = mCursor.getString(mCursor.getColumnIndex(SYNC_CONFLICT_COLUMN_SYNC_ID));
-        holder.mTextView.setText(syncId);
+        final String syncId = mCursor.getString(mCursor.getColumnIndex(COMMON_COLUMN_SYNC_ID));
+        holder.mTextView.setText(
+                holder.mTextView.getContext()
+                        .getString(R.string.fragment_dialog_conflict_select_item_title_prefix)
+                + ": "
+                + syncId);
 
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,6 +113,6 @@ public final class ConflictRecyclerViewAdapter
         if (mCursor != null && !mCursor.isClosed()) {
             mCursor.close();
         }
-        mCursor = ListDbHelper.getEntriesWithSyncIdColumn(context, SYNC_CONFLICT_TABLE_NAME);
+        mCursor = getEntries(context, SYNC_CONFLICT_TABLE_NAME, null);
     }
 }

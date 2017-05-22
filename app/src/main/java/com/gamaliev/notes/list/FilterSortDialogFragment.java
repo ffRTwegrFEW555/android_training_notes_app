@@ -63,8 +63,10 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_CREATED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_TITLE;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.ORDER_ASCENDING;
 import static com.gamaliev.notes.common.db.DbHelper.ORDER_DESCENDING;
+import static com.gamaliev.notes.common.db.DbHelper.getEntriesCount;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_COLOR;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_CREATED;
@@ -301,8 +303,9 @@ public final class FilterSortDialogFragment extends DialogFragment {
                         if (getActivity() != null && mDialog.isAttachedToWindow()) {
 
                             // Get number of entries.
-                            final long count = ListDbHelper.getEntriesCount(
+                            final int count = getEntriesCount(
                                     getActivity(),
+                                    LIST_ITEMS_TABLE_NAME,
                                     ListDbHelper.convertToQueryBuilder(
                                             getActivity(),
                                             null,
@@ -1116,8 +1119,9 @@ public final class FilterSortDialogFragment extends DialogFragment {
                     if (getActivity() != null && mDialog.isAttachedToWindow()) {
 
                         // Get number of entries.
-                        final long count = ListDbHelper.getEntriesCount(
+                        final long count = getEntriesCount(
                                 getActivity(),
+                                LIST_ITEMS_TABLE_NAME,
                                 ListDbHelper.convertToQueryBuilder(
                                         getActivity(),
                                         null,
