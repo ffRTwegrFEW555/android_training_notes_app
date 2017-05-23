@@ -48,7 +48,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/fragment_dialog_conflict_select_save_btn_margin"
                 android:layout_gravity="end"
-                android:text="@string/fragment_dialog_conflict_select_save_btn_text"/>
+                android:text="@string/fragment_dialog_conflict_select_save_btn_text"
+                android:enabled="false"/>
 
             <!-- Divider -->
             <View
@@ -90,7 +91,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/fragment_dialog_conflict_select_save_btn_margin"
                 android:layout_gravity="end"
-                android:text="@string/fragment_dialog_conflict_select_save_btn_text"/>
+                android:text="@string/fragment_dialog_conflict_select_save_btn_text"
+                android:enabled="false"/>
 
         </LinearLayout>
 

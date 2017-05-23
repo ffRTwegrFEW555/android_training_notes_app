@@ -3,7 +3,6 @@ package com.gamaliev.notes.sync;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -170,17 +169,13 @@ public final class SyncUtils {
                     if (!getPendingSyncStatusForCurrentUser(context)
                             .equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
 
-                        final SyncEntry pendingStart = new SyncEntry();
-                        pendingStart.setFinished(new Date());
-                        pendingStart.setAction(ACTION_PENDING_START_NO_WIFI);
-                        pendingStart.setStatus(STATUS_OK);
-                        pendingStart.setAmount(0);
-                        makeOperations(
+                        addToSyncJournalAndLogAndNotify(
                                 context,
-                                pendingStart,
-                                true,
-                                context.getString(ACTION_TEXT[ACTION_PENDING_START_NO_WIFI]),
-                                RESULT_CODE_PENDING_START);
+                                ACTION_PENDING_START_NO_WIFI,
+                                STATUS_OK,
+                                0,
+                                RESULT_CODE_PENDING_START,
+                                true);
                     }
                     setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_TRUE);
                     break;
@@ -194,17 +189,13 @@ public final class SyncUtils {
                 if (!getPendingSyncStatusForCurrentUser(context)
                         .equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
 
-                    final SyncEntry pendingStart = new SyncEntry();
-                    pendingStart.setFinished(new Date());
-                    pendingStart.setAction(ACTION_PENDING_START_NO_INET);
-                    pendingStart.setStatus(STATUS_OK);
-                    pendingStart.setAmount(0);
-                    makeOperations(
+                    addToSyncJournalAndLogAndNotify(
                             context,
-                            pendingStart,
-                            true,
-                            context.getString(ACTION_TEXT[ACTION_PENDING_START_NO_INET]),
-                            RESULT_CODE_PENDING_START);
+                            ACTION_PENDING_START_NO_INET,
+                            STATUS_OK,
+                            0,
+                            RESULT_CODE_PENDING_START,
+                            true);
                 }
                 setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_TRUE);
                 break;
@@ -217,17 +208,13 @@ public final class SyncUtils {
         setSyncRunning(true);
 
         //
-        final SyncEntry entryStart = new SyncEntry();
-        entryStart.setFinished(new Date());
-        entryStart.setAction(ACTION_START);
-        entryStart.setStatus(STATUS_OK);
-        entryStart.setAmount(0);
-        makeOperations(
+        addToSyncJournalAndLogAndNotify(
                 context,
-                entryStart,
-                true,
-                context.getString(ACTION_TEXT[ACTION_START]),
-                RESULT_CODE_START);
+                ACTION_START,
+                STATUS_OK,
+                0,
+                RESULT_CODE_START,
+                true);
 
         // Continuing Progress notifications start.
         final ProgressNotificationHelper notification =
@@ -255,17 +242,13 @@ public final class SyncUtils {
         notification.endProgress();
 
         //
-        final SyncEntry entryFinish = new SyncEntry();
-        entryFinish.setFinished(new Date());
-        entryFinish.setAction(ACTION_COMPLETE);
-        entryFinish.setStatus(STATUS_OK);
-        entryFinish.setAmount(sum);
-        makeOperations(
+        addToSyncJournalAndLogAndNotify(
                 context,
-                entryFinish,
-                true,
-                context.getString(ACTION_TEXT[ACTION_COMPLETE]),
-                RESULT_CODE_SUCCESS);
+                ACTION_COMPLETE,
+                STATUS_OK,
+                sum,
+                RESULT_CODE_SUCCESS,
+                true);
 
         //
         setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_FALSE);
@@ -281,54 +264,52 @@ public final class SyncUtils {
         int counter = 0;
 
         final Cursor cursor = getNewEntries(context);
-        while (cursor.moveToNext()) {
-            final JSONObject jsonNewEntry = ListEntry.getJsonObject(context, cursor);
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                final JSONObject jsonNewEntry = ListEntry.getJsonObject(context, cursor);
 
-            try {
-                final Response<String> response = getNoteApi()
-                        .add(   getSyncIdForCurrentUser(context),
-                                jsonNewEntry.toString())
-                        .execute();
+                try {
+                    final Response<String> response = getNoteApi()
+                            .add(   getSyncIdForCurrentUser(context),
+                                    jsonNewEntry.toString())
+                            .execute();
 
-                if (response.isSuccessful()) {
-                    final String body = response.body();
-                    final JSONObject jsonResponse = new JSONObject(body);
-                    final String status = jsonResponse.optString(API_KEY_STATUS);
+                    if (response.isSuccessful()) {
+                        final String body = response.body();
+                        final JSONObject jsonResponse = new JSONObject(body);
+                        final String status = jsonResponse.optString(API_KEY_STATUS);
 
-                    if (status.equals(API_STATUS_OK)) {
-                        final String newSyncId = jsonResponse.optString(API_KEY_DATA);
-                        final String id = cursor.getString(cursor.getColumnIndex(BASE_COLUMN_ID));
-                        ListDbHelper.updateSyncId(context, id, newSyncId);
-                        counter++;
+                        if (status.equals(API_STATUS_OK)) {
+                            final String newSyncId = jsonResponse.optString(API_KEY_DATA);
+                            final String id = cursor.getString(cursor.getColumnIndex(BASE_COLUMN_ID));
+                            ListDbHelper.updateSyncId(context, id, newSyncId);
+                            counter++;
+
+                        } else {
+                            Log.e(TAG, response.toString());
+                        }
 
                     } else {
                         Log.e(TAG, response.toString());
                     }
 
-                } else {
-                    Log.e(TAG, response.toString());
+                } catch (IOException | JSONException e) {
+                    Log.e(TAG, e.toString());
                 }
-
-            } catch (IOException | JSONException e) {
-                Log.e(TAG, e.toString());
             }
+
+            //
+            cursor.close();
         }
 
-        //
-        cursor.close();
-
         // Add result to journal
-        final SyncEntry entry = new SyncEntry();
-        entry.setFinished(new Date());
-        entry.setAction(ACTION_ADDED_TO_SERVER);
-        entry.setStatus(STATUS_OK);
-        entry.setAmount(counter);
-        makeOperations(
+        addToSyncJournalAndLogAndNotify(
                 context,
-                entry,
-                false,
-                context.getString(ACTION_TEXT[ACTION_ADDED_TO_SERVER]),
-                RESULT_CODE_SUCCESS);
+                ACTION_ADDED_TO_SERVER,
+                STATUS_OK,
+                counter,
+                RESULT_CODE_SUCCESS,
+                false);
 
         return counter;
     }
@@ -342,58 +323,56 @@ public final class SyncUtils {
                 SYNC_DELETED_TABLE_NAME,
                 null);
 
-        while (cursor.moveToNext()) {
-            final String syncId = cursor.getString(cursor.getColumnIndex(COMMON_COLUMN_SYNC_ID));
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                final String syncId = cursor.getString(cursor.getColumnIndex(COMMON_COLUMN_SYNC_ID));
 
-            try {
-                final Response<String> response = getNoteApi()
-                        .delete(getSyncIdForCurrentUser(context),
-                                syncId)
-                        .execute();
+                try {
+                    final Response<String> response = getNoteApi()
+                            .delete(getSyncIdForCurrentUser(context),
+                                    syncId)
+                            .execute();
 
-                if (response.isSuccessful()) {
-                    final String body = response.body();
-                    final JSONObject jsonResponse = new JSONObject(body);
-                    final String status = jsonResponse.optString(API_KEY_STATUS);
+                    if (response.isSuccessful()) {
+                        final String body = response.body();
+                        final JSONObject jsonResponse = new JSONObject(body);
+                        final String status = jsonResponse.optString(API_KEY_STATUS);
 
-                    if (status.equals(API_STATUS_OK)) {
-                        deleteEntryWithSingle(
-                                context,
-                                null,
-                                SYNC_DELETED_TABLE_NAME,
-                                COMMON_COLUMN_SYNC_ID,
-                                syncId,
-                                true);
-                        counter++;
+                        if (status.equals(API_STATUS_OK)) {
+                            deleteEntryWithSingle(
+                                    context,
+                                    null,
+                                    SYNC_DELETED_TABLE_NAME,
+                                    COMMON_COLUMN_SYNC_ID,
+                                    syncId,
+                                    true);
+                            counter++;
+
+                        } else {
+                            Log.e(TAG, response.toString());
+                        }
 
                     } else {
                         Log.e(TAG, response.toString());
                     }
 
-                } else {
-                    Log.e(TAG, response.toString());
+                } catch (IOException | JSONException e) {
+                    Log.e(TAG, e.toString());
                 }
-
-            } catch (IOException | JSONException e) {
-                Log.e(TAG, e.toString());
             }
+
+            //
+            cursor.close();
         }
 
-        //
-        cursor.close();
-
         // Add result to journal
-        final SyncEntry entry = new SyncEntry();
-        entry.setFinished(new Date());
-        entry.setAction(ACTION_DELETED_FROM_SERVER);
-        entry.setStatus(STATUS_OK);
-        entry.setAmount(counter);
-        makeOperations(
+        addToSyncJournalAndLogAndNotify(
                 context,
-                entry,
-                false,
-                context.getString(ACTION_TEXT[ACTION_DELETED_FROM_SERVER]),
-                RESULT_CODE_SUCCESS);
+                ACTION_DELETED_FROM_SERVER,
+                STATUS_OK,
+                counter,
+                RESULT_CODE_SUCCESS,
+                false);
 
         return counter;
     }
@@ -450,94 +429,85 @@ public final class SyncUtils {
                         }
 
                         // Add to local finish.
-                        final SyncEntry addToLocalFinish = new SyncEntry();
-                        addToLocalFinish.setFinished(new Date());
-                        addToLocalFinish.setAction(ACTION_ADDED_TO_LOCAL);
-                        addToLocalFinish.setStatus(STATUS_OK);
-                        addToLocalFinish.setAmount(counterAddedOnLocal);
-                        makeOperations(
+                        addToSyncJournalAndLogAndNotify(
                                 context,
-                                addToLocalFinish,
-                                false,
-                                context.getString(ACTION_TEXT[ACTION_ADDED_TO_LOCAL]),
-                                RESULT_CODE_SUCCESS);
+                                ACTION_ADDED_TO_LOCAL,
+                                STATUS_OK,
+                                counterAddedOnLocal,
+                                RESULT_CODE_SUCCESS,
+                                false);
 
                         // Delete from local and seek changes
                         final Cursor cursor = getEntries(
                                 context,
                                 LIST_ITEMS_TABLE_NAME,
                                 null);
-                        start:
-                        while (cursor.moveToNext()) {
-                            final String syncIdLocal = cursor
-                                    .getString(cursor.getColumnIndex(COMMON_COLUMN_SYNC_ID));
+                        if (cursor != null) {
+                            start:
+                            while (cursor.moveToNext()) {
+                                final String syncIdLocal = cursor
+                                        .getString(cursor.getColumnIndex(COMMON_COLUMN_SYNC_ID));
 
-                            if (syncIdLocal != null) {
-                                for (int i = 0; i < data.length(); i++) {
-                                    final JSONObject jsonServer = data.getJSONObject(i);
-                                    final String syncIdServer = jsonServer
-                                            .optString(LIST_ITEMS_COLUMN_SYNC_ID_JSON, null);
+                                if (syncIdLocal != null) {
+                                    for (int i = 0; i < data.length(); i++) {
+                                        final JSONObject jsonServer = data.getJSONObject(i);
+                                        final String syncIdServer = jsonServer
+                                                .optString(LIST_ITEMS_COLUMN_SYNC_ID_JSON, null);
 
-                                    // If sync id equals.
-                                    if (syncIdLocal.equals(syncIdServer)) {
-                                        final JSONObject jsonLocal =
-                                                ListEntry.getJsonObject(context, cursor);
-                                        final Map<String, String> mapLocal =
-                                                SpCommon.convertJsonToMap(jsonLocal.toString());
-                                        final Map<String, String> mapServer =
-                                                SpCommon.convertJsonToMap(data.getString(i));
-                                        mapServer.remove(API_KEY_ID);
-                                        mapServer.remove(API_KEY_EXTRA);
+                                        // If sync id equals.
+                                        if (syncIdLocal.equals(syncIdServer)) {
+                                            final JSONObject jsonLocal =
+                                                    ListEntry.getJsonObject(context, cursor);
+                                            final Map<String, String> mapLocal =
+                                                    SpCommon.convertJsonToMap(jsonLocal.toString());
+                                            final Map<String, String> mapServer =
+                                                    SpCommon.convertJsonToMap(data.getString(i));
+                                            mapServer.remove(API_KEY_ID);
+                                            mapServer.remove(API_KEY_EXTRA);
 
-                                        // If entries not equals, then add to conflict table.
-                                        if(!mapLocal.equals(mapServer)) {
-                                            insertEntryWithSingleValue(
-                                                    context,
-                                                    null,
-                                                    SYNC_CONFLICT_TABLE_NAME,
-                                                    COMMON_COLUMN_SYNC_ID,
-                                                    syncIdLocal);
-                                            counterConflicting++;
+                                            // Add to conflict table.
+                                            // If entries not equals.
+                                            if(!mapLocal.equals(mapServer)) {
+                                                insertEntryWithSingleValue(
+                                                        context,
+                                                        null,
+                                                        SYNC_CONFLICT_TABLE_NAME,
+                                                        COMMON_COLUMN_SYNC_ID,
+                                                        syncIdLocal);
+                                                counterConflicting++;
+                                            }
+                                            continue start;
                                         }
-                                        continue start;
                                     }
-                                }
 
-                                // Delete from local, if syncId not exists on server
-                                deleteEntry(
-                                        context,
-                                        cursor.getLong(cursor.getColumnIndex(BASE_COLUMN_ID)),
-                                        false);
-                                counterDeletedOnLocal++;
+                                    // Delete from local, if syncId not exists on server
+                                    deleteEntry(
+                                            context,
+                                            cursor.getLong(cursor.getColumnIndex(BASE_COLUMN_ID)),
+                                            false);
+                                    counterDeletedOnLocal++;
+                                }
                             }
+                            cursor.close();
                         }
-                        cursor.close();
 
                         // Delete on local finish
-                        final SyncEntry deleteFromLocalFinish = new SyncEntry();
-                        deleteFromLocalFinish.setFinished(new Date());
-                        deleteFromLocalFinish.setAction(ACTION_DELETED_FROM_LOCAL);
-                        deleteFromLocalFinish.setStatus(STATUS_OK);
-                        deleteFromLocalFinish.setAmount(counterDeletedOnLocal);
-                        makeOperations(
+                        addToSyncJournalAndLogAndNotify(
                                 context,
-                                deleteFromLocalFinish,
-                                false,
-                                context.getString(ACTION_TEXT[ACTION_DELETED_FROM_LOCAL]),
-                                RESULT_CODE_SUCCESS);
+                                ACTION_DELETED_FROM_LOCAL,
+                                STATUS_OK,
+                                counterDeletedOnLocal,
+                                RESULT_CODE_SUCCESS,
+                                false);
 
                         // Conflict finish
-                        final SyncEntry conflictFinish = new SyncEntry();
-                        conflictFinish.setFinished(new Date());
-                        conflictFinish.setAction(ACTION_CONFLICTING_ADDED);
-                        conflictFinish.setStatus(STATUS_OK);
-                        conflictFinish.setAmount(counterConflicting);
-                        makeOperations(
+                        addToSyncJournalAndLogAndNotify(
                                 context,
-                                conflictFinish,
-                                false,
-                                context.getString(ACTION_TEXT[ACTION_CONFLICTING_ADDED]),
-                                RESULT_CODE_SUCCESS);
+                                ACTION_CONFLICTING_ADDED,
+                                STATUS_OK,
+                                counterConflicting,
+                                RESULT_CODE_SUCCESS,
+                                false);
                     }
 
                 } else {
@@ -577,11 +547,10 @@ public final class SyncUtils {
         switch (NetworkUtils.checkNetwork(context)) {
             case NetworkUtils.NETWORK_MOBILE:
                 if (SpUsers.getSyncWifiOnlyForCurrentUser(context)) {
-                    makeOperations(
+                    logAndNotify(
                             context,
-                            null,
-                            true,
                             context.getString(R.string.activity_sync_item_action_delete_all_from_server_no_wifi),
+                            true,
                             RESULT_CODE_FAILED);
                     break;
                 }
@@ -590,11 +559,10 @@ public final class SyncUtils {
                 break;
 
             case NetworkUtils.NETWORK_NO:
-                makeOperations(
+                logAndNotify(
                         context,
-                        null,
-                        true,
                         context.getString(R.string.activity_sync_item_action_delete_all_from_server_no_internet),
+                        true,
                         RESULT_CODE_FAILED);
             default:
                 break;
@@ -604,17 +572,13 @@ public final class SyncUtils {
     private static void deleteAllFromServerPerform(@NonNull final Context context) {
 
         // Start
-        final SyncEntry entryStart = new SyncEntry();
-        entryStart.setFinished(new Date());
-        entryStart.setAction(ACTION_DELETE_ALL_FROM_SERVER_START);
-        entryStart.setStatus(STATUS_OK);
-        entryStart.setAmount(0);
-        makeOperations(
+        addToSyncJournalAndLogAndNotify(
                 context,
-                entryStart,
-                true,
-                context.getString(ACTION_TEXT[ACTION_DELETE_ALL_FROM_SERVER_START]),
-                RESULT_CODE_SUCCESS);
+                ACTION_DELETE_ALL_FROM_SERVER_START,
+                STATUS_OK,
+                0,
+                RESULT_CODE_SUCCESS,
+                true);
 
         // Continuing Progress notifications start.
         final ProgressNotificationHelper notification =
@@ -673,17 +637,13 @@ public final class SyncUtils {
         notification.endProgress();
 
         // Finish
-        final SyncEntry entryFinish = new SyncEntry();
-        entryFinish.setFinished(new Date());
-        entryFinish.setAction(ACTION_DELETED_FROM_SERVER);
-        entryFinish.setStatus(STATUS_OK);
-        entryFinish.setAmount(counter);
-        makeOperations(
+        addToSyncJournalAndLogAndNotify(
                 context,
-                entryFinish,
-                true,
-                context.getString(ACTION_TEXT[ACTION_DELETED_FROM_SERVER]),
-                RESULT_CODE_SUCCESS);
+                ACTION_DELETED_FROM_SERVER,
+                STATUS_OK,
+                counter,
+                RESULT_CODE_SUCCESS,
+                true);
     }
 
 
@@ -691,29 +651,60 @@ public final class SyncUtils {
         ...
      */
 
-    public static boolean makeOperations(
+    /**
+     * @param context       Context.
+     * @param action        See: {@link SyncDbHelper}, ACTION*.
+     * @param status        See: {@link SyncDbHelper}, STATUS*.
+     * @param count         Count of processed entries.
+     * @param resultCode    See: {@link SyncUtils}, RESULT*.
+     * @param showToast     True if show, false if not.
+     */
+    public static void addToSyncJournalAndLogAndNotify(
             @NonNull final Context context,
-            @Nullable final SyncEntry entry,
-            final boolean showToast,
-            @Nullable final String message,
-            final int resultCode) {
+            final int action,
+            final int status,
+            final int count,
+            final int resultCode,
+            final boolean showToast) {
 
-        // to Console.
+        final String message = context.getString(ACTION_TEXT[action]);
+
+        // To sync journal
+        final SyncEntry entry = new SyncEntry();
+        entry.setFinished(new Date());
+        entry.setAction(action);
+        entry.setStatus(status);
+        entry.setAmount(count);
+        SyncDbHelper.insertEntry(context, entry);
+
+        // To Console.
         Log.i(TAG, message);
-
-        // to Database.
-        if (entry != null) {
-            SyncDbHelper.insertEntry(context, entry);
-        }
 
         // Toast
         if (showToast) {
             showToastRunOnUiThread(context, message, Toast.LENGTH_LONG);
         }
 
+        //
         notifyObservers(resultCode);
+    }
 
-        return true;
+    public static void logAndNotify(
+            @NonNull final Context context,
+            @NonNull final String message,
+            final boolean showToast,
+            final int resultCode) {
+
+        // to Console.
+        Log.i(TAG, message);
+
+        // Toast
+        if (showToast) {
+            showToastRunOnUiThread(context, message, Toast.LENGTH_LONG);
+        }
+
+        //
+        notifyObservers(resultCode);
     }
 
     public static boolean checkPendingSyncAndStart(@NonNull final Context context) {

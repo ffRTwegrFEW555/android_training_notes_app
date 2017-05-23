@@ -23,15 +23,15 @@ import android.widget.Toast;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.db.DbQueryBuilder;
+import com.gamaliev.notes.common.network.NetworkUtils;
+import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import com.gamaliev.notes.model.ListEntry;
-import com.gamaliev.notes.model.SyncEntry;
 import com.gamaliev.notes.sync.SyncUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Map;
 
 import retrofit2.Response;
@@ -59,10 +59,9 @@ import static com.gamaliev.notes.sync.SyncUtils.API_KEY_ID;
 import static com.gamaliev.notes.sync.SyncUtils.API_KEY_STATUS;
 import static com.gamaliev.notes.sync.SyncUtils.API_STATUS_OK;
 import static com.gamaliev.notes.sync.SyncUtils.RESULT_CODE_SUCCESS;
-import static com.gamaliev.notes.sync.SyncUtils.makeOperations;
+import static com.gamaliev.notes.sync.SyncUtils.addToSyncJournalAndLogAndNotify;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_LOCAL;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_SERVER;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_TEXT;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.STATUS_OK;
 
 /**
@@ -80,8 +79,12 @@ public class ConflictSelectDialogFragment extends DialogFragment {
     private static final String ARG_POSITION = "position";
 
     @Nullable private View mDialog;
+    @NonNull private Button mServerSaveBtn;
+    @NonNull private Button mLocalSaveBtn;
     @NonNull private String mSyncId;
-    @NonNull private int mPosition;
+    private int mPosition;
+    private boolean mServerEntryLoaded;
+    private boolean mLocalEntryLoaded;
 
 
     /*
@@ -131,9 +134,6 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         // Disable title for more space.
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
-        initServerLayoutAsync();
-        initLocalLayoutAsync();
-
         return mDialog;
     }
 
@@ -150,13 +150,30 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
         getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
 
+        //
         super.onResume();
+
+        //
+        init();
     }
 
 
     /*
         ...
      */
+
+    private void init() {
+        initSaveButtons();
+        initServerLayoutAsync();
+        initLocalLayoutAsync();
+    }
+
+    private void initSaveButtons() {
+        mServerSaveBtn = (Button) mDialog
+                .findViewById(R.id.fragment_dialog_conflict_select_server_save_btn);
+        mLocalSaveBtn = (Button) mDialog
+                .findViewById(R.id.fragment_dialog_conflict_select_local_save_btn);
+    }
 
     private void initServerLayoutAsync() {
         new Thread(new Runnable() {
@@ -169,19 +186,47 @@ public class ConflictSelectDialogFragment extends DialogFragment {
 
     private void initServerLayout() {
 
+        // Check connection.
+        final int networkResult = NetworkUtils.checkNetwork(getContext());
+        switch (networkResult) {
+            case NetworkUtils.NETWORK_MOBILE:
+                if (SpUsers.getSyncWifiOnlyForCurrentUser(getContext())) {
+                    showToastRunOnUiThread(
+                            getContext(),
+                            getString(R.string.fragment_dialog_conflict_select_connection_only_wifi),
+                            Toast.LENGTH_LONG);
+                    dismiss();
+                    return;
+                }
+                break;
+            case NetworkUtils.NETWORK_WIFI:
+                break;
+            case NetworkUtils.NETWORK_NO:
+            default:
+                showToastRunOnUiThread(
+                        getContext(),
+                        getString(R.string.fragment_dialog_conflict_select_connection_no_internet),
+                        Toast.LENGTH_LONG);
+                dismiss();
+                return;
+        }
+
         // Get entry from server.
         try {
             final Response<String> response = getNoteApi()
                     .get(getSyncIdForCurrentUser(getContext()), mSyncId)
                     .execute();
 
+            // If response ok.
             if (response.isSuccessful()) {
                 final JSONObject jsonResponse = new JSONObject(response.body());
                 final String status = jsonResponse.optString(API_KEY_STATUS);
 
+                // If status ok.
                 if (status.equals(API_STATUS_OK)) {
                     final String data = jsonResponse.getString(API_KEY_DATA);
 
+                    // If entry exists.
                     if (!TextUtils.isEmpty(data)) {
                         final Map<String, String> mapServer = convertJsonToMap(data);
                         mapServer.remove(API_KEY_ID);
@@ -210,13 +255,36 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                         });
 
                         // Save button.
-                        final Button serverSaveBtn = (Button) mDialog
-                                .findViewById(R.id.fragment_dialog_conflict_select_server_save_btn);
-                        serverSaveBtn.setOnClickListener(
+                        mServerSaveBtn.setOnClickListener(
                                 getSrvBtnSaveOnClickListener(getActivity(), data));
+                        mServerEntryLoaded = true;
+                        tryEnableButtons();
+                        return;
+
+                    } else {
+                        // If entry not exists.
+                        showToastRunOnUiThread(
+                                getContext(),
+                                getString(R.string.fragment_dialog_conflict_select_connection_server_entry_not_found),
+                                Toast.LENGTH_LONG);
                     }
+                } else {
+                    // If status not ok.
+                    showToastRunOnUiThread(
+                            getContext(),
+                            getString(R.string.fragment_dialog_conflict_select_connection_server_error_request),
+                            Toast.LENGTH_LONG);
                 }
+            } else {
+                // If response not ok.
+                showToastRunOnUiThread(
+                        getContext(),
+                        getString(R.string.fragment_dialog_conflict_select_connection_server_error),
+                        Toast.LENGTH_LONG);
             }
+            // bye-bye.
+            dismiss();
+
         } catch (IOException | JSONException e) {
             Log.e(TAG, e.toString());
         }
@@ -243,6 +311,17 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                 getContext(),
                 LIST_ITEMS_TABLE_NAME,
                 queryBuilder);
+
+        // Check entry exists.
+        if (entryCursor == null || entryCursor.getCount() == 0) {
+            showToastRunOnUiThread(
+                    getContext(),
+                    getString(R.string.fragment_dialog_conflict_select_local_database_error),
+                    Toast.LENGTH_LONG);
+            dismiss();
+            return;
+        }
+
         entryCursor.moveToFirst();
         final JSONObject jsonObject = ListEntry.getJsonObject(getContext(), entryCursor);
         final String textLocal = convertJsonToString(getContext(), jsonObject.toString());
@@ -261,10 +340,10 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         localBodyTv.setText(textLocal);
 
         // Save button.
-        final Button localSaveBtn = (Button) mDialog
-                .findViewById(R.id.fragment_dialog_conflict_select_local_save_btn);
-        localSaveBtn.setOnClickListener(
+        mLocalSaveBtn.setOnClickListener(
                 getLocalBtnSaveOnClickListener(getActivity(), jsonObject.toString()));
+        mLocalEntryLoaded = true;
+        tryEnableButtons();
     }
 
     @NonNull
@@ -329,17 +408,13 @@ public class ConflictSelectDialogFragment extends DialogFragment {
             db.setTransactionSuccessful();
 
             // Add to journal. Add to local finish.
-            final SyncEntry addToLocalFinish = new SyncEntry();
-            addToLocalFinish.setFinished(new Date());
-            addToLocalFinish.setAction(ACTION_ADDED_TO_LOCAL);
-            addToLocalFinish.setStatus(STATUS_OK);
-            addToLocalFinish.setAmount(1);
-            makeOperations(
+            addToSyncJournalAndLogAndNotify(
                     context,
-                    addToLocalFinish,
-                    true,
-                    context.getString(ACTION_TEXT[ACTION_ADDED_TO_LOCAL]),
-                    RESULT_CODE_SUCCESS);
+                    ACTION_ADDED_TO_LOCAL,
+                    STATUS_OK,
+                    1,
+                    RESULT_CODE_SUCCESS,
+                    true);
 
             // Callback
             activity.runOnUiThread(new Runnable() {
@@ -420,17 +495,13 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                     }
 
                     // Add to journal. Add to Server finish.
-                    final SyncEntry addToServerFinish = new SyncEntry();
-                    addToServerFinish.setFinished(new Date());
-                    addToServerFinish.setAction(ACTION_ADDED_TO_SERVER);
-                    addToServerFinish.setStatus(STATUS_OK);
-                    addToServerFinish.setAmount(1);
-                    makeOperations(
+                    addToSyncJournalAndLogAndNotify(
                             context,
-                            addToServerFinish,
-                            true,
-                            context.getString(ACTION_TEXT[ACTION_ADDED_TO_SERVER]),
-                            RESULT_CODE_SUCCESS);
+                            ACTION_ADDED_TO_SERVER,
+                            STATUS_OK,
+                            1,
+                            RESULT_CODE_SUCCESS,
+                            true);
 
                     // Callback
                     activity.runOnUiThread(new Runnable() {
@@ -460,4 +531,17 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         checkConflictExistsAndHideStatusBarNotification(context);
     }
 
+    private void tryEnableButtons() {
+        if (mServerEntryLoaded && mLocalEntryLoaded) {
+            if (mDialog != null && mDialog.isAttachedToWindow()) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mServerSaveBtn.setEnabled(true);
+                        mLocalSaveBtn.setEnabled(true);
+                    }
+                });
+            }
+        }
+    }
 }
