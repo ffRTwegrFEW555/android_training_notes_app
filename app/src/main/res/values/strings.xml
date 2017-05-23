@@ -349,6 +349,7 @@
 
     <!-- Transition -->
     <string name="shared_transition_name_color_box">shared_transition_name_color_box</string>
+    <string name="shared_transition_name_layout">shared_transition_name_layout</string>
 
     <!-- ISO-8601 -->
     <string name="pattern_iso_8601">yyyy-MM-dd\'T\'HH:mm:ssZZZZZ</string>

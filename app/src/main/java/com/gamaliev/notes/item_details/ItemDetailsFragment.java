@@ -267,6 +267,9 @@ public final class ItemDetailsFragment extends Fragment {
         ViewCompat.setTransitionName(
                 mColorView,
                 getString(R.string.shared_transition_name_color_box));
+        ViewCompat.setTransitionName( // TODO: bug. Try remove, when ListView -> RecyclerView
+                mParentView.findViewById(R.id.fragment_item_details_ff_title),
+                getString(R.string.shared_transition_name_layout));
     }
 
     private void initImageUrlValidation() {

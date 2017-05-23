@@ -195,7 +195,9 @@ public class ListFragment extends Fragment implements OnCompleteListener {
                 // Color icon.
                 final View colorIconView = view.findViewById(R.id.fragment_list_item_color);
                 final String colorIconTransName = getString(R.string.shared_transition_name_color_box);
+                final String viewTransName = getString(R.string.shared_transition_name_layout);
                 ViewCompat.setTransitionName(colorIconView, colorIconTransName);
+                ViewCompat.setTransitionName(view, viewTransName); // TODO: bug. Try remove, when ListView -> RecyclerView
 
                 setExitTransition(new Fade());
                 fragment.setEnterTransition(new Fade());
@@ -205,6 +207,7 @@ public class ListFragment extends Fragment implements OnCompleteListener {
                 getActivity()
                         .getSupportFragmentManager()
                         .beginTransaction()
+                        .addSharedElement(view, viewTransName) // TODO: bug. Try remove, when ListView -> RecyclerView
                         .addSharedElement(colorIconView, colorIconTransName)
                         .replace(R.id.activity_main_fragment_container, fragment)
                         .addToBackStack(null)
