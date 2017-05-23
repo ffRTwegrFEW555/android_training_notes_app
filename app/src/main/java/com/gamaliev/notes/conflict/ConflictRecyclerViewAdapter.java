@@ -4,11 +4,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.gamaliev.notes.R;
@@ -54,11 +54,11 @@ public final class ConflictRecyclerViewAdapter
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final CardView cardView = (CardView) LayoutInflater
+        final FrameLayout fl = (FrameLayout) LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.fragment_conflict_item, parent, false);
 
-        return new ViewHolder(cardView);
+        return new ViewHolder(fl);
     }
 
     @Override
@@ -71,7 +71,7 @@ public final class ConflictRecyclerViewAdapter
                 + ": "
                 + syncId);
 
-        holder.mCardView.setOnClickListener(new View.OnClickListener() {
+        holder.mFrameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Launch dialog.
@@ -94,13 +94,13 @@ public final class ConflictRecyclerViewAdapter
      */
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        private final CardView mCardView;
+        private final FrameLayout mFrameLayout;
         private final TextView mTextView;
 
-        private ViewHolder(CardView itemView) {
+        private ViewHolder(FrameLayout itemView) {
             super(itemView);
-            mCardView = itemView;
-            mTextView = (TextView) mCardView.findViewById(R.id.fragment_conflict_item_text_view);
+            mFrameLayout = itemView;
+            mTextView = (TextView) mFrameLayout.findViewById(R.id.fragment_conflict_item_text_view);
         }
     }
 

@@ -13,7 +13,7 @@
 
     <!-- Show conflicted -->
     <item
-        android:id="@+id/menu_sync_show_conflicted"
+        android:id="@+id/menu_sync_show_conflicting"
         android:icon="@drawable/ic_warning_white_24dp"
         android:title="@string/menu_sync_action_show_conflicted"
         android:orderInCategory="20"

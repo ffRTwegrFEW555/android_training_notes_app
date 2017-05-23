@@ -90,23 +90,25 @@ public class ConflictActivity extends AppCompatActivity {
         Status bar notification.
      */
 
-    public static void checkConflictedExistsAndShowNotification(
+    public static void checkConflictExistsAndShowStatusBarNotification(
             @NonNull final Context context) {
 
-        final Cursor cursor = getEntries(
-                context,
-                SYNC_CONFLICT_TABLE_NAME,
-                null);
-
-        if (cursor != null) {
-            if (cursor.getCount() > 0) {
-                showConflictNotification(context);
-            }
-            cursor.close();
+        if (checkConflictingExists(context)) {
+            showConflictStatusBarNotification(context);
+        } else {
+            hideConflictStatusBarNotification(context);
         }
     }
 
-    private static void showConflictNotification(
+    public static void checkConflictExistsAndHideStatusBarNotification(
+            @NonNull final Context context) {
+
+        if (!checkConflictingExists(context)) {
+            hideConflictStatusBarNotification(context);
+        }
+    }
+
+    private static void showConflictStatusBarNotification(
             @NonNull final Context context) {
 
         final Context appContext = context.getApplicationContext();
@@ -128,5 +130,40 @@ public class ConflictActivity extends AppCompatActivity {
         manager.notify(
                 EXTRA_ID_CONFLICT_STATUS_BAR_NOTIFICATION,
                 builder.build());
+    }
+
+    public static void hideConflictStatusBarNotification(
+            @NonNull final Context context) {
+
+        final Context appContext = context.getApplicationContext();
+
+        final NotificationManager manager =
+                (NotificationManager) appContext
+                        .getSystemService(Context.NOTIFICATION_SERVICE);
+
+        manager.cancel(EXTRA_ID_CONFLICT_STATUS_BAR_NOTIFICATION);
+    }
+
+
+    /*
+        Check conflicting exists
+     */
+
+    public static boolean checkConflictingExists(
+            @NonNull final Context context) {
+
+        final Cursor cursor = getEntries(
+                context,
+                SYNC_CONFLICT_TABLE_NAME,
+                null);
+
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                return true;
+            }
+            cursor.close();
+        }
+
+        return false;
     }
 }

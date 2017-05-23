@@ -68,7 +68,7 @@ public class NotesApp extends Application {
 
     private void initSync() {
         SyncUtils.checkPendingSyncAndStart(sAppContext);
-        ConflictActivity.checkConflictedExistsAndShowNotification(sAppContext);
+        ConflictActivity.checkConflictExistsAndShowStatusBarNotification(sAppContext);
     }
 
 

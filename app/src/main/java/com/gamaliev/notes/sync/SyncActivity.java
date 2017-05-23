@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -22,6 +23,7 @@ import com.gamaliev.notes.sync.db.SyncCursorAdapter;
 import com.gamaliev.notes.sync.db.SyncDbHelper;
 
 import static com.gamaliev.notes.common.CommonUtils.showToast;
+import static com.gamaliev.notes.conflict.ConflictActivity.hideConflictStatusBarNotification;
 
 /**
  * @author Vadim Gamaliev
@@ -37,7 +39,7 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
     @NonNull private CursorAdapter mAdapter;
     @NonNull private ListView mListView;
 
-    public static final int REQUEST_CODE_START_CONFLICTED = 0;
+    public static final int REQUEST_CODE_START_CONFLICTING = 0;
 
 
     /*
@@ -70,6 +72,7 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
 
     private void init() {
         initToolbar();
+        initConflictWarning();
         initListView();
     }
 
@@ -85,6 +88,26 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    private void initConflictWarning() {
+        final boolean result = ConflictActivity.checkConflictingExists(getApplicationContext());
+        final View view = findViewById(R.id.activity_sync_conflicting_exists_notification_fl);
+        if (result) {
+            view.setVisibility(View.VISIBLE);
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ConflictActivity.startIntent(
+                            SyncActivity.this,
+                            REQUEST_CODE_START_CONFLICTING);
+                }
+            });
+        } else {
+            view.setVisibility(View.GONE);
+            view.setOnClickListener(null);
+            hideConflictStatusBarNotification(getApplicationContext());
+        }
     }
 
     private void initListView() {
@@ -126,11 +149,11 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
                 SyncUtils.synchronize(getApplicationContext());
                 break;
 
-            // Show conflicted
-            case R.id.menu_sync_show_conflicted:
+            // Show conflicting
+            case R.id.menu_sync_show_conflicting:
                 ConflictActivity.startIntent(
                         this,
-                        REQUEST_CODE_START_CONFLICTED);
+                        REQUEST_CODE_START_CONFLICTING);
                 break;
 
             // Delete all from server button
@@ -181,7 +204,7 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_CANCELED) {
-            if (requestCode == REQUEST_CODE_START_CONFLICTED) {
+            if (requestCode == REQUEST_CODE_START_CONFLICTING) {
                 notifyDataSetChangedAndScrollToEnd();
             }
         }
@@ -196,6 +219,7 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                initConflictWarning();
                 mAdapter.changeCursor(SyncDbHelper.getAll(getApplicationContext()));
                 mAdapter.notifyDataSetChanged();
                 scrollListViewToBottom();

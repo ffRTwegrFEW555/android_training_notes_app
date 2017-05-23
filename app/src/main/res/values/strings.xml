@@ -180,6 +180,9 @@
     <!-- Activity -->
     <string name="activity_sync">Synchronization</string>
 
+    <!-- Conflict warning -->
+    <string name="activity_sync_conflicting_exists_notification_title_tv_text">Conflicting is exists, tap to check</string>
+
     <!-- Menu options -->
     <string name="menu_sync_action_synchronize">Synchronize</string>
     <string name="menu_sync_action_show_conflicted">Show conflicted</string>

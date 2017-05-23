@@ -53,7 +53,7 @@ public class SyncDbHelper {
     public static final int ACTION_START                = 7;
     public static final int ACTION_COMPLETE             = 8;
     public static final int ACTION_DELETE_ALL_FROM_SERVER_START = 9;
-    public static final int ACTION_CONFLICTED_ADDED     = 10;
+    public static final int ACTION_CONFLICTING_ADDED    = 10;
     public static final int ACTION_PENDING_START_NO_WIFI = 11;
     public static final int ACTION_PENDING_START_NO_INET = 12;
 

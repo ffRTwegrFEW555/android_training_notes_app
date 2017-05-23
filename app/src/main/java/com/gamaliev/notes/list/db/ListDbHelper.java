@@ -122,7 +122,7 @@ public class ListDbHelper {
             final boolean updateBySyncId) throws SQLiteException {
 
         // Variables
-        final String syncId         = entry.getSyncId() == null
+        final String syncId         = (entry.getSyncId() == null || entry.getSyncId() == 0)
                 ? null
                 : entry.getSyncId().toString();
         final String title          = entry.getTitle();
@@ -210,7 +210,7 @@ public class ListDbHelper {
 
             // Variables
             final long id               = entry.getId();
-            final String syncId         = entry.getSyncId() == null
+            final String syncId         = (entry.getSyncId() == null || entry.getSyncId() == 0)
                     ? null
                     : entry.getSyncId().toString();
             final String title          = entry.getTitle();
@@ -420,7 +420,7 @@ public class ListDbHelper {
                     }
                 }
 
-                // Delete from conflicted table.
+                // Delete from conflicting table.
                 if (syncId != null && syncId > 0) {
                     deleteEntryWithSingle(
                             context,

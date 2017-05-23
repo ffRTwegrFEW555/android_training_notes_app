@@ -50,7 +50,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPendingSyncStatu
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getProgressNotificationTimerForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.setPendingSyncStatusForCurrentUser;
-import static com.gamaliev.notes.conflict.ConflictActivity.checkConflictedExistsAndShowNotification;
+import static com.gamaliev.notes.conflict.ConflictActivity.checkConflictExistsAndShowStatusBarNotification;
 import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntry;
 import static com.gamaliev.notes.list.db.ListDbHelper.getNewEntries;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
@@ -58,7 +58,7 @@ import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_LOCAL;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_SERVER;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_COMPLETE;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_CONFLICTED_ADDED;
+import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_CONFLICTING_ADDED;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_DELETED_FROM_LOCAL;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_DELETED_FROM_SERVER;
 import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_DELETE_ALL_FROM_SERVER_START;
@@ -248,8 +248,8 @@ public final class SyncUtils {
         int updated = synchronizeFromServer(context);
         int sum     = added + deleted + updated;
 
-        // Notify, if conflicted exists.
-        checkConflictedExistsAndShowNotification(context);
+        // Notify, if conflict exists.
+        checkConflictExistsAndShowStatusBarNotification(context);
 
         // Notification complete
         notification.endProgress();
@@ -402,7 +402,7 @@ public final class SyncUtils {
 
         //
         int counterAddedOnLocal     = 0;
-        int counterConflicted       = 0;
+        int counterConflicting      = 0;
         int counterDeletedOnLocal   = 0;
 
         //
@@ -497,7 +497,7 @@ public final class SyncUtils {
                                                     SYNC_CONFLICT_TABLE_NAME,
                                                     COMMON_COLUMN_SYNC_ID,
                                                     syncIdLocal);
-                                            counterConflicted++;
+                                            counterConflicting++;
                                         }
                                         continue start;
                                     }
@@ -526,17 +526,17 @@ public final class SyncUtils {
                                 context.getString(ACTION_TEXT[ACTION_DELETED_FROM_LOCAL]),
                                 RESULT_CODE_SUCCESS);
 
-                        // Conflicted finish
-                        final SyncEntry conflictedFinish = new SyncEntry();
-                        conflictedFinish.setFinished(new Date());
-                        conflictedFinish.setAction(ACTION_CONFLICTED_ADDED);
-                        conflictedFinish.setStatus(STATUS_OK);
-                        conflictedFinish.setAmount(counterConflicted);
+                        // Conflict finish
+                        final SyncEntry conflictFinish = new SyncEntry();
+                        conflictFinish.setFinished(new Date());
+                        conflictFinish.setAction(ACTION_CONFLICTING_ADDED);
+                        conflictFinish.setStatus(STATUS_OK);
+                        conflictFinish.setAmount(counterConflicting);
                         makeOperations(
                                 context,
-                                conflictedFinish,
+                                conflictFinish,
                                 false,
-                                context.getString(ACTION_TEXT[ACTION_CONFLICTED_ADDED]),
+                                context.getString(ACTION_TEXT[ACTION_CONFLICTING_ADDED]),
                                 RESULT_CODE_SUCCESS);
                     }
 
@@ -554,7 +554,7 @@ public final class SyncUtils {
 
         //
         return counterAddedOnLocal
-                + counterConflicted
+                + counterConflicting
                 + counterDeletedOnLocal;
     }
 

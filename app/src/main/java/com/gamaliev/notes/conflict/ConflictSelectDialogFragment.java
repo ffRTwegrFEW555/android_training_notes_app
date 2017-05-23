@@ -50,6 +50,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToString;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertMapToJson;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
+import static com.gamaliev.notes.conflict.ConflictActivity.checkConflictExistsAndHideStatusBarNotification;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
 import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
 import static com.gamaliev.notes.sync.SyncUtils.API_KEY_DATA;
@@ -310,7 +311,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                     db,
                     true);
 
-            // Delete from conflicted table.
+            // Delete from conflict table.
             final boolean result = deleteEntryWithSingle(
                     context,
                     db,
@@ -344,10 +345,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    getTargetFragment().onActivityResult(
-                            getTargetRequestCode(),
-                            RESULT_OK,
-                            ConflictFragment.getResultIntent(mPosition));
+                    makeFinishOperations(activity);
                 }
             });
 
@@ -407,7 +405,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
 
                 // If json OK
                 if (status.equals(API_STATUS_OK)) {
-                    // Delete from conflicted table.
+                    // Delete from conflict table.
                     final boolean result = deleteEntryWithSingle(
                             context,
                             null,
@@ -438,10 +436,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            getTargetFragment().onActivityResult(
-                                    getTargetRequestCode(),
-                                    RESULT_OK,
-                                    ConflictFragment.getResultIntent(mPosition));
+                            makeFinishOperations(activity);
                         }
                     });
                 }
@@ -451,4 +446,18 @@ public class ConflictSelectDialogFragment extends DialogFragment {
             Log.e(TAG, e.toString());
         }
     }
+
+
+    /*
+        ...
+     */
+
+    private void makeFinishOperations(@NonNull final Context context) {
+        getTargetFragment().onActivityResult(
+                getTargetRequestCode(),
+                RESULT_OK,
+                ConflictFragment.getResultIntent(mPosition));
+        checkConflictExistsAndHideStatusBarNotification(context);
+    }
+
 }
