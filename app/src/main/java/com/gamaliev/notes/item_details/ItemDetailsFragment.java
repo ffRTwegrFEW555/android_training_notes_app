@@ -10,60 +10,68 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
+import android.support.transition.ChangeBounds;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.transition.TransitionInflater;
+import android.transition.AutoTransition;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.colorpicker.ColorPickerActivity;
-import com.gamaliev.notes.list.ListActivity;
+import com.gamaliev.notes.list.ListFragment;
 import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.model.ListEntry;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import static android.app.Activity.RESULT_OK;
 import static com.gamaliev.notes.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.notes.common.CommonUtils.getResourceColorApi;
 import static com.gamaliev.notes.common.CommonUtils.getStringDateFormatSqlite;
 import static com.gamaliev.notes.common.CommonUtils.showToast;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
-import static com.gamaliev.notes.list.ListActivity.RESULT_CODE_EXTRA_ADDED;
-import static com.gamaliev.notes.list.ListActivity.RESULT_CODE_EXTRA_DELETED;
-import static com.gamaliev.notes.list.ListActivity.RESULT_CODE_EXTRA_EDITED;
+import static com.gamaliev.notes.list.ListFragment.RESULT_CODE_EXTRA_ADDED;
+import static com.gamaliev.notes.list.ListFragment.RESULT_CODE_EXTRA_DELETED;
+import static com.gamaliev.notes.list.ListFragment.RESULT_CODE_EXTRA_EDITED;
 
-public final class ItemDetailsActivity extends AppCompatActivity {
+public final class ItemDetailsFragment extends Fragment {
 
     /* Logger */
-    private static final String TAG = ItemDetailsActivity.class.getSimpleName();
+    private static final String TAG = ItemDetailsFragment.class.getSimpleName();
 
     /* Action */
-    private static final String ACTION_ADD  = "ItemDetailsActivity.ACTION_ADD";
-    private static final String ACTION_EDIT = "ItemDetailsActivity.ACTION_EDIT";
+    public static final String ACTION      = "ItemDetailsFragment.ACTION";
+    public static final String ACTION_ADD  = "ItemDetailsFragment.ACTION_ADD";
+    public static final String ACTION_EDIT = "ItemDetailsFragment.ACTION_EDIT";
 
     /* Extra */
-    private static final String EXTRA_ID    = "ItemDetailsActivity.EXTRA_ID";
-    private static final String EXTRA_ENTRY = "ItemDetailsActivity.EXTRA_ENTRY";
+    private static final String EXTRA_ID    = "ItemDetailsFragment.EXTRA_ID";
+    private static final String EXTRA_ENTRY = "ItemDetailsFragment.EXTRA_ENTRY";
 
     /* Request code */
     private static final int REQUEST_CODE_COLOR = 1;
 
-    /* */
+    /* ... */
+    @NonNull private View mParentView;
     @NonNull private ActionBar mActionBar;
     @NonNull private View mColorView;
     @NonNull private EditText mTitleEditText;
@@ -73,58 +81,71 @@ public final class ItemDetailsActivity extends AppCompatActivity {
     @NonNull private TextInputLayout mImageUrlEditTextLayout;
     @NonNull private ListEntry mEntry;
     @NonNull private Menu mMenu;
+    @NonNull private String mAction;
     @Nullable private Bundle mSavedInstanceState;
     private int mColor;
+    private long mId;
 
 
     /*
         Init
      */
 
+    public static ItemDetailsFragment newInstance(
+            @NonNull final String action,
+            final long id) {
+
+        final Bundle bundle = new Bundle();
+        bundle.putString(ACTION, action);
+        bundle.putLong(EXTRA_ID, id);
+
+        final ItemDetailsFragment fragment = new ItemDetailsFragment();
+        fragment.setArguments(bundle);
+        
+        return fragment;
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_item_details);
+        mAction = getArguments().getString(ACTION);
+        mId = getArguments().getLong(EXTRA_ID);
+        setHasOptionsMenu(true);
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(
+            LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
+
+        mParentView = inflater.inflate(
+                R.layout.fragment_item_details,
+                container,
+                false);
+
         init(savedInstanceState);
+        return mParentView;
     }
 
     private void init(@Nullable final Bundle savedInstanceState) {
-        initToolbar();
-
-        mActionBar      = getSupportActionBar();
-        mColorView      = findViewById(R.id.activity_item_details_color);
-        mTitleEditText  = (EditText) findViewById(R.id.activity_item_details_title_text_view);
-        mDescEditText   = (EditText) findViewById(R.id.activity_item_details_description_text_view);
-        mImageUrlEditText = (EditText) findViewById(R.id.activity_item_details_image_url_text_view);
-        mImageUrlEditTextLayout = (TextInputLayout) findViewById(
-                R.id.activity_item_details_image_url_text_input_layout);
-        mImageView      = (ImageView) findViewById(R.id.activity_item_details_image_view);
+        mActionBar      = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        mColorView      = mParentView.findViewById(R.id.fragment_item_details_color);
+        mTitleEditText  = (EditText) mParentView.findViewById(R.id.fragment_item_details_title_text_view);
+        mDescEditText   = (EditText) mParentView.findViewById(R.id.fragment_item_details_description_text_view);
+        mImageUrlEditText = (EditText) mParentView.findViewById(R.id.fragment_item_details_image_url_text_view);
+        mImageUrlEditTextLayout = (TextInputLayout) mParentView.findViewById(
+                R.id.fragment_item_details_image_url_text_input_layout);
+        mImageView      = (ImageView) mParentView.findViewById(R.id.fragment_item_details_image_view);
         mSavedInstanceState = savedInstanceState;
 
-        enableEnterSharedTransition();
         setColorBoxListener();
         processAction();
+        initSharedTransition();
         initImageUrlValidation();
         initImageView();
         initRefreshImageButton();
-    }
-
-    private void initToolbar() {
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.activity_item_details_toolbar);
-        setSupportActionBar(toolbar);
-    }
-
-    /**
-     * Enable shared transition. Work if API >= 21.
-     */
-    private void enableEnterSharedTransition() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setSharedElementEnterTransition(
-                    TransitionInflater
-                            .from(this)
-                            .inflateTransition(R.transition.transition_activity_1));
-            findViewById(android.R.id.content).invalidate();
-        }
     }
 
     /**
@@ -145,17 +166,17 @@ public final class ItemDetailsActivity extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
                     // Prepare.
-                    View colorBox = findViewById(R.id.activity_item_details_color);
+                    final View colorBox = mParentView.findViewById(R.id.fragment_item_details_color);
                     colorBox.setTransitionName(
                             getString(R.string.shared_transition_name_color_box));
                     Pair<View, String> icon = new Pair<>(colorBox, colorBox.getTransitionName());
                     ActivityOptionsCompat aoc =
                             ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                    ItemDetailsActivity.this, icon);
+                                    getActivity(), icon);
 
                     // Start activity for result with shared transition animation.
                     ColorPickerActivity.startIntent(
-                            ItemDetailsActivity.this,
+                            getActivity(),
                             mColor,
                             REQUEST_CODE_COLOR,
                             aoc.toBundle());
@@ -163,7 +184,7 @@ public final class ItemDetailsActivity extends AppCompatActivity {
                 } else {
                     // Start activity for result without shared transition animation.
                     ColorPickerActivity.startIntent(
-                            ItemDetailsActivity.this,
+                            getActivity(),
                             mColor,
                             REQUEST_CODE_COLOR,
                             null);
@@ -178,17 +199,17 @@ public final class ItemDetailsActivity extends AppCompatActivity {
      * See also: {@link #ACTION_ADD}, {@link #ACTION_EDIT}.
      */
     private void processAction() {
-        switch (getIntent().getAction()) {
+        switch (mAction) {
 
             // Start activity with Add action.
             case ACTION_ADD:
-                mActionBar.setTitle(getString(R.string.activity_item_details_title_add));
+                mActionBar.setTitle(getString(R.string.fragment_item_details_title_add));
 
                 if (mSavedInstanceState == null) {
 
                     // On first start activity.
                     // Set color box with default color, and create new entry.
-                    refreshColorBox(getDefaultColor(this));
+                    refreshColorBox(getDefaultColor(getContext()));
                     mEntry = new ListEntry();
                     refreshEntry();
                 } else {
@@ -202,13 +223,12 @@ public final class ItemDetailsActivity extends AppCompatActivity {
 
             // Start activity with Edit action.
             case ACTION_EDIT:
-                mActionBar.setTitle(getString(R.string.activity_item_details_title_edit));
+                mActionBar.setTitle(getString(R.string.fragment_item_details_title_edit));
 
                 if (mSavedInstanceState == null) {
 
                     // On first start activity. Get entry from database, with given id.
-                    final long id = getIntent().getLongExtra(EXTRA_ID, -1);
-                    mEntry = ListDbHelper.getEntry(this, id);
+                    mEntry = ListDbHelper.getEntry(getContext(), mId);
 
                     // If received object and id is not null.
                     // Else finish.
@@ -217,15 +237,14 @@ public final class ItemDetailsActivity extends AppCompatActivity {
                         fillActivityViews();
 
                         // Update viewed date.
-                        ListDbHelper.updateEntry(this, mEntry, LIST_ITEMS_COLUMN_VIEWED);
+                        ListDbHelper.updateEntry(getContext(), mEntry, LIST_ITEMS_COLUMN_VIEWED);
 
                     } else {
-                        setResult(RESULT_CANCELED, null);
                         finish();
-                        final String error = getString(R.string.activity_item_details_edit_mode_wrong_id);
+                        final String error = getString(R.string.fragment_item_details_edit_mode_wrong_id);
                         Log.e(TAG, error);
                         showToast(
-                                this,
+                                getContext(),
                                 error,
                                 Toast.LENGTH_LONG);
                     }
@@ -242,6 +261,12 @@ public final class ItemDetailsActivity extends AppCompatActivity {
             default:
                 break;
         }
+    }
+
+    private void initSharedTransition() {
+        ViewCompat.setTransitionName(
+                mColorView,
+                getString(R.string.shared_transition_name_color_box));
     }
 
     private void initImageUrlValidation() {
@@ -264,8 +289,8 @@ public final class ItemDetailsActivity extends AppCompatActivity {
     }
 
     private void initImageView() {
-        final View loadingProgressBar = findViewById(R.id.activity_item_details_image_view_progress);
-        final View errorImageView = findViewById(R.id.activity_item_details_image_view_error);
+        final View loadingProgressBar = mParentView.findViewById(R.id.fragment_item_details_image_view_progress);
+        final View errorImageView = mParentView.findViewById(R.id.fragment_item_details_image_view_error);
         final String pathToImage = mImageUrlEditText.getText().toString();
 
         if (!TextUtils.isEmpty(pathToImage)) {
@@ -273,7 +298,7 @@ public final class ItemDetailsActivity extends AppCompatActivity {
             mImageView.setVisibility(View.VISIBLE);
             errorImageView.setVisibility(View.GONE);
 
-            Picasso.with(this)
+            Picasso.with(getContext())
                     .load(pathToImage)
                     .fit()
                     .centerInside()
@@ -299,7 +324,7 @@ public final class ItemDetailsActivity extends AppCompatActivity {
     }
 
     private void initRefreshImageButton() {
-        findViewById(R.id.activity_item_details_image_url_refresh_button)
+        mParentView.findViewById(R.id.fragment_item_details_image_url_refresh_button)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -318,7 +343,7 @@ public final class ItemDetailsActivity extends AppCompatActivity {
 
         if (!Patterns.WEB_URL.matcher(url).matches()) {
             mImageUrlEditTextLayout.setError(
-                    getString(R.string.activity_item_details_image_url_error));
+                    getString(R.string.fragment_item_details_image_url_error));
             return true;
 
         } else {
@@ -370,9 +395,9 @@ public final class ItemDetailsActivity extends AppCompatActivity {
     private GradientDrawable getGradientDrawableCircleWithBorder(final int color) {
         final GradientDrawable g = new GradientDrawable();
         g.setStroke(
-                (int) getResources().getDimension(R.dimen.activity_item_details_ff_color_stroke_width),
-                getResourceColorApi(this, android.R.color.primary_text_dark));
-        g.setCornerRadius(getResources().getDimension(R.dimen.activity_item_details_ff_color_radius));
+                (int) getResources().getDimension(R.dimen.fragment_item_details_ff_color_stroke_width),
+                getResourceColorApi(getContext(), android.R.color.primary_text_dark));
+        g.setCornerRadius(getResources().getDimension(R.dimen.fragment_item_details_ff_color_radius));
         g.setColor(color);
         return g;
     }
@@ -392,7 +417,7 @@ public final class ItemDetailsActivity extends AppCompatActivity {
             @NonNull final Context context,
             final int requestCode) {
 
-        Intent starter = new Intent(context, ItemDetailsActivity.class);
+        Intent starter = new Intent(context, ItemDetailsFragment.class);
         starter.setAction(ACTION_ADD);
         ((Activity) context).startActivityForResult(starter, requestCode);
     }
@@ -403,8 +428,8 @@ public final class ItemDetailsActivity extends AppCompatActivity {
      * @param id            Id of entry, that link with intent, see: {@link #EXTRA_ID}.
      * @param requestCode   This code will be returned in onActivityResult() when the activity exits.
      * @param bundle        Additional options for how the Activity should be started.
-     *                      If null, then start {@link android.app.Activity#startActivityForResult(Intent, int)},
-     *                      otherwise start {@link android.app.Activity#startActivityForResult(Intent, int, Bundle)},
+     *                      If null, then start {@link Activity#startActivityForResult(Intent, int)},
+     *                      otherwise start {@link Activity#startActivityForResult(Intent, int, Bundle)},
      * See also: {@link #ACTION_EDIT}.
      */
     public static void startEdit(
@@ -413,7 +438,7 @@ public final class ItemDetailsActivity extends AppCompatActivity {
             final int requestCode,
             @Nullable final Bundle bundle) {
 
-        Intent starter = new Intent(context, ItemDetailsActivity.class);
+        Intent starter = new Intent(context, ItemDetailsFragment.class);
         starter.setAction(ACTION_EDIT);
         starter.putExtra(EXTRA_ID, id);
         if (bundle == null) {
@@ -426,7 +451,7 @@ public final class ItemDetailsActivity extends AppCompatActivity {
     /**
      * @param color Color.
      * @return Intent, with given color.
-     * See {@link com.gamaliev.notes.colorpicker.ColorPickerActivity#EXTRA_COLOR}
+     * See {@link ColorPickerActivity#EXTRA_COLOR}
      */
     @NonNull
     public static Intent getResultColorIntent(final int color) {
@@ -439,14 +464,14 @@ public final class ItemDetailsActivity extends AppCompatActivity {
      * If color was selected, then refresh activity views.
      */
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_COLOR && resultCode == RESULT_OK) {
             if (data != null) {
 
                 // Get selected color. If null, using default color.
                 int color = data.getIntExtra(
                         ColorPickerActivity.EXTRA_COLOR,
-                        getDefaultColor(ItemDetailsActivity.this));
+                        getDefaultColor(getContext()));
 
                 // Update entry, then activity views.
                 mEntry.setColor(color);
@@ -460,25 +485,18 @@ public final class ItemDetailsActivity extends AppCompatActivity {
         Options menu
      */
 
-    /**
-     * Inflate action bar menu.
-     */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         mMenu = menu;
-        getMenuInflater().inflate(R.menu.menu_list_item_details, menu);
+        inflater.inflate(R.menu.menu_list_item_details, menu);
 
         // If "edit action", then set info and delete buttons to visible.
-        if (ACTION_EDIT.equals(getIntent().getAction())) {
+        if (ACTION_EDIT.equals(mAction)) {
             menu.findItem(R.id.menu_list_item_details_info).setVisible(true);
             menu.findItem(R.id.menu_list_item_details_delete).setVisible(true);
         }
-        return super.onCreateOptionsMenu(menu);
     }
 
-    /**
-     * Action bar menu item selection handler
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -487,7 +505,7 @@ public final class ItemDetailsActivity extends AppCompatActivity {
             // Create database -> process action -> close database.
             case R.id.menu_list_item_details_done:
 
-                switch (getIntent().getAction()) {
+                switch (mAction) {
 
                     // If new, then add to database, and finish activity with RESULT_OK.
                     case ACTION_ADD:
@@ -537,28 +555,28 @@ public final class ItemDetailsActivity extends AppCompatActivity {
         // Create message.
         final StringBuilder infoMessage = new StringBuilder();
         infoMessage
-                .append(getString(R.string.activity_item_details_info_dialog_message_created))
+                .append(getString(R.string.fragment_item_details_info_dialog_message_created))
                 .append("\n")
-                .append(getStringDateFormatSqlite(this, mEntry.getCreated(), false))
+                .append(getStringDateFormatSqlite(getContext(), mEntry.getCreated(), false))
                 .append("\n\n")
-                .append(getString(R.string.activity_item_details_info_dialog_message_edited))
+                .append(getString(R.string.fragment_item_details_info_dialog_message_edited))
                 .append("\n")
-                .append(getStringDateFormatSqlite(this, mEntry.getEdited(), false))
+                .append(getStringDateFormatSqlite(getContext(), mEntry.getEdited(), false))
                 .append("\n\n")
-                .append(getString(R.string.activity_item_details_info_dialog_message_viewed))
+                .append(getString(R.string.fragment_item_details_info_dialog_message_viewed))
                 .append("\n")
-                .append(getStringDateFormatSqlite(this, mEntry.getViewed(), false))
+                .append(getStringDateFormatSqlite(getContext(), mEntry.getViewed(), false))
                 .append("\n\n")
-                .append(getString(R.string.activity_item_details_info_dialog_message_sync_id))
+                .append(getString(R.string.fragment_item_details_info_dialog_message_sync_id))
                 .append("\n")
                 .append(mEntry.getSyncId());
 
         // Create alert dialog.
-        final AlertDialog.Builder builder = new AlertDialog.Builder(ItemDetailsActivity.this);
-        builder .setTitle(getString(R.string.activity_item_details_info_dialog_title))
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder .setTitle(getString(R.string.fragment_item_details_info_dialog_title))
                 .setMessage(infoMessage)
                 .setNegativeButton(
-                        getString(R.string.activity_item_details_info_dialog_button_ok),
+                        getString(R.string.fragment_item_details_info_dialog_button_ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
@@ -576,10 +594,10 @@ public final class ItemDetailsActivity extends AppCompatActivity {
      */
     private void showConfirmDeleteDialog() {
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(ItemDetailsActivity.this);
-        builder .setTitle(getString(R.string.activity_item_details_delete_dialog_title))
-                .setMessage(getString(R.string.activity_item_details_delete_dialog_message))
-                .setPositiveButton(getString(R.string.activity_item_details_delete_dialog_button_ok),
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder .setTitle(getString(R.string.fragment_item_details_delete_dialog_title))
+                .setMessage(getString(R.string.fragment_item_details_delete_dialog_message))
+                .setPositiveButton(getString(R.string.fragment_item_details_delete_dialog_button_ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 //
@@ -589,7 +607,7 @@ public final class ItemDetailsActivity extends AppCompatActivity {
                             }
                         })
                 .setNegativeButton(
-                        getString(R.string.activity_item_details_delete_dialog_button_cancel),
+                        getString(R.string.fragment_item_details_delete_dialog_button_cancel),
                         null);
 
         final AlertDialog alert = builder.create();
@@ -600,9 +618,9 @@ public final class ItemDetailsActivity extends AppCompatActivity {
      * Show progress bar, hide menu items, open database,
      * perform action in async mode, return result, finish activity.
      * @param resultCode    See:
-     *                      {@link com.gamaliev.notes.list.ListActivity#RESULT_CODE_EXTRA_ADDED},
-     *                      {@link com.gamaliev.notes.list.ListActivity#RESULT_CODE_EXTRA_EDITED},
-     *                      {@link com.gamaliev.notes.list.ListActivity#RESULT_CODE_EXTRA_DELETED},
+     *                      {@link ListFragment#RESULT_CODE_EXTRA_ADDED},
+     *                      {@link ListFragment#RESULT_CODE_EXTRA_EDITED},
+     *                      {@link ListFragment#RESULT_CODE_EXTRA_DELETED},
      */
     private void startActionAsyncTask(final int resultCode) {
         //
@@ -619,7 +637,7 @@ public final class ItemDetailsActivity extends AppCompatActivity {
                     case RESULT_CODE_EXTRA_ADDED:
                         refreshEntry();
                         ListDbHelper.insertUpdateEntry(
-                                ItemDetailsActivity.this,
+                                getContext(),
                                 mEntry,
                                 false);
                         break;
@@ -627,29 +645,21 @@ public final class ItemDetailsActivity extends AppCompatActivity {
                     case RESULT_CODE_EXTRA_EDITED:
                         refreshEntry();
                         ListDbHelper.updateEntry(
-                                ItemDetailsActivity.this,
+                                getContext(),
                                 mEntry,
                                 LIST_ITEMS_COLUMN_EDITED);
                         break;
 
                     case RESULT_CODE_EXTRA_DELETED:
-                        ListDbHelper.deleteEntry(ItemDetailsActivity.this, mEntry.getId(), true);
+                        ListDbHelper.deleteEntry(getContext(), mEntry.getId(), true);
                         break;
 
                     default:
                         break;
                 }
 
-                // Finish activity with result.
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setResult(
-                                RESULT_OK,
-                                ListActivity.getResultIntent(resultCode));
-                        finish();
-                    }
-                });
+                // Finish.
+                finish();
             }
         });
         thread.start();
@@ -657,9 +667,9 @@ public final class ItemDetailsActivity extends AppCompatActivity {
 
     private void showProgressBarAndHideMenuItems() {
         // Replace color box with progress bar.
-        findViewById(R.id.activity_item_details_color)
+        mParentView.findViewById(R.id.fragment_item_details_color)
                 .setVisibility(View.GONE);
-        findViewById(R.id.activity_item_details_progress_bar_replacer)
+        mParentView.findViewById(R.id.fragment_item_details_progress_bar_replacer)
                 .setVisibility(View.VISIBLE);
 
         // Hide menu items.
@@ -674,8 +684,17 @@ public final class ItemDetailsActivity extends AppCompatActivity {
      */
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         outState.putParcelable(EXTRA_ENTRY, mEntry);
         super.onSaveInstanceState(outState);
+    }
+
+
+    /*
+        ...
+     */
+
+    private void finish() {
+        getFragmentManager().popBackStack();
     }
 }

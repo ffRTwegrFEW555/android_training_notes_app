@@ -7,7 +7,7 @@
     <!--                -->
 
     <!-- Filter / sort dialog -->
-    <fraction name="activity_item_details_delete_dialog_date_alpha_on">100%</fraction>
-    <fraction name="activity_item_details_delete_dialog_date_alpha_off">30%</fraction>
+    <fraction name="fragment_list_filter_dialog_date_alpha_on">100%</fraction>
+    <fraction name="fragment_list_filter_dialog_date_alpha_off">30%</fraction>
 
 </resources>

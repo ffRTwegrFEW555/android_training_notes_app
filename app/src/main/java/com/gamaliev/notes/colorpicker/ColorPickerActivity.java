@@ -25,7 +25,6 @@ import android.widget.TextView;
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.colorpicker.db.ColorPickerDbHelper;
 import com.gamaliev.notes.common.SwitchableHorizontalScrollView;
-import com.gamaliev.notes.item_details.ItemDetailsActivity;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -260,7 +259,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         // Return RESULT_OK and selected color.
-                        setResult(RESULT_OK, ItemDetailsActivity.getResultColorIntent(mResultColor));
+                        // setResult(RESULT_OK, ItemDetailsActivity.getResultColorIntent(mResultColor));
                         finish();
                     }
                 });
@@ -284,7 +283,7 @@ public final class ColorPickerActivity extends AppCompatActivity {
             getWindow().setSharedElementEnterTransition(
                     TransitionInflater
                             .from(this)
-                            .inflateTransition(R.transition.transition_activity_1));
+                            .inflateTransition(R.transition.transition_1));
             getWindow().setSharedElementReturnTransition(null);
             findViewById(android.R.id.content).invalidate();
         }

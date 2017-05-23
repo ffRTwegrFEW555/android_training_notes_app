@@ -55,7 +55,7 @@ import static com.gamaliev.notes.common.db.DbHelper.insertEntryWithSingleValue;
 import static com.gamaliev.notes.common.db.DbQueryBuilder.OPERATOR_BETWEEN;
 import static com.gamaliev.notes.common.db.DbQueryBuilder.OPERATOR_EQUALS;
 import static com.gamaliev.notes.common.db.DbQueryBuilder.OPERATOR_LIKE;
-import static com.gamaliev.notes.list.ListActivity.SEARCH_COLUMNS;
+import static com.gamaliev.notes.list.ListFragment.SEARCH_COLUMNS;
 
 /**
  * @author Vadim Gamaliev
@@ -453,7 +453,7 @@ public class ListDbHelper {
     }
 
     /**
-     * Delete all rows from list table. See: {@link com.gamaliev.notes.list.ListActivity}
+     * Delete all rows from list table.
      * @return true if ok, otherwise false.
      */
     public static boolean removeAllEntries(
@@ -487,7 +487,7 @@ public class ListDbHelper {
     }
 
     /**
-     * Add mock entries in list activity. See: {@link com.gamaliev.notes.list.ListActivity}
+     * Add mock entries.
      * @return Number of added entries. If error, then return "-1".
      */
     public static int addMockEntries(

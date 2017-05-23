@@ -12,8 +12,6 @@
     <!-- Notification -->
     <integer name="activity_color_picker_vibration_duration">200</integer>
     <integer name="activity_color_picker_notification_interval_border_reaches">1000</integer>
-    <integer name="activity_list_notification_delay">500</integer>
-    <integer name="activity_list_notification_delay_auto_close">2000</integer>
 
     <!-- Result box -->
     <integer name="activity_color_picker_result_box_outer_alpha_percent">10</integer>
@@ -32,10 +30,12 @@
 
 
     <!--                -->
-    <!-- Activity List  -->
+    <!-- Fragment List  -->
     <!--                -->
 
-    <!-- Other -->
+    <!-- Notification -->
+    <integer name="fragment_list_notification_delay">500</integer>
+    <integer name="fragment_list_notification_delay_auto_close">2000</integer>
 
 
     <!--                            -->
@@ -44,24 +44,6 @@
 
     <!-- Other -->
     <integer name="circular_reveal_animation_value">500</integer>
-
-
-    <!--                        -->
-    <!-- Activity ItemDetails   -->
-    <!--                        -->
-
-    <!-- Other -->
-    <integer name="activity_item_detail_demonstrative_pause">500</integer>
-
-
-    <!--                    -->
-    <!-- Layout ListItem    -->
-    <!--                    -->
-
-    <!-- Other -->
-    <integer name="activity_list_item_title_lines">1</integer>
-    <integer name="activity_list_item_description_lines">2</integer>
-    <integer name="activity_list_item_edited_lines">1</integer>
 
 
     <!--        -->

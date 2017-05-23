@@ -29,19 +29,14 @@
 
         <!-- Activity -->
         <activity
-            android:name="com.gamaliev.notes.list.ListActivity"
+            android:name="com.gamaliev.notes.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:label="@string/activity_list_name">
+            android:label="@string/activity_main_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name="com.gamaliev.notes.item_details.ItemDetailsActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:label="@string/activity_list_details_name"/>
 
         <activity
             android:name="com.gamaliev.notes.colorpicker.ColorPickerActivity"

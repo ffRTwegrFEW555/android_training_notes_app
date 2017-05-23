@@ -23,13 +23,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getProgressNotificationTimerForCurrentUser;
-import static com.gamaliev.notes.list.ListActivity.RESULT_CODE_EXTRA_EXPORTED;
-import static com.gamaliev.notes.list.ListActivity.RESULT_CODE_EXTRA_IMPORTED;
 import static com.gamaliev.notes.model.ListEntry.convertJsonToListEntry;
 import static com.gamaliev.notes.model.ListEntry.getJsonObject;
 
@@ -57,13 +57,20 @@ public class FileUtils {
     /* Logger */
     private static final String TAG = FileUtils.class.getSimpleName();
 
-    /* ... */
+    /* Result code */
+    public static final int RESULT_CODE_EXTRA_IMPORTED = 101;
+    public static final int RESULT_CODE_EXTRA_EXPORTED = 102;
+
+    /* Request code */
     public static final int REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE = 2;
+
+    /* ... */
     public static final String FILE_NAME_EXPORT_DEFAULT = "itemlist.ili";
 
-    /* Handler, Looper */
+    private static final Map<String, OnCompleteListener> OBSERVERS;
     private static final CommonUtils.LooperHandlerThread IMPORT_EXPORT_HANDLER_LOOPER_THREAD;
+
 
 
     /*
@@ -71,11 +78,33 @@ public class FileUtils {
      */
 
     static {
+        OBSERVERS = new WeakHashMap<>();
         IMPORT_EXPORT_HANDLER_LOOPER_THREAD = new CommonUtils.LooperHandlerThread();
         IMPORT_EXPORT_HANDLER_LOOPER_THREAD.start();
     }
 
     private FileUtils() {}
+
+
+    /*
+        Weak observers
+     */
+
+    public static void addObserver(
+            @NonNull final String key,
+            @NonNull final OnCompleteListener observer) {
+        OBSERVERS.put(key, observer);
+    }
+
+    public static void removeObserver(@NonNull final String key) {
+        OBSERVERS.remove(key);
+    }
+
+    public static void notifyObservers(int resultCode) {
+        for (OnCompleteListener value : OBSERVERS.values()) {
+            value.onComplete(resultCode);
+        }
+    }
 
 
     /*
@@ -88,17 +117,15 @@ public class FileUtils {
      *
      * @param activity              Activity.
      * @param selectedFile          Selected file.
-     * @param onCompleteListener    Listener, who will be notified of the result.
      */
     public static void exportEntriesAsync(
             @NonNull final Activity activity,
-            @NonNull final Uri selectedFile,
-            @NonNull final OnCompleteListener onCompleteListener) {
+            @NonNull final Uri selectedFile) {
 
         IMPORT_EXPORT_HANDLER_LOOPER_THREAD.getHandler().post(new Runnable() {
             @Override
             public void run() {
-                exportEntries(activity, selectedFile, onCompleteListener);
+                exportEntries(activity, selectedFile);
             }
         });
     }
@@ -109,12 +136,10 @@ public class FileUtils {
      *
      * @param activity              Activity.
      * @param selectedFile          Selected file.
-     * @param onCompleteListener    Listener, who will be notified of the result.
      */
     public static void exportEntries(
             @NonNull final Activity activity,
-            @NonNull final Uri selectedFile,
-            @NonNull final OnCompleteListener onCompleteListener) {
+            @NonNull final Uri selectedFile) {
 
         //
         showToastRunOnUiThread(
@@ -150,7 +175,6 @@ public class FileUtils {
                 jsonArray,
                 result,
                 selectedFile,
-                onCompleteListener,
                 notification);
 
     }
@@ -230,7 +254,6 @@ public class FileUtils {
             @NonNull final JSONArray jsonArray,
             @NonNull final String result,
             @NonNull final Uri selectedFile,
-            @NonNull final OnCompleteListener onCompleteListener,
             @NonNull final ProgressNotificationHelper notification) {
 
         try {
@@ -249,13 +272,8 @@ public class FileUtils {
                             + " (" + jsonArray.length() + ")",
                     Toast.LENGTH_LONG);
 
-            // Notify activity.
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    onCompleteListener.onComplete(RESULT_CODE_EXTRA_EXPORTED);
-                }
-            });
+            // Notify.
+            notifyObservers(RESULT_CODE_EXTRA_EXPORTED);
 
             // Notification panel success.
             notification.endProgress();
@@ -281,18 +299,16 @@ public class FileUtils {
      *
      * @param activity              Activity.
      * @param selectedFile          Selected file.
-     * @param onCompleteListener    Listener, who will be notified of the result.
      */
     public static void importEntriesAsync(
             @NonNull final Activity activity,
-            @NonNull final Uri selectedFile,
-            @NonNull final OnCompleteListener onCompleteListener) {
+            @NonNull final Uri selectedFile) {
 
         //
         IMPORT_EXPORT_HANDLER_LOOPER_THREAD.getHandler().post(new Runnable() {
             @Override
             public void run() {
-                importEntries(activity, selectedFile, onCompleteListener);
+                importEntries(activity, selectedFile);
             }
         });
     }
@@ -303,12 +319,10 @@ public class FileUtils {
      *
      * @param activity              Activity.
      * @param selectedFile          Selected file.
-     * @param onCompleteListener    Listener, who will be notified of the result.
      */
     public static void importEntries(
             @NonNull final Activity activity,
-            @NonNull final Uri selectedFile,
-            @NonNull final OnCompleteListener onCompleteListener){
+            @NonNull final Uri selectedFile){
 
         //
         showToastRunOnUiThread(
@@ -336,7 +350,6 @@ public class FileUtils {
         parseAndSaveToDatabase(
                 activity,
                 inputJson,
-                onCompleteListener,
                 notification);
     }
 
@@ -388,12 +401,10 @@ public class FileUtils {
      *
      * @param activity              Activity.
      * @param inputJson             String in Json-format.
-     * @param onCompleteListener    Listener, who will be notified of the result.
      */
     private static void parseAndSaveToDatabase(
             @NonNull final Activity activity,
             @NonNull final String inputJson,
-            @NonNull final OnCompleteListener onCompleteListener,
             @NonNull final ProgressNotificationHelper notification) {
 
         // Get database and start transaction.
@@ -451,7 +462,6 @@ public class FileUtils {
             makeSuccessImportOperations(
                     activity,
                     jsonArray,
-                    onCompleteListener,
                     notification);
 
         } catch (JSONException | SQLiteException e) {
@@ -467,7 +477,6 @@ public class FileUtils {
     private static void makeSuccessImportOperations(
             @NonNull final Activity activity,
             @NonNull final JSONArray jsonArray,
-            @NonNull final OnCompleteListener onCompleteListener,
             @NonNull final ProgressNotificationHelper notification) {
 
         // Notification panel success.
@@ -481,12 +490,7 @@ public class FileUtils {
                 Toast.LENGTH_LONG);
 
         // Notify activity.
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                onCompleteListener.onComplete(RESULT_CODE_EXTRA_IMPORTED);
-            }
-        });
+        notifyObservers(RESULT_CODE_EXTRA_IMPORTED);
     }
 
 

@@ -759,4 +759,8 @@ public class CommonUtils {
             return mHandler;
         }
     }
+
+    public static Handler getMainHandler() {
+        return new Handler(Looper.getMainLooper());
+    }
 }

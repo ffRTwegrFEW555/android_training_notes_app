@@ -65,7 +65,6 @@ public final class SyncCursorAdapter extends CursorAdapter {
         viewHolder.mDescriptionView.setText(description);
     }
 
-    // View holder, associated with activity_list_item.xml
     private static class ViewHolder {
         private final TextView mFinishedView;
         private final TextView mDescriptionView;

@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group
-        android:id="@+id/menu_list_import_export_group"
+        android:id="@+id/menu_main_import_export_group"
         android:checkableBehavior="none"
         android:orderInCategory="2">
         <item
@@ -16,7 +16,7 @@
     </group>
 
     <group
-        android:id="@+id/menu_list_sync_group"
+        android:id="@+id/menu_main_sync_group"
         android:checkableBehavior="none"
         android:orderInCategory="3">
         <item
@@ -26,7 +26,7 @@
     </group>
 
     <group
-        android:id="@+id/menu_list_add_delete_group"
+        android:id="@+id/menu_main_add_delete_group"
         android:checkableBehavior="none"
         android:orderInCategory="4">
         <item
@@ -40,7 +40,7 @@
     </group>
 
     <group
-        android:id="@+id/menu_list_settings_group"
+        android:id="@+id/menu_main_settings_group"
         android:checkableBehavior="none"
         android:orderInCategory="5">
         <item

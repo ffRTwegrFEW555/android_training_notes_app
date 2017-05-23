@@ -30,7 +30,7 @@ public final class ListCursorAdapter extends CursorAdapter {
         // Create new view, new view holder, and binding.
         final View view = LayoutInflater
                 .from(context)
-                .inflate(R.layout.activity_list_item, parent, false);
+                .inflate(R.layout.fragment_list_item, parent, false);
         final ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
         return view;
@@ -63,7 +63,6 @@ public final class ListCursorAdapter extends CursorAdapter {
                 .setColorFilter(color, PorterDuff.Mode.SRC);
     }
 
-    // View holder, associated with activity_list_item.xml
     private static class ViewHolder {
         private final TextView  mTitleView;
         private final TextView  mDescriptionView;
@@ -71,10 +70,10 @@ public final class ListCursorAdapter extends CursorAdapter {
         private final View      mIconView;
 
         ViewHolder(View view) {
-            mTitleView          = (TextView) view.findViewById(R.id.activity_list_item_title);
-            mDescriptionView    = (TextView) view.findViewById(R.id.activity_list_item_description);
-            mEditedView         = (TextView) view.findViewById(R.id.activity_list_item_edited);
-            mIconView           = view.findViewById(R.id.activity_list_item_color);
+            mTitleView          = (TextView) view.findViewById(R.id.fragment_list_item_title);
+            mDescriptionView    = (TextView) view.findViewById(R.id.fragment_list_item_description);
+            mEditedView         = (TextView) view.findViewById(R.id.fragment_list_item_edited);
+            mIconView           = view.findViewById(R.id.fragment_list_item_color);
         }
     }
 }
