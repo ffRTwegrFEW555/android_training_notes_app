@@ -9,8 +9,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.gamaliev.notes.R;
 
-import java.util.Collections;
-
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
 import static com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment.ACTION_EDIT;
 

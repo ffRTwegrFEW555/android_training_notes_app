@@ -6,15 +6,20 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.db.DbQueryBuilder;
+
+import java.util.List;
 
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
@@ -61,6 +66,11 @@ public final class ItemDetailsFragment extends Fragment {
         return fragment;
     }
 
+
+    /*
+        Lifecycle
+     */
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,17 +98,33 @@ public final class ItemDetailsFragment extends Fragment {
         init();
     }
 
+    @Override
+    public void onStop() {
+        clearFragmentManager();
+        super.onStop();
+    }
+
+
+    /*
+        ...
+     */
+
     private void init() {
         initViewPager();
+        initActionBat();
     }
 
     private void initViewPager() {
+
+        //
         final DbQueryBuilder queryBuilder = new DbQueryBuilder();
         queryBuilder.setOrder(BASE_COLUMN_ID);
+
         final Cursor cursor = getEntries(
                 getContext(),
                 LIST_ITEMS_TABLE_NAME,
                 queryBuilder);
+
         cursor.moveToFirst();
         int startPosition = cursor.getPosition();
         do {
@@ -120,6 +146,29 @@ public final class ItemDetailsFragment extends Fragment {
         mViewPager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT);
         mViewPager.setAdapter(mPagerAdapter);
         mViewPager.setCurrentItem(startPosition);
+    }
+
+    private void initActionBat() {
+        mActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        mActionBar.setElevation(0);
+    }
+
+    /**
+     * Fix Bug with duplicating fragments.
+     */
+    private void clearFragmentManager() {
+        final FragmentManager fm = getActivity().getSupportFragmentManager();
+
+        final List<Fragment> fragments = fm.getFragments();
+        if (fragments != null) {
+            final FragmentTransaction ft = fm.beginTransaction();
+            for (Fragment f : fragments) {
+                if (f instanceof ItemDetailsPagerItemFragment) {
+                    ft.remove(f);
+                }
+            }
+            ft.commitAllowingStateLoss();
+        }
     }
 
 

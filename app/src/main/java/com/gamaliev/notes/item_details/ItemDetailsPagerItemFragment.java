@@ -651,9 +651,4 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
     private void finish() {
         getActivity().onBackPressed();
     }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
 }
