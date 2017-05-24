@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -54,11 +55,11 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     /* Intents */
-    private static final int REQUEST_CODE_IMPORT        = 101;
-    private static final int REQUEST_CODE_EXPORT        = 102;
-    private static final int REQUEST_CODE_CHANGE_USER   = 103;
-    private static final int REQUEST_CODE_SYNC_NOTES    = 104;
-    private static final int REQUEST_CODE_SETTINGS      = 105;
+    private static final int REQUEST_CODE_IMPORT = 101;
+    private static final int REQUEST_CODE_EXPORT = 102;
+    private static final int REQUEST_CODE_CHANGE_USER = 103;
+    private static final int REQUEST_CODE_SYNC_NOTES = 104;
+    private static final int REQUEST_CODE_SETTINGS = 105;
 
 
     /*
@@ -116,8 +117,8 @@ public class MainActivity extends AppCompatActivity {
                 .findViewById(R.id.activity_main_nav_drawable_header_title_text_view))
                 .setText(
                         userProfile.get(SpUsers.SP_USER_FIRST_NAME) + " " +
-                        userProfile.get(SpUsers.SP_USER_LAST_NAME) + " " +
-                        userProfile.get(SpUsers.SP_USER_MIDDLE_NAME));
+                                userProfile.get(SpUsers.SP_USER_LAST_NAME) + " " +
+                                userProfile.get(SpUsers.SP_USER_MIDDLE_NAME));
 
         ((TextView) navigationView
                 .getHeaderView(0)
@@ -136,7 +137,13 @@ public class MainActivity extends AppCompatActivity {
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_main_drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+
         } else {
+            final ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setElevation(
+                        getResources().getDimension(R.dimen.activity_main_toolbar_elevation));
+            }
             super.onBackPressed();
         }
     }
@@ -169,9 +176,10 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Request permission result handler.
-     * @param requestCode   Request code.
-     * @param permissions   Checked permissions. See: {@link android.Manifest.permission}
-     * @param grantResults  Result.
+     *
+     * @param requestCode  Request code.
+     * @param permissions  Checked permissions. See: {@link android.Manifest.permission}
+     * @param grantResults Result.
      */
     @Override
     public void onRequestPermissionsResult(

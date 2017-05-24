@@ -44,24 +44,21 @@
 
 
     <!--                        -->
-    <!-- Activity ColorPicker   -->
+    <!-- Fragment ColorPicker   -->
     <!--                        -->
 
-    <!-- Activity -->
-    <string name="activity_color_picker_name">Color Picker</string>
-
     <!-- Toast -->
-    <string name="activity_color_picker_toast_edit_mode_on">Edit mode on</string>
-    <string name="activity_color_picker_toast_edit_mode_off">Edit mode off</string>
-    <string name="activity_color_picker_toast_favorite_color_added">Favorite color added</string>
+    <string name="fragment_color_picker_toast_edit_mode_on">Edit mode on</string>
+    <string name="fragment_color_picker_toast_edit_mode_off">Edit mode off</string>
+    <string name="fragment_color_picker_toast_favorite_color_added">Favorite color added</string>
 
     <!-- Icons -->
-    <string name="activity_color_picker_ic_helper_swipe">Swipe to left or right</string>
-    <string name="activity_color_picker_ic_helper_touch">Single or double click</string>
-    <string name="activity_color_picker_ic_helper_move">Swipe in edit mode</string>
-    <string name="activity_color_picker_ic_helper_favorite">Add to favorite colors</string>
-    <string name="activity_color_picker_ic_done_description">Done</string>
-    <string name="activity_color_picker_ic_cancel_description">Cancel</string>
+    <string name="fragment_color_picker_ic_helper_swipe">Swipe to left or right</string>
+    <string name="fragment_color_picker_ic_helper_touch">Single or double click</string>
+    <string name="fragment_color_picker_ic_helper_move">Swipe in edit mode</string>
+    <string name="fragment_color_picker_ic_helper_favorite">Add to favorite colors</string>
+    <string name="fragment_color_picker_ic_done_description">Done</string>
+    <string name="fragment_color_picker_ic_cancel_description">Cancel</string>
 
 
     <!--                        -->
@@ -69,8 +66,8 @@
     <!--                        -->
 
     <!-- Other -->
-    <string name="fragment_item_details_title_add">Add entry</string>
-    <string name="fragment_item_details_title_edit">Edit entry</string>
+    <string name="fragment_item_details_title_add">Add</string>
+    <string name="fragment_item_details_title_edit">Edit</string>
     <string name="fragment_item_details_text_view_title">Title</string>
     <string name="fragment_item_details_text_view_description">Description</string>
     <string name="fragment_item_details_image_url_text_view">Image URL</string>

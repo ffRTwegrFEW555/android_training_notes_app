@@ -11,13 +11,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.transition.AutoTransition;
 import android.transition.Fade;
-import android.transition.Transition;
-import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,6 +30,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
+import com.gamaliev.notes.colorpicker.ColorPickerFragment;
 import com.gamaliev.notes.common.OnCompleteListener;
 import com.gamaliev.notes.common.db.DbHelper;
 import com.gamaliev.notes.common.shared_prefs.SpFilterProfiles;
@@ -151,6 +151,9 @@ public class ListFragment extends Fragment implements OnCompleteListener {
                 final ItemDetailsFragment fragment =
                         ItemDetailsFragment.newInstance(ACTION_ADD, -1);
 
+                setExitTransition(new Fade());
+                fragment.setEnterTransition(new Fade());
+
                 getActivity()
                         .getSupportFragmentManager()
                         .beginTransaction()
@@ -192,11 +195,11 @@ public class ListFragment extends Fragment implements OnCompleteListener {
                 final ItemDetailsFragment fragment =
                         ItemDetailsFragment.newInstance(ACTION_EDIT, id);
 
-                // Color icon.
-                final View colorIconView = view.findViewById(R.id.fragment_list_item_color);
-                final String colorIconTransName = getString(R.string.shared_transition_name_color_box);
+                // Init transitions.
+                final View colorView = view.findViewById(R.id.fragment_list_item_color);
+                final String colorTransName = getString(R.string.shared_transition_name_color_box);
                 final String viewTransName = getString(R.string.shared_transition_name_layout);
-                ViewCompat.setTransitionName(colorIconView, colorIconTransName);
+                ViewCompat.setTransitionName(colorView, colorTransName);
                 ViewCompat.setTransitionName(view, viewTransName); // TODO: bug. Try remove, when ListView -> RecyclerView
 
                 setExitTransition(new Fade());
@@ -204,11 +207,12 @@ public class ListFragment extends Fragment implements OnCompleteListener {
                 fragment.setSharedElementEnterTransition(new AutoTransition());
                 fragment.setSharedElementReturnTransition(new AutoTransition());
 
+                // Start fragment.
                 getActivity()
                         .getSupportFragmentManager()
                         .beginTransaction()
                         .addSharedElement(view, viewTransName) // TODO: bug. Try remove, when ListView -> RecyclerView
-                        .addSharedElement(colorIconView, colorIconTransName)
+                        .addSharedElement(colorView, colorTransName)
                         .replace(R.id.activity_main_fragment_container, fragment)
                         .addToBackStack(null)
                         .commit();
@@ -283,7 +287,7 @@ public class ListFragment extends Fragment implements OnCompleteListener {
      *                          {@link #RESULT_CODE_EXTRA_EDITED},
      *                          {@link #RESULT_CODE_EXTRA_DELETED}.
      * @return Intent, with given result code extra.
-     * See {@link com.gamaliev.notes.colorpicker.ColorPickerActivity#EXTRA_COLOR}
+     * See {@link ColorPickerFragment#EXTRA_COLOR}
      */
     @NonNull
     public static Intent getResultIntent(final int resultCodeExtra) {

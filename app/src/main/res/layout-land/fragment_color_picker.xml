@@ -5,77 +5,77 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
-    tools:context="com.gamaliev.notes.colorpicker.ColorPickerActivity">
+    tools:context="com.gamaliev.notes.colorpicker.ColorPickerFragment">
 
 
     <!-- Favorite icons -->
     <ImageView
-        android:id="@+id/activity_color_picker_image_ic_helper_favorite_swipe"
+        android:id="@+id/fragment_color_picker_image_ic_helper_favorite_swipe"
         style="@style/ColorPickerHelperIcons"
         app:srcCompat="@drawable/ic_swap_horiz_black_36dp"
-        android:contentDescription="@string/activity_color_picker_ic_helper_swipe"
+        android:contentDescription="@string/fragment_color_picker_ic_helper_swipe"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
         android:layout_alignParentEnd="true" />
 
     <ImageView
-        android:id="@+id/activity_color_picker_image_ic_helper_favorite_add"
+        android:id="@+id/fragment_color_picker_image_ic_helper_favorite_add"
         style="@style/ColorPickerHelperIcons"
         app:srcCompat="@drawable/ic_favorite_border_black_36dp"
-        android:contentDescription="@string/activity_color_picker_ic_helper_favorite"
-        android:layout_alignTop="@+id/activity_color_picker_image_ic_helper_favorite_swipe"
-        android:layout_toStartOf="@+id/activity_color_picker_image_ic_helper_favorite_swipe" />
+        android:contentDescription="@string/fragment_color_picker_ic_helper_favorite"
+        android:layout_alignTop="@+id/fragment_color_picker_image_ic_helper_favorite_swipe"
+        android:layout_toStartOf="@+id/fragment_color_picker_image_ic_helper_favorite_swipe" />
 
     <ImageView
-        android:id="@+id/activity_color_picker_image_ic_helper_favorite_touch"
+        android:id="@+id/fragment_color_picker_image_ic_helper_favorite_touch"
         style="@style/ColorPickerHelperIcons"
-        android:contentDescription="@string/activity_color_picker_ic_helper_touch"
+        android:contentDescription="@string/fragment_color_picker_ic_helper_touch"
         app:srcCompat="@drawable/ic_touch_app_black_36dp"
-        android:layout_alignTop="@+id/activity_color_picker_image_ic_helper_favorite_add"
-        android:layout_toStartOf="@+id/activity_color_picker_image_ic_helper_favorite_add" />
+        android:layout_alignTop="@+id/fragment_color_picker_image_ic_helper_favorite_add"
+        android:layout_toStartOf="@+id/fragment_color_picker_image_ic_helper_favorite_add" />
 
 
     <!-- Palette icons -->
     <ImageView
-        android:id="@+id/activity_color_picker_image_ic_helper_palette_swipe"
+        android:id="@+id/fragment_color_picker_image_ic_helper_palette_swipe"
         style="@style/ColorPickerHelperIcons"
-        android:contentDescription="@string/activity_color_picker_ic_helper_swipe"
+        android:contentDescription="@string/fragment_color_picker_ic_helper_swipe"
         app:srcCompat="@drawable/ic_swap_horiz_black_36dp"
-        android:layout_below="@+id/activity_color_picker_scroll_palette_bar"
+        android:layout_below="@+id/fragment_color_picker_scroll_palette_bar"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"/>
 
     <ImageView
-        android:id="@+id/activity_color_picker_image_ic_helper_palette_move"
+        android:id="@+id/fragment_color_picker_image_ic_helper_palette_move"
         style="@style/ColorPickerHelperIcons"
-        android:contentDescription="@string/activity_color_picker_ic_helper_move"
+        android:contentDescription="@string/fragment_color_picker_ic_helper_move"
         app:srcCompat="@drawable/ic_open_with_black_36dp"
-        android:layout_alignTop="@+id/activity_color_picker_image_ic_helper_palette_swipe"
-        android:layout_toStartOf="@+id/activity_color_picker_image_ic_helper_palette_swipe" />
+        android:layout_alignTop="@+id/fragment_color_picker_image_ic_helper_palette_swipe"
+        android:layout_toStartOf="@+id/fragment_color_picker_image_ic_helper_palette_swipe" />
 
     <ImageView
-        android:id="@+id/activity_color_picker_image_ic_helper_palette_touch"
+        android:id="@+id/fragment_color_picker_image_ic_helper_palette_touch"
         style="@style/ColorPickerHelperIcons"
-        android:contentDescription="@string/activity_color_picker_ic_helper_touch"
+        android:contentDescription="@string/fragment_color_picker_ic_helper_touch"
         app:srcCompat="@drawable/ic_touch_app_black_36dp"
-        android:layout_alignTop="@+id/activity_color_picker_image_ic_helper_palette_move"
-        android:layout_toStartOf="@+id/activity_color_picker_image_ic_helper_palette_move" />
+        android:layout_alignTop="@+id/fragment_color_picker_image_ic_helper_palette_move"
+        android:layout_toStartOf="@+id/fragment_color_picker_image_ic_helper_palette_move" />
 
 
     <!-- Palette bar -->
     <com.gamaliev.notes.common.SwitchableHorizontalScrollView
-        android:id="@+id/activity_color_picker_scroll_palette_bar"
+        android:id="@+id/fragment_color_picker_scroll_palette_bar"
         android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="@dimen/activity_color_picker_scroll_palette_bar_elevation"
+        android:elevation="@dimen/fragment_color_picker_scroll_palette_bar_elevation"
         android:background="@color/color_black"
         android:scrollbars="none">
 
         <LinearLayout
-            android:id="@+id/activity_color_picker_ll_palette_bar"
+            android:id="@+id/fragment_color_picker_ll_palette_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -85,17 +85,17 @@
 
     <!-- Result and Favorite colors -->
     <LinearLayout
-        android:id="@+id/activity_color_picker_ll_result_padding"
+        android:id="@+id/fragment_color_picker_ll_result_padding"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:layout_below="@id/activity_color_picker_scroll_palette_bar"
+        android:layout_below="@id/fragment_color_picker_scroll_palette_bar"
         android:layout_alignParentBottom="true"
         android:baselineAligned="false">
 
         <!-- Result -->
         <FrameLayout
-            android:id="@+id/activity_color_picker_ff_result_outer"
+            android:id="@+id/fragment_color_picker_ff_result_outer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -104,17 +104,17 @@
             android:paddingTop="10dp">
 
             <FrameLayout
-                android:id="@+id/activity_color_picker_ff_result_box"
+                android:id="@+id/fragment_color_picker_ff_result_box"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
                 android:layout_gravity="center"
                 android:layout_margin="5dp"
                 android:background="@color/color_picker_default"
-                android:elevation="@dimen/activity_color_picker_ff_result_box_elevation"
+                android:elevation="@dimen/fragment_color_picker_ff_result_box_elevation"
                 android:transitionName="@string/shared_transition_name_color_box">
 
                 <TextView
-                    android:id="@+id/activity_color_picker_text_result_box"
+                    android:id="@+id/fragment_color_picker_text_result_box"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -123,16 +123,16 @@
             </FrameLayout>
 
             <ImageView
-                android:id="@+id/activity_color_picker_ic_done"
+                android:id="@+id/fragment_color_picker_ic_done"
                 style="@style/ColorPickerActionIcons"
-                android:contentDescription="@string/activity_color_picker_ic_done_description"
+                android:contentDescription="@string/fragment_color_picker_ic_done_description"
                 android:layout_marginBottom="30dp"
                 app:srcCompat="@drawable/ic_done_black_48dp" />
 
             <ImageView
-                android:id="@+id/activity_color_picker_ic_cancel"
+                android:id="@+id/fragment_color_picker_ic_cancel"
                 style="@style/ColorPickerActionIcons"
-                android:contentDescription="@string/activity_color_picker_ic_cancel_description"
+                android:contentDescription="@string/fragment_color_picker_ic_cancel_description"
                 android:layout_marginTop="30dp"
                 app:srcCompat="@drawable/ic_clear_black_48dp"/>
 
@@ -140,7 +140,7 @@
 
         <!-- Favorite bar -->
         <HorizontalScrollView
-            android:id="@+id/activity_color_picker_scroll_favorite_bar"
+            android:id="@+id/fragment_color_picker_scroll_favorite_bar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -149,7 +149,7 @@
             android:scrollbars="none">
 
             <LinearLayout
-                android:id="@+id/activity_color_picker_ll_favorite_bar"
+                android:id="@+id/fragment_color_picker_ll_favorite_bar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="10dp"

@@ -39,11 +39,6 @@
         </activity>
 
         <activity
-            android:name="com.gamaliev.notes.colorpicker.ColorPickerActivity"
-            android:theme="@style/AppTheme.NoActionBar.Fullscreen"
-            android:label="@string/activity_color_picker_name"/>
-
-        <activity
             android:name="com.gamaliev.notes.user.UserActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:label="@string/activity_user"/>

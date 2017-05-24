@@ -246,7 +246,7 @@ public final class DbHelper extends SQLiteOpenHelper {
         final int boxesNumber = NotesApp
                 .getAppContext()
                 .getResources()
-                .getInteger(R.integer.activity_color_picker_favorite_boxes_number);
+                .getInteger(R.integer.fragment_color_picker_favorite_boxes_number);
 
         for (int i = 0; i < boxesNumber; i++) {
             ColorPickerDbHelper.insertFavoriteColor(

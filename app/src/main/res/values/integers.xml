@@ -3,30 +3,30 @@
 
 
     <!--                        -->
-    <!-- Activity ColorPicker   -->
+    <!-- Fragment ColorPicker   -->
     <!--                        -->
 
     <!-- Popup window -->
-    <integer name="activity_color_picker_popupwindow_gravity">17</integer> <!-- Gravity.CENTER : 17-->
+    <integer name="fragment_color_picker_popupwindow_gravity">17</integer> <!-- Gravity.CENTER : 17-->
 
     <!-- Notification -->
-    <integer name="activity_color_picker_vibration_duration">200</integer>
-    <integer name="activity_color_picker_notification_interval_border_reaches">1000</integer>
+    <integer name="fragment_color_picker_vibration_duration">200</integer>
+    <integer name="fragment_color_picker_notification_interval_border_reaches">1000</integer>
 
     <!-- Result box -->
-    <integer name="activity_color_picker_result_box_outer_alpha_percent">10</integer>
-    <integer name="activity_color_picker_result_box_animation_change_color_duration">300</integer>
+    <integer name="fragment_color_picker_result_box_outer_alpha_percent">10</integer>
+    <integer name="fragment_color_picker_result_box_animation_change_color_duration">300</integer>
 
     <!-- Palette box -->
-    <integer name="activity_color_picker_palette_boxes_number">16</integer>
-    <integer name="activity_color_picker_palette_box_anim_elevation_duration">100</integer>
+    <integer name="fragment_color_picker_palette_boxes_number">16</integer>
+    <integer name="fragment_color_picker_palette_box_anim_elevation_duration">100</integer>
 
     <!-- Favorite box -->
-    <integer name="activity_color_picker_favorite_boxes_number">16</integer>
-    <integer name="activity_color_picker_favorite_box_anim_elevation_duration">100</integer>
-    <integer name="activity_color_picker_favorite_box_anim_scale_duration">70</integer>
-    <integer name="activity_color_picker_favorite_box_anim_scale_on">140</integer>
-    <integer name="activity_color_picker_favorite_box_anim_scale_off">100</integer>
+    <integer name="fragment_color_picker_favorite_boxes_number">16</integer>
+    <integer name="fragment_color_picker_favorite_box_anim_elevation_duration">100</integer>
+    <integer name="fragment_color_picker_favorite_box_anim_scale_duration">70</integer>
+    <integer name="fragment_color_picker_favorite_box_anim_scale_on">140</integer>
+    <integer name="fragment_color_picker_favorite_box_anim_scale_off">100</integer>
 
 
     <!--                -->

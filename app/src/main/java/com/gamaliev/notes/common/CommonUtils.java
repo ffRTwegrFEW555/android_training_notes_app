@@ -389,7 +389,7 @@ public class CommonUtils {
         } else {
             GradientDrawable g = new GradientDrawable();
             g.setStroke(
-                    (int) resources.getDimension(R.dimen.activity_color_picker_box_border_width),
+                    (int) resources.getDimension(R.dimen.fragment_color_picker_box_border_width),
                     getResourceColorApi(context, R.color.color_white));
             g.setColor(color);
             view.setBackground(g);

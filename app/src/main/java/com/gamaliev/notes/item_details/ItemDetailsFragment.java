@@ -5,15 +5,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
-import android.support.transition.ChangeBounds;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.Pair;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -22,6 +18,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.transition.AutoTransition;
+import android.transition.Fade;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -35,7 +32,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.colorpicker.ColorPickerActivity;
+import com.gamaliev.notes.colorpicker.ColorPickerFragment;
 import com.gamaliev.notes.list.ListFragment;
 import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.model.ListEntry;
@@ -142,10 +139,10 @@ public final class ItemDetailsFragment extends Fragment {
 
         setColorBoxListener();
         processAction();
-        initSharedTransition();
         initImageUrlValidation();
         initImageView();
         initRefreshImageButton();
+        initTransition();
     }
 
     /**
@@ -157,38 +154,35 @@ public final class ItemDetailsFragment extends Fragment {
         mColorView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // After start another activity - refreshed entry will be use in
+                // After start - refreshed entry will be use in
                 // onSaveInstanceState()-method.
                 refreshEntry();
 
-                // Start activity for result.
-                // If API >= 21, then use shared transition animation.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                // Start color picker fragment.
+                final ColorPickerFragment fragment =
+                        ColorPickerFragment.newInstance(mColor);
 
-                    // Prepare.
-                    final View colorBox = mParentView.findViewById(R.id.fragment_item_details_color);
-                    colorBox.setTransitionName(
-                            getString(R.string.shared_transition_name_color_box));
-                    Pair<View, String> icon = new Pair<>(colorBox, colorBox.getTransitionName());
-                    ActivityOptionsCompat aoc =
-                            ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                    getActivity(), icon);
+                // Init transitions.
+                final View headerBox = mParentView.findViewById(R.id.fragment_item_details_ff_header);
+                final String colorTransName = getString(R.string.shared_transition_name_color_box);
+                final String headerBoxTransName = getString(R.string.shared_transition_name_layout);
+                ViewCompat.setTransitionName(mColorView, colorTransName);
+                ViewCompat.setTransitionName(headerBox, headerBoxTransName);
 
-                    // Start activity for result with shared transition animation.
-                    ColorPickerActivity.startIntent(
-                            getActivity(),
-                            mColor,
-                            REQUEST_CODE_COLOR,
-                            aoc.toBundle());
+                setExitTransition(new Fade());
+                fragment.setEnterTransition(new Fade());
+                fragment.setSharedElementEnterTransition(new AutoTransition());
+                fragment.setSharedElementReturnTransition(new AutoTransition());
 
-                } else {
-                    // Start activity for result without shared transition animation.
-                    ColorPickerActivity.startIntent(
-                            getActivity(),
-                            mColor,
-                            REQUEST_CODE_COLOR,
-                            null);
-                }
+                // Start fragment.
+                getActivity()
+                        .getSupportFragmentManager()
+                        .beginTransaction()
+                        .addSharedElement(headerBox, headerBoxTransName)
+                        .addSharedElement(mColorView, colorTransName)
+                        .replace(R.id.activity_main_fragment_container, fragment)
+                        .addToBackStack(null)
+                        .commit();
             }
         });
     }
@@ -199,6 +193,9 @@ public final class ItemDetailsFragment extends Fragment {
      * See also: {@link #ACTION_ADD}, {@link #ACTION_EDIT}.
      */
     private void processAction() {
+        //
+        mActionBar.setElevation(0);
+
         switch (mAction) {
 
             // Start activity with Add action.
@@ -263,12 +260,12 @@ public final class ItemDetailsFragment extends Fragment {
         }
     }
 
-    private void initSharedTransition() {
+    private void initTransition() {
         ViewCompat.setTransitionName(
                 mColorView,
                 getString(R.string.shared_transition_name_color_box));
         ViewCompat.setTransitionName( // TODO: bug. Try remove, when ListView -> RecyclerView
-                mParentView.findViewById(R.id.fragment_item_details_ff_title),
+                mParentView.findViewById(R.id.fragment_item_details_ff_header),
                 getString(R.string.shared_transition_name_layout));
     }
 
@@ -454,12 +451,12 @@ public final class ItemDetailsFragment extends Fragment {
     /**
      * @param color Color.
      * @return Intent, with given color.
-     * See {@link ColorPickerActivity#EXTRA_COLOR}
+     * See {@link ColorPickerFragment#EXTRA_COLOR}
      */
     @NonNull
     public static Intent getResultColorIntent(final int color) {
         Intent intent = new Intent();
-        intent.putExtra(ColorPickerActivity.EXTRA_COLOR, color);
+        intent.putExtra(ColorPickerFragment.EXTRA_COLOR, color);
         return intent;
     }
 
@@ -473,7 +470,7 @@ public final class ItemDetailsFragment extends Fragment {
 
                 // Get selected color. If null, using default color.
                 int color = data.getIntExtra(
-                        ColorPickerActivity.EXTRA_COLOR,
+                        ColorPickerFragment.EXTRA_COLOR,
                         getDefaultColor(getContext()));
 
                 // Update entry, then activity views.
@@ -662,7 +659,12 @@ public final class ItemDetailsFragment extends Fragment {
                 }
 
                 // Finish.
-                finish();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        finish();
+                    }
+                });
             }
         });
         thread.start();
@@ -698,6 +700,6 @@ public final class ItemDetailsFragment extends Fragment {
      */
 
     private void finish() {
-        getFragmentManager().popBackStack();
+        getActivity().onBackPressed();
     }
 }
