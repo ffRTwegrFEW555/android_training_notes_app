@@ -8,13 +8,14 @@
     tools:context="com.gamaliev.notes.list.ListFragment">
 
 
-    <!-- ListView -->
-    <ListView
-        android:id="@+id/fragment_list_listview"
+    <!-- Recycler view -->
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/fragment_list_rv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="@dimen/fragment_list_padding_top"
-        android:paddingBottom="@dimen/fragment_list_padding_bottom"/>
+        android:paddingTop="@dimen/fragment_list_rv_padding_top"
+        android:paddingBottom="@dimen/fragment_list_rv_padding_bottom"
+        android:scrollbars="vertical"/>
 
 
     <!-- Found button -->

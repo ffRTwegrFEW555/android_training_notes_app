@@ -5,7 +5,9 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="@dimen/fragment_list_item_height"
-    android:padding="@dimen/fragment_list_item_padding">
+    android:padding="@dimen/fragment_list_item_padding"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true">
 
     <FrameLayout
         android:id="@+id/fragment_list_item_color"

@@ -19,6 +19,7 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -139,11 +140,18 @@ public class MainActivity extends AppCompatActivity {
             drawer.closeDrawer(GravityCompat.START);
 
         } else {
+            // Show Action bar.
             final ActionBar actionBar = getSupportActionBar();
             if (actionBar != null) {
                 actionBar.setElevation(
                         getResources().getDimension(R.dimen.activity_main_toolbar_elevation));
+                actionBar.show();
             }
+
+            // Fullscreen off.
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+
             super.onBackPressed();
         }
     }

@@ -1,8 +1,6 @@
 package com.gamaliev.notes.list;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.DataSetObserver;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,12 +8,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.text.TextUtils;
-import android.transition.AutoTransition;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,20 +21,17 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.FilterQueryProvider;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.colorpicker.ColorPickerFragment;
 import com.gamaliev.notes.common.OnCompleteListener;
 import com.gamaliev.notes.common.db.DbHelper;
+import com.gamaliev.notes.common.recycler_view_item_touch_helper.ItemTouchHelperCallback;
+import com.gamaliev.notes.common.recycler_view_item_touch_helper.OnStartDragListener;
 import com.gamaliev.notes.common.shared_prefs.SpFilterProfiles;
-import com.gamaliev.notes.item_details.ItemDetailsFragment;
-import com.gamaliev.notes.list.db.ListCursorAdapter;
-import com.gamaliev.notes.list.db.ListDbHelper;
+import com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment;
+import com.gamaliev.notes.list.db.ListRecyclerViewAdapter;
 
 import java.util.Locale;
 import java.util.Map;
@@ -49,15 +44,15 @@ import static com.gamaliev.notes.common.CommonUtils.circularRevealAnimationOff;
 import static com.gamaliev.notes.common.CommonUtils.circularRevealAnimationOn;
 import static com.gamaliev.notes.common.CommonUtils.showToast;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
-import static com.gamaliev.notes.item_details.ItemDetailsFragment.ACTION_ADD;
-import static com.gamaliev.notes.item_details.ItemDetailsFragment.ACTION_EDIT;
+import static com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment.ACTION_ADD;
 
 /**
  * @author Vadim Gamaliev
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class ListFragment extends Fragment implements OnCompleteListener {
+public class ListFragment extends Fragment
+        implements OnCompleteListener, OnStartDragListener {
 
     /* Logger */
     private static final String TAG = ListFragment.class.getSimpleName();
@@ -78,15 +73,15 @@ public class ListFragment extends Fragment implements OnCompleteListener {
             DbHelper.LIST_ITEMS_COLUMN_TITLE,
             DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION};
 
-    @NonNull private ListCursorAdapter mAdapter;
-    @NonNull private FilterQueryProvider mQueryProvider;
+    @NonNull private ListRecyclerViewAdapter mAdapter;
 
     /* ... */
     @NonNull private View mParentView;
-    @NonNull private ListView mListView;
+    @NonNull private RecyclerView mRecyclerView;
     @NonNull private Button mFoundView;
     @NonNull private SearchView mSearchView;
     @NonNull private Map<String, String> mFilterProfileMap;
+    @NonNull private ItemTouchHelper mItemTouchHelper;
     private long mTimerFound;
 
 
@@ -116,18 +111,21 @@ public class ListFragment extends Fragment implements OnCompleteListener {
                 container,
                 false);
 
-        init();
         return mParentView;
     }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        init();
+    }
+
     private void init() {
-        mQueryProvider = getFilterQueryProvider();
         mFoundView = (Button) mParentView.findViewById(R.id.fragment_list_button_found);
 
         initActionBarTitle();
         initFilterProfile();
         initFabOnClickListener();
-        initAdapterAndListView();
+        initAdapterAndList();
     }
 
     private void initActionBarTitle() {
@@ -148,8 +146,8 @@ public class ListFragment extends Fragment implements OnCompleteListener {
         mParentView.findViewById(R.id.fragment_list_fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final ItemDetailsFragment fragment =
-                        ItemDetailsFragment.newInstance(ACTION_ADD, -1);
+                final ItemDetailsPagerItemFragment fragment =
+                        ItemDetailsPagerItemFragment.newInstance(ACTION_ADD, -1);
 
                 setExitTransition(new Fade());
                 fragment.setEnterTransition(new Fade());
@@ -168,59 +166,34 @@ public class ListFragment extends Fragment implements OnCompleteListener {
      * Get cursor from database, create and set adapter,
      * set on click listener, set filter query provider.<br>
      */
-    private void initAdapterAndListView() {
+    private void initAdapterAndList() {
 
         // Create adapter.
-        mAdapter = new ListCursorAdapter(getContext(), null, 0);
-
-        // SearchView filter query provider.
-        mAdapter.setFilterQueryProvider(mQueryProvider);
+        mAdapter = new ListRecyclerViewAdapter(this, this);
+        mAdapter.updateCursor(getContext(), "", mFilterProfileMap);
 
         // Register observer. Showing found notification.
-        mAdapter.registerDataSetObserver(new DataSetObserver() {
+/*        mAdapter.registerDataSetObserver(new DataSetObserver() {
             @Override
             public void onChanged() {
                 showFoundNotification();
             }
-        });
+        });*/
 
-        // Init list view
-        mListView = (ListView) mParentView.findViewById(R.id.fragment_list_listview);
-        mListView.setAdapter(mAdapter);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        // Init
+        mRecyclerView = (RecyclerView) mParentView.findViewById(R.id.fragment_list_rv);
+        mRecyclerView.addItemDecoration(
+                new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRecyclerView.setAdapter(mAdapter);
 
-                // Start item details fragment, with edit action.
-                final ItemDetailsFragment fragment =
-                        ItemDetailsFragment.newInstance(ACTION_EDIT, id);
-
-                // Init transitions.
-                final View colorView = view.findViewById(R.id.fragment_list_item_color);
-                final String colorTransName = getString(R.string.shared_transition_name_color_box);
-                final String viewTransName = getString(R.string.shared_transition_name_layout);
-                ViewCompat.setTransitionName(colorView, colorTransName);
-                ViewCompat.setTransitionName(view, viewTransName); // TODO: bug. Try remove, when ListView -> RecyclerView
-
-                setExitTransition(new Fade());
-                fragment.setEnterTransition(new Fade());
-                fragment.setSharedElementEnterTransition(new AutoTransition());
-                fragment.setSharedElementReturnTransition(new AutoTransition());
-
-                // Start fragment.
-                getActivity()
-                        .getSupportFragmentManager()
-                        .beginTransaction()
-                        .addSharedElement(view, viewTransName) // TODO: bug. Try remove, when ListView -> RecyclerView
-                        .addSharedElement(colorView, colorTransName)
-                        .replace(R.id.activity_main_fragment_container, fragment)
-                        .addToBackStack(null)
-                        .commit();
-            }
-        });
+        //
+        ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(mAdapter);
+        mItemTouchHelper = new ItemTouchHelper(callback);
+        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
 
         // Refresh view.
-        filterAdapter("");
+//        filterAdapter("");
     }
 
     /*
@@ -255,7 +228,10 @@ public class ListFragment extends Fragment implements OnCompleteListener {
             @Override
             public boolean onQueryTextChange(String newText) {
                 // Refresh view.
-                filterAdapter(newText);
+                mAdapter.updateCursor(getContext(), newText, mFilterProfileMap);
+                mAdapter.notifyDataSetChanged();
+                // Found notification.
+                showFoundNotification();
                 return true;
             }
         });
@@ -278,23 +254,8 @@ public class ListFragment extends Fragment implements OnCompleteListener {
 
 
     /*
-        Intents
+        Callbacks
      */
-
-    /**
-     * @param resultCodeExtra   Result code extra.
-     *                          {@link #RESULT_CODE_EXTRA_ADDED},
-     *                          {@link #RESULT_CODE_EXTRA_EDITED},
-     *                          {@link #RESULT_CODE_EXTRA_DELETED}.
-     * @return Intent, with given result code extra.
-     * See {@link ColorPickerFragment#EXTRA_COLOR}
-     */
-    @NonNull
-    public static Intent getResultIntent(final int resultCodeExtra) {
-        final Intent intent = new Intent();
-        intent.putExtra(RESULT_CODE_EXTRA, resultCodeExtra);
-        return intent;
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -380,7 +341,7 @@ public class ListFragment extends Fragment implements OnCompleteListener {
                     // Set text.
                     mFoundView.setText(String.format(Locale.ENGLISH,
                             getString(R.string.fragment_list_notification_found_text) + "\n%d",
-                            mListView.getCount()));
+                            mAdapter.getItemCount()));
 
                     // Set start time of the notification display.
                     mTimerFound = System.currentTimeMillis();
@@ -435,38 +396,14 @@ public class ListFragment extends Fragment implements OnCompleteListener {
 
 
     /*
-        Methods
+        ...
      */
-
-    /**
-     * @return Query provider, with logic: Create query builder, setting user values, make query.
-     */
-    @NonNull
-    private FilterQueryProvider getFilterQueryProvider() {
-        return new FilterQueryProvider() {
-            @Override
-            public Cursor runQuery(CharSequence constraint) {
-
-                return ListDbHelper.getCursorWithParams(
-                        getContext(),
-                        constraint,
-                        mFilterProfileMap);
-            }
-        };
-    }
-
-
-    /**
-     * @param text Text to filter.
-     */
-    private void filterAdapter(@NonNull final String text) {
-        mAdapter.getFilter().filter(text);
-    }
 
     /**
      * Getting text from search view, and use for filter. If text is empty, then using empty string.
      */
     private void updateFilterAdapter() {
+/*
         if (mSearchView != null) {
             final String searchText = mSearchView.getQuery().toString();
             filterAdapter(TextUtils.isEmpty(searchText) ? "" : searchText);
@@ -474,5 +411,16 @@ public class ListFragment extends Fragment implements OnCompleteListener {
         } else {
             filterAdapter("");
         }
+*/
+    }
+
+
+    /*
+        OnStartDragListener
+     */
+
+    @Override
+    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+        mItemTouchHelper.startDrag(viewHolder);
     }
 }

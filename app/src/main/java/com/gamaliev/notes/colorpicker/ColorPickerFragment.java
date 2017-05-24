@@ -1,8 +1,5 @@
 package com.gamaliev.notes.colorpicker;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -14,9 +11,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -95,8 +95,12 @@ public final class ColorPickerFragment extends Fragment {
                 container,
                 false);
 
-        init(savedInstanceState);
         return mParentView;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        init(savedInstanceState);
     }
 
     private void init(@Nullable final Bundle savedInstanceState) {
@@ -123,6 +127,7 @@ public final class ColorPickerFragment extends Fragment {
 
         } else {
             mResultColor = savedInstanceState.getInt(EXTRA_RESULT_COLOR);
+            //noinspection ConstantConditions
             mHsvColorsOverridden = savedInstanceState.getIntArray(EXTRA_HSV_COLOR_OVERRIDDEN);
         }
 
@@ -132,6 +137,7 @@ public final class ColorPickerFragment extends Fragment {
         setResultBoxColor(mResultColor);
         setDoneCancelListeners();
         initTransition();
+        initFullScreen();
     }
 
 
@@ -220,6 +226,7 @@ public final class ColorPickerFragment extends Fragment {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                 button.setBackground(mRes.getDrawable(R.drawable.btn_oval, null));
             } else {
+                //noinspection deprecation
                 button.setBackground(mRes.getDrawable(R.drawable.btn_oval));
             }
 
@@ -315,6 +322,16 @@ public final class ColorPickerFragment extends Fragment {
                 getString(R.string.shared_transition_name_layout));
     }
 
+    private void initFullScreen() {
+        final ActionBar actionBar =
+                ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
+        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+    }
+
     /**
      * Set color to palette box and popupWindow, when "edit mode" is turn on.
      * @param newColor  Color to set.
@@ -376,7 +393,7 @@ public final class ColorPickerFragment extends Fragment {
      */
     void showPopupWindow() {
         mEditPw.setAnimationStyle(R.style.ColorPickerPopupWindowAnimation);
-        mEditPw.showAtLocation(mParentView.findViewById(android.R.id.content),
+        mEditPw.showAtLocation(mParentView,
                 mRes.getInteger(R.integer.fragment_color_picker_popupwindow_gravity),
                 (int) mRes.getDimension(R.dimen.fragment_color_picker_popupwindow_offset_x),
                 (int) mRes.getDimension(R.dimen.fragment_color_picker_popupwindow_offset_y));
@@ -432,38 +449,10 @@ public final class ColorPickerFragment extends Fragment {
 
 
     /*
-        Intents
-     */
-
-    /**
-     * Start intent for result for editing color.
-     * @param context       Context.
-     * @param color         Color for editing.
-     * @param requestCode   This code will be returned in onActivityResult() when the activity exits.
-     * @param bundle        Additional options for how the Activity should be started.
-     *                      If null, then start {@link android.app.Activity#startActivityForResult(Intent, int)},
-     *                      otherwise start {@link android.app.Activity#startActivityForResult(Intent, int, Bundle)},
-     */
-    public static void startIntent(
-            @NonNull final Context context,
-            final int color,
-            final int requestCode,
-            @Nullable final Bundle bundle) {
-
-        Intent starter = new Intent(context, ColorPickerFragment.class);
-        starter.putExtra(EXTRA_COLOR, color);
-        if (bundle == null) {
-            ((Activity) context).startActivityForResult(starter, requestCode);
-        } else {
-            ((Activity) context).startActivityForResult(starter, requestCode, bundle);
-        }
-    }
-
-    /*
         ...
      */
 
     private void finish() {
-        getFragmentManager().popBackStack();
+        getActivity().onBackPressed();
     }
 }

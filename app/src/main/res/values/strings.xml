@@ -66,6 +66,7 @@
     <!--                        -->
 
     <!-- Other -->
+    <string name="fragment_item_details_pager_title_strip_prefix">Entry ID</string>
     <string name="fragment_item_details_title_add">Add</string>
     <string name="fragment_item_details_title_edit">Edit</string>
     <string name="fragment_item_details_text_view_title">Title</string>

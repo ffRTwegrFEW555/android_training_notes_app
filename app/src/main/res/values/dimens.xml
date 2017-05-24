@@ -62,8 +62,8 @@
 
     <!-- Other -->
     <dimen name="fragment_list_fab_margin">16dp</dimen>
-    <dimen name="fragment_list_padding_top">8dp</dimen>
-    <dimen name="fragment_list_padding_bottom">8dp</dimen>
+    <dimen name="fragment_list_rv_padding_top">8dp</dimen>
+    <dimen name="fragment_list_rv_padding_bottom">8dp</dimen>
 
     <!-- Filter / sort dialog -->
     <dimen name="fragment_list_filter_dialog_date_button_size">105dp</dimen>

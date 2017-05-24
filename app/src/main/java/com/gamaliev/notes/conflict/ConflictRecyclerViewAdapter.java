@@ -3,6 +3,7 @@ package com.gamaliev.notes.conflict;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -31,7 +32,7 @@ public final class ConflictRecyclerViewAdapter
     /* ... */
     public static final int REQUEST_CODE_CONFLICT_SELECT = 101;
 
-    @NonNull private Cursor mCursor;
+    @Nullable private Cursor mCursor;
     @NonNull private Fragment mFragment;
 
 
