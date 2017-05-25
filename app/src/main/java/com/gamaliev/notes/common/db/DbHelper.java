@@ -187,12 +187,12 @@ public final class DbHelper extends SQLiteOpenHelper {
      */
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
+    public void onCreate(final SQLiteDatabase db) {
         updateDatabase(db, 0, DB_VERSION);
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
         updateDatabase(db, oldVersion, newVersion);
     }
 
@@ -258,7 +258,7 @@ public final class DbHelper extends SQLiteOpenHelper {
 
 
     /*
-        Common
+        ...
      */
 
     /**
@@ -456,6 +456,10 @@ public final class DbHelper extends SQLiteOpenHelper {
         }
     }
 
+    public static void clearInstances() {
+        sInstances.clear();
+    }
+
 
     /*
         Getters
@@ -474,14 +478,5 @@ public final class DbHelper extends SQLiteOpenHelper {
     @NonNull
     public static String getDbFailMessage() {
         return mDbFailMessage;
-    }
-
-
-    /*
-        ...
-     */
-
-    public static void clearInstances() {
-        sInstances.clear();
     }
 }

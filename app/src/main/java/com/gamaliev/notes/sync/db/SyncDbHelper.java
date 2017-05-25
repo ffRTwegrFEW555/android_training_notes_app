@@ -10,7 +10,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.gamaliev.notes.R;
 import com.gamaliev.notes.model.SyncEntry;
 
 import java.util.Date;
@@ -28,6 +27,7 @@ import static com.gamaliev.notes.common.db.DbHelper.SYNC_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.getDbFailMessage;
 import static com.gamaliev.notes.common.db.DbHelper.getReadableDb;
 import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
+import static com.gamaliev.notes.sync.SyncUtils.ACTION_NOTHING;
 
 /**
  * @author Vadim Gamaliev
@@ -39,45 +39,6 @@ public class SyncDbHelper {
     /* Logger */
     private static final String TAG = SyncDbHelper.class.getSimpleName();
 
-    /* ... */
-    public static final int STATUS_ERROR    = 0;
-    public static final int STATUS_OK       = 1;
-
-    public static final int ACTION_NOTHING              = 0;
-    public static final int ACTION_ADDED_TO_SERVER      = 1; // If syncId == null
-    public static final int ACTION_ADDED_TO_LOCAL       = 2; // If syncId is not exists
-    public static final int ACTION_DELETED_FROM_SERVER  = 3; // If local delete
-    public static final int ACTION_DELETED_FROM_LOCAL   = 4; // If local have syncId, but server not.
-    public static final int ACTION_UPDATED_ON_SERVER    = 5; // compare, select, set.
-    public static final int ACTION_UPDATED_ON_LOCAL     = 6; // compare, select, set.
-    public static final int ACTION_START                = 7;
-    public static final int ACTION_COMPLETE             = 8;
-    public static final int ACTION_DELETE_ALL_FROM_SERVER_START = 9;
-    public static final int ACTION_CONFLICTING_ADDED    = 10;
-    public static final int ACTION_PENDING_START_NO_WIFI = 11;
-    public static final int ACTION_PENDING_START_NO_INET = 12;
-
-    public static final int[] STATUS_TEXT = {
-            R.string.activity_sync_item_status_error,
-            R.string.activity_sync_item_status_success
-    };
-
-    public static final int[] ACTION_TEXT = {
-            R.string.activity_sync_item_action_nothing,
-            R.string.activity_sync_item_action_add_to_server,
-            R.string.activity_sync_item_action_add_to_local,
-            R.string.activity_sync_item_action_delete_from_server,
-            R.string.activity_sync_item_action_delete_from_local,
-            R.string.activity_sync_item_action_updated_on_server,
-            R.string.activity_sync_item_action_updated_on_local,
-            R.string.activity_sync_item_action_started,
-            R.string.activity_sync_item_action_completed,
-            R.string.activity_sync_item_action_delete_all_from_server_start,
-            R.string.activity_sync_item_action_conflict,
-            R.string.activity_sync_item_action_pending_start_no_wifi,
-            R.string.activity_sync_item_action_pending_start_no_internet
-    };
-
 
     /*
         Init
@@ -87,7 +48,7 @@ public class SyncDbHelper {
     
 
     /*
-        Methods
+        ...
      */
 
     /**

@@ -7,7 +7,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.common.OnCompleteListener;
 import com.gamaliev.notes.common.ProgressNotificationHelper;
 import com.gamaliev.notes.common.db.DbQueryBuilder;
 import com.gamaliev.notes.common.network.NetworkUtils;
@@ -26,13 +25,16 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import retrofit2.Response;
 
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_SYNC_FAILED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_SYNC_PENDING_START;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_SYNC_START;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_SYNC_SUCCESS;
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
 import static com.gamaliev.notes.common.db.DbHelper.COMMON_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_SYNC_ID_JSON;
@@ -43,6 +45,8 @@ import static com.gamaliev.notes.common.db.DbHelper.deleteEntryWithSingle;
 import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 import static com.gamaliev.notes.common.db.DbHelper.getEntriesCount;
 import static com.gamaliev.notes.common.db.DbHelper.insertEntryWithSingleValue;
+import static com.gamaliev.notes.common.observers.ObserverHelper.SYNC;
+import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_PENDING_FALSE;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_PENDING_TRUE;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPendingSyncStatusForCurrentUser;
@@ -53,19 +57,12 @@ import static com.gamaliev.notes.conflict.ConflictActivity.checkConflictExistsAn
 import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntry;
 import static com.gamaliev.notes.list.db.ListDbHelper.getNewEntries;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
+import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_DATA;
+import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_EXTRA;
+import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_ID;
+import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_STATUS;
+import static com.gamaliev.notes.rest.NoteApiUtils.API_STATUS_OK;
 import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_LOCAL;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_SERVER;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_COMPLETE;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_CONFLICTING_ADDED;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_DELETED_FROM_LOCAL;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_DELETED_FROM_SERVER;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_DELETE_ALL_FROM_SERVER_START;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_PENDING_START_NO_INET;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_PENDING_START_NO_WIFI;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_START;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_TEXT;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.STATUS_OK;
 
 /**
  * @author Vadim Gamaliev
@@ -78,21 +75,45 @@ public final class SyncUtils {
     private static final String TAG = SyncUtils.class.getSimpleName();
 
     /* ... */
-    public static final int RESULT_CODE_PENDING_START = 0;
-    public static final int RESULT_CODE_START       = 1;
-    public static final int RESULT_CODE_SUCCESS     = 2;
-    public static final int RESULT_CODE_FAILED      = 3;
+    public static final int STATUS_ERROR    = 0;
+    public static final int STATUS_OK       = 1;
 
-    public static final String API_KEY_STATUS      = "status";
-    public static final String API_KEY_DATA        = "data";
-    public static final String API_STATUS_OK       = "ok";
-    public static final String API_STATUS_ERROR    = "error";
-    public static final String API_KEY_ID          = "id";
-    public static final String API_KEY_EXTRA       = "extra";
+    public static final int ACTION_NOTHING              = 0;
+    public static final int ACTION_ADDED_TO_SERVER      = 1; // If syncId == null
+    public static final int ACTION_ADDED_TO_LOCAL       = 2; // If syncId is not exists
+    public static final int ACTION_DELETED_FROM_SERVER  = 3; // If local delete
+    public static final int ACTION_DELETED_FROM_LOCAL   = 4; // If local have syncId, but server not.
+    public static final int ACTION_UPDATED_ON_SERVER    = 5; // compare, select, set.
+    public static final int ACTION_UPDATED_ON_LOCAL     = 6; // compare, select, set.
+    public static final int ACTION_START                = 7;
+    public static final int ACTION_COMPLETE             = 8;
+    public static final int ACTION_DELETE_ALL_FROM_SERVER_START = 9;
+    public static final int ACTION_CONFLICTING_ADDED    = 10;
+    public static final int ACTION_PENDING_START_NO_WIFI = 11;
+    public static final int ACTION_PENDING_START_NO_INET = 12;
 
-    private static final Map<String, OnCompleteListener> OBSERVERS;
+    public static final int[] STATUS_TEXT = {
+            R.string.activity_sync_item_status_error,
+            R.string.activity_sync_item_status_success
+    };
+
+    public static final int[] ACTION_TEXT = {
+            R.string.activity_sync_item_action_nothing,
+            R.string.activity_sync_item_action_add_to_server,
+            R.string.activity_sync_item_action_add_to_local,
+            R.string.activity_sync_item_action_delete_from_server,
+            R.string.activity_sync_item_action_delete_from_local,
+            R.string.activity_sync_item_action_updated_on_server,
+            R.string.activity_sync_item_action_updated_on_local,
+            R.string.activity_sync_item_action_started,
+            R.string.activity_sync_item_action_completed,
+            R.string.activity_sync_item_action_delete_all_from_server_start,
+            R.string.activity_sync_item_action_conflict,
+            R.string.activity_sync_item_action_pending_start_no_wifi,
+            R.string.activity_sync_item_action_pending_start_no_internet
+    };
+    
     private static final ExecutorService SINGLE_THREAD_EXECUTOR;
-
     private static boolean sSyncRunning = false;
 
 
@@ -101,32 +122,10 @@ public final class SyncUtils {
      */
 
     static {
-        OBSERVERS = new WeakHashMap<>();
         SINGLE_THREAD_EXECUTOR = Executors.newSingleThreadExecutor();
     }
 
     private SyncUtils() {}
-
-
-    /*
-        Weak observers
-     */
-
-    public static void addObserver(
-            @NonNull final String key,
-            @NonNull final OnCompleteListener observer) {
-        OBSERVERS.put(key, observer);
-    }
-
-    public static void removeObserver(@NonNull final String key) {
-        OBSERVERS.remove(key);
-    }
-
-    public static void notifyObservers(int resultCode) {
-        for (OnCompleteListener value : OBSERVERS.values()) {
-            value.onComplete(resultCode);
-        }
-    }
 
 
     /*
@@ -139,6 +138,52 @@ public final class SyncUtils {
 
     public static synchronized void setSyncRunning(final boolean syncRunning) {
         sSyncRunning = syncRunning;
+    }
+
+
+    /*
+        Network
+     */
+
+    private static void checkNetworkAndUserSettings(@NonNull final Context context) {
+
+        switch (NetworkUtils.checkNetwork(context)) {
+            case NetworkUtils.NETWORK_MOBILE:
+                if (SpUsers.getSyncWifiOnlyForCurrentUser(context)) {
+                    if (!getPendingSyncStatusForCurrentUser(context)
+                            .equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
+
+                        addToSyncJournalAndLogAndNotify(
+                                context,
+                                ACTION_PENDING_START_NO_WIFI,
+                                STATUS_OK,
+                                0,
+                                RESULT_CODE_SYNC_PENDING_START,
+                                true);
+                    }
+                    setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_TRUE);
+                    break;
+                }
+
+            case NetworkUtils.NETWORK_WIFI:
+                makeSynchronize(context);
+                break;
+            case NetworkUtils.NETWORK_NO:
+            default:
+                if (!getPendingSyncStatusForCurrentUser(context)
+                        .equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
+
+                    addToSyncJournalAndLogAndNotify(
+                            context,
+                            ACTION_PENDING_START_NO_INET,
+                            STATUS_OK,
+                            0,
+                            RESULT_CODE_SYNC_PENDING_START,
+                            true);
+                }
+                setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_TRUE);
+                break;
+        }
     }
 
 
@@ -161,47 +206,6 @@ public final class SyncUtils {
         });
     }
 
-    private static void checkNetworkAndUserSettings(@NonNull final Context context) {
-
-        switch (NetworkUtils.checkNetwork(context)) {
-            case NetworkUtils.NETWORK_MOBILE:
-                if (SpUsers.getSyncWifiOnlyForCurrentUser(context)) {
-                    if (!getPendingSyncStatusForCurrentUser(context)
-                            .equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
-
-                        addToSyncJournalAndLogAndNotify(
-                                context,
-                                ACTION_PENDING_START_NO_WIFI,
-                                STATUS_OK,
-                                0,
-                                RESULT_CODE_PENDING_START,
-                                true);
-                    }
-                    setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_TRUE);
-                    break;
-                }
-
-            case NetworkUtils.NETWORK_WIFI:
-                makeSynchronize(context);
-                break;
-            case NetworkUtils.NETWORK_NO:
-            default:
-                if (!getPendingSyncStatusForCurrentUser(context)
-                        .equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
-
-                    addToSyncJournalAndLogAndNotify(
-                            context,
-                            ACTION_PENDING_START_NO_INET,
-                            STATUS_OK,
-                            0,
-                            RESULT_CODE_PENDING_START,
-                            true);
-                }
-                setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_TRUE);
-                break;
-        }
-    }
-
     public static boolean makeSynchronize(@NonNull final Context context) {
 
         //
@@ -213,7 +217,7 @@ public final class SyncUtils {
                 ACTION_START,
                 STATUS_OK,
                 0,
-                RESULT_CODE_START,
+                RESULT_CODE_SYNC_START,
                 true);
 
         // Continuing Progress notifications start.
@@ -247,7 +251,7 @@ public final class SyncUtils {
                 ACTION_COMPLETE,
                 STATUS_OK,
                 sum,
-                RESULT_CODE_SUCCESS,
+                RESULT_CODE_SYNC_SUCCESS,
                 true);
 
         //
@@ -308,7 +312,7 @@ public final class SyncUtils {
                 ACTION_ADDED_TO_SERVER,
                 STATUS_OK,
                 counter,
-                RESULT_CODE_SUCCESS,
+                RESULT_CODE_SYNC_SUCCESS,
                 false);
 
         return counter;
@@ -371,7 +375,7 @@ public final class SyncUtils {
                 ACTION_DELETED_FROM_SERVER,
                 STATUS_OK,
                 counter,
-                RESULT_CODE_SUCCESS,
+                RESULT_CODE_SYNC_SUCCESS,
                 false);
 
         return counter;
@@ -434,7 +438,7 @@ public final class SyncUtils {
                                 ACTION_ADDED_TO_LOCAL,
                                 STATUS_OK,
                                 counterAddedOnLocal,
-                                RESULT_CODE_SUCCESS,
+                                RESULT_CODE_SYNC_SUCCESS,
                                 false);
 
                         // Delete from local and seek changes
@@ -497,7 +501,7 @@ public final class SyncUtils {
                                 ACTION_DELETED_FROM_LOCAL,
                                 STATUS_OK,
                                 counterDeletedOnLocal,
-                                RESULT_CODE_SUCCESS,
+                                RESULT_CODE_SYNC_SUCCESS,
                                 false);
 
                         // Conflict finish
@@ -506,7 +510,7 @@ public final class SyncUtils {
                                 ACTION_CONFLICTING_ADDED,
                                 STATUS_OK,
                                 counterConflicting,
-                                RESULT_CODE_SUCCESS,
+                                RESULT_CODE_SYNC_SUCCESS,
                                 false);
                     }
 
@@ -551,7 +555,7 @@ public final class SyncUtils {
                             context,
                             context.getString(R.string.activity_sync_item_action_delete_all_from_server_no_wifi),
                             true,
-                            RESULT_CODE_FAILED);
+                            RESULT_CODE_SYNC_FAILED);
                     break;
                 }
             case NetworkUtils.NETWORK_WIFI:
@@ -563,7 +567,7 @@ public final class SyncUtils {
                         context,
                         context.getString(R.string.activity_sync_item_action_delete_all_from_server_no_internet),
                         true,
-                        RESULT_CODE_FAILED);
+                        RESULT_CODE_SYNC_FAILED);
             default:
                 break;
         }
@@ -577,7 +581,7 @@ public final class SyncUtils {
                 ACTION_DELETE_ALL_FROM_SERVER_START,
                 STATUS_OK,
                 0,
-                RESULT_CODE_SUCCESS,
+                RESULT_CODE_SYNC_SUCCESS,
                 true);
 
         // Continuing Progress notifications start.
@@ -642,13 +646,13 @@ public final class SyncUtils {
                 ACTION_DELETED_FROM_SERVER,
                 STATUS_OK,
                 counter,
-                RESULT_CODE_SUCCESS,
+                RESULT_CODE_SYNC_SUCCESS,
                 true);
     }
 
 
     /*
-        ...
+        Logging
      */
 
     /**
@@ -686,7 +690,10 @@ public final class SyncUtils {
         }
 
         //
-        notifyObservers(resultCode);
+        notifyObservers(
+                SYNC,
+                resultCode,
+                null);
     }
 
     public static void logAndNotify(
@@ -704,8 +711,16 @@ public final class SyncUtils {
         }
 
         //
-        notifyObservers(resultCode);
+        notifyObservers(
+                SYNC,
+                resultCode,
+                null);
     }
+
+
+    /*
+        ...
+     */
 
     public static boolean checkPendingSyncAndStart(@NonNull final Context context) {
         if (getPendingSyncStatusForCurrentUser(context)
@@ -715,6 +730,7 @@ public final class SyncUtils {
         }
         return false;
     }
+
 
     /*
         Getters

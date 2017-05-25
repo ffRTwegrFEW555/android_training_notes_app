@@ -1,7 +1,6 @@
 package com.gamaliev.notes.item_details;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -31,22 +30,23 @@ import android.widget.Toast;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.colorpicker.ColorPickerFragment;
-import com.gamaliev.notes.list.ListFragment;
 import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.model.ListEntry;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-import static android.app.Activity.RESULT_OK;
 import static com.gamaliev.notes.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.notes.common.CommonUtils.getResourceColorApi;
 import static com.gamaliev.notes.common.CommonUtils.getStringDateFormatSqlite;
 import static com.gamaliev.notes.common.CommonUtils.showToast;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_ADDED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_CANCEL;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_DELETED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_EDITED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
-import static com.gamaliev.notes.list.ListFragment.RESULT_CODE_EXTRA_ADDED;
-import static com.gamaliev.notes.list.ListFragment.RESULT_CODE_EXTRA_DELETED;
-import static com.gamaliev.notes.list.ListFragment.RESULT_CODE_EXTRA_EDITED;
+import static com.gamaliev.notes.common.observers.ObserverHelper.ENTRY;
+import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
 
 public final class ItemDetailsPagerItemFragment extends Fragment {
 
@@ -58,26 +58,27 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
     public static final String ACTION_ADD  = "ItemDetailsPagerItemFragment.ACTION_ADD";
     public static final String ACTION_EDIT = "ItemDetailsPagerItemFragment.ACTION_EDIT";
 
+    private static final String ACTION_ENTRY_ADD    = "ItemDetailsPagerItemFragment.ACTION_ENTRY_ADD";
+    private static final String ACTION_ENTRY_EDIT   = "ItemDetailsPagerItemFragment.ACTION_ENTRY_EDIT";
+    private static final String ACTION_ENTRY_DELETE = "ItemDetailsPagerItemFragment.ACTION_ENTRY_DELETE";
+
     /* Extra */
     private static final String EXTRA_ID    = "ItemDetailsPagerItemFragment.EXTRA_ID";
     private static final String EXTRA_ENTRY = "ItemDetailsPagerItemFragment.EXTRA_ENTRY";
 
-    /* Request code */
-    private static final int REQUEST_CODE_COLOR = 1;
-
     /* ... */
-    @NonNull private View mParentView;
-    @NonNull private ActionBar mActionBar;
-    @NonNull private View mColorView;
-    @NonNull private EditText mTitleEditText;
-    @NonNull private EditText mDescEditText;
-    @NonNull private EditText mImageUrlEditText;
-    @NonNull private ImageView mImageView;
+    @NonNull private View       mParentView;
+    @NonNull private ActionBar  mActionBar;
+    @NonNull private View       mColorView;
+    @NonNull private EditText   mTitleEditText;
+    @NonNull private EditText   mDescEditText;
+    @NonNull private EditText   mImageUrlEditText;
+    @NonNull private ImageView  mImageView;
     @NonNull private TextInputLayout mImageUrlEditTextLayout;
-    @NonNull private ListEntry mEntry;
-    @NonNull private Menu mMenu;
-    @NonNull private String mAction;
-    @Nullable private Bundle mSavedInstanceState;
+    @NonNull private ListEntry  mEntry;
+    @NonNull private Menu       mMenu;
+    @NonNull private String     mAction;
+    @Nullable private Bundle    mSavedInstanceState;
     private int mColor;
     private long mId;
 
@@ -100,9 +101,15 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
         return fragment;
     }
 
+
+    /*
+        Lifecycle
+     */
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //noinspection ConstantConditions
         mAction = getArguments().getString(ACTION);
         mId = getArguments().getLong(EXTRA_ID);
         setHasOptionsMenu(true);
@@ -111,9 +118,9 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(
-            LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
+            final LayoutInflater inflater,
+            @Nullable final ViewGroup container,
+            @Nullable final Bundle savedInstanceState) {
 
         mParentView = inflater.inflate(
                 R.layout.fragment_item_details_pager_item,
@@ -124,9 +131,23 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(
+            final View view,
+            @Nullable final Bundle savedInstanceState) {
+
         init(savedInstanceState);
     }
+
+    @Override
+    public void onSaveInstanceState(final Bundle outState) {
+        outState.putParcelable(EXTRA_ENTRY, mEntry);
+        super.onSaveInstanceState(outState);
+    }
+
+
+    /*
+        ...
+     */
 
     private void init(@Nullable final Bundle savedInstanceState) {
         mActionBar      = ((AppCompatActivity) getActivity()).getSupportActionBar();
@@ -162,7 +183,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
 
                 // Start color picker fragment.
                 final ColorPickerFragment fragment =
-                        ColorPickerFragment.newInstance(mColor);
+                        ColorPickerFragment.newInstance(mId, mColor);
 
                 // Init transitions.
                 final View headerBox = mParentView.findViewById(R.id.fragment_item_details_ff_header);
@@ -239,7 +260,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
                         ListDbHelper.updateEntry(getContext(), mEntry, LIST_ITEMS_COLUMN_VIEWED);
 
                     } else {
-                        finish();
+                        finish(null);
                         final String error = getString(R.string.fragment_item_details_edit_mode_wrong_id);
                         Log.e(TAG, error);
                         showToast(
@@ -260,15 +281,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
             default:
                 break;
         }
-    }
-
-    private void initTransition() {
-        ViewCompat.setTransitionName(
-                mColorView,
-                getString(R.string.shared_transition_name_color_box));
-        ViewCompat.setTransitionName(
-                mParentView.findViewById(R.id.fragment_item_details_ff_header),
-                getString(R.string.shared_transition_name_layout));
     }
 
     private void initImageUrlValidation() {
@@ -335,6 +347,15 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
                 });
     }
 
+    private void initTransition() {
+        ViewCompat.setTransitionName(
+                mColorView,
+                getString(R.string.shared_transition_name_color_box));
+        ViewCompat.setTransitionName(
+                mParentView.findViewById(R.id.fragment_item_details_ff_header),
+                getString(R.string.shared_transition_name_layout));
+    }
+
     /**
      * Check URL, and set error if needed.
      * @param url Checked URL.
@@ -356,7 +377,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
 
 
     /*
-        Methods
+        Updating views
      */
 
     /**
@@ -406,36 +427,11 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
 
 
     /*
-        Callbacks
-     */
-
-    /**
-     * If color was selected, then refresh activity views.
-     */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_COLOR && resultCode == RESULT_OK) {
-            if (data != null) {
-
-                // Get selected color. If null, using default color.
-                int color = data.getIntExtra(
-                        ColorPickerFragment.EXTRA_COLOR,
-                        getDefaultColor(getContext()));
-
-                // Update entry, then activity views.
-                mEntry.setColor(color);
-                fillActivityViews();
-            }
-        }
-    }
-
-
-    /*
         Options menu
      */
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
         mMenu = menu;
         inflater.inflate(R.menu.menu_list_item_details, menu);
 
@@ -447,7 +443,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
 
             // On save action.
@@ -459,13 +455,13 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
                     // If new, then add to database, and finish activity with RESULT_OK.
                     case ACTION_ADD:
                         //
-                        startActionAsyncTask(RESULT_CODE_EXTRA_ADDED);
+                        startActionAsyncTask(ACTION_ENTRY_ADD);
                         break;
 
                     // If edit, then update entry in database, and finish activity with RESULT_OK.
                     case ACTION_EDIT:
                         //
-                        startActionAsyncTask(RESULT_CODE_EXTRA_EDITED);
+                        startActionAsyncTask(ACTION_ENTRY_EDIT);
                         break;
 
                     default:
@@ -476,7 +472,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
 
             // On cancel action. Finish activity.
             case R.id.menu_list_item_details_cancel:
-                finish();
+                finish(null);
                 break;
 
             // Info button
@@ -552,7 +548,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
                                 //
                                 dialog.cancel();
                                 //
-                                startActionAsyncTask(RESULT_CODE_EXTRA_DELETED);
+                                startActionAsyncTask(ACTION_ENTRY_DELETE);
                             }
                         })
                 .setNegativeButton(
@@ -563,15 +559,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
         alert.show();
     }
 
-    /**
-     * Show progress bar, hide menu items, open database,
-     * perform action in async mode, return result, finish activity.
-     * @param resultCode    See:
-     *                      {@link ListFragment#RESULT_CODE_EXTRA_ADDED},
-     *                      {@link ListFragment#RESULT_CODE_EXTRA_EDITED},
-     *                      {@link ListFragment#RESULT_CODE_EXTRA_DELETED},
-     */
-    private void startActionAsyncTask(final int resultCode) {
+    private void startActionAsyncTask(@NonNull final String action) {
         //
         showProgressBarAndHideMenuItems();
 
@@ -581,9 +569,9 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
             public void run() {
 
                 //
-                switch (resultCode) {
+                switch (action) {
 
-                    case RESULT_CODE_EXTRA_ADDED:
+                    case ACTION_ENTRY_ADD:
                         refreshEntry();
                         ListDbHelper.insertUpdateEntry(
                                 getContext(),
@@ -591,7 +579,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
                                 false);
                         break;
 
-                    case RESULT_CODE_EXTRA_EDITED:
+                    case ACTION_ENTRY_EDIT:
                         refreshEntry();
                         ListDbHelper.updateEntry(
                                 getContext(),
@@ -599,7 +587,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
                                 LIST_ITEMS_COLUMN_EDITED);
                         break;
 
-                    case RESULT_CODE_EXTRA_DELETED:
+                    case ACTION_ENTRY_DELETE:
                         ListDbHelper.deleteEntry(getContext(), mEntry.getId(), true);
                         break;
 
@@ -611,7 +599,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        finish();
+                        finish(action);
                     }
                 });
             }
@@ -634,21 +622,74 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
 
 
     /*
-        On Restore / Save instance state
+        Callbacks
      */
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(EXTRA_ENTRY, mEntry);
-        super.onSaveInstanceState(outState);
-    }
-
-
-    /*
-        ...
+    /**
+     * If color was selected, then refresh activity views.
      */
+/*    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_COLOR && resultCode == RESULT_OK) {
+            if (data != null) {
 
-    private void finish() {
+                // Get selected color. If null, using default color.
+                int color = data.getIntExtra(
+                        ColorPickerFragment.EXTRA_COLOR,
+                        getDefaultColor(getContext()));
+
+                // Update entry, then activity views.
+                mEntry.setColor(color);
+                fillActivityViews();
+            }
+        }
+    }*/
+
+    private void finish(@Nullable final String action) {
+
+        if (action != null) {
+            //
+            int resultCode = RESULT_CODE_ENTRY_CANCEL;
+            switch (action) {
+                case ACTION_ENTRY_ADD:
+                    resultCode = RESULT_CODE_ENTRY_ADDED;
+                    showToast(
+                            getContext(),
+                            getString(R.string.fragment_list_notification_entry_added),
+                            Toast.LENGTH_SHORT);
+                    break;
+
+                case ACTION_ENTRY_EDIT:
+                    resultCode = RESULT_CODE_ENTRY_EDITED;
+                    showToast(
+                            getContext(),
+                            getString(R.string.fragment_list_notification_entry_updated),
+                            Toast.LENGTH_SHORT);
+                    break;
+
+                case ACTION_ENTRY_DELETE:
+                    resultCode = RESULT_CODE_ENTRY_DELETED;
+                    showToast(
+                            getContext(),
+                            getString(R.string.fragment_list_notification_entry_deleted),
+                            Toast.LENGTH_SHORT);
+                    break;
+
+                default:
+                    break;
+            }
+
+            //
+            final Bundle bundle = new Bundle();
+            bundle.putLong(EXTRA_ID, mId);
+
+            //
+            notifyObservers(
+                    ENTRY,
+                    resultCode,
+                    bundle);
+        }
+
         getActivity().onBackPressed();
     }
 }

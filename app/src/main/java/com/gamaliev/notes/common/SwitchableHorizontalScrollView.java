@@ -1,6 +1,7 @@
 package com.gamaliev.notes.common;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
@@ -11,7 +12,53 @@ import android.widget.HorizontalScrollView;
  * <p>{@link #isEnableScrolling()}             - get on/off scroll status.
  */
 public class SwitchableHorizontalScrollView extends HorizontalScrollView {
+
+    /* ... */
     private boolean mEnableScrolling = true;
+
+
+    /*
+        Init
+     */
+
+    public SwitchableHorizontalScrollView(
+            @NonNull final Context context,
+            @NonNull final AttributeSet attrs,
+            final int defStyle) {
+
+        super(context, attrs, defStyle);
+    }
+
+    public SwitchableHorizontalScrollView(
+            @NonNull final Context context,
+            @NonNull final AttributeSet attrs) {
+
+        super(context, attrs);
+    }
+
+    public SwitchableHorizontalScrollView(@NonNull final Context context) {
+        super(context);
+    }
+
+
+    /*
+        Lifecycle
+     */
+
+    @Override
+    public boolean onInterceptTouchEvent(final MotionEvent ev) {
+        return isEnableScrolling() && super.onInterceptTouchEvent(ev);
+    }
+
+    @Override
+    public boolean onTouchEvent(final MotionEvent ev) {
+        return isEnableScrolling() && super.onTouchEvent(ev);
+    }
+
+
+    /*
+        ...
+     */
 
     /**
      * @return On/Off scroll status
@@ -25,27 +72,5 @@ public class SwitchableHorizontalScrollView extends HorizontalScrollView {
      */
     public void setEnableScrolling(final boolean enableScrolling) {
         mEnableScrolling = enableScrolling;
-    }
-
-    public SwitchableHorizontalScrollView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
-
-    public SwitchableHorizontalScrollView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public SwitchableHorizontalScrollView(Context context) {
-        super(context);
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return isEnableScrolling() && super.onInterceptTouchEvent(ev);
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        return isEnableScrolling() && super.onTouchEvent(ev);
     }
 }

@@ -30,11 +30,11 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.colorpicker.db.ColorPickerDbHelper;
 import com.gamaliev.notes.common.CommonUtils;
-import com.gamaliev.notes.common.OnCompleteListener;
 import com.gamaliev.notes.list.db.ListDbHelper;
 
 import java.text.DateFormat;
@@ -58,7 +58,9 @@ import static com.gamaliev.notes.common.CommonUtils.convertLocalToUtc;
 import static com.gamaliev.notes.common.CommonUtils.getDateFromProfileMap;
 import static com.gamaliev.notes.common.CommonUtils.getResourceColorApi;
 import static com.gamaliev.notes.common.CommonUtils.getStringDateFormatSqlite;
+import static com.gamaliev.notes.common.CommonUtils.showToast;
 import static com.gamaliev.notes.common.DialogFragmentUtils.initCircularRevealAnimation;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_LIST_FILTERED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_CREATED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_TITLE;
@@ -67,6 +69,8 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.ORDER_ASCENDING;
 import static com.gamaliev.notes.common.db.DbHelper.ORDER_DESCENDING;
 import static com.gamaliev.notes.common.db.DbHelper.getEntriesCount;
+import static com.gamaliev.notes.common.observers.ObserverHelper.LIST_FILTER;
+import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_COLOR;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_CREATED;
@@ -86,7 +90,6 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.getSelecte
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.getSelectedIdForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.setSelectedForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.updateCurrentForCurrentUser;
-import static com.gamaliev.notes.list.ListFragment.RESULT_CODE_FILTER_DIALOG;
 
 /**
  * @author Vadim Gamaliev
@@ -110,7 +113,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
     @NonNull private String mSelectedFilterProfile;
     @NonNull private ExecutorService mSingleThreadExecutor;
     @NonNull private Set<Runnable> mRunnableTasks;
-    @Nullable private OnCompleteListener mOnCompleteListener;
 
 
     /*
@@ -124,20 +126,12 @@ public final class FilterSortDialogFragment extends DialogFragment {
         Lifecycle
      */
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        if (getActivity() instanceof OnCompleteListener) {
-            mOnCompleteListener = (OnCompleteListener) getActivity();
-        }
-        super.onCreate(savedInstanceState);
-    }
-
     @Nullable
     @Override
     public View onCreateView(
-            LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            Bundle savedInstanceState) {
+            final LayoutInflater inflater,
+            @Nullable final ViewGroup container,
+            final Bundle savedInstanceState) {
 
         mDialog = inflater.inflate(R.layout.fragment_list_filter_dialog, null);
         initCircularRevealAnimation(
@@ -152,7 +146,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
     }
 
     @Override
-    public void onViewStateRestored(Bundle savedInstanceState) {
+    public void onViewStateRestored(final Bundle savedInstanceState) {
         // Restore local variables, if exists, else init.
         if (savedInstanceState != null) {
             mFilterProfileMap       = (HashMap) savedInstanceState.getSerializable(EXTRA_PROFILE_MAP);
@@ -191,7 +185,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(final Bundle outState) {
         outState.putSerializable(EXTRA_PROFILE_MAP, (HashMap) mFilterProfileMap);
         outState.putSerializable(EXTRA_FOUNDED_MAP, (HashMap) mFoundedEntriesCache);
         outState.putString(EXTRA_SELECTED_ID, mSelectedFilterProfile);
@@ -200,7 +194,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
 
     /*
-        Init components
+        ...
      */
 
     private void initLocalVariables() {
@@ -1038,7 +1032,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
                     public void onClick(View v) {
                         mSingleThreadExecutor.shutdownNow();
                         dismiss();
-                        refreshListActivity();
+                        finish();
                     }
                 });
     }
@@ -1057,22 +1051,10 @@ public final class FilterSortDialogFragment extends DialogFragment {
         });
     }
 
-    private void refreshListActivity() {
-        if (mOnCompleteListener != null) {
 
-            // Refresh selected profile id.
-            setSelectedForCurrentUser(getActivity(), mSelectedFilterProfile);
-
-            // If current id, then update current profile.
-            if (SP_FILTER_PROFILE_CURRENT_ID.equals(mSelectedFilterProfile)) {
-                updateCurrentForCurrentUser(getActivity(), mFilterProfileMap);
-            }
-
-            // Notify activity.
-            mOnCompleteListener.onComplete(
-                    RESULT_CODE_FILTER_DIALOG);
-        }
-    }
+    /*
+        Found text.
+     */
 
     /**
      * Get from database count of entries, with given profile params.
@@ -1156,6 +1138,11 @@ public final class FilterSortDialogFragment extends DialogFragment {
         startRunnableTasks();
     }
 
+
+    /*
+        Async tasks.
+     */
+
     private void startRunnableTasks() {
         // Run all tasks, and clear.
         if (mDialog.isAttachedToWindow()) {
@@ -1165,6 +1152,11 @@ public final class FilterSortDialogFragment extends DialogFragment {
             mRunnableTasks.clear();
         }
     }
+
+
+    /*
+        Add profile dialog.
+     */
 
     /**
      * Show input text dialog for add profile, if confirm, then add new profile, and reinitialize.
@@ -1220,5 +1212,32 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
         // Show.
         alert.show();
+    }
+
+
+    /*
+        Finish.
+     */
+
+    private void finish() {
+        // Refresh selected profile id.
+        setSelectedForCurrentUser(getActivity(), mSelectedFilterProfile);
+
+        // If current id, then update current profile.
+        if (SP_FILTER_PROFILE_CURRENT_ID.equals(mSelectedFilterProfile)) {
+            updateCurrentForCurrentUser(getActivity(), mFilterProfileMap);
+        }
+
+        //
+        showToast(
+                getContext(),
+                getString(R.string.fragment_list_notification_filtered),
+                Toast.LENGTH_SHORT);
+
+        // Notify.
+        notifyObservers(
+                LIST_FILTER,
+                RESULT_CODE_LIST_FILTERED,
+                null);
     }
 }

@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.gamaliev.notes.R;
 
+import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_CONFLICT_DIALOG_SELECT;
 import static com.gamaliev.notes.common.db.DbHelper.COMMON_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.getEntries;
@@ -27,11 +28,10 @@ public final class ConflictRecyclerViewAdapter
         extends RecyclerView.Adapter<ConflictRecyclerViewAdapter.ViewHolder> {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = ConflictRecyclerViewAdapter.class.getSimpleName();
 
     /* ... */
-    public static final int REQUEST_CODE_CONFLICT_SELECT = 101;
-
     @Nullable private Cursor mCursor;
     @NonNull private Fragment mFragment;
 
@@ -54,7 +54,7 @@ public final class ConflictRecyclerViewAdapter
      */
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         final FrameLayout fl = (FrameLayout) LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.fragment_conflict_item, parent, false);
@@ -63,7 +63,7 @@ public final class ConflictRecyclerViewAdapter
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         mCursor.moveToPosition(position);
         final String syncId = mCursor.getString(mCursor.getColumnIndex(COMMON_COLUMN_SYNC_ID));
         holder.mTextView.setText(
@@ -78,7 +78,7 @@ public final class ConflictRecyclerViewAdapter
                 // Launch dialog.
                 ConflictSelectDialogFragment df =
                         ConflictSelectDialogFragment.newInstance(syncId, position);
-                df.setTargetFragment(mFragment, REQUEST_CODE_CONFLICT_SELECT);
+                df.setTargetFragment(mFragment, REQUEST_CODE_CONFLICT_DIALOG_SELECT);
                 df.show(mFragment.getFragmentManager() , null);
             }
         });
@@ -98,7 +98,7 @@ public final class ConflictRecyclerViewAdapter
         private final FrameLayout mFrameLayout;
         private final TextView mTextView;
 
-        private ViewHolder(FrameLayout itemView) {
+        private ViewHolder(@NonNull final FrameLayout itemView) {
             super(itemView);
             mFrameLayout = itemView;
             mTextView = (TextView) mFrameLayout.findViewById(R.id.fragment_conflict_item_text_view);

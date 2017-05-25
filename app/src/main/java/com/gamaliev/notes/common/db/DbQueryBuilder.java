@@ -15,6 +15,7 @@ import android.text.TextUtils;
 public final class DbQueryBuilder {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = DbQueryBuilder.class.getSimpleName();
 
     /* SQL */
@@ -42,7 +43,7 @@ public final class DbQueryBuilder {
 
 
     /*
-        Methods
+        ...
      */
 
     /**
@@ -131,7 +132,7 @@ public final class DbQueryBuilder {
             @NonNull final String operator) {
 
         // Create inner clause.
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
 
         // If clause is first in current query builder, then add without operator 'OR' or 'ADD'.
         if(mSelection != null) {
@@ -187,7 +188,7 @@ public final class DbQueryBuilder {
         */
 
         // Example: 'OR (title' or '(title'
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
 
         // If clause is first in current query builder, then add without operator 'OR' or 'ADD'.
         if (mSelection != null) {
@@ -353,7 +354,7 @@ public final class DbQueryBuilder {
         }
 
         // Convert clauses array to one string clauses.
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         for (String cause : mSelection) {
             sb      .append(cause)
                     .append(" ");

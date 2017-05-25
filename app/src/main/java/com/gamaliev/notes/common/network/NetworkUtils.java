@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 public class NetworkUtils {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = NetworkUtils.class.getSimpleName();
 
     /* ... */

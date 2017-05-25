@@ -2,6 +2,7 @@ package com.gamaliev.notes.sync.db;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,9 @@ import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.CommonUtils;
 import com.gamaliev.notes.common.db.DbHelper;
 
+import static com.gamaliev.notes.sync.SyncUtils.ACTION_TEXT;
+import static com.gamaliev.notes.sync.SyncUtils.STATUS_TEXT;
+
 /**
  * @author Vadim Gamaliev
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
@@ -19,12 +23,22 @@ import com.gamaliev.notes.common.db.DbHelper;
 
 public final class SyncCursorAdapter extends CursorAdapter {
 
-    public SyncCursorAdapter(Context context, Cursor c, int flags) {
+
+    /*
+        Init
+     */
+
+    public SyncCursorAdapter(final Context context, final Cursor c, final int flags) {
         super(context, c, flags);
     }
 
+
+    /*
+        Lifecycle
+     */
+
     @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+    public View newView(final Context context, final Cursor cursor, final ViewGroup parent) {
 
         // Create new view, new view holder, and binding.
         final View view = LayoutInflater
@@ -36,7 +50,7 @@ public final class SyncCursorAdapter extends CursorAdapter {
     }
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(final View view, final Context context, final Cursor cursor) {
         // Get view holder.
         final ViewHolder viewHolder = (ViewHolder) view.getTag();
 
@@ -49,9 +63,9 @@ public final class SyncCursorAdapter extends CursorAdapter {
         final String finished   = CommonUtils
                 .convertUtcToLocal(context, cursor.getString(indexFinished));
         final int actionIndex   = Integer.parseInt(cursor.getString(indexAction));
-        final String action     = context.getString(SyncDbHelper.ACTION_TEXT[actionIndex]);
+        final String action     = context.getString(ACTION_TEXT[actionIndex]);
         final int statusIndex   = Integer.parseInt(cursor.getString(indexStatus));
-        final String status     = context.getString(SyncDbHelper.STATUS_TEXT[statusIndex]);
+        final String status     = context.getString(STATUS_TEXT[statusIndex]);
         final String amount     = cursor.getString(indexAmount);
 
         final String description =
@@ -69,7 +83,7 @@ public final class SyncCursorAdapter extends CursorAdapter {
         private final TextView mFinishedView;
         private final TextView mDescriptionView;
 
-        ViewHolder(View view) {
+        ViewHolder(@NonNull final View view) {
             mFinishedView       = (TextView) view.findViewById(R.id.activity_sync_item_finished);
             mDescriptionView    = (TextView) view.findViewById(R.id.activity_sync_item_description);
         }

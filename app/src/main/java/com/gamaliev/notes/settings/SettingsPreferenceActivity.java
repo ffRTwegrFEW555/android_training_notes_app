@@ -22,6 +22,7 @@ import com.gamaliev.notes.common.shared_prefs.SpUsers;
 public final class SettingsPreferenceActivity extends AppCompatActivity {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = SettingsPreferenceActivity.class.getSimpleName();
 
 
@@ -30,7 +31,7 @@ public final class SettingsPreferenceActivity extends AppCompatActivity {
      */
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings_preference);
 
@@ -71,14 +72,24 @@ public final class SettingsPreferenceActivity extends AppCompatActivity {
 
     public static class SettingsPreferenceFragment extends PreferenceFragment {
 
+
+        /*
+            Init
+         */
+
         @NonNull
         public static SettingsPreferenceFragment getInstance() {
             final SettingsPreferenceFragment fragment = new SettingsPreferenceFragment();
             return fragment;
         }
 
+
+        /*
+            Lifecycle
+         */
+
         @Override
-        public void onCreate(@Nullable Bundle savedInstanceState) {
+        public void onCreate(@Nullable final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
 
             // Change preference name to current user.
@@ -106,7 +117,7 @@ public final class SettingsPreferenceActivity extends AppCompatActivity {
             @NonNull final Context context,
             final int requestCode) {
 
-        Intent starter = new Intent(context, SettingsPreferenceActivity.class);
+        final Intent starter = new Intent(context, SettingsPreferenceActivity.class);
         ((Activity) context).startActivityForResult(starter, requestCode);
     }
 }

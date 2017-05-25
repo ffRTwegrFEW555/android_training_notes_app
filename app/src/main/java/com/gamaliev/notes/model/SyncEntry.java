@@ -9,8 +9,8 @@ import com.gamaliev.notes.app.NotesApp;
 
 import java.util.Date;
 
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_TEXT;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.STATUS_TEXT;
+import static com.gamaliev.notes.sync.SyncUtils.ACTION_TEXT;
+import static com.gamaliev.notes.sync.SyncUtils.STATUS_TEXT;
 
 /**
  * @author Vadim Gamaliev
@@ -20,6 +20,7 @@ import static com.gamaliev.notes.sync.db.SyncDbHelper.STATUS_TEXT;
 public class SyncEntry implements Parcelable {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = SyncEntry.class.getSimpleName();
 
     /* ... */

@@ -28,6 +28,7 @@ import static com.gamaliev.notes.common.CommonUtils.showToast;
 
 final class ColorBoxOnTouchListener implements View.OnTouchListener {
 
+    /* ... */
     @NonNull private final Context mContext;
     @NonNull private final ColorPickerFragment mFragment;
     @NonNull private final Resources mResources;
@@ -44,6 +45,11 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
     private boolean mPauseNotify;
     private float mX1;
     private float mY1;
+
+
+    /*
+        Init
+     */
 
     ColorBoxOnTouchListener(
             @NonNull final Context context,
@@ -65,6 +71,11 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
         mHsvDegree          = fragment.getHsvDegree();
     }
 
+
+    /*
+        View.OnTouchListener
+     */
+
     /**
      * Handler of long press, double tap, single tap, move action<br>
      * Animates views.<br>
@@ -73,7 +84,7 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
      * Move action: change palette box color, when "edit mode" is turn on.
      */
     @Override
-    public boolean onTouch(View v, MotionEvent e) {
+    public boolean onTouch(final View v, final MotionEvent e) {
         mGestureDetector.onTouchEvent(e);
 
         switch (e.getAction()) {
@@ -168,6 +179,10 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
     }
 
 
+    /*
+        ...
+     */
+
     /**
      * Handler of long press, double tap, single tap.<br>
      * <br>
@@ -181,7 +196,7 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
 
             // Disable scrolling and turn on "Edit mode"
             @Override
-            public void onLongPress(MotionEvent e) {
+            public void onLongPress(final MotionEvent e) {
                 // Notification
                 playSoundAndShowToast(
                         mContext,
@@ -204,7 +219,7 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
 
             // Set default color back to palette box
             @Override
-            public boolean onDoubleTap(MotionEvent e) {
+            public boolean onDoubleTap(final MotionEvent e) {
                 setBackgroundColorRectangleAPI(mContext, mView, mHsvColors[mIndex]);
                 // Update overridden array.
                 mHsvColorsOverridden[mIndex] = -1;
@@ -213,7 +228,7 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
 
             // Set palette color to result box
             @Override
-            public boolean onSingleTapConfirmed(MotionEvent e) {
+            public boolean onSingleTapConfirmed(final MotionEvent e) {
                 int result = mHsvColorsOverridden[mIndex] != -1
                         ? mHsvColorsOverridden[mIndex] : mHsvColors[mIndex];
                 mFragment.setResultBoxColor(result);

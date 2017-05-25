@@ -40,6 +40,7 @@ import static android.app.Activity.RESULT_OK;
 import static com.gamaliev.notes.common.CommonUtils.EXTRA_REVEAL_ANIM_CENTER_CENTER;
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 import static com.gamaliev.notes.common.DialogFragmentUtils.initCircularRevealAnimation;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_SYNC_SUCCESS;
 import static com.gamaliev.notes.common.db.DbHelper.COMMON_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
@@ -52,17 +53,16 @@ import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertMapToJson;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
 import static com.gamaliev.notes.conflict.ConflictActivity.checkConflictExistsAndHideStatusBarNotification;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
+import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_DATA;
+import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_EXTRA;
+import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_ID;
+import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_STATUS;
+import static com.gamaliev.notes.rest.NoteApiUtils.API_STATUS_OK;
 import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
-import static com.gamaliev.notes.sync.SyncUtils.API_KEY_DATA;
-import static com.gamaliev.notes.sync.SyncUtils.API_KEY_EXTRA;
-import static com.gamaliev.notes.sync.SyncUtils.API_KEY_ID;
-import static com.gamaliev.notes.sync.SyncUtils.API_KEY_STATUS;
-import static com.gamaliev.notes.sync.SyncUtils.API_STATUS_OK;
-import static com.gamaliev.notes.sync.SyncUtils.RESULT_CODE_SUCCESS;
+import static com.gamaliev.notes.sync.SyncUtils.ACTION_ADDED_TO_LOCAL;
+import static com.gamaliev.notes.sync.SyncUtils.ACTION_ADDED_TO_SERVER;
+import static com.gamaliev.notes.sync.SyncUtils.STATUS_OK;
 import static com.gamaliev.notes.sync.SyncUtils.addToSyncJournalAndLogAndNotify;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_LOCAL;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.ACTION_ADDED_TO_SERVER;
-import static com.gamaliev.notes.sync.db.SyncDbHelper.STATUS_OK;
 
 /**
  * @author Vadim Gamaliev
@@ -75,8 +75,8 @@ public class ConflictSelectDialogFragment extends DialogFragment {
     private static final String TAG = ConflictSelectDialogFragment.class.getSimpleName();
 
     /* ... */
-    private static final String ARG_SYNC_ID = "syncId";
-    private static final String ARG_POSITION = "position";
+    private static final String EXTRA_SYNC_ID = "syncId";
+    private static final String EXTRA_POSITION = "position";
 
     @Nullable private View mDialog;
     @NonNull private Button mServerSaveBtn;
@@ -98,8 +98,8 @@ public class ConflictSelectDialogFragment extends DialogFragment {
             final int position) {
 
         final Bundle args = new Bundle();
-        args.putString(ARG_SYNC_ID, syncId);
-        args.putInt(ARG_POSITION, position);
+        args.putString(EXTRA_SYNC_ID, syncId);
+        args.putInt(EXTRA_POSITION, position);
 
         final ConflictSelectDialogFragment fragment = new ConflictSelectDialogFragment();
         fragment.setArguments(args);
@@ -112,18 +112,18 @@ public class ConflictSelectDialogFragment extends DialogFragment {
      */
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSyncId = getArguments().getString(ARG_SYNC_ID);
-        mPosition = getArguments().getInt(ARG_POSITION);
+        mSyncId = getArguments().getString(EXTRA_SYNC_ID);
+        mPosition = getArguments().getInt(EXTRA_POSITION);
     }
 
     @Nullable
     @Override
     public View onCreateView(
-            LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            Bundle savedInstanceState) {
+            final LayoutInflater inflater,
+            @Nullable final ViewGroup container,
+            final Bundle savedInstanceState) {
 
         mDialog = inflater.inflate(R.layout.fragment_dialog_conflict_select, null);
         initCircularRevealAnimation(
@@ -346,6 +346,11 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         tryEnableButtons();
     }
 
+
+    /*
+        Buttons listeners.
+     */
+
     @NonNull
     private View.OnClickListener getSrvBtnSaveOnClickListener(
             @NonNull final Activity activity,
@@ -366,6 +371,32 @@ public class ConflictSelectDialogFragment extends DialogFragment {
             }
         };
     }
+
+    @NonNull
+    private View.OnClickListener getLocalBtnSaveOnClickListener(
+            @NonNull final Activity activity,
+            @NonNull final String jsonEntry) {
+
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                SyncUtils.getSingleThreadExecutor().submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateOnLocal(activity, jsonEntry);
+                    }
+                });
+
+                dismiss();
+            }
+        };
+    }
+
+
+    /*
+        Sync operations.
+     */
 
     private void updateOnServer(
             @NonNull final Activity activity,
@@ -413,7 +444,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                     ACTION_ADDED_TO_LOCAL,
                     STATUS_OK,
                     1,
-                    RESULT_CODE_SUCCESS,
+                    RESULT_CODE_SYNC_SUCCESS,
                     true);
 
             // Callback
@@ -434,27 +465,6 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         } finally {
             db.endTransaction();
         }
-    }
-
-    @NonNull
-    private View.OnClickListener getLocalBtnSaveOnClickListener(
-            @NonNull final Activity activity,
-            @NonNull final String jsonEntry) {
-
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                SyncUtils.getSingleThreadExecutor().submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateOnLocal(activity, jsonEntry);
-                    }
-                });
-
-                dismiss();
-            }
-        };
     }
 
     private void updateOnLocal(
@@ -500,7 +510,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                             ACTION_ADDED_TO_SERVER,
                             STATUS_OK,
                             1,
-                            RESULT_CODE_SUCCESS,
+                            RESULT_CODE_SYNC_SUCCESS,
                             true);
 
                     // Callback
@@ -518,19 +528,6 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         }
     }
 
-
-    /*
-        ...
-     */
-
-    private void makeFinishOperations(@NonNull final Context context) {
-        getTargetFragment().onActivityResult(
-                getTargetRequestCode(),
-                RESULT_OK,
-                ConflictFragment.getResultIntent(mPosition));
-        checkConflictExistsAndHideStatusBarNotification(context);
-    }
-
     private void tryEnableButtons() {
         if (mServerEntryLoaded && mLocalEntryLoaded) {
             if (mDialog != null && mDialog.isAttachedToWindow()) {
@@ -543,5 +540,18 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                 });
             }
         }
+    }
+
+
+    /*
+        Finish
+     */
+
+    private void makeFinishOperations(@NonNull final Context context) {
+        getTargetFragment().onActivityResult(
+                getTargetRequestCode(),
+                RESULT_OK,
+                ConflictFragment.getResultIntent(mPosition));
+        checkConflictExistsAndHideStatusBarNotification(context);
     }
 }

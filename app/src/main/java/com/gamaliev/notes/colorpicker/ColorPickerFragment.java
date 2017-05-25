@@ -33,6 +33,9 @@ import java.util.Locale;
 import static com.gamaliev.notes.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.notes.common.CommonUtils.setBackgroundColorRectangleAPI;
 import static com.gamaliev.notes.common.CommonUtils.shiftColor;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_COLOR_PICKER_SELECTED;
+import static com.gamaliev.notes.common.observers.ObserverHelper.COLOR_PICKER;
+import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
 
 /**
  * @author Vadim Gamaliev
@@ -42,13 +45,16 @@ import static com.gamaliev.notes.common.CommonUtils.shiftColor;
 public final class ColorPickerFragment extends Fragment {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = ColorPickerFragment.class.getSimpleName();
 
     /* Extra */
+    public  static final String EXTRA_ID                    = "ColorPickerFragment.EXTRA_ID";
     public  static final String EXTRA_COLOR                 = "ColorPickerFragment.EXTRA_COLOR";
     private static final String EXTRA_RESULT_COLOR          = "ColorPickerFragment.EXTRA_RESULT_COLOR";
     private static final String EXTRA_HSV_COLOR_OVERRIDDEN  = "ColorPickerFragment.EXTRA_HSV_COLOR_OVERRIDDEN";
 
+    /* ... */
     @NonNull private View mParentView;
     @NonNull private Resources mRes;
     @NonNull private SwitchableHorizontalScrollView mPaletteHsvSv;
@@ -57,6 +63,7 @@ public final class ColorPickerFragment extends Fragment {
     @NonNull private PopupWindow mEditPw;
     @NonNull private int[] mHsvColors;
     @NonNull private int[] mHsvColorsOverridden;
+    private long mId;
     private int mBoxesNumber;
     private int mResultColor;
     private float mHsvDegree;
@@ -66,9 +73,12 @@ public final class ColorPickerFragment extends Fragment {
         Init
      */
 
-    public static ColorPickerFragment newInstance(final int color) {
+    public static ColorPickerFragment newInstance(
+            final long id,
+            final int color) {
 
         final Bundle bundle = new Bundle();
+        bundle.putLong(EXTRA_ID, id);
         bundle.putInt(EXTRA_COLOR, color);
 
         final ColorPickerFragment fragment = new ColorPickerFragment();
@@ -77,8 +87,13 @@ public final class ColorPickerFragment extends Fragment {
         return fragment;
     }
 
+
+    /*
+        Lifecycle
+     */
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
@@ -86,9 +101,9 @@ public final class ColorPickerFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(
-            LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
+            final LayoutInflater inflater,
+            @Nullable final ViewGroup container,
+            @Nullable final Bundle savedInstanceState) {
 
         mParentView = inflater.inflate(
                 R.layout.fragment_color_picker_default,
@@ -99,9 +114,27 @@ public final class ColorPickerFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(
+            final View view,
+            @Nullable final Bundle savedInstanceState) {
+
         init(savedInstanceState);
     }
+
+    /**
+     * @param outState Save result color, and overridden colors array.
+     */
+    @Override
+    public void onSaveInstanceState(final Bundle outState) {
+        outState.putInt(EXTRA_RESULT_COLOR, mResultColor);
+        outState.putIntArray(EXTRA_HSV_COLOR_OVERRIDDEN, mHsvColorsOverridden);
+        super.onSaveInstanceState(outState);
+    }
+
+
+    /*
+        ...
+     */
 
     private void init(@Nullable final Bundle savedInstanceState) {
         mRes            = getResources();
@@ -111,6 +144,7 @@ public final class ColorPickerFragment extends Fragment {
         mResultView     = mParentView.findViewById(R.id.fragment_color_picker_ff_result_box);
         mResultParentView = mParentView.findViewById(R.id.fragment_color_picker_ff_result_outer);
         mEditPw         = getPopupWindow();
+        mId             = getArguments().getLong(EXTRA_ID);
         mBoxesNumber    = mRes.getInteger(R.integer.fragment_color_picker_palette_boxes_number);
         mHsvDegree      = 360f / (mBoxesNumber * 2);
 
@@ -140,10 +174,6 @@ public final class ColorPickerFragment extends Fragment {
         initFullScreen();
     }
 
-
-    /*
-        Methods
-     */
 
     /**
      * Set HSV gradient color (0-360) to background of palette bar.
@@ -296,9 +326,7 @@ public final class ColorPickerFragment extends Fragment {
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // Return RESULT_OK and selected color.
-                        // setResult(RESULT_OK, ItemDetailsActivity.getResultColorIntent(mResultColor));
-                        finish();
+                        finish(true);
                     }
                 });
 
@@ -307,8 +335,7 @@ public final class ColorPickerFragment extends Fragment {
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // Finish the activity.
-                        finish();
+                        finish(false);
                     }
                 });
     }
@@ -401,21 +428,6 @@ public final class ColorPickerFragment extends Fragment {
 
 
     /*
-       On Save/Restore Instance State
-     */
-
-    /**
-     * @param outState Save result color, and overridden colors array.
-     */
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putInt(EXTRA_RESULT_COLOR, mResultColor);
-        outState.putIntArray(EXTRA_HSV_COLOR_OVERRIDDEN, mHsvColorsOverridden);
-        super.onSaveInstanceState(outState);
-    }
-
-
-    /*
         Getters
      */
 
@@ -452,7 +464,19 @@ public final class ColorPickerFragment extends Fragment {
         ...
      */
 
-    private void finish() {
+    private void finish(final boolean notifyAboutSelected) {
+
+        // Notify about selected color for specific entry.
+        if (notifyAboutSelected) {
+            final Bundle bundle = new Bundle();
+            bundle.putInt(EXTRA_RESULT_COLOR, mResultColor);
+            bundle.putLong(EXTRA_ID, mId);
+            notifyObservers(
+                    COLOR_PICKER,
+                    RESULT_CODE_COLOR_PICKER_SELECTED,
+                    bundle);
+        }
+
         getActivity().onBackPressed();
     }
 }

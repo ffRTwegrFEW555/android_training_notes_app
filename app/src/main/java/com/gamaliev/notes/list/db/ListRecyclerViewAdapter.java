@@ -7,13 +7,11 @@ import android.graphics.PorterDuff;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.transition.AutoTransition;
 import android.transition.Fade;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -26,10 +24,7 @@ import com.gamaliev.notes.common.recycler_view_item_touch_helper.ItemTouchHelper
 import com.gamaliev.notes.common.recycler_view_item_touch_helper.OnStartDragListener;
 import com.gamaliev.notes.item_details.ItemDetailsFragment;
 
-import java.util.Collections;
 import java.util.Map;
-
-import static com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment.ACTION_EDIT;
 
 /**
  * @author Vadim Gamaliev
@@ -41,6 +36,7 @@ public final class ListRecyclerViewAdapter
         implements ItemTouchHelperAdapter {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = ListRecyclerViewAdapter.class.getSimpleName();
 
     /* ... */
@@ -68,7 +64,7 @@ public final class ListRecyclerViewAdapter
      */
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
 
         final View view = LayoutInflater
                 .from(parent.getContext())
@@ -79,7 +75,10 @@ public final class ListRecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        mCursor.moveToPosition(position);
+        if (mCursor == null || !mCursor.moveToPosition(position)) {
+            return;
+        }
+
         final Context context = holder.mParentView.getContext();
 
         // Get values from current row.
@@ -112,7 +111,7 @@ public final class ListRecyclerViewAdapter
 
                 // Start item details fragment, with edit action.
                 final ItemDetailsFragment fragment =
-                        ItemDetailsFragment.newInstance(ACTION_EDIT, id);
+                        ItemDetailsFragment.newInstance(id);
 
                 // Init transitions.
                 final View colorView = v.findViewById(R.id.fragment_list_item_color);
@@ -152,7 +151,7 @@ public final class ListRecyclerViewAdapter
 
     @Override
     public int getItemCount() {
-        return mCursor.getCount();
+        return mCursor == null ? 0 : mCursor.getCount();
     }
 
 
@@ -169,7 +168,7 @@ public final class ListRecyclerViewAdapter
         private final TextView  mEditedView;
         private final View      mColorView;
 
-        private ViewHolder(View view) {
+        private ViewHolder(@NonNull final View view) {
             super(view);
 
             mParentView         = view;
@@ -220,13 +219,13 @@ public final class ListRecyclerViewAdapter
      */
 
     @Override
-    public void onItemDismiss(int position) {
+    public void onItemDismiss(final int position) {
 //        mItems.remove(position);
         notifyItemRemoved(position);
     }
 
     @Override
-    public boolean onItemMove(int fromPosition, int toPosition) {
+    public boolean onItemMove(final int fromPosition, final int toPosition) {
 //        Collections.swap(mItems, fromPosition, toPosition);
         notifyItemMoved(fromPosition, toPosition);
         return true;

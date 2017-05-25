@@ -22,6 +22,7 @@ public final class ProgressNotificationHelper {
     /* Logger */
     private static final String TAG = ProgressNotificationHelper.class.getSimpleName();
 
+    /* ... */
     @NonNull private final NotificationManager mManager;
     @NonNull private final NotificationCompat.Builder mBuilder;
     @NonNull private final String mComplete;
@@ -29,6 +30,11 @@ public final class ProgressNotificationHelper {
     private final int mId;
     private boolean mEnable;
     private boolean mFinished;
+
+
+    /*
+        Init
+     */
 
     /**
      * To enable notification, you must use {@link #startTimerToEnableNotification}
@@ -56,6 +62,11 @@ public final class ProgressNotificationHelper {
                 .setContentText(text)
                 .setSmallIcon(R.drawable.ic_import_export_white_24dp);
     }
+
+
+    /*
+        ...
+     */
 
     public void setProgress(final int max, final int progress) {
         if (isEnable()) {

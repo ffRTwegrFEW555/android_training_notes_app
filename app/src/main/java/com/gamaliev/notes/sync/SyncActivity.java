@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -18,12 +19,19 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.common.OnCompleteListener;
+import com.gamaliev.notes.common.observers.Observer;
 import com.gamaliev.notes.conflict.ConflictActivity;
 import com.gamaliev.notes.sync.db.SyncCursorAdapter;
 import com.gamaliev.notes.sync.db.SyncDbHelper;
 
 import static com.gamaliev.notes.common.CommonUtils.showToast;
+import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_CONFLICTING;
+import static com.gamaliev.notes.common.observers.ObserverHelper.ENTRY;
+import static com.gamaliev.notes.common.observers.ObserverHelper.FILE_IMPORT;
+import static com.gamaliev.notes.common.observers.ObserverHelper.LIST_FILTER;
+import static com.gamaliev.notes.common.observers.ObserverHelper.SYNC;
+import static com.gamaliev.notes.common.observers.ObserverHelper.registerObserver;
+import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObserver;
 import static com.gamaliev.notes.conflict.ConflictActivity.hideConflictStatusBarNotification;
 
 /**
@@ -31,16 +39,18 @@ import static com.gamaliev.notes.conflict.ConflictActivity.hideConflictStatusBar
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class SyncActivity extends AppCompatActivity implements OnCompleteListener {
+public class SyncActivity extends AppCompatActivity implements Observer {
 
     /* Logger */
     private static final String TAG = SyncActivity.class.getSimpleName();
 
+    /* Observed */
+    @NonNull
+    public static final String[] OBSERVED = {SYNC};
+
     /* ... */
     @NonNull private CursorAdapter mAdapter;
     @NonNull private ListView mListView;
-
-    public static final int REQUEST_CODE_START_CONFLICTING = 0;
 
 
     /*
@@ -48,21 +58,27 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
      */
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sync);
         init();
     }
 
     @Override
-    protected void onResume() {
-        SyncUtils.addObserver(TAG, this);
+    public void onResume() {
+        notifyDataSetChangedAndScrollToEnd();
+        registerObserver(
+                OBSERVED,
+                toString(),
+                this);
         super.onResume();
     }
 
     @Override
-    protected void onPause() {
-        SyncUtils.removeObserver(TAG);
+    public void onPause() {
+        unregisterObserver(
+                OBSERVED,
+                toString());
         super.onPause();
     }
 
@@ -104,7 +120,7 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
                 public void onClick(View v) {
                     ConflictActivity.startIntent(
                             SyncActivity.this,
-                            REQUEST_CODE_START_CONFLICTING);
+                            REQUEST_CODE_CONFLICTING);
                 }
             });
         } else {
@@ -136,7 +152,7 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
      * Inflate action bar menu.
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_sync, menu);
         return super.onCreateOptionsMenu(menu);
     }
@@ -145,7 +161,7 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
      * Action bar menu item selection handler
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
 
             // Synchronize button
@@ -157,7 +173,7 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
             case R.id.menu_sync_show_conflicting:
                 ConflictActivity.startIntent(
                         this,
-                        REQUEST_CODE_START_CONFLICTING);
+                        REQUEST_CODE_CONFLICTING);
                 break;
 
             // Delete all from server button
@@ -201,14 +217,9 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
      */
 
     @Override
-    public void onComplete(int code) {
-        notifyDataSetChangedAndScrollToEnd();
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_CANCELED) {
-            if (requestCode == REQUEST_CODE_START_CONFLICTING) {
+            if (requestCode == REQUEST_CODE_CONFLICTING) {
                 notifyDataSetChangedAndScrollToEnd();
             }
         }
@@ -298,5 +309,18 @@ public class SyncActivity extends AppCompatActivity implements OnCompleteListene
 
         final AlertDialog alert = builder.create();
         alert.show();
+    }
+
+
+    /*
+        Observer
+     */
+
+    @Override
+    public void onNotify(
+            final int resultCode,
+            @Nullable final Bundle data) {
+
+        notifyDataSetChangedAndScrollToEnd();
     }
 }

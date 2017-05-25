@@ -23,6 +23,7 @@ import com.gamaliev.notes.common.shared_prefs.SpUsers;
 public class UserActivity extends AppCompatActivity {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = UserActivity.class.getSimpleName();
 
     /* Intents */
@@ -30,15 +31,26 @@ public class UserActivity extends AppCompatActivity {
 
 
     /*
-        Init
+        Lifecycle
      */
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
         init();
     }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+
+    /*
+        ...
+     */
 
     private void init() {
         initToolbar();
@@ -52,12 +64,6 @@ public class UserActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
     }
 
     private void initListView() {
@@ -112,8 +118,17 @@ public class UserActivity extends AppCompatActivity {
         ((Activity) context).startActivityForResult(starter, requestCode);
     }
 
+
+    /*
+        Callbacks
+     */
+
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(
+            final int requestCode,
+            final int resultCode,
+            final Intent data) {
+
         if (resultCode == RESULT_CANCELED) {
             if (requestCode == REQUEST_CODE_CONFIGURE_USER) {
                 initListView();

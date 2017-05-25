@@ -64,8 +64,8 @@ public class CommonUtils {
     public static final int EXTRA_DATES_BOTH                        = 8;
 
     /* Animation */
-    public static final int EXTRA_REVEAL_ANIM_CENTER_CENTER        = 101;
-    public static final int EXTRA_REVEAL_ANIM_CENTER_TOP_END       = 102;
+    public static final int EXTRA_REVEAL_ANIM_CENTER_CENTER         = 101;
+    public static final int EXTRA_REVEAL_ANIM_CENTER_TOP_END        = 102;
 
 
     /*
@@ -198,7 +198,7 @@ public class CommonUtils {
         }
 
         //
-        Animator anim =
+        final Animator anim =
                 ViewAnimationUtils.createCircularReveal(view, x, y, 0, radius);
         if (duration > 0) {
             anim.setDuration(duration);
@@ -249,7 +249,7 @@ public class CommonUtils {
             }
 
             //
-            Animator anim =
+            final Animator anim =
                     ViewAnimationUtils.createCircularReveal(view, x, y, radius, 0);
             if (duration > 0) {
                 anim.setDuration(duration);

@@ -29,6 +29,7 @@ import static com.gamaliev.notes.common.CommonUtils.showToast;
 public final class UserPreferenceActivity extends AppCompatActivity {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = UserPreferenceActivity.class.getSimpleName();
 
     /* ... */
@@ -37,11 +38,11 @@ public final class UserPreferenceActivity extends AppCompatActivity {
 
 
     /*
-        Init
+        Lifecycle
      */
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_preference);
 
@@ -53,6 +54,17 @@ public final class UserPreferenceActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+
+    /*
+        ...
+     */
+
     private void initUserId() {
         mUserId = getIntent().getStringExtra(EXTRA_USER_ID);
     }
@@ -63,12 +75,6 @@ public final class UserPreferenceActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
     }
 
     private void initPreferenceFragment() {
@@ -89,7 +95,7 @@ public final class UserPreferenceActivity extends AppCompatActivity {
      * Inflate action bar menu.
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_user_preference, menu);
         return super.onCreateOptionsMenu(menu);
     }
@@ -98,7 +104,7 @@ public final class UserPreferenceActivity extends AppCompatActivity {
      * Action bar menu item selection handler
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
 
             // Delete button
@@ -120,23 +126,33 @@ public final class UserPreferenceActivity extends AppCompatActivity {
 
     public static class UserPreferenceFragment extends PreferenceFragment {
 
-        private static final String ARG_USER_ID = "userId";
-
+        /* ... */
+        private static final String EXTRA_USER_ID = "userId";
         @NonNull private String mUserId;
+
+
+        /*
+            Init
+         */
 
         @NonNull
         public static UserPreferenceFragment getInstance(@NonNull final String userId) {
             final Bundle args = new Bundle();
-            args.putString(ARG_USER_ID, userId);
+            args.putString(EXTRA_USER_ID, userId);
             final UserPreferenceFragment fragment = new UserPreferenceFragment();
             fragment.setArguments(args);
             return fragment;
         }
 
+
+        /*
+            Lifecycle
+         */
+
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            mUserId = getArguments().getString(ARG_USER_ID);
+            mUserId = getArguments().getString(EXTRA_USER_ID);
 
             // Change preference name to current user.
             final PreferenceManager manager = getPreferenceManager();

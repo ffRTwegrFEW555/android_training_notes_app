@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.gamaliev.notes.common.FileUtils;
 import com.gamaliev.notes.common.db.DbHelper;
+import com.gamaliev.notes.common.observers.ObserverHelper;
 import com.gamaliev.notes.common.shared_prefs.SpCommon;
 import com.gamaliev.notes.conflict.ConflictActivity;
 import com.gamaliev.notes.sync.SyncUtils;
@@ -18,6 +19,7 @@ import com.gamaliev.notes.sync.SyncUtils;
 public class NotesApp extends Application {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = NotesApp.class.getSimpleName();
 
     /* ... */
@@ -25,7 +27,7 @@ public class NotesApp extends Application {
 
 
     /*
-        Init
+        Lifecycle
      */
 
     @Override
@@ -34,13 +36,23 @@ public class NotesApp extends Application {
         init();
     }
 
+
+    /*
+        ...
+     */
+
     private void init() {
         sAppContext = getApplicationContext();
 
+        initObserverHelper();
         initSharedPreferences();
         initDataBase();
         initFileUtils();
         initSync();
+    }
+
+    private void initObserverHelper() {
+        ObserverHelper.notifyAllObservers(0, null);
     }
 
     private void initSharedPreferences() {
@@ -53,8 +65,10 @@ public class NotesApp extends Application {
      * the database does not have time to fill when list view is refreshing)
      */
     private void initDataBase() {
-        DbHelper dbHelper = DbHelper.getInstance(getApplicationContext());
-        dbHelper.getWritableDatabase();
+        final DbHelper dbHelper = DbHelper.getInstance(getApplicationContext());
+        if (dbHelper != null) {
+            dbHelper.getWritableDatabase();
+        }
     }
 
     /**

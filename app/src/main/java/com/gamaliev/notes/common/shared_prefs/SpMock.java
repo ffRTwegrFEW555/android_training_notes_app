@@ -186,9 +186,6 @@ public final class SpMock {
                     null,
                     false);
             entriesCount += entriesCount;
-
-            /*// Add mock synchronization
-            SyncDbMockHelper.addMockSync(context);*/
         }
     }
 

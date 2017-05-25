@@ -31,7 +31,7 @@ public class ColorPickerDbHelper {
     /* Logger */
     private static final String TAG = ColorPickerDbHelper.class.getSimpleName();
 
-    /* */
+    /* ... */
     public static final int[] FAVORITE_COLORS_DEFAULT = {
             -53248,     -28672,     -4096,      -5177600,
             -11469056,  -16711920,  -16711824,  -16711728,
@@ -48,7 +48,7 @@ public class ColorPickerDbHelper {
 
 
     /*
-        Methods
+        ...
      */
 
     /**

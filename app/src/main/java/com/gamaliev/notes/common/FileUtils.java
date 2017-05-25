@@ -23,12 +23,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Map;
-import java.util.WeakHashMap;
 
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_NOTES_EXPORTED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_NOTES_IMPORTED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.getEntries;
+import static com.gamaliev.notes.common.observers.ObserverHelper.FILE_EXPORT;
+import static com.gamaliev.notes.common.observers.ObserverHelper.FILE_IMPORT;
+import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getProgressNotificationTimerForCurrentUser;
 import static com.gamaliev.notes.model.ListEntry.convertJsonToListEntry;
 import static com.gamaliev.notes.model.ListEntry.getJsonObject;
@@ -57,20 +60,9 @@ public class FileUtils {
     /* Logger */
     private static final String TAG = FileUtils.class.getSimpleName();
 
-    /* Result code */
-    public static final int RESULT_CODE_EXTRA_IMPORTED = 101;
-    public static final int RESULT_CODE_EXTRA_EXPORTED = 102;
-
-    /* Request code */
-    public static final int REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 1;
-    public static final int REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE = 2;
-
     /* ... */
     public static final String FILE_NAME_EXPORT_DEFAULT = "itemlist.ili";
-
-    private static final Map<String, OnCompleteListener> OBSERVERS;
     private static final CommonUtils.LooperHandlerThread IMPORT_EXPORT_HANDLER_LOOPER_THREAD;
-
 
 
     /*
@@ -78,33 +70,11 @@ public class FileUtils {
      */
 
     static {
-        OBSERVERS = new WeakHashMap<>();
         IMPORT_EXPORT_HANDLER_LOOPER_THREAD = new CommonUtils.LooperHandlerThread();
         IMPORT_EXPORT_HANDLER_LOOPER_THREAD.start();
     }
 
     private FileUtils() {}
-
-
-    /*
-        Weak observers
-     */
-
-    public static void addObserver(
-            @NonNull final String key,
-            @NonNull final OnCompleteListener observer) {
-        OBSERVERS.put(key, observer);
-    }
-
-    public static void removeObserver(@NonNull final String key) {
-        OBSERVERS.remove(key);
-    }
-
-    public static void notifyObservers(int resultCode) {
-        for (OnCompleteListener value : OBSERVERS.values()) {
-            value.onComplete(resultCode);
-        }
-    }
 
 
     /*
@@ -273,7 +243,10 @@ public class FileUtils {
                     Toast.LENGTH_LONG);
 
             // Notify.
-            notifyObservers(RESULT_CODE_EXTRA_EXPORTED);
+            notifyObservers(
+                    FILE_EXPORT,
+                    RESULT_CODE_NOTES_EXPORTED,
+                    null);
 
             // Notification panel success.
             notification.endProgress();
@@ -490,7 +463,10 @@ public class FileUtils {
                 Toast.LENGTH_LONG);
 
         // Notify activity.
-        notifyObservers(RESULT_CODE_EXTRA_IMPORTED);
+        notifyObservers(
+                FILE_IMPORT,
+                RESULT_CODE_NOTES_IMPORTED,
+                null);
     }
 
 

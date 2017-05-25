@@ -1,6 +1,5 @@
 package com.gamaliev.notes.item_details;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,23 +23,16 @@ import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 public final class ItemDetailsFragment extends Fragment {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = ItemDetailsFragment.class.getSimpleName();
 
-    /* Action */
-    public static final String ACTION      = "ItemDetailsFragment.ACTION";
-    public static final String ACTION_EDIT = "ItemDetailsFragment.ACTION_EDIT";
-
     /* Extra */
-    private static final String EXTRA_ID    = "ItemDetailsFragment.EXTRA_ID";
+    private static final String EXTRA_ID = "ItemDetailsFragment.EXTRA_ID";
 
     /* ... */
     private static final int OFFSCREEN_PAGE_LIMIT = 3;
 
     @NonNull private View mParentView;
-    @NonNull private ActionBar mActionBar;
-    @NonNull private ViewPager mViewPager;
-    @NonNull private FragmentStatePagerAdapter mPagerAdapter;
-    @NonNull private String mAction;
     private long mId;
 
 
@@ -48,12 +40,9 @@ public final class ItemDetailsFragment extends Fragment {
         Init
      */
 
-    public static ItemDetailsFragment newInstance(
-            @NonNull final String action,
-            final long id) {
+    public static ItemDetailsFragment newInstance(final long id) {
 
         final Bundle bundle = new Bundle();
-        bundle.putString(ACTION, action);
         bundle.putLong(EXTRA_ID, id);
 
         final ItemDetailsFragment fragment = new ItemDetailsFragment();
@@ -68,18 +57,17 @@ public final class ItemDetailsFragment extends Fragment {
      */
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAction = getArguments().getString(ACTION);
         mId = getArguments().getLong(EXTRA_ID);
     }
 
     @Nullable
     @Override
     public View onCreateView(
-            LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
+            final LayoutInflater inflater,
+            @Nullable final ViewGroup container,
+            @Nullable final Bundle savedInstanceState) {
 
         mParentView = inflater.inflate(
                 R.layout.fragment_item_details,
@@ -90,7 +78,10 @@ public final class ItemDetailsFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(
+            final View view,
+            @Nullable final Bundle savedInstanceState) {
+
         init();
     }
 
@@ -110,44 +101,47 @@ public final class ItemDetailsFragment extends Fragment {
         final DbQueryBuilder queryBuilder = new DbQueryBuilder();
         queryBuilder.setOrder(BASE_COLUMN_ID);
 
+        //
         final Cursor cursor = getEntries(
                 getContext(),
                 LIST_ITEMS_TABLE_NAME,
                 queryBuilder);
 
-        cursor.moveToFirst();
-        int startPosition = cursor.getPosition();
-        do {
-            final long id = cursor.getLong(cursor.getColumnIndex(BASE_COLUMN_ID));
-            if (mId == id) {
-                startPosition = cursor.getPosition();
-                break;
-            }
-        } while (cursor.moveToNext());
+        //
+        int startPosition = 0;
+        if (cursor != null) {
+            cursor.moveToFirst();
+            startPosition = cursor.getPosition();
+            do {
+                final long id = cursor.getLong(cursor.getColumnIndex(BASE_COLUMN_ID));
+                if (mId == id) {
+                    startPosition = cursor.getPosition();
+                    break;
+                }
+            } while (cursor.moveToNext());
+        }
 
         //
-        mPagerAdapter = new ItemDetailsPagerAdapter(
-                getChildFragmentManager(),
-                this,
-                cursor);
+        final FragmentStatePagerAdapter adapter =
+                new ItemDetailsPagerAdapter(
+                        getChildFragmentManager(),
+                        this,
+                        cursor);
 
         //
-        mViewPager = (ViewPager) mParentView.findViewById(R.id.fragment_item_details_vp);
-        mViewPager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT);
-        mViewPager.setAdapter(mPagerAdapter);
-        mViewPager.setCurrentItem(startPosition);
+        final ViewPager viewPager =
+                (ViewPager) mParentView.findViewById(R.id.fragment_item_details_vp);
+        viewPager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT);
+        viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(startPosition);
     }
 
     private void initActionBat() {
-        mActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        mActionBar.setElevation(0);
+        final ActionBar actionBar =
+                ((AppCompatActivity) getActivity()).getSupportActionBar();
+
+        if (actionBar != null) {
+            actionBar.setElevation(0);
+        }
     }
-
-
-    /*
-        Callbacks
-     */
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {}
 }

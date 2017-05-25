@@ -24,12 +24,18 @@ import static com.gamaliev.notes.common.CommonUtils.setBackgroundColor;
 
 final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
 
+    /* ... */
     @NonNull private final Context mContext;
     @NonNull private final ColorPickerFragment mFragment;
     @NonNull private final Resources mRes;
     @NonNull private final GestureDetector mGestureDetector;
     @NonNull private final View mView;
     private final int mIndex;
+
+
+    /*
+        Init
+     */
 
     FavoriteColorBoxOnTouchListener(
             @NonNull final Context context,
@@ -45,6 +51,11 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
         mGestureDetector = new GestureDetector(context, getSimpleOnGestureListener());
     }
 
+
+    /*
+        View.OnTouchListener
+     */
+
     /**
      * Handler of long press, single tap.<br>
      * Animates views.<br>
@@ -52,7 +63,7 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
      * Long press, single tap: see {@link #getSimpleOnGestureListener()}
      */
     @Override
-    public boolean onTouch(View v, MotionEvent e) {
+    public boolean onTouch(final View v, final MotionEvent e) {
         mGestureDetector.onTouchEvent(e);
 
         // Elevation and scale animation.
@@ -83,6 +94,11 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
         return false;
     }
 
+
+    /*
+        ...
+     */
+
     /**
      * Handler of long press, single tap.<br>
      * Animates views.<br>
@@ -96,7 +112,7 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
 
             // Add result color to favorite box
             @Override
-            public void onLongPress(MotionEvent e) {
+            public void onLongPress(final MotionEvent e) {
                 final int resultColor = mFragment.getResultColor();
                 // Update database entry.
                 if (ColorPickerDbHelper.updateFavoriteColor(mContext, mIndex, resultColor)) {
@@ -119,7 +135,7 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
 
             // Set favorite color to result box.
             @Override
-            public boolean onSingleTapConfirmed(MotionEvent e) {
+            public boolean onSingleTapConfirmed(final MotionEvent e) {
                 // Refresh color from database.
                 // Update current color box and result box.
                 final int color = ColorPickerDbHelper.getFavoriteColor(mContext, mIndex);

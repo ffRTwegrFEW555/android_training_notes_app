@@ -26,6 +26,7 @@ import static com.gamaliev.notes.user.UserActivity.REQUEST_CODE_CONFIGURE_USER;
 public class UserAdapter extends BaseAdapter {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = UserAdapter.class.getSimpleName();
 
     /* ... */
@@ -44,7 +45,7 @@ public class UserAdapter extends BaseAdapter {
 
 
     /*
-        ...
+        Lifecycle
      */
 
     @Override
@@ -53,12 +54,12 @@ public class UserAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
+    public Object getItem(final int position) {
         return mProfiles[position];
     }
 
     @Override
-    public long getItemId(int position) {
+    public long getItemId(final int position) {
         return Long.parseLong(mProfiles[position]);
     }
 
@@ -110,13 +111,18 @@ public class UserAdapter extends BaseAdapter {
         return convertView;
     }
 
+
+    /*
+        ViewHolder
+     */
+
     private static class ViewHolder {
         private final TextView      mTitleView;
         private final TextView      mDescriptionEmailView;
         private final TextView      mDescriptionView;
         private final ImageButton   mConfigureImageButton;
 
-        ViewHolder(View view) {
+        ViewHolder(@NonNull final View view) {
             mTitleView              = (TextView) view.findViewById(R.id.activity_user_item_title);
             mDescriptionEmailView   = (TextView) view.findViewById(R.id.activity_user_item_description_email);
             mDescriptionView        = (TextView) view.findViewById(R.id.activity_user_item_description);

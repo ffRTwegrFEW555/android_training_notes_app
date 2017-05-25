@@ -40,10 +40,18 @@ import java.util.Map;
 import static com.gamaliev.notes.common.CommonUtils.checkAndRequestPermissions;
 import static com.gamaliev.notes.common.CommonUtils.showMessageDialog;
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
-import static com.gamaliev.notes.common.FileUtils.REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE;
-import static com.gamaliev.notes.common.FileUtils.REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE;
 import static com.gamaliev.notes.common.FileUtils.exportEntriesAsync;
 import static com.gamaliev.notes.common.FileUtils.importEntriesAsync;
+import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_CHANGE_USER;
+import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_NOTES_EXPORT;
+import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_NOTES_IMPORT;
+import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE;
+import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE;
+import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_SETTINGS;
+import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_SYNC_NOTES;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_MOCK_ENTRIES_ADDED;
+import static com.gamaliev.notes.common.observers.ObserverHelper.ENTRIES_MOCK;
+import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
 
 /**
  * @author Vadim Gamaliev
@@ -55,20 +63,15 @@ public class MainActivity extends AppCompatActivity {
     /* Logger */
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    /* Intents */
-    private static final int REQUEST_CODE_IMPORT = 101;
-    private static final int REQUEST_CODE_EXPORT = 102;
-    private static final int REQUEST_CODE_CHANGE_USER = 103;
-    private static final int REQUEST_CODE_SYNC_NOTES = 104;
-    private static final int REQUEST_CODE_SETTINGS = 105;
-
+    /* ... */
+    @NonNull private NavigationView mNavView;
 
     /*
-        Init
+        Lifecycle
      */
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_drawer_layout);
         init();
@@ -81,6 +84,16 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
         }
     }
+
+    @Override
+    protected void onResume() {
+        initUserInfo(mNavView);
+        super.onResume();
+    }
+
+    /*
+        ...
+     */
 
     private void init() {
         initToolbarAndNavigationDrawer();
@@ -103,17 +116,23 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
 
         // Set navigation view listener.
-        final NavigationView navigationView =
-                (NavigationView) findViewById(R.id.activity_main_nav_view);
-        navigationView.setNavigationItemSelectedListener(getNavItemSelectedListener());
+        mNavView = (NavigationView) findViewById(R.id.activity_main_nav_view);
+        mNavView.setNavigationItemSelectedListener(getNavItemSelectedListener());
 
-        // Change user info.
+        //
+        initUserInfo(mNavView);
+
+
+    }
+
+    private void initUserInfo(@NonNull final NavigationView navView) {
+
         final Map<String, String> userProfile
                 = SpUsers.get(
                 getApplicationContext(),
                 SpUsers.getSelected(getApplicationContext()));
 
-        ((TextView) navigationView
+        ((TextView) navView
                 .getHeaderView(0)
                 .findViewById(R.id.activity_main_nav_drawable_header_title_text_view))
                 .setText(
@@ -121,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                                 userProfile.get(SpUsers.SP_USER_LAST_NAME) + " " +
                                 userProfile.get(SpUsers.SP_USER_MIDDLE_NAME));
 
-        ((TextView) navigationView
+        ((TextView) navView
                 .getHeaderView(0)
                 .findViewById(R.id.activity_main_nav_drawable_header_mail_text_view))
                 .setText(userProfile.get(SpUsers.SP_USER_EMAIL));
@@ -162,23 +181,24 @@ public class MainActivity extends AppCompatActivity {
      */
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(
+            final int requestCode,
+            final int resultCode,
+            final Intent data) {
+
         if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_CODE_IMPORT) {
+            if (requestCode == REQUEST_CODE_NOTES_IMPORT) {
 
                 // If file selected, then start import.
                 final Uri selectedFile = data.getData();
                 importEntriesAsync(this, selectedFile);
 
-            } else if (requestCode == REQUEST_CODE_EXPORT) {
+            } else if (requestCode == REQUEST_CODE_NOTES_EXPORT) {
 
                 // If file selected, then start export.
                 final Uri selectedFile = data.getData();
                 exportEntriesAsync(this, selectedFile);
             }
-
-            //
-            initToolbarAndNavigationDrawer();
         }
     }
 
@@ -191,9 +211,9 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public void onRequestPermissionsResult(
-            int requestCode,
-            @NonNull String[] permissions,
-            @NonNull int[] grantResults) {
+            final int requestCode,
+            @NonNull final String[] permissions,
+            @NonNull final int[] grantResults) {
 
         switch (requestCode) {
             case REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE:
@@ -323,6 +343,12 @@ public class MainActivity extends AppCompatActivity {
                                 + " (" + added + ")"
                                 : getString(R.string.activity_main_notification_add_mock_entries_failed),
                         Toast.LENGTH_SHORT);
+
+                //
+                notifyObservers(
+                        ENTRIES_MOCK,
+                        RESULT_CODE_MOCK_ENTRIES_ADDED,
+                        null);
             }
         }).start();
     }
@@ -332,29 +358,19 @@ public class MainActivity extends AppCompatActivity {
         Intents
      */
 
-    /**
-     * Creating intent, and starting file chooser for import-file.<br>
-     * Then result handle by {@link #onActivityResult(int, int, Intent)},
-     * with {@link #REQUEST_CODE_IMPORT}.
-     */
     private void startImportFileChooser() {
         final Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
-        startActivityForResult(intent, REQUEST_CODE_IMPORT);
+        startActivityForResult(intent, REQUEST_CODE_NOTES_IMPORT);
     }
 
-    /**
-     * Creating intent, and starting file chooser for export-file.<br>
-     * Then result handle by {@link #onActivityResult(int, int, Intent)},
-     * with {@link #REQUEST_CODE_EXPORT}.
-     */
     private void startExportFileChooser() {
         final Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         intent.putExtra(Intent.EXTRA_TITLE, FileUtils.FILE_NAME_EXPORT_DEFAULT);
-        startActivityForResult(intent, REQUEST_CODE_EXPORT);
+        startActivityForResult(intent, REQUEST_CODE_NOTES_EXPORT);
     }
 
 

@@ -14,7 +14,13 @@ import com.gamaliev.notes.sync.SyncUtils;
 
 public class NetworkBroadcastReceiver extends BroadcastReceiver {
 
+    /* ... */
     private static BroadcastReceiver sInstance;
+
+
+    /*
+        Init
+     */
 
     @Nullable
     public static synchronized BroadcastReceiver getInstance() {
@@ -24,6 +30,11 @@ public class NetworkBroadcastReceiver extends BroadcastReceiver {
 
         return sInstance;
     }
+
+
+    /*
+        ...
+     */
 
     @Override
     public void onReceive(Context context, Intent intent) {

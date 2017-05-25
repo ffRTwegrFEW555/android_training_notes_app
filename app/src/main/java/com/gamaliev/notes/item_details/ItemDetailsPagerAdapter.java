@@ -20,6 +20,7 @@ import static com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment.ACTIO
 public class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = ItemDetailsPagerAdapter.class.getSimpleName();
 
     /* ... */
@@ -34,7 +35,7 @@ public class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
     public ItemDetailsPagerAdapter(
             @NonNull final FragmentManager fm,
             @NonNull final Fragment fragment,
-            @NonNull final Cursor cursor) {
+            @Nullable final Cursor cursor) {
 
         super(fm);
         mFragment = fragment;
@@ -47,7 +48,7 @@ public class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
      */
 
     @Override
-    public Fragment getItem(int position) {
+    public Fragment getItem(final int position) {
         if (mCursor != null && mCursor.moveToPosition(position)) {
             final long id = getId(position);
             return ItemDetailsPagerItemFragment.newInstance(ACTION_EDIT, id);
@@ -57,11 +58,11 @@ public class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return mCursor.getCount();
+        return mCursor == null ? 0 : mCursor.getCount();
     }
 
     @Override
-    public CharSequence getPageTitle(int position) {
+    public CharSequence getPageTitle(final int position) {
         final long id = getId(position);
         return id == -1
                 ? ""
@@ -76,7 +77,7 @@ public class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
      */
 
     private long getId(final int position) {
-        if (mCursor.moveToPosition(position)) {
+        if (mCursor != null && mCursor.moveToPosition(position)) {
             return mCursor.getLong(
                     mCursor.getColumnIndex(BASE_COLUMN_ID));
         }

@@ -1,6 +1,5 @@
 package com.gamaliev.notes.list;
 
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.TextUtils;
 import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,11 +22,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.common.OnCompleteListener;
 import com.gamaliev.notes.common.db.DbHelper;
+import com.gamaliev.notes.common.observers.Observer;
 import com.gamaliev.notes.common.recycler_view_item_touch_helper.ItemTouchHelperCallback;
 import com.gamaliev.notes.common.recycler_view_item_touch_helper.OnStartDragListener;
 import com.gamaliev.notes.common.shared_prefs.SpFilterProfiles;
@@ -38,11 +37,23 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static android.app.Activity.RESULT_OK;
 import static com.gamaliev.notes.common.CommonUtils.EXTRA_REVEAL_ANIM_CENTER_CENTER;
 import static com.gamaliev.notes.common.CommonUtils.circularRevealAnimationOff;
 import static com.gamaliev.notes.common.CommonUtils.circularRevealAnimationOn;
-import static com.gamaliev.notes.common.CommonUtils.showToast;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_ADDED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_DELETED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_EDITED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_LIST_FILTERED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_MOCK_ENTRIES_ADDED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_NOTES_IMPORTED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_SYNC_SUCCESS;
+import static com.gamaliev.notes.common.observers.ObserverHelper.ENTRIES_MOCK;
+import static com.gamaliev.notes.common.observers.ObserverHelper.ENTRY;
+import static com.gamaliev.notes.common.observers.ObserverHelper.FILE_IMPORT;
+import static com.gamaliev.notes.common.observers.ObserverHelper.LIST_FILTER;
+import static com.gamaliev.notes.common.observers.ObserverHelper.SYNC;
+import static com.gamaliev.notes.common.observers.ObserverHelper.registerObserver;
+import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObserver;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
 import static com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment.ACTION_ADD;
 
@@ -52,20 +63,11 @@ import static com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment.ACTIO
  */
 
 public class ListFragment extends Fragment
-        implements OnCompleteListener, OnStartDragListener {
+        implements OnStartDragListener, Observer {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = ListFragment.class.getSimpleName();
-
-    /* Intents */
-    private static final int REQUEST_CODE_ADD           = 101;
-    private static final int REQUEST_CODE_EDIT          = 102;
-
-    private static final String RESULT_CODE_EXTRA       = "resultCodeExtra";
-    public static final int RESULT_CODE_FILTER_DIALOG   = 201;
-    public static final int RESULT_CODE_EXTRA_ADDED     = 202;
-    public static final int RESULT_CODE_EXTRA_EDITED    = 203;
-    public static final int RESULT_CODE_EXTRA_DELETED   = 204;
 
     /* SQLite */
     @NonNull
@@ -73,10 +75,18 @@ public class ListFragment extends Fragment
             DbHelper.LIST_ITEMS_COLUMN_TITLE,
             DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION};
 
-    @NonNull private ListRecyclerViewAdapter mAdapter;
+    /* Observed */
+    @NonNull
+    public static final String[] OBSERVED = {
+            FILE_IMPORT,
+            LIST_FILTER,
+            ENTRY,
+            ENTRIES_MOCK,
+            SYNC};
 
     /* ... */
     @NonNull private View mParentView;
+    @NonNull private ListRecyclerViewAdapter mAdapter;
     @NonNull private RecyclerView mRecyclerView;
     @NonNull private Button mFoundView;
     @NonNull private SearchView mSearchView;
@@ -93,8 +103,13 @@ public class ListFragment extends Fragment
         return new ListFragment();
     }
 
+
+    /*
+        Lifecycle
+     */
+
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
@@ -102,9 +117,9 @@ public class ListFragment extends Fragment
     @Nullable
     @Override
     public View onCreateView(
-            LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
+            final LayoutInflater inflater,
+            @Nullable final ViewGroup container,
+            @Nullable final Bundle savedInstanceState) {
 
         mParentView = inflater.inflate(
                 R.layout.fragment_list,
@@ -115,9 +130,36 @@ public class ListFragment extends Fragment
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(
+            final View view,
+            @Nullable final Bundle savedInstanceState) {
+
         init();
     }
+
+    @Override
+    public void onResume() {
+        initFilterProfile();
+        updateFilterAdapter();
+
+        registerObserver(
+                OBSERVED,
+                toString(),
+                this);
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        unregisterObserver(
+                OBSERVED,
+                toString());
+        super.onPause();
+    }
+
+    /*
+        ...
+     */
 
     private void init() {
         mFoundView = (Button) mParentView.findViewById(R.id.fragment_list_button_found);
@@ -172,14 +214,6 @@ public class ListFragment extends Fragment
         mAdapter = new ListRecyclerViewAdapter(this, this);
         mAdapter.updateCursor(getContext(), "", mFilterProfileMap);
 
-        // Register observer. Showing found notification.
-/*        mAdapter.registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                showFoundNotification();
-            }
-        });*/
-
         // Init
         mRecyclerView = (RecyclerView) mParentView.findViewById(R.id.fragment_list_rv);
         mRecyclerView.addItemDecoration(
@@ -191,10 +225,8 @@ public class ListFragment extends Fragment
         ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(mAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
-
-        // Refresh view.
-//        filterAdapter("");
     }
+
 
     /*
         Options menu
@@ -204,7 +236,7 @@ public class ListFragment extends Fragment
      * Inflate action bar menu and setup search function.
      */
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
         inflater.inflate(R.menu.menu_list, menu);
         initSearchView(menu);
         initFilterMenu(menu);
@@ -227,11 +259,7 @@ public class ListFragment extends Fragment
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // Refresh view.
-                mAdapter.updateCursor(getContext(), newText, mFilterProfileMap);
-                mAdapter.notifyDataSetChanged();
-                // Found notification.
-                showFoundNotification();
+                updateAdapter(newText);
                 return true;
             }
         });
@@ -250,60 +278,6 @@ public class ListFragment extends Fragment
                         return true;
                     }
                 });
-    }
-
-
-    /*
-        Callbacks
-     */
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_CODE_ADD) {
-                // Notification if added.
-                showToast(
-                        getContext(),
-                        getString(R.string.fragment_list_notification_entry_added),
-                        Toast.LENGTH_SHORT);
-
-            } else if (requestCode == REQUEST_CODE_EDIT) {
-                if (data.getIntExtra(RESULT_CODE_EXTRA, -1) == RESULT_CODE_EXTRA_EDITED) {
-                    // Show notification if edited.
-                    showToast(
-                            getContext(),
-                            getString(R.string.fragment_list_notification_entry_updated),
-                            Toast.LENGTH_SHORT);
-
-                } else if (data.getIntExtra(RESULT_CODE_EXTRA, -1) == RESULT_CODE_EXTRA_DELETED) {
-                    // Show notification if deleted.
-                    showToast(
-                            getContext(),
-                            getString(R.string.fragment_list_notification_entry_deleted),
-                            Toast.LENGTH_SHORT);
-                }
-
-            }
-
-            //
-            initFilterProfile();
-            updateFilterAdapter();
-        }
-    }
-
-
-    @Override
-    public void onComplete(final int code) {
-        if (code == RESULT_CODE_FILTER_DIALOG) {
-            // Show notification
-            showToast(
-                    getContext(),
-                    getString(R.string.fragment_list_notification_filtered),
-                    Toast.LENGTH_SHORT);
-        }
-        //
-        initFilterProfile();
-        updateFilterAdapter();
     }
 
 
@@ -402,16 +376,24 @@ public class ListFragment extends Fragment
     /**
      * Getting text from search view, and use for filter. If text is empty, then using empty string.
      */
+    @SuppressWarnings("ConstantConditions")
     private void updateFilterAdapter() {
-/*
         if (mSearchView != null) {
             final String searchText = mSearchView.getQuery().toString();
-            filterAdapter(TextUtils.isEmpty(searchText) ? "" : searchText);
+            updateAdapter(TextUtils.isEmpty(searchText) ? "" : searchText);
 
         } else {
-            filterAdapter("");
+            updateAdapter("");
         }
-*/
+    }
+
+    private void updateAdapter(String newText) {
+        // Refresh view.
+        mAdapter.updateCursor(getContext(), newText, mFilterProfileMap);
+        mAdapter.notifyDataSetChanged();
+
+        //
+        showFoundNotification();
     }
 
 
@@ -420,7 +402,36 @@ public class ListFragment extends Fragment
      */
 
     @Override
-    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+    public void onStartDrag(final RecyclerView.ViewHolder viewHolder) {
         mItemTouchHelper.startDrag(viewHolder);
+    }
+
+
+    /*
+        Observer
+     */
+
+    @Override
+    public void onNotify(final int resultCode, @Nullable final Bundle data) {
+        switch (resultCode) {
+            case RESULT_CODE_NOTES_IMPORTED:
+            case RESULT_CODE_LIST_FILTERED:
+            case RESULT_CODE_SYNC_SUCCESS:
+            case RESULT_CODE_MOCK_ENTRIES_ADDED:
+            case RESULT_CODE_ENTRY_ADDED:
+            case RESULT_CODE_ENTRY_EDITED:
+            case RESULT_CODE_ENTRY_DELETED:
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        initFilterProfile();
+                        updateFilterAdapter();
+                    }
+                });
+                break;
+
+            default:
+                break;
+        }
     }
 }

@@ -30,6 +30,7 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
 public class ListDbMockHelper {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = ListDbMockHelper.class.getSimpleName();
 
     /* Mock data */
@@ -73,7 +74,6 @@ public class ListDbMockHelper {
 
     /**
      * Add mock entries in given database, with given params.<br>
-     * See: {@link com.gamaliev.notes.list.ListActivity}
      *
      * @param entriesNumber Number of inserting entries.
      * @param db            Opened database.

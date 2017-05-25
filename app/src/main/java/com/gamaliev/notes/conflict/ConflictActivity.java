@@ -25,6 +25,7 @@ import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 public class ConflictActivity extends AppCompatActivity {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = ConflictActivity.class.getSimpleName();
 
     /* ... */
@@ -32,15 +33,26 @@ public class ConflictActivity extends AppCompatActivity {
 
 
     /*
-        Init
+        Lifecycle
      */
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conflict);
         init();
     }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+
+    /*
+        ...
+     */
 
     private void init() {
         initToolbar();
@@ -52,12 +64,6 @@ public class ConflictActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
     }
 
 

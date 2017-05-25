@@ -14,9 +14,6 @@ import android.view.ViewGroup;
 
 import com.gamaliev.notes.R;
 
-import static android.app.Activity.RESULT_OK;
-import static com.gamaliev.notes.conflict.ConflictRecyclerViewAdapter.REQUEST_CODE_CONFLICT_SELECT;
-
 /**
  * @author Vadim Gamaliev
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
@@ -25,6 +22,7 @@ import static com.gamaliev.notes.conflict.ConflictRecyclerViewAdapter.REQUEST_CO
 public class ConflictFragment extends Fragment {
 
     /* Logger */
+    @SuppressWarnings("unused")
     private static final String TAG = ConflictFragment.class.getSimpleName();
 
     /* ... */
@@ -33,16 +31,17 @@ public class ConflictFragment extends Fragment {
     @NonNull private RecyclerView mRecyclerView;
     @NonNull private ConflictRecyclerViewAdapter mAdapter;
 
+
     /*
-        Init
+        Lifecycle
      */
 
     @Nullable
     @Override
     public View onCreateView(
-            LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
+            final LayoutInflater inflater,
+            @Nullable final ViewGroup container,
+            @Nullable final Bundle savedInstanceState) {
 
         // Adapter.
         mAdapter = new ConflictRecyclerViewAdapter(getContext(), this);
@@ -65,10 +64,10 @@ public class ConflictFragment extends Fragment {
         ...
      */
 
-    @Override
+/*    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_CODE_CONFLICT_SELECT) {
+            if (requestCode == REQUEST_CODE_CONFLICT_DIALOG_SELECT) {
                 final int pos = data.getIntExtra(EXTRA_CONFLICT_SELECT_POSITION, -1);
                 if (pos > -1) {
                     mAdapter.updateCursor(getContext());
@@ -77,7 +76,7 @@ public class ConflictFragment extends Fragment {
                 }
             }
         }
-    }
+    }*/
 
 
     /*
