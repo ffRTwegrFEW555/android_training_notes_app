@@ -13,10 +13,6 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class NoteApiUtils {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = NoteApiUtils.class.getSimpleName();
-
     /* ... */
     public static final String API_KEY_STATUS   = "status";
     public static final String API_KEY_DATA     = "data";

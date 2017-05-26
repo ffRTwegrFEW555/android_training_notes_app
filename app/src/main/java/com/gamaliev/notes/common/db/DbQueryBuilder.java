@@ -14,10 +14,6 @@ import android.text.TextUtils;
  */
 public final class DbQueryBuilder {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = DbQueryBuilder.class.getSimpleName();
-
     /* SQL */
     public static final String OPERATOR_OR      = " OR ";
     public static final String OPERATOR_AND     = " AND ";

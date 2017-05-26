@@ -21,11 +21,6 @@ import com.gamaliev.notes.common.shared_prefs.SpUsers;
 
 public final class SettingsPreferenceActivity extends AppCompatActivity {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = SettingsPreferenceActivity.class.getSimpleName();
-
-
     /*
         Init
      */

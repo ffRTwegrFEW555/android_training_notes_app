@@ -22,10 +22,6 @@ import com.gamaliev.notes.common.shared_prefs.SpUsers;
 
 public class UserActivity extends AppCompatActivity {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = UserActivity.class.getSimpleName();
-
     /* Intents */
     public static final int REQUEST_CODE_CONFIGURE_USER = 101;
 

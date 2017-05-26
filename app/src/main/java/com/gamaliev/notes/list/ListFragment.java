@@ -65,10 +65,6 @@ import static com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment.ACTIO
 public class ListFragment extends Fragment
         implements OnStartDragListener, Observer {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = ListFragment.class.getSimpleName();
-
     /* SQLite */
     @NonNull
     public static final String[] SEARCH_COLUMNS = {

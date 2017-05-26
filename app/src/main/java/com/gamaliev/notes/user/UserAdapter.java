@@ -25,10 +25,6 @@ import static com.gamaliev.notes.user.UserActivity.REQUEST_CODE_CONFIGURE_USER;
 
 public class UserAdapter extends BaseAdapter {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = UserAdapter.class.getSimpleName();
-
     /* ... */
     @NonNull private final String[] mProfiles;
 

@@ -18,10 +18,6 @@ import com.gamaliev.notes.sync.SyncUtils;
 
 public class NotesApp extends Application {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = NotesApp.class.getSimpleName();
-
     /* ... */
     @NonNull private static Context sAppContext;
 

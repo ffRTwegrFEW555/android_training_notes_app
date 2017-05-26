@@ -19,10 +19,6 @@ import static com.gamaliev.notes.sync.SyncUtils.STATUS_TEXT;
 
 public class SyncEntry implements Parcelable {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = SyncEntry.class.getSimpleName();
-
     /* ... */
     @Nullable private Long      mId;
     @Nullable private Date      mFinished;

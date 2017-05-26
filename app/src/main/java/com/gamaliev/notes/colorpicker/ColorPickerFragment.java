@@ -1,5 +1,6 @@
 package com.gamaliev.notes.colorpicker;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -44,15 +45,12 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers
 
 public final class ColorPickerFragment extends Fragment {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = ColorPickerFragment.class.getSimpleName();
-
     /* Extra */
-    public  static final String EXTRA_ID                    = "ColorPickerFragment.EXTRA_ID";
-    public  static final String EXTRA_COLOR                 = "ColorPickerFragment.EXTRA_COLOR";
-    private static final String EXTRA_RESULT_COLOR          = "ColorPickerFragment.EXTRA_RESULT_COLOR";
-    private static final String EXTRA_HSV_COLOR_OVERRIDDEN  = "ColorPickerFragment.EXTRA_HSV_COLOR_OVERRIDDEN";
+    public static final String EXTRA_ID             = "ColorPickerFragment.EXTRA_ID";
+    public static final String EXTRA_COLOR          = "ColorPickerFragment.EXTRA_COLOR";
+    public static final String EXTRA_RESULT_COLOR   = "ColorPickerFragment.EXTRA_RESULT_COLOR";
+    public static final String EXTRA_HSV_COLOR_OVERRIDDEN = "ColorPickerFragment.EXTRA_HSV_COLOR_OVERRIDDEN";
+    public static final String EXTRA_COLOR_BUNDLE   = "ColorPickerFragment.EXTRA_COLOR_BUNDLE";
 
     /* ... */
     @NonNull private View mParentView;
@@ -105,12 +103,13 @@ public final class ColorPickerFragment extends Fragment {
             @Nullable final ViewGroup container,
             @Nullable final Bundle savedInstanceState) {
 
+        final LinearLayout wrapper = new LinearLayout(getContext());
         mParentView = inflater.inflate(
-                R.layout.fragment_color_picker_default,
-                container,
-                false);
+                R.layout.fragment_color_picker,
+                wrapper,
+                true);
 
-        return mParentView;
+        return wrapper;
     }
 
     @Override
@@ -468,13 +467,22 @@ public final class ColorPickerFragment extends Fragment {
 
         // Notify about selected color for specific entry.
         if (notifyAboutSelected) {
+            //
             final Bundle bundle = new Bundle();
             bundle.putInt(EXTRA_RESULT_COLOR, mResultColor);
             bundle.putLong(EXTRA_ID, mId);
+            //
             notifyObservers(
                     COLOR_PICKER,
                     RESULT_CODE_COLOR_PICKER_SELECTED,
                     bundle);
+            //
+            final Intent intent = new Intent();
+            intent.putExtra(EXTRA_COLOR_BUNDLE, bundle);
+            getTargetFragment().onActivityResult(
+                    getTargetRequestCode(),
+                    RESULT_CODE_COLOR_PICKER_SELECTED,
+                    intent);
         }
 
         getActivity().onBackPressed();

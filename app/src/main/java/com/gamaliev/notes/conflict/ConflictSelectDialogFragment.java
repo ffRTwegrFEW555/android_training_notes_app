@@ -36,10 +36,10 @@ import java.util.Map;
 
 import retrofit2.Response;
 
-import static android.app.Activity.RESULT_OK;
 import static com.gamaliev.notes.common.CommonUtils.EXTRA_REVEAL_ANIM_CENTER_CENTER;
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 import static com.gamaliev.notes.common.DialogFragmentUtils.initCircularRevealAnimation;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_CONFLICTED_SUCCESS;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_SYNC_SUCCESS;
 import static com.gamaliev.notes.common.db.DbHelper.COMMON_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
@@ -550,7 +550,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
     private void makeFinishOperations(@NonNull final Context context) {
         getTargetFragment().onActivityResult(
                 getTargetRequestCode(),
-                RESULT_OK,
+                RESULT_CODE_CONFLICTED_SUCCESS,
                 ConflictFragment.getResultIntent(mPosition));
         checkConflictExistsAndHideStatusBarNotification(context);
     }

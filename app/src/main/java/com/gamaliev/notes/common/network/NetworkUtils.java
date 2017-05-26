@@ -12,10 +12,6 @@ import android.support.annotation.NonNull;
 
 public class NetworkUtils {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = NetworkUtils.class.getSimpleName();
-
     /* ... */
     public static final int NETWORK_NO      = -1;
     public static final int NETWORK_MOBILE  = 0;

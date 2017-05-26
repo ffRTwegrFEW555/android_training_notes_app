@@ -27,10 +27,6 @@ import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 public final class ConflictRecyclerViewAdapter
         extends RecyclerView.Adapter<ConflictRecyclerViewAdapter.ViewHolder> {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = ConflictRecyclerViewAdapter.class.getSimpleName();
-
     /* ... */
     @Nullable private Cursor mCursor;
     @NonNull private Fragment mFragment;

@@ -35,10 +35,6 @@ public final class ListRecyclerViewAdapter
         extends RecyclerView.Adapter<ListRecyclerViewAdapter.ViewHolder>
         implements ItemTouchHelperAdapter {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = ListRecyclerViewAdapter.class.getSimpleName();
-
     /* ... */
     @NonNull private final Fragment mFragment;
     @NonNull private final OnStartDragListener mDragStartListener;

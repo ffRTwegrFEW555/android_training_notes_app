@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 
 public class EditTextPreferenceWithValueSummary extends EditTextPreference {
 
-
     /*
         Init
      */

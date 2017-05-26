@@ -28,10 +28,6 @@ import static com.gamaliev.notes.common.CommonUtils.showToast;
 
 public final class UserPreferenceActivity extends AppCompatActivity {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = UserPreferenceActivity.class.getSimpleName();
-
     /* ... */
     private static final String EXTRA_USER_ID = "UserPreferenceActivity.EXTRA_USER_ID";
     @NonNull private String mUserId;

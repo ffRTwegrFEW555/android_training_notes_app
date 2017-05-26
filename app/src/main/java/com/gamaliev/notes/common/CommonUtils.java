@@ -28,6 +28,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewAnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
@@ -762,5 +763,20 @@ public class CommonUtils {
 
     public static Handler getMainHandler() {
         return new Handler(Looper.getMainLooper());
+    }
+
+
+    /*
+        Input
+     */
+
+    public static void hideKeyboard(
+            @NonNull final Context context,
+            @NonNull final View view) {
+
+        final InputMethodManager imm =
+                (InputMethodManager) context.getSystemService(
+                        context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }

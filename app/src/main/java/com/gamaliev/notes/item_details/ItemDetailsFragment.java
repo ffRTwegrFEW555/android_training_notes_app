@@ -14,17 +14,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.common.db.DbQueryBuilder;
+import com.gamaliev.notes.common.shared_prefs.SpFilterProfiles;
+import com.gamaliev.notes.list.db.ListDbHelper;
+
+import java.util.Map;
 
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
-import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
-import static com.gamaliev.notes.common.db.DbHelper.getEntries;
+import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
 
 public final class ItemDetailsFragment extends Fragment {
-
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = ItemDetailsFragment.class.getSimpleName();
 
     /* Extra */
     private static final String EXTRA_ID = "ItemDetailsFragment.EXTRA_ID";
@@ -98,14 +96,12 @@ public final class ItemDetailsFragment extends Fragment {
     private void initViewPager() {
 
         //
-        final DbQueryBuilder queryBuilder = new DbQueryBuilder();
-        queryBuilder.setOrder(BASE_COLUMN_ID);
-
-        //
-        final Cursor cursor = getEntries(
+        final Map<String, String> currentFilter = convertJsonToMap(
+                SpFilterProfiles.getSelectedForCurrentUser(getContext()));
+        final Cursor cursor = ListDbHelper.getCursorWithParams(
                 getContext(),
-                LIST_ITEMS_TABLE_NAME,
-                queryBuilder);
+                "",
+                currentFilter);
 
         //
         int startPosition = 0;

@@ -32,6 +32,9 @@ public class ResultCode {
     public static final int RESULT_CODE_SYNC_SUCCESS    = 153;
     public static final int RESULT_CODE_SYNC_FAILED     = 154;
 
+    /* Conflicted entries */
+    public static final int RESULT_CODE_CONFLICTED_SUCCESS = 161;
+
 
     /*
         Init

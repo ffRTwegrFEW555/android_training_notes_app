@@ -24,10 +24,6 @@ import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 
 public class ConflictActivity extends AppCompatActivity {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = ConflictActivity.class.getSimpleName();
-
     /* ... */
     private static final int EXTRA_ID_CONFLICT_STATUS_BAR_NOTIFICATION = 101;
 

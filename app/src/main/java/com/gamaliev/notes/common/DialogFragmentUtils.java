@@ -16,11 +16,6 @@ import static com.gamaliev.notes.common.CommonUtils.circularRevealAnimationOn;
 
 public final class DialogFragmentUtils {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = DialogFragmentUtils.class.getSimpleName();
-
-
     /*
         Init
      */

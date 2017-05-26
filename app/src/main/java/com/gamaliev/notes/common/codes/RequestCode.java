@@ -20,7 +20,10 @@ public class RequestCode {
 
     /* Conflicting entries */
     public static final int REQUEST_CODE_CONFLICTING    = 121;
-    public static final int REQUEST_CODE_CONFLICT_DIALOG_SELECT = 101;
+    public static final int REQUEST_CODE_CONFLICT_DIALOG_SELECT = 122;
+
+    /* Color picker. Select */
+    public static final int REQUEST_CODE_COLOR_PICKER_SELECT = 131;
 
 
 

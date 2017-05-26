@@ -15,10 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ObserverHelper {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = ObserverHelper.class.getSimpleName();
-
     /* Observers */
     private static final Map<String, Map<String, Observer>> OBSERVERS;
 

@@ -19,10 +19,6 @@ import static com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment.ACTIO
 
 public class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = ItemDetailsPagerAdapter.class.getSimpleName();
-
     /* ... */
     @NonNull private final Fragment mFragment;
     @Nullable private Cursor mCursor;

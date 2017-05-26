@@ -1,6 +1,7 @@
 package com.gamaliev.notes.item_details;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -35,10 +36,16 @@ import com.gamaliev.notes.model.ListEntry;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import static com.gamaliev.notes.app.NotesApp.getAppContext;
+import static com.gamaliev.notes.colorpicker.ColorPickerFragment.EXTRA_COLOR_BUNDLE;
+import static com.gamaliev.notes.colorpicker.ColorPickerFragment.EXTRA_RESULT_COLOR;
 import static com.gamaliev.notes.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.notes.common.CommonUtils.getResourceColorApi;
 import static com.gamaliev.notes.common.CommonUtils.getStringDateFormatSqlite;
+import static com.gamaliev.notes.common.CommonUtils.hideKeyboard;
 import static com.gamaliev.notes.common.CommonUtils.showToast;
+import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_COLOR_PICKER_SELECT;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_COLOR_PICKER_SELECTED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_ADDED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_CANCEL;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_DELETED;
@@ -144,6 +151,12 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    public void onPause() {
+        // Bug.
+        hideKeyboard(getContext(), mParentView);
+        super.onPause();
+    }
 
     /*
         ...
@@ -162,6 +175,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
 
         setColorBoxListener();
         processAction();
+        initActionBar();
         initImageUrlValidation();
         initImageView();
         initRefreshImageButton();
@@ -184,6 +198,11 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
                 // Start color picker fragment.
                 final ColorPickerFragment fragment =
                         ColorPickerFragment.newInstance(mId, mColor);
+
+                // Callback
+                fragment.setTargetFragment(
+                        ItemDetailsPagerItemFragment.this,
+                        REQUEST_CODE_COLOR_PICKER_SELECT);
 
                 // Init transitions.
                 final View headerBox = mParentView.findViewById(R.id.fragment_item_details_ff_header);
@@ -216,8 +235,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
      * See also: {@link #ACTION_ADD}, {@link #ACTION_EDIT}.
      */
     private void processAction() {
-        //
-        mActionBar.setElevation(0);
 
         switch (mAction) {
 
@@ -229,16 +246,18 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
 
                     // On first start activity.
                     // Set color box with default color, and create new entry.
-                    refreshColorBox(getDefaultColor(getContext()));
-                    mEntry = new ListEntry();
-                    refreshEntry();
+                    if (mEntry == null) {
+                        mEntry = new ListEntry();
+                        mEntry.setColor(getDefaultColor(getContext()));
+                    }
+
                 } else {
 
                     // On restart activity.
                     // Fill activity views values with restored entry-values.
-                    mEntry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
-                    fillActivityViews();
+                    getEntryFromSavedInstanceStateWithChangeSelectedColor();
                 }
+                fillActivityViews();
                 break;
 
             // Start activity with Edit action.
@@ -248,16 +267,17 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
                 if (mSavedInstanceState == null) {
 
                     // On first start activity. Get entry from database, with given id.
-                    mEntry = ListDbHelper.getEntry(getContext(), mId);
+                    if (mEntry == null) {
+                        mEntry = ListDbHelper.getEntry(getContext(), mId);
+                        // Update viewed date.
+                        ListDbHelper.updateEntry(getContext(), mEntry, LIST_ITEMS_COLUMN_VIEWED);
+                    }
 
                     // If received object and id is not null.
                     // Else finish.
                     if (mEntry != null && mEntry.getId() != null) {
                         // Fill activity views values with received values.
                         fillActivityViews();
-
-                        // Update viewed date.
-                        ListDbHelper.updateEntry(getContext(), mEntry, LIST_ITEMS_COLUMN_VIEWED);
 
                     } else {
                         finish(null);
@@ -273,7 +293,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
 
                     // On restart activity.
                     // Fill activity views values with restored entry-values.
-                    mEntry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
+                    getEntryFromSavedInstanceStateWithChangeSelectedColor();
                     fillActivityViews();
                 }
                 break;
@@ -281,6 +301,22 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
             default:
                 break;
         }
+    }
+
+    private void getEntryFromSavedInstanceStateWithChangeSelectedColor() {
+        if (mEntry != null) {
+            final Integer tempColor = mEntry.getColor();
+            mEntry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
+            if (tempColor != null) {
+                mEntry.setColor(tempColor);
+            }
+        } else {
+            mEntry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
+        }
+    }
+
+    private void initActionBar() {
+        mActionBar.setElevation(0);
     }
 
     private void initImageUrlValidation() {
@@ -486,10 +522,10 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
                 break;
 
             default:
-                break;
+                return super.onOptionsItemSelected(item);
         }
 
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     /**
@@ -628,22 +664,32 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
     /**
      * If color was selected, then refresh activity views.
      */
-/*    @Override
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_COLOR && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_CODE_COLOR_PICKER_SELECT
+                && resultCode == RESULT_CODE_COLOR_PICKER_SELECTED) {
+
             if (data != null) {
 
                 // Get selected color. If null, using default color.
-                int color = data.getIntExtra(
-                        ColorPickerFragment.EXTRA_COLOR,
-                        getDefaultColor(getContext()));
+                final Bundle bundle = data.getBundleExtra(EXTRA_COLOR_BUNDLE);
+                int color = bundle.getInt(
+                        EXTRA_RESULT_COLOR,
+                        getDefaultColor(getAppContext()));
 
                 // Update entry, then activity views.
+                if (mEntry == null) {
+                    mEntry = new ListEntry();
+                }
                 mEntry.setColor(color);
-                fillActivityViews();
             }
         }
-    }*/
+    }
+
+
+    /*
+        Finish
+     */
 
     private void finish(@Nullable final String action) {
 

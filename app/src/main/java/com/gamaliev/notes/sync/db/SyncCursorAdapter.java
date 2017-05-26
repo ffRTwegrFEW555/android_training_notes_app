@@ -23,7 +23,6 @@ import static com.gamaliev.notes.sync.SyncUtils.STATUS_TEXT;
 
 public final class SyncCursorAdapter extends CursorAdapter {
 
-
     /*
         Init
      */

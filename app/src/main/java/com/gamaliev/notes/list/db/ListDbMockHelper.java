@@ -29,10 +29,6 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
 
 public class ListDbMockHelper {
 
-    /* Logger */
-    @SuppressWarnings("unused")
-    private static final String TAG = ListDbMockHelper.class.getSimpleName();
-
     /* Mock data */
     private static final String[] LIST_MOCK_NAMES = {
             "Anastasia Aleksandrova", "Boris Babushkin", "Viktor Vasilyev", "Gennady Georgiyev",
