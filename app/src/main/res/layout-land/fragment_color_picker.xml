@@ -15,8 +15,8 @@
         app:srcCompat="@drawable/ic_swap_horiz_black_36dp"
         android:contentDescription="@string/fragment_color_picker_ic_helper_swipe"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="@dimen/fragment_color_picker_image_ic_helper_favorite_swipe_margin"
+        android:layout_marginBottom="@dimen/fragment_color_picker_image_ic_helper_favorite_swipe_margin"
         android:layout_alignParentEnd="true" />
 
     <ImageView
@@ -44,8 +44,8 @@
         app:srcCompat="@drawable/ic_swap_horiz_black_36dp"
         android:layout_below="@+id/fragment_color_picker_scroll_palette_bar"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"/>
+        android:layout_marginTop="@dimen/fragment_color_picker_image_ic_helper_palette_swipe_margin"
+        android:layout_marginEnd="@dimen/fragment_color_picker_image_ic_helper_palette_swipe_margin"/>
 
     <ImageView
         android:id="@+id/fragment_color_picker_image_ic_helper_palette_move"
@@ -96,45 +96,52 @@
         <!-- Result -->
         <FrameLayout
             android:id="@+id/fragment_color_picker_ff_result_outer"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/fragment_color_picker_ff_result_outer_land_width"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_gravity="center"
-            android:paddingBottom="10dp"
-            android:paddingTop="10dp">
+            android:paddingBottom="@dimen/fragment_color_picker_ff_result_outer_padding"
+            android:paddingTop="@dimen/fragment_color_picker_ff_result_outer_padding">
 
             <FrameLayout
-                android:id="@+id/fragment_color_picker_ff_result_box"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_gravity="center"
-                android:layout_margin="5dp"
-                android:background="@color/color_picker_default"
-                android:elevation="@dimen/fragment_color_picker_ff_result_box_elevation"
-                android:transitionName="@string/shared_transition_name_color_box">
+                android:id="@+id/fragment_color_picker_ff_result_box_with_buttons"
+                android:layout_width="@dimen/fragment_color_picker_ff_result_box_with_buttons_land_width"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center">
 
-                <TextView
-                    android:id="@+id/fragment_color_picker_text_result_box"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                <FrameLayout
+                    android:id="@+id/fragment_color_picker_ff_result_box"
+                    android:layout_width="@dimen/fragment_color_picker_ff_result_box_size"
+                    android:layout_height="@dimen/fragment_color_picker_ff_result_box_size"
+                    android:layout_gravity="start"
+                    android:layout_margin="@dimen/fragment_color_picker_ff_result_box_margin"
+                    android:background="@color/color_picker_default"
+                    android:elevation="@dimen/fragment_color_picker_ff_result_box_elevation"
+                    android:transitionName="@string/shared_transition_name_color_box">
+
+                    <TextView
+                        android:id="@+id/fragment_color_picker_text_result_box"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textSize="@dimen/fragment_color_picker_text_result_box_size"
+                        android:textStyle="bold"/>
+                </FrameLayout>
+
+                <ImageView
+                    android:id="@+id/fragment_color_picker_ic_done"
+                    style="@style/ColorPickerActionIconsLand"
+                    android:layout_marginBottom="@dimen/fragment_color_picker_ic_done_margin_bottom"
+                    android:contentDescription="@string/fragment_color_picker_ic_done_description"
+                    app:srcCompat="@drawable/ic_done_black_48dp"/>
+
+                <ImageView
+                    android:id="@+id/fragment_color_picker_ic_cancel"
+                    style="@style/ColorPickerActionIconsLand"
+                    android:layout_marginTop="@dimen/fragment_color_picker_ic_cancel_margin_top"
+                    android:contentDescription="@string/fragment_color_picker_ic_cancel_description"
+                    app:srcCompat="@drawable/ic_clear_black_48dp"/>
+
             </FrameLayout>
-
-            <ImageView
-                android:id="@+id/fragment_color_picker_ic_done"
-                style="@style/ColorPickerActionIcons"
-                android:contentDescription="@string/fragment_color_picker_ic_done_description"
-                android:layout_marginBottom="30dp"
-                app:srcCompat="@drawable/ic_done_black_48dp" />
-
-            <ImageView
-                android:id="@+id/fragment_color_picker_ic_cancel"
-                style="@style/ColorPickerActionIcons"
-                android:contentDescription="@string/fragment_color_picker_ic_cancel_description"
-                android:layout_marginTop="30dp"
-                app:srcCompat="@drawable/ic_clear_black_48dp"/>
 
         </FrameLayout>
 
@@ -152,7 +159,7 @@
                 android:id="@+id/fragment_color_picker_ll_favorite_bar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
+                android:padding="@dimen/fragment_color_picker_ll_favorite_bar_padding"
                 android:orientation="horizontal"
                 android:clipChildren="false"
                 android:clipToPadding="false">

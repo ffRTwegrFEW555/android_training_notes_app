@@ -28,7 +28,7 @@ public final class ItemDetailsFragment extends Fragment {
     private static final String EXTRA_ID = "ItemDetailsFragment.EXTRA_ID";
 
     /* ... */
-    private static final int OFFSCREEN_PAGE_LIMIT = 3;
+    private static final int OFFSCREEN_PAGE_LIMIT = 5;
 
     @NonNull private View mParentView;
     private long mId;

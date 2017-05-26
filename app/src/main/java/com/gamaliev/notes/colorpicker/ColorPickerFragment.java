@@ -1,6 +1,5 @@
 package com.gamaliev.notes.colorpicker;
 
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -477,13 +476,6 @@ public final class ColorPickerFragment extends Fragment {
                     COLOR_PICKER,
                     RESULT_CODE_COLOR_PICKER_SELECTED,
                     bundle);
-            //
-            final Intent intent = new Intent();
-            intent.putExtra(EXTRA_COLOR_BUNDLE, bundle);
-            getTargetFragment().onActivityResult(
-                    getTargetRequestCode(),
-                    RESULT_CODE_COLOR_PICKER_SELECTED,
-                    intent);
         }
     }
 }

@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.colorpicker.ColorPickerFragment;
+import com.gamaliev.notes.common.observers.Observer;
 import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.model.ListEntry;
 import com.squareup.picasso.Callback;
@@ -50,12 +51,23 @@ import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_ADDED
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_CANCEL;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_DELETED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_EDITED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_LIST_FILTERED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_MOCK_ENTRIES_ADDED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_NOTES_IMPORTED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_SYNC_SUCCESS;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
+import static com.gamaliev.notes.common.observers.ObserverHelper.COLOR_PICKER;
+import static com.gamaliev.notes.common.observers.ObserverHelper.ENTRIES_MOCK;
 import static com.gamaliev.notes.common.observers.ObserverHelper.ENTRY;
+import static com.gamaliev.notes.common.observers.ObserverHelper.FILE_IMPORT;
+import static com.gamaliev.notes.common.observers.ObserverHelper.LIST_FILTER;
+import static com.gamaliev.notes.common.observers.ObserverHelper.SYNC;
 import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
+import static com.gamaliev.notes.common.observers.ObserverHelper.registerObserver;
+import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObserver;
 
-public final class ItemDetailsPagerItemFragment extends Fragment {
+public final class ItemDetailsPagerItemFragment extends Fragment implements Observer {
 
     /* Logger */
     private static final String TAG = ItemDetailsPagerItemFragment.class.getSimpleName();
@@ -72,6 +84,10 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
     /* Extra */
     private static final String EXTRA_ID    = "ItemDetailsPagerItemFragment.EXTRA_ID";
     private static final String EXTRA_ENTRY = "ItemDetailsPagerItemFragment.EXTRA_ENTRY";
+
+    /* Observed */
+    @NonNull
+    public static final String[] OBSERVED = {COLOR_PICKER};
 
     /* ... */
     @NonNull private View       mParentView;
@@ -152,9 +168,24 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        registerObserver(
+                OBSERVED,
+                toString(),
+                this);
+
+        super.onResume();
+    }
+
+    @Override
     public void onPause() {
         // Bug.
         hideKeyboard(getContext(), mParentView);
+
+        unregisterObserver(
+                OBSERVED,
+                toString());
+
         super.onPause();
     }
 
@@ -199,11 +230,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
                 // Start color picker fragment.
                 final ColorPickerFragment fragment =
                         ColorPickerFragment.newInstance(mId, mColor);
-
-                // Callback
-                fragment.setTargetFragment(
-                        ItemDetailsPagerItemFragment.this,
-                        REQUEST_CODE_COLOR_PICKER_SELECT);
 
                 // Init transitions.
                 final View headerBox = mParentView.findViewById(R.id.fragment_item_details_ff_header);
@@ -647,29 +673,36 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
 
 
     /*
-        Callbacks
+        Observer
      */
 
-    /**
-     * If color was selected, then refresh activity views.
-     */
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_COLOR_PICKER_SELECT
-                && resultCode == RESULT_CODE_COLOR_PICKER_SELECTED) {
+    public void onNotify(final int resultCode, @Nullable final Bundle data) {
+        switch (resultCode) {
+            case RESULT_CODE_COLOR_PICKER_SELECTED:
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //
+                        if (data == null
+                                || data.getLong(ColorPickerFragment.EXTRA_ID, -1) != mId) {
+                            return;
+                        }
 
-            if (data != null) {
+                        //
+                        final int color = data.getInt(
+                                EXTRA_RESULT_COLOR,
+                                getDefaultColor(getAppContext()));
 
-                // Get selected color. If null, using default color.
-                final Bundle bundle = data.getBundleExtra(EXTRA_COLOR_BUNDLE);
-                int color = bundle.getInt(
-                        EXTRA_RESULT_COLOR,
-                        getDefaultColor(getAppContext()));
+                        //
+                        mEntry.setColor(color);
+                        fillActivityViews();
+                    }
+                });
+                break;
 
-                // Update entry, then activity views.
-                mEntry.setColor(color);
-                fillActivityViews();
-            }
+            default:
+                break;
         }
     }
 

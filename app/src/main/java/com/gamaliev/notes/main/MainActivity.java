@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -37,6 +39,7 @@ import com.gamaliev.notes.user.UserActivity;
 
 import java.util.Map;
 
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static com.gamaliev.notes.common.CommonUtils.checkAndRequestPermissions;
 import static com.gamaliev.notes.common.CommonUtils.showMessageDialog;
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
@@ -65,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
 
     /* ... */
     @NonNull private NavigationView mNavView;
+    @NonNull private DrawerLayout mDrawer;
+    @NonNull private Toolbar mToolbar;
 
     /*
         Lifecycle
@@ -87,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        initDrawerLockMode();
         initUserInfo(mNavView);
         super.onResume();
     }
@@ -101,19 +107,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void initToolbarAndNavigationDrawer() {
         // Set toolbar.
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.activity_main_toolbar);
-        setSupportActionBar(toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.activity_main_toolbar);
+        setSupportActionBar(mToolbar);
 
         // Init toggle.
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_main_drawer_layout);
-        final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this,
-                drawer,
-                toolbar,
-                R.string.activity_main_nav_drawer_open,
-                R.string.activity_main_nav_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+        mDrawer = (DrawerLayout) findViewById(R.id.activity_main_drawer_layout);
 
         // Set navigation view listener.
         mNavView = (NavigationView) findViewById(R.id.activity_main_nav_view);
@@ -121,8 +119,43 @@ public class MainActivity extends AppCompatActivity {
 
         //
         initUserInfo(mNavView);
+    }
 
+    private void initDrawerLockMode() {
+        if (getResources().getConfiguration().orientation
+                == ORIENTATION_LANDSCAPE) {
 
+            mDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
+            mDrawer.setScrimColor(Color.TRANSPARENT);
+            mDrawer.addDrawerListener(new DrawerLayout.DrawerListener() {
+                @Override
+                public void onDrawerSlide(final View drawerView, final float slideOffset) {}
+                @Override
+                public void onDrawerOpened(final View drawerView) {
+
+                }
+                @Override
+                public void onDrawerClosed(final View drawerView) {
+                    mDrawer.openDrawer(GravityCompat.START);
+                }
+                @Override
+                public void onDrawerStateChanged(final int newState) {
+                    mDrawer.openDrawer(GravityCompat.START);
+                }
+            });
+
+        } else {
+            final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                    this,
+                    mDrawer,
+                    mToolbar,
+                    R.string.activity_main_nav_drawer_open,
+                    R.string.activity_main_nav_drawer_close);
+            mDrawer.addDrawerListener(toggle);
+            mDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            mDrawer.closeDrawer(GravityCompat.START);
+            toggle.syncState();
+        }
     }
 
     private void initUserInfo(@NonNull final NavigationView navView) {
@@ -155,7 +188,8 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         // Check navigation drawer. If open, then close.
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_main_drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
+        if (drawer.isDrawerOpen(GravityCompat.START)
+                && getResources().getConfiguration().orientation != ORIENTATION_LANDSCAPE) {
             drawer.closeDrawer(GravityCompat.START);
 
         } else {

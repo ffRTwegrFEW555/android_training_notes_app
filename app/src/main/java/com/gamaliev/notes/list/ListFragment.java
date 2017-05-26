@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
+import android.transition.AutoTransition;
 import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -181,18 +183,27 @@ public class ListFragment extends Fragment
      * Start fragment, with Add new entry action.
      */
     private void initFabOnClickListener() {
-        mParentView.findViewById(R.id.fragment_list_fab).setOnClickListener(new View.OnClickListener() {
+        final View fab = mParentView.findViewById(R.id.fragment_list_fab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final ItemDetailsPagerItemFragment fragment =
                         ItemDetailsPagerItemFragment.newInstance(ACTION_ADD, -1);
 
+                // Init transitions.
+                final String transName =
+                        getContext().getString(R.string.shared_transition_name_layout);
+                ViewCompat.setTransitionName(v, transName);
+
                 setExitTransition(new Fade());
                 fragment.setEnterTransition(new Fade());
+                fragment.setSharedElementEnterTransition(new AutoTransition());
+                fragment.setSharedElementReturnTransition(new AutoTransition());
 
                 getActivity()
                         .getSupportFragmentManager()
                         .beginTransaction()
+                        .addSharedElement(v, transName)
                         .replace(R.id.activity_main_fragment_container, fragment)
                         .addToBackStack(null)
                         .commit();
@@ -300,6 +311,11 @@ public class ListFragment extends Fragment
         return new Runnable() {
             @Override
             public void run() {
+
+                if (!ListFragment.this.isAdded()) {
+                    return;
+                }
+
                 final int delay = getResources()
                         .getInteger(R.integer.fragment_list_notification_delay);
                 final int delayClose = getResources()
