@@ -464,6 +464,7 @@ public final class ColorPickerFragment extends Fragment {
      */
 
     private void finish(final boolean notifyAboutSelected) {
+        getActivity().onBackPressed();
 
         // Notify about selected color for specific entry.
         if (notifyAboutSelected) {
@@ -484,7 +485,5 @@ public final class ColorPickerFragment extends Fragment {
                     RESULT_CODE_COLOR_PICKER_SELECTED,
                     intent);
         }
-
-        getActivity().onBackPressed();
     }
 }

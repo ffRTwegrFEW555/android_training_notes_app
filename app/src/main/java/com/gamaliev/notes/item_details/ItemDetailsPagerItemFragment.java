@@ -158,6 +158,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
         super.onPause();
     }
 
+
     /*
         ...
      */
@@ -255,7 +256,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
 
                     // On restart activity.
                     // Fill activity views values with restored entry-values.
-                    getEntryFromSavedInstanceStateWithChangeSelectedColor();
+                    mEntry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
                 }
                 fillActivityViews();
                 break;
@@ -269,7 +270,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
                     // On first start activity. Get entry from database, with given id.
                     if (mEntry == null) {
                         mEntry = ListDbHelper.getEntry(getContext(), mId);
-                        // Update viewed date.
                         ListDbHelper.updateEntry(getContext(), mEntry, LIST_ITEMS_COLUMN_VIEWED);
                     }
 
@@ -293,25 +293,13 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
 
                     // On restart activity.
                     // Fill activity views values with restored entry-values.
-                    getEntryFromSavedInstanceStateWithChangeSelectedColor();
+                    mEntry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
                     fillActivityViews();
                 }
                 break;
 
             default:
                 break;
-        }
-    }
-
-    private void getEntryFromSavedInstanceStateWithChangeSelectedColor() {
-        if (mEntry != null) {
-            final Integer tempColor = mEntry.getColor();
-            mEntry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
-            if (tempColor != null) {
-                mEntry.setColor(tempColor);
-            }
-        } else {
-            mEntry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
         }
     }
 
@@ -678,10 +666,8 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
                         getDefaultColor(getAppContext()));
 
                 // Update entry, then activity views.
-                if (mEntry == null) {
-                    mEntry = new ListEntry();
-                }
                 mEntry.setColor(color);
+                fillActivityViews();
             }
         }
     }
