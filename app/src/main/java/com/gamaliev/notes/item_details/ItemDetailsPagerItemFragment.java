@@ -456,6 +456,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
+        menu.clear();
         mMenu = menu;
         inflater.inflate(R.menu.menu_list_item_details, menu);
 
