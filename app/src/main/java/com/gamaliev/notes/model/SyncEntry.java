@@ -41,7 +41,6 @@ public class SyncEntry implements Parcelable {
      */
 
     protected SyncEntry(Parcel in) {
-
         int whatToRead = in.readInt();
         if ((whatToRead & RW_ID) > 0)           mId = in.readLong();
         if ((whatToRead & RW_FINISHED) > 0)     mFinished = (Date) in.readSerializable();
@@ -52,7 +51,6 @@ public class SyncEntry implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-
         // Compute what to write to parcel.
         int whatToWrite = 0;
         if (mId != null)        whatToWrite |= RW_ID;

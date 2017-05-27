@@ -41,7 +41,6 @@ public final class ListRecyclerViewAdapter
     @Nullable private Cursor mCursor;
 
 
-
     /*
         Init
      */
@@ -61,11 +60,9 @@ public final class ListRecyclerViewAdapter
 
     @Override
     public ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
-
         final View view = LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.fragment_list_item, parent, false);
-
         return new ViewHolder(view);
     }
 
@@ -75,9 +72,8 @@ public final class ListRecyclerViewAdapter
             return;
         }
 
-        final Context context = holder.mParentView.getContext();
+        final Context context       = holder.mParentView.getContext();
 
-        // Get values from current row.
         final int indexId           = mCursor.getColumnIndex(DbHelper.BASE_COLUMN_ID);
         final int indexTitle        = mCursor.getColumnIndex(DbHelper.LIST_ITEMS_COLUMN_TITLE);
         final int indexDescription  = mCursor.getColumnIndex(DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION);
@@ -92,7 +88,6 @@ public final class ListRecyclerViewAdapter
                 .split(" ")[0];
         final int color             = mCursor.getInt(indexColor);
 
-        // Fill view holder values.
         holder.mTitleView       .setText(title);
         holder.mDescriptionView .setText(description);
         holder.mEditedView      .setText(edited);
@@ -100,16 +95,13 @@ public final class ListRecyclerViewAdapter
                 .getBackground()
                 .setColorFilter(color, PorterDuff.Mode.SRC);
 
-        //
         holder.mParentView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                // Start item details fragment, with edit action.
                 final ItemDetailsFragment fragment =
                         ItemDetailsFragment.newInstance(id);
 
-                // Init transitions.
+                // Transitions.
                 final View colorView = v.findViewById(R.id.fragment_list_item_color);
                 final String colorTransName =
                         context.getString(R.string.shared_transition_name_color_box);
@@ -123,7 +115,6 @@ public final class ListRecyclerViewAdapter
                 fragment.setSharedElementEnterTransition(new AutoTransition());
                 fragment.setSharedElementReturnTransition(new AutoTransition());
 
-                // Start fragment.
                 mFragment.getActivity()
                         .getSupportFragmentManager()
                         .beginTransaction()
@@ -135,7 +126,7 @@ public final class ListRecyclerViewAdapter
             }
         });
 
-        //
+        // Drag & Drop
         holder.mParentView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {

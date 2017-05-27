@@ -65,7 +65,6 @@ public class ListEntry implements Parcelable {
      */
 
     protected ListEntry(Parcel in) {
-
         int whatToRead = in.readInt();
         if ((whatToRead & RW_ID) > 0)           mId = in.readLong();
         if ((whatToRead & RW_SYNC_ID) > 0)      mSyncId = in.readLong();
@@ -80,7 +79,6 @@ public class ListEntry implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-
         // Compute what to write to parcel.
         int whatToWrite = 0;
         if (mId != null)            whatToWrite |= RW_ID;
@@ -233,7 +231,7 @@ public class ListEntry implements Parcelable {
             @NonNull final Context context,
             @NonNull final Cursor cursor) throws IllegalStateException {
 
-        // without syncId, according to task.
+        // Without syncId, according to task.
         final int indexTitle        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_TITLE);
         final int indexDescription  = cursor.getColumnIndex(LIST_ITEMS_COLUMN_DESCRIPTION);
         final int indexColor        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_COLOR);
@@ -250,9 +248,7 @@ public class ListEntry implements Parcelable {
         final String edited         = cursor.getString(indexEdited);
         final String viewed         = cursor.getString(indexViewed);
 
-        //
         final JSONObject jsonObject = new JSONObject();
-
         try {
             jsonObject.put(LIST_ITEMS_COLUMN_TITLE,         title);
             jsonObject.put(LIST_ITEMS_COLUMN_COLOR,         String.format(
@@ -270,7 +266,6 @@ public class ListEntry implements Parcelable {
             return null;
         }
 
-        //
         return jsonObject;
     }
 
@@ -279,7 +274,7 @@ public class ListEntry implements Parcelable {
             @NonNull final Context context,
             @NonNull final String json) {
 
-        JSONObject jsonObject = null;
+        JSONObject jsonObject;
         try {
             jsonObject = new JSONObject(json);
         } catch (JSONException e) {
@@ -294,7 +289,6 @@ public class ListEntry implements Parcelable {
             @NonNull final Context context,
             @NonNull final JSONObject jsonObject) {
 
-        //
         final String syncId         = jsonObject.optString(LIST_ITEMS_COLUMN_SYNC_ID_JSON, null);
         final Long syncIdLong       = syncId == null ? null : Long.parseLong(syncId);
         final String title          = jsonObject.optString(LIST_ITEMS_COLUMN_TITLE, null);
@@ -306,9 +300,7 @@ public class ListEntry implements Parcelable {
         final String edited         = jsonObject.optString(LIST_ITEMS_COLUMN_EDITED, null);
         final String viewed         = jsonObject.optString(LIST_ITEMS_COLUMN_VIEWED, null);
 
-        //
         final ListEntry entry = new ListEntry();
-
         entry.setSyncId(syncIdLong);
         entry.setTitle(title);
         entry.setDescription(description);

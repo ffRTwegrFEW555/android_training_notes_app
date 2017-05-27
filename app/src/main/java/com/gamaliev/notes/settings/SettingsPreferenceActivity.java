@@ -40,7 +40,6 @@ public final class SettingsPreferenceActivity extends AppCompatActivity {
     private void initToolbar() {
         final Toolbar toolbar = (Toolbar) findViewById(R.id.activity_settings_preference_toolbar);
         setSupportActionBar(toolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
@@ -53,7 +52,6 @@ public final class SettingsPreferenceActivity extends AppCompatActivity {
 
     private void initPreferenceFragment() {
         final SettingsPreferenceFragment fragment = SettingsPreferenceFragment.getInstance();
-
         getFragmentManager()
                 .beginTransaction()
                 .replace(R.id.activity_settings_preference_fragment, fragment, null)
@@ -66,7 +64,6 @@ public final class SettingsPreferenceActivity extends AppCompatActivity {
      */
 
     public static class SettingsPreferenceFragment extends PreferenceFragment {
-
 
         /*
             Init
@@ -103,11 +100,6 @@ public final class SettingsPreferenceActivity extends AppCompatActivity {
         Intents
      */
 
-    /**
-     * Start intent.
-     * @param context       Context.
-     * @param requestCode   This code will be returned in onActivityResult() when the activity exits.
-     */
     public static void startIntent(
             @NonNull final Context context,
             final int requestCode) {

@@ -27,7 +27,6 @@ public class NetworkBroadcastReceiver extends BroadcastReceiver {
         if (sInstance == null) {
             sInstance = new NetworkBroadcastReceiver();
         }
-
         return sInstance;
     }
 

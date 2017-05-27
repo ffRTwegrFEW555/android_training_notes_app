@@ -68,14 +68,12 @@ public final class UserPreferenceActivity extends AppCompatActivity {
     private void initToolbar() {
         final Toolbar toolbar = (Toolbar) findViewById(R.id.activity_user_preference_toolbar);
         setSupportActionBar(toolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     private void initPreferenceFragment() {
         final UserPreferenceFragment fragment = UserPreferenceFragment.getInstance(mUserId);
-
         getFragmentManager()
                 .beginTransaction()
                 .replace(R.id.activity_user_preference_fragment, fragment, null)
@@ -87,27 +85,18 @@ public final class UserPreferenceActivity extends AppCompatActivity {
         Options menu
      */
 
-    /**
-     * Inflate action bar menu.
-     */
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_user_preference, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
-    /**
-     * Action bar menu item selection handler
-     */
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
-
-            // Delete button
             case R.id.menu_user_preference_delete:
                 showConfirmDeleteDialog();
                 break;
-
             default:
                 break;
         }
@@ -135,6 +124,7 @@ public final class UserPreferenceActivity extends AppCompatActivity {
         public static UserPreferenceFragment getInstance(@NonNull final String userId) {
             final Bundle args = new Bundle();
             args.putString(EXTRA_USER_ID, userId);
+
             final UserPreferenceFragment fragment = new UserPreferenceFragment();
             fragment.setArguments(args);
             return fragment;
@@ -166,12 +156,6 @@ public final class UserPreferenceActivity extends AppCompatActivity {
         Intents
      */
 
-    /**
-     * Start intent.
-     * @param context       Context.
-     * @param requestCode   This code will be returned in onActivityResult() when the activity exits.
-     * @param userId        User id.
-     */
     public static void startIntent(
             @NonNull final Context context,
             final int requestCode,
@@ -187,21 +171,14 @@ public final class UserPreferenceActivity extends AppCompatActivity {
         ...
      */
 
-    /**
-     * Show confirm delete dialog with Ok, Cancel buttons.
-     * If current user is default, then denied.
-     */
     private void showConfirmDeleteDialog() {
-
         final AlertDialog.Builder builder = new AlertDialog.Builder(UserPreferenceActivity.this);
         builder .setTitle(getString(R.string.activity_user_preference_delete_dialog_title))
                 .setMessage(getString(R.string.activity_user_preference_delete_dialog_message))
                 .setPositiveButton(getString(R.string.activity_user_preference_delete_dialog_button_ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                //
                                 dialog.cancel();
-                                //
                                 if (SpUsers.SP_USERS_DEFAULT_USER_ID.equals(mUserId)) {
                                     showToast(
                                             getApplicationContext(),

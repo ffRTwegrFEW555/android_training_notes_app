@@ -146,7 +146,6 @@ public final class SyncUtils {
      */
 
     private static void checkNetworkAndUserSettings(@NonNull final Context context) {
-
         switch (NetworkUtils.checkNetwork(context)) {
             case NetworkUtils.NETWORK_MOBILE:
                 if (SpUsers.getSyncWifiOnlyForCurrentUser(context)) {
@@ -168,6 +167,7 @@ public final class SyncUtils {
             case NetworkUtils.NETWORK_WIFI:
                 makeSynchronize(context);
                 break;
+
             case NetworkUtils.NETWORK_NO:
             default:
                 if (!getPendingSyncStatusForCurrentUser(context)
@@ -192,8 +192,6 @@ public final class SyncUtils {
      */
 
     public static void synchronize(@NonNull final Context context) {
-
-        //
         if (isSyncRunning()) {
             return;
         }
@@ -207,11 +205,8 @@ public final class SyncUtils {
     }
 
     public static boolean makeSynchronize(@NonNull final Context context) {
-
-        //
         setSyncRunning(true);
 
-        //
         addToSyncJournalAndLogAndNotify(
                 context,
                 ACTION_START,
@@ -220,32 +215,24 @@ public final class SyncUtils {
                 RESULT_CODE_SYNC_START,
                 true);
 
-        // Continuing Progress notifications start.
         final ProgressNotificationHelper notification =
                 new ProgressNotificationHelper(
                         context,
                         context.getString(R.string.activity_sync_notification_panel_title),
                         context.getString(R.string.activity_sync_notification_panel_text),
                         context.getString(R.string.activity_sync_notification_panel_complete));
-
-        // Timer for notification enable
         notification.startTimerToEnableNotification(
                 getProgressNotificationTimerForCurrentUser(context.getApplicationContext()),
                 true);
 
-        //
         int added   = addNewToServer(context);
         int deleted = deleteFromServer(context);
         int updated = synchronizeFromServer(context);
         int sum     = added + deleted + updated;
 
-        // Notify, if conflict exists.
         checkConflictExistsAndShowStatusBarNotification(context);
-
-        // Notification complete
         notification.endProgress();
 
-        //
         addToSyncJournalAndLogAndNotify(
                 context,
                 ACTION_COMPLETE,
@@ -254,24 +241,17 @@ public final class SyncUtils {
                 RESULT_CODE_SYNC_SUCCESS,
                 true);
 
-        //
         setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_FALSE);
-
-        //
         setSyncRunning(false);
-
         return false;
     }
 
     private static int addNewToServer(@NonNull final Context context) {
-
         int counter = 0;
-
         final Cursor cursor = getNewEntries(context);
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 final JSONObject jsonNewEntry = ListEntry.getJsonObject(context, cursor);
-
                 try {
                     final Response<String> response = getNoteApi()
                             .add(   getSyncIdForCurrentUser(context),
@@ -302,11 +282,9 @@ public final class SyncUtils {
                 }
             }
 
-            //
             cursor.close();
         }
 
-        // Add result to journal
         addToSyncJournalAndLogAndNotify(
                 context,
                 ACTION_ADDED_TO_SERVER,
@@ -319,18 +297,14 @@ public final class SyncUtils {
     }
 
     private static int deleteFromServer(@NonNull final Context context) {
-
         int counter = 0;
-
         final Cursor cursor = getEntries(
                 context,
                 SYNC_DELETED_TABLE_NAME,
                 null);
-
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 final String syncId = cursor.getString(cursor.getColumnIndex(COMMON_COLUMN_SYNC_ID));
-
                 try {
                     final Response<String> response = getNoteApi()
                             .delete(getSyncIdForCurrentUser(context),
@@ -365,11 +339,9 @@ public final class SyncUtils {
                 }
             }
 
-            //
             cursor.close();
         }
 
-        // Add result to journal
         addToSyncJournalAndLogAndNotify(
                 context,
                 ACTION_DELETED_FROM_SERVER,
@@ -382,13 +354,10 @@ public final class SyncUtils {
     }
 
     private static int synchronizeFromServer(@NonNull final Context context) {
-
-        //
         int counterAddedOnLocal     = 0;
         int counterConflicting      = 0;
         int counterDeletedOnLocal   = 0;
 
-        //
         try {
             final Response<String> response = getNoteApi()
                     .getAll(getSyncIdForCurrentUser(context))
@@ -400,7 +369,6 @@ public final class SyncUtils {
                 final String status = jsonResponse.optString(API_KEY_STATUS);
 
                 if (status.equals(API_STATUS_OK)) {
-
                     final JSONArray data = jsonResponse.getJSONArray(API_KEY_DATA);
                     if (data != null) {
 
@@ -432,7 +400,6 @@ public final class SyncUtils {
                             }
                         }
 
-                        // Add to local finish.
                         addToSyncJournalAndLogAndNotify(
                                 context,
                                 ACTION_ADDED_TO_LOCAL,
@@ -458,7 +425,6 @@ public final class SyncUtils {
                                         final String syncIdServer = jsonServer
                                                 .optString(LIST_ITEMS_COLUMN_SYNC_ID_JSON, null);
 
-                                        // If sync id equals.
                                         if (syncIdLocal.equals(syncIdServer)) {
                                             final JSONObject jsonLocal =
                                                     ListEntry.getJsonObject(context, cursor);
@@ -469,8 +435,7 @@ public final class SyncUtils {
                                             mapServer.remove(API_KEY_ID);
                                             mapServer.remove(API_KEY_EXTRA);
 
-                                            // Add to conflict table.
-                                            // If entries not equals.
+                                            // Add to conflict table, if entries not equals.
                                             if(!mapLocal.equals(mapServer)) {
                                                 insertEntryWithSingleValue(
                                                         context,
@@ -495,7 +460,6 @@ public final class SyncUtils {
                             cursor.close();
                         }
 
-                        // Delete on local finish
                         addToSyncJournalAndLogAndNotify(
                                 context,
                                 ACTION_DELETED_FROM_LOCAL,
@@ -504,7 +468,6 @@ public final class SyncUtils {
                                 RESULT_CODE_SYNC_SUCCESS,
                                 false);
 
-                        // Conflict finish
                         addToSyncJournalAndLogAndNotify(
                                 context,
                                 ACTION_CONFLICTING_ADDED,
@@ -526,7 +489,6 @@ public final class SyncUtils {
             Log.e(TAG, e.toString());
         }
 
-        //
         return counterAddedOnLocal
                 + counterConflicting
                 + counterDeletedOnLocal;
@@ -547,7 +509,6 @@ public final class SyncUtils {
     }
 
     private static void deleteAllFromServer(@NonNull final Context context) {
-
         switch (NetworkUtils.checkNetwork(context)) {
             case NetworkUtils.NETWORK_MOBILE:
                 if (SpUsers.getSyncWifiOnlyForCurrentUser(context)) {
@@ -558,6 +519,7 @@ public final class SyncUtils {
                             RESULT_CODE_SYNC_FAILED);
                     break;
                 }
+
             case NetworkUtils.NETWORK_WIFI:
                 deleteAllFromServerPerform(context);
                 break;
@@ -568,14 +530,13 @@ public final class SyncUtils {
                         context.getString(R.string.activity_sync_item_action_delete_all_from_server_no_internet),
                         true,
                         RESULT_CODE_SYNC_FAILED);
+
             default:
                 break;
         }
     }
 
     private static void deleteAllFromServerPerform(@NonNull final Context context) {
-
-        // Start
         addToSyncJournalAndLogAndNotify(
                 context,
                 ACTION_DELETE_ALL_FROM_SERVER_START,
@@ -584,20 +545,16 @@ public final class SyncUtils {
                 RESULT_CODE_SYNC_SUCCESS,
                 true);
 
-        // Continuing Progress notifications start.
         final ProgressNotificationHelper notification =
                 new ProgressNotificationHelper(
                         context,
                         context.getString(R.string.activity_sync_notification_panel_del_all_title),
                         context.getString(R.string.activity_sync_notification_panel_del_all_text),
                         context.getString(R.string.activity_sync_notification_panel_del_all_complete));
-
-        // Timer for notification enable
         notification.startTimerToEnableNotification(
                 getProgressNotificationTimerForCurrentUser(context.getApplicationContext()),
                 true);
 
-        // Main
         final NoteApi noteApi = getNoteApi();
         final String currentUser = getSyncIdForCurrentUser(context);
         int counter = 0;
@@ -637,10 +594,8 @@ public final class SyncUtils {
             Log.e(TAG, e.toString());
         }
 
-        // Notification complete
         notification.endProgress();
 
-        // Finish
         addToSyncJournalAndLogAndNotify(
                 context,
                 ACTION_DELETED_FROM_SERVER,
@@ -673,7 +628,6 @@ public final class SyncUtils {
 
         final String message = context.getString(ACTION_TEXT[action]);
 
-        // To sync journal
         final SyncEntry entry = new SyncEntry();
         entry.setFinished(new Date());
         entry.setAction(action);
@@ -681,15 +635,12 @@ public final class SyncUtils {
         entry.setAmount(count);
         SyncDbHelper.insertEntry(context, entry);
 
-        // To Console.
         Log.i(TAG, message);
 
-        // Toast
         if (showToast) {
             showToastRunOnUiThread(context, message, Toast.LENGTH_LONG);
         }
 
-        //
         notifyObservers(
                 SYNC,
                 resultCode,
@@ -702,15 +653,12 @@ public final class SyncUtils {
             final boolean showToast,
             final int resultCode) {
 
-        // to Console.
         Log.i(TAG, message);
 
-        // Toast
         if (showToast) {
             showToastRunOnUiThread(context, message, Toast.LENGTH_LONG);
         }
 
-        //
         notifyObservers(
                 SYNC,
                 resultCode,

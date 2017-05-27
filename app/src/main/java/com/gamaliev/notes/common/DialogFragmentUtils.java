@@ -29,6 +29,7 @@ public final class DialogFragmentUtils {
 
     /**
      * Add circular reveal animation to dialog view component, on Open/Close.
+     * Work only with API >=21.
      * @param dialog            Dialog view component.
      * @param openAnimation     True if animation is open, false is close.
      * @param centerOfAnimation Center of animation, see:
@@ -40,7 +41,6 @@ public final class DialogFragmentUtils {
             final boolean openAnimation,
             final int centerOfAnimation) {
 
-        // Circular reveal animation. If API >= 21, then with circular reveal animation.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             dialog.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                 @SuppressWarnings("NewApi")

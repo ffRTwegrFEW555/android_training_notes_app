@@ -81,7 +81,6 @@ public final class SpUsers {
      */
     @NonNull
     public static Map<String, String> getDefaultProfile(@NonNull final Context context) {
-
         final Map<String, String> map = new HashMap<>();
         map.put(SP_USER_ID,             SP_USERS_DEFAULT_USER_ID);
         map.put(SP_USER_SYNC_ID,        context.getString(R.string.activity_settings_default_external_id));
@@ -131,7 +130,6 @@ public final class SpUsers {
         map.put(SP_USER_SYNC_API_URL,sp.getString(SP_USER_SYNC_API_URL, defaultProfile.get(SP_USER_SYNC_API_URL)));
         map.put(SP_USER_SYNC_PENDING,sp.getString(SP_USER_SYNC_PENDING, defaultProfile.get(SP_USER_SYNC_PENDING)));
 
-
         return map;
     }
 
@@ -142,7 +140,6 @@ public final class SpUsers {
      */
     @Nullable
     public static String getSelected(@NonNull final Context context) {
-
         final SharedPreferences sp = context.getSharedPreferences(SP_MAIN, MODE_PRIVATE);
         return sp.getString(SP_USERS_SELECTED_ID, null);
     }
@@ -178,15 +175,12 @@ public final class SpUsers {
      * @return          Number of mock entries for current user.
      */
     public static int getNumberMockEntriesForCurrentUser(@NonNull final Context context) {
-
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(getSelected(context)),
                 MODE_PRIVATE);
-
         final String string = sp.getString(
                 SP_USER_MOCK_ENTRIES_DEFAULT,
                 context.getString(R.string.activity_settings_default_number_mock_entries));
-
         return Integer.parseInt(string);
     }
 
@@ -195,15 +189,12 @@ public final class SpUsers {
      * @return          Progress notification timer for current user, ms.
      */
     public static int getProgressNotificationTimerForCurrentUser(@NonNull final Context context) {
-
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(getSelected(context)),
                 MODE_PRIVATE);
-
         final String string = sp.getString(
                 SP_USER_PROGRESS_NOTIF_TIMER,
                 context.getString(R.string.activity_settings_default_progress_notification_timer));
-
         return Integer.parseInt(string);
 
     }
@@ -214,7 +205,6 @@ public final class SpUsers {
      */
     @Nullable
     public static String getIdCounter(@NonNull final Context context) {
-
         final SharedPreferences sp = context.getSharedPreferences(SP_MAIN, MODE_PRIVATE);
         return sp.getString(SP_USERS_ID_COUNTER, null);
     }
@@ -224,11 +214,9 @@ public final class SpUsers {
      * @return          Sync Wi-fi only status.
      */
     public static boolean getSyncWifiOnlyForCurrentUser(@NonNull final Context context) {
-
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(getSelected(context)),
                 MODE_PRIVATE);
-
         return sp.getBoolean(SP_USER_SYNC_WIFI, false);
     }
 
@@ -238,11 +226,9 @@ public final class SpUsers {
      */
     @Nullable
     public static String getApiUrlForCurrentUser(@NonNull final Context context) {
-
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(getSelected(context)),
                 MODE_PRIVATE);
-
         return sp.getString(SP_USER_SYNC_API_URL, null);
     }
 
@@ -252,11 +238,9 @@ public final class SpUsers {
      */
     @Nullable
     public static String getSyncIdForCurrentUser(@NonNull final Context context) {
-
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(getSelected(context)),
                 MODE_PRIVATE);
-
         return sp.getString(SP_USER_SYNC_ID, null);
     }
 
@@ -266,11 +250,9 @@ public final class SpUsers {
      */
     @Nullable
     public static String getPendingSyncStatusForCurrentUser(@NonNull final Context context) {
-
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(getSelected(context)),
                 MODE_PRIVATE);
-
         return sp.getString(SP_USER_SYNC_PENDING, null);
     }
 
@@ -293,7 +275,6 @@ public final class SpUsers {
             @NonNull final Context context,
             @Nullable Map<String, String> profile) {
 
-        // If null, then create default, with next user id.
         if (profile == null) {
             profile = getDefaultProfile(context);
             profile.put(SP_USER_ID, getNextUserId(context));
@@ -304,14 +285,9 @@ public final class SpUsers {
                 getPreferencesName(profile.get(SP_USER_ID)),
                 MODE_PRIVATE);
 
-        // Get editor.
         final SharedPreferences.Editor editor = sp.edit();
 
-
-        /*
-            User info
-         */
-
+        /* User info */
         editor  .putString(SP_USER_ID,          profile.get(SP_USER_ID))
                 .putString(SP_USER_SYNC_ID,     profile.get(SP_USER_SYNC_ID))
                 .putString(SP_USER_EMAIL,       profile.get(SP_USER_EMAIL))
@@ -326,33 +302,16 @@ public final class SpUsers {
                 .putString(SP_USER_SYNC_API_URL,profile.get(SP_USER_SYNC_API_URL))
                 .putString(SP_USER_SYNC_PENDING,profile.get(SP_USER_SYNC_PENDING));
 
-
-        /*
-            Filter profiles
-         */
-
-        // Add default filter profile.
-        // Add current filter profile
-        // Set current filter profile id as selected filter profile id.
+        /* Filter profiles */
         editor  .putString(SP_FILTER_PROFILE_DEFAULT, SpFilterProfiles.getDefaultProfile())
                 .putString(SP_FILTER_PROFILE_CURRENT, SpFilterProfiles.getDefaultProfile())
                 .putString(SP_FILTER_PROFILE_SELECTED_ID, SP_FILTER_PROFILE_CURRENT_ID);
 
-
-        /*
-            Finish
-         */
-
-        // Mark initialized.
+        /* Finish */
         editor  .putBoolean(SP_INITIALIZED, true)
                 .apply();
-
-        // Set selected.
         setSelected(context, profile.get(SP_USER_ID));
-
-        // Update main preferences.
         addToProfiles(context, profile.get(SP_USER_ID));
-
         return profile.get(SP_USER_ID);
     }
 
@@ -365,7 +324,6 @@ public final class SpUsers {
             @NonNull final Context context,
             @NonNull final String userId) {
 
-        // Get, add, save.
         final Set<String> set = getProfiles(context);
         set.add(userId);
         updateProfiles(context, set);
@@ -488,12 +446,11 @@ public final class SpUsers {
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(userId),
                 MODE_PRIVATE);
-
         sp      .edit()
                 .clear()
                 .apply();
 
-        // Remove database.
+        // Remove database and update..
         context.deleteDatabase(userId);
         DbHelper.clearInstances();
     }

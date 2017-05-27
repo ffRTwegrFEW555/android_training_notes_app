@@ -34,6 +34,11 @@ public final class DbHelper extends SQLiteOpenHelper {
     /* Logger */
     private static final String TAG = DbHelper.class.getSimpleName();
 
+
+    /*
+        DB
+     */
+
     /* Basic */
     private static final int DB_VERSION_A                   = 1;
     private static final int DB_VERSION                     = DB_VERSION_A;
@@ -54,6 +59,7 @@ public final class DbHelper extends SQLiteOpenHelper {
 
     /* List items table */
     public static final String LIST_ITEMS_TABLE_NAME        = "list_items";
+    public static final String LIST_ITEMS_COLUMN_MANUALLY   = "manually";
     public static final String LIST_ITEMS_COLUMN_TITLE      = "title";
     public static final String LIST_ITEMS_COLUMN_SYNC_ID_JSON = "id";
     public static final String LIST_ITEMS_COLUMN_DESCRIPTION = "description";
@@ -92,6 +98,7 @@ public final class DbHelper extends SQLiteOpenHelper {
     public static final String SQL_LIST_ITEMS_CREATE_TABLE =
             "CREATE TABLE " + LIST_ITEMS_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    LIST_ITEMS_COLUMN_MANUALLY +            " INTEGER, " +
                     LIST_ITEMS_COLUMN_TITLE +               " TEXT, " +
                     COMMON_COLUMN_SYNC_ID +                 " INTEGER, " +
                     LIST_ITEMS_COLUMN_DESCRIPTION +         " TEXT, " +
@@ -130,10 +137,12 @@ public final class DbHelper extends SQLiteOpenHelper {
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     COMMON_COLUMN_SYNC_ID +                 " INTEGER NOT NULL UNIQUE); ";
 
-    /* Instances */
-    @NonNull private static Map<String, DbHelper> sInstances;
 
-    /* ... */
+    /*
+        ...
+     */
+
+    @NonNull private static Map<String, DbHelper> sInstances;
     @NonNull private static String mDbFailMessage;
 
 
@@ -159,7 +168,6 @@ public final class DbHelper extends SQLiteOpenHelper {
             return null;
         }
 
-        //
         if (mDbFailMessage == null) {
             mDbFailMessage = context.getString(R.string.sql_toast_fail);
         }
@@ -198,33 +206,23 @@ public final class DbHelper extends SQLiteOpenHelper {
 
     /**
      * Creating a new table and populating with default values, or update if database exist
-     * @param db            Database.
-     * @param oldVersion    Old version of database.
-     * @param newVersion    New version of database.
      */
     private void updateDatabase(
             @NonNull final SQLiteDatabase db,
             final int oldVersion,
             final int newVersion) {
 
-        //
         if (oldVersion == 0) {
-
-            // Begin transaction.
             db.beginTransaction();
-
             try {
-                // Create tables
                 db.execSQL(SQL_FAVORITE_CREATE_TABLE);
                 db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
                 db.execSQL(SQL_SYNC_CREATE_TABLE);
                 db.execSQL(SQL_SYNC_CONFLICT_CREATE_TABLE);
                 db.execSQL(SQL_SYNC_DELETED_CREATE_TABLE);
 
-                // Populating.
                 populateDatabase(db);
 
-                // If ok.
                 db.setTransactionSuccessful();
 
             } catch (SQLiteException e) {
@@ -236,18 +234,12 @@ public final class DbHelper extends SQLiteOpenHelper {
         }
     }
 
-    /**
-     * Populating database with default values.
-     * @param db Database.
-     */
     private void populateDatabase(@NonNull final SQLiteDatabase db) {
-
         // Adding default favorite colors;
         final int boxesNumber = NotesApp
                 .getAppContext()
                 .getResources()
                 .getInteger(R.integer.fragment_color_picker_favorite_boxes_number);
-
         for (int i = 0; i < boxesNumber; i++) {
             ColorPickerDbHelper.insertFavoriteColor(
                     db,
@@ -276,8 +268,6 @@ public final class DbHelper extends SQLiteOpenHelper {
 
         try {
             final SQLiteDatabase db = getReadableDb(context);
-
-            // Make query and return cursor, if ok;
             return db.query(
                     tableName,
                     null,
@@ -338,7 +328,7 @@ public final class DbHelper extends SQLiteOpenHelper {
             db = DbHelper.getWritableDb(context);
         }
 
-        // Check exists.
+        // If exists, do nothing.
         final boolean exists = checkExists(
                 context,
                 tableName,
@@ -349,19 +339,14 @@ public final class DbHelper extends SQLiteOpenHelper {
         }
 
         try {
-            // Content values
             final ContentValues cv = new ContentValues();
             cv.put(columnName, value);
-
-            // Insert
             if (db.insert(tableName, null, cv) == -1) {
                 final String error = String.format(Locale.ENGLISH,
                         "[ERROR] Insert entry {%s: %d}",
                         columnName, value);
                 throw new SQLiteException(error);
             }
-
-            // If ok
             return true;
 
         } catch (SQLiteException e) {
@@ -430,19 +415,15 @@ public final class DbHelper extends SQLiteOpenHelper {
             if (db == null) {
                 db = getWritableDb(context);
             }
-
-            // Delete query.
             int deleteResult = db.delete(
                     tableName,
                     columnName + " = ?",
                     new String[]{value});
 
-            // If error.
             if (deleteResult == 0) {
                 throw new SQLiteException("[ERROR] The number of rows affected is 0");
             }
 
-            // If ok.
             return true;
 
         } catch (SQLiteException e) {

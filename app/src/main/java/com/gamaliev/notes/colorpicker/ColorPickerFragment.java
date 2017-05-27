@@ -119,9 +119,6 @@ public final class ColorPickerFragment extends Fragment {
         init(savedInstanceState);
     }
 
-    /**
-     * @param outState Save result color, and overridden colors array.
-     */
     @Override
     public void onSaveInstanceState(final Bundle outState) {
         outState.putInt(EXTRA_RESULT_COLOR, mResultColor);
@@ -138,7 +135,6 @@ public final class ColorPickerFragment extends Fragment {
         mRes            = getResources();
         mPaletteHsvSv   = (SwitchableHorizontalScrollView)
                 mParentView.findViewById(R.id.fragment_color_picker_scroll_palette_bar);
-
         mResultView     = mParentView.findViewById(R.id.fragment_color_picker_ff_result_box);
         mResultParentView = mParentView.findViewById(R.id.fragment_color_picker_ff_result_outer);
         mEditPw         = getPopupWindow();
@@ -192,15 +188,10 @@ public final class ColorPickerFragment extends Fragment {
         view.setBackground(g);
     }
 
-    /**
-     * Add color boxes to palette bar and set listeners
-     * (see: {@link ColorBoxOnTouchListener})
-     */
     private void addColorBoxesAndSetListeners() {
         final ViewGroup paletteBarVg =
                 (ViewGroup) mParentView.findViewById(R.id.fragment_color_picker_ll_palette_bar);
 
-        // Params
         final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 (int) mRes.getDimension(R.dimen.fragment_color_picker_palette_box_width),
                 (int) mRes.getDimension(R.dimen.fragment_color_picker_palette_box_height));
@@ -211,8 +202,6 @@ public final class ColorPickerFragment extends Fragment {
             // Create color box with default or overridden color.
             final int color = mHsvColorsOverridden[i] != -1 ? mHsvColorsOverridden[i] : mHsvColors[i];
             final View colorBox = new FrameLayout(getContext());
-
-            // Set start color and elevation (if API >= 21).
             colorBox.setBackground(new ColorDrawable(color));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 colorBox.setElevation(
@@ -220,26 +209,18 @@ public final class ColorPickerFragment extends Fragment {
             }
             setBackgroundColorRectangleAPI(getContext(), colorBox, color);
 
-            // Set on touch listener.
-            // Handles single, double, long clicks; down, up, cancel, move actions.
             colorBox.setOnTouchListener(
                     new ColorBoxOnTouchListener(getContext(), this, colorBox, i));
 
-            // Add color box to palette bar.
             paletteBarVg.addView(colorBox, params);
         }
     }
 
-    /**
-     * Add and fill, from database, color boxes to favorite colors bar and set listeners
-     * (see: {@link com.gamaliev.notes.colorpicker.FavoriteColorBoxOnTouchListener})
-     */
     private void addFavoriteColorBoxesAndSetListeners() {
         final ViewGroup favoriteBarVg =
                 (ViewGroup) mParentView.findViewById(R.id.fragment_color_picker_ll_favorite_bar);
         final int boxesNumber = mRes.getInteger(R.integer.fragment_color_picker_favorite_boxes_number);
 
-        // Params
         final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 (int) mRes.getDimension(R.dimen.fragment_color_picker_favorite_box_width),
                 (int) mRes.getDimension(R.dimen.fragment_color_picker_favorite_box_height));
@@ -249,37 +230,24 @@ public final class ColorPickerFragment extends Fragment {
         for (int i = 0; i < boxesNumber; i++) {
             // Create color box with color from database.
             final View button = new Button(getContext());
-
-            // Set oval shape.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                 button.setBackground(mRes.getDrawable(R.drawable.btn_oval, null));
             } else {
                 //noinspection deprecation
                 button.setBackground(mRes.getDrawable(R.drawable.btn_oval));
             }
-
-            // Get and set color.
             button.getBackground()
                     .setColorFilter(ColorPickerDbHelper
                             .getFavoriteColor(getContext(), i), PorterDuff.Mode.SRC);
 
-            // Set on touch listener.
-            // Handles single, long clicks; down, up, cancel actions.
             button.setOnTouchListener(
                     new FavoriteColorBoxOnTouchListener(getContext(), this, button, i));
 
-            // Add color box to favorite bar.
             favoriteBarVg.addView(button, params);
         }
     }
 
-    /**
-     * Set color to result box.
-     * @param color Color to set.
-     */
     void setResultBoxColor(final int color) {
-        // Change color of result-box, and result-box-parent,
-        // with shift color animation.
         shiftColor(mResultView, mResultColor, color,
                 -1,
                 mRes.getInteger(R.integer.fragment_color_picker_result_box_animation_change_color_duration));
@@ -287,16 +255,15 @@ public final class ColorPickerFragment extends Fragment {
                 mRes.getInteger(R.integer.fragment_color_picker_result_box_outer_alpha_percent) / 100.0f,
                 mRes.getInteger(R.integer.fragment_color_picker_result_box_animation_change_color_duration));
 
-        // Update value.
         mResultColor = color;
 
-        // Get rgb string.
+        // RGB.
         final int r = color >> 16 & 0xFF;
         final int g = color >> 8  & 0xFF;
         final int b = color       & 0xFF;
         final String rgb = r + ", " + g + ", " + b;
 
-        // Get hsv string.
+        // HSV.
         final float[] hsv = new float[3];
         Color.colorToHSV(color, hsv);
         final String hsvString = String.format(Locale.ENGLISH,
@@ -305,7 +272,7 @@ public final class ColorPickerFragment extends Fragment {
                 (int) (hsv[1] * 100),
                 (int) (hsv[2] * 100));
 
-        // Set contrast text of result box.
+        // Contrast text.
         final TextView tv = (TextView) mParentView
                 .findViewById(R.id.fragment_color_picker_text_result_box);
         tv.setText(rgb + "\n" + hsvString);
@@ -315,11 +282,7 @@ public final class ColorPickerFragment extends Fragment {
                 255 - Color.blue(color)));
     }
 
-    /**
-     * Setting listeners on 'Done' and 'Cancel' buttons.
-     */
     private void setDoneCancelListeners() {
-        // Done button.
         mParentView.findViewById(R.id.fragment_color_picker_ic_done)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -327,8 +290,6 @@ public final class ColorPickerFragment extends Fragment {
                         finish(true);
                     }
                 });
-
-        // Cancel button.
         mParentView.findViewById(R.id.fragment_color_picker_ic_cancel)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -359,32 +320,26 @@ public final class ColorPickerFragment extends Fragment {
 
     /**
      * Set color to palette box and popupWindow, when "edit mode" is turn on.
-     * @param newColor  Color to set.
-     * @param view      View, whose "edit mode" is turn on, that changes color.
-     * @param index     Color index.
+     * @param editedView    View, whose "edit mode" is turn on, that changes color.
+     * @param newColor      Color to set. "-1" to set default value.
+     * @param index         Color index.
      */
     void setColorOnMove(
-            @NonNull final View view,
+            @NonNull final View editedView,
             final int newColor,
             final int index) {
 
         int color;
-
-        // If color is not specified, then get color from hsv-colors-arrays.
-        // If override-color is not specified, then get default color.
         if (newColor == -1) {
-            color = mHsvColorsOverridden[index] != -1 ? mHsvColorsOverridden[index] : mHsvColors[index];
+            color = mHsvColorsOverridden[index] != -1
+                    ? mHsvColorsOverridden[index]
+                    : mHsvColors[index];
         } else {
             color = newColor;
         }
 
-        // Set color to edited view.
-        setBackgroundColorRectangleAPI(getContext(), view, color);
-
-        // Set color to popupWindow.
+        setBackgroundColorRectangleAPI(getContext(), editedView, color);
         mEditPw.getContentView().setBackgroundColor(color);
-
-        // Update overridden array.
         mHsvColorsOverridden[index] = color;
     }
 
@@ -393,10 +348,6 @@ public final class ColorPickerFragment extends Fragment {
         PopupWindow
      */
 
-    /**
-     * @return a new {@link PopupWindow} object, with specific size and elevation.
-     * See integer-resources, section "ColorPicker PopupWindow".
-     */
     @NonNull
     private PopupWindow getPopupWindow() {
         final FrameLayout fl = new FrameLayout(getContext());
@@ -405,17 +356,12 @@ public final class ColorPickerFragment extends Fragment {
                 (int) mRes.getDimension(R.dimen.fragment_color_picker_popupwindow_width),
                 (int) mRes.getDimension(R.dimen.fragment_color_picker_popupwindow_height),
                 true);
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             popupWindow.setElevation(mRes.getDimension(R.dimen.fragment_color_picker_popupwindow_elevation));
         }
         return popupWindow;
     }
 
-    /**
-     * Shows the PopupWindow with animation.<br>
-     * See also: {@link #getPopupWindow()}
-     */
     void showPopupWindow() {
         mEditPw.setAnimationStyle(R.style.ColorPickerPopupWindowAnimation);
         mEditPw.showAtLocation(mParentView,
@@ -465,13 +411,10 @@ public final class ColorPickerFragment extends Fragment {
     private void finish(final boolean notifyAboutSelected) {
         getActivity().onBackPressed();
 
-        // Notify about selected color for specific entry.
         if (notifyAboutSelected) {
-            //
             final Bundle bundle = new Bundle();
             bundle.putInt(EXTRA_RESULT_COLOR, mResultColor);
             bundle.putLong(EXTRA_ID, mId);
-            //
             notifyObservers(
                     COLOR_PICKER,
                     RESULT_CODE_COLOR_PICKER_SELECTED,

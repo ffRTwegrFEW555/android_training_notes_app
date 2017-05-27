@@ -51,10 +51,6 @@ public class SyncDbHelper {
         ...
      */
 
-    /**
-     * Insert new entry in database.
-     * @param entry Entry.
-     */
     public static boolean insertEntry(
             @NonNull final Context context,
             @NonNull final SyncEntry entry) {
@@ -62,25 +58,21 @@ public class SyncDbHelper {
         try {
             final SQLiteDatabase db = getWritableDb(context);
 
-            // Variables
             final String utcFinishedDate =
                     getStringDateFormatSqlite(
                             context,
                             entry.getFinished() == null ? new Date() : entry.getFinished(),
                             true);
-
             final Integer action = entry.getAction() == null ? ACTION_NOTHING : entry.getAction();
             final Integer status = entry.getStatus() == null ? 0 : entry.getStatus();
             final Integer amount = entry.getAmount() == null ? 0 : entry.getAmount();
 
-            // Content values
             final ContentValues cv = new ContentValues();
             cv.put(SYNC_COLUMN_FINISHED,    utcFinishedDate);
             cv.put(SYNC_COLUMN_ACTION,      action);
             cv.put(SYNC_COLUMN_STATUS,      status);
             cv.put(SYNC_COLUMN_AMOUNT,      amount);
 
-            // Insert
             if (db.insert(SYNC_TABLE_NAME, null, cv) == -1) {
                 final String error = String.format(Locale.ENGLISH,
                         "[ERROR] Insert entry {%s: %s, %s: %d, %s: %d, %s: %d}",
@@ -91,7 +83,6 @@ public class SyncDbHelper {
                 throw new SQLiteException(error);
             }
 
-            // If ok
             return true;
 
         } catch (SQLiteException e) {
@@ -110,8 +101,6 @@ public class SyncDbHelper {
 
         try {
             final SQLiteDatabase db = getReadableDb(context);
-
-            // Make query and return cursor, if ok;
             return db.query(
                     SYNC_TABLE_NAME,
                     null,
@@ -137,16 +126,10 @@ public class SyncDbHelper {
 
         try {
             final SQLiteDatabase db = getWritableDb(context);
-
-            // Begin transaction.
             db.beginTransaction();
-
             try {
-                // Exec SQL queries.
                 db.execSQL(SQL_SYNC_DROP_TABLE);
                 db.execSQL(SQL_SYNC_CREATE_TABLE);
-
-                // If ok.
                 db.setTransactionSuccessful();
                 return true;
 

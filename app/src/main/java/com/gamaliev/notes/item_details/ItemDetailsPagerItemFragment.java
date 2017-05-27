@@ -1,7 +1,6 @@
 package com.gamaliev.notes.item_details;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -38,31 +37,21 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import static com.gamaliev.notes.app.NotesApp.getAppContext;
-import static com.gamaliev.notes.colorpicker.ColorPickerFragment.EXTRA_COLOR_BUNDLE;
 import static com.gamaliev.notes.colorpicker.ColorPickerFragment.EXTRA_RESULT_COLOR;
 import static com.gamaliev.notes.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.notes.common.CommonUtils.getResourceColorApi;
 import static com.gamaliev.notes.common.CommonUtils.getStringDateFormatSqlite;
 import static com.gamaliev.notes.common.CommonUtils.hideKeyboard;
 import static com.gamaliev.notes.common.CommonUtils.showToast;
-import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_COLOR_PICKER_SELECT;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_COLOR_PICKER_SELECTED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_ADDED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_CANCEL;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_DELETED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_EDITED;
-import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_LIST_FILTERED;
-import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_MOCK_ENTRIES_ADDED;
-import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_NOTES_IMPORTED;
-import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_SYNC_SUCCESS;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
 import static com.gamaliev.notes.common.observers.ObserverHelper.COLOR_PICKER;
-import static com.gamaliev.notes.common.observers.ObserverHelper.ENTRIES_MOCK;
 import static com.gamaliev.notes.common.observers.ObserverHelper.ENTRY;
-import static com.gamaliev.notes.common.observers.ObserverHelper.FILE_IMPORT;
-import static com.gamaliev.notes.common.observers.ObserverHelper.LIST_FILTER;
-import static com.gamaliev.notes.common.observers.ObserverHelper.SYNC;
 import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
 import static com.gamaliev.notes.common.observers.ObserverHelper.registerObserver;
 import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObserver;
@@ -120,7 +109,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
 
         final ItemDetailsPagerItemFragment fragment = new ItemDetailsPagerItemFragment();
         fragment.setArguments(bundle);
-        
         return fragment;
     }
 
@@ -149,7 +137,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                 R.layout.fragment_item_details_pager_item,
                 container,
                 false);
-
         return mParentView;
     }
 
@@ -173,19 +160,15 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                 OBSERVED,
                 toString(),
                 this);
-
         super.onResume();
     }
 
     @Override
     public void onPause() {
-        // Bug.
-        hideKeyboard(getContext(), mParentView);
-
+        hideKeyboard(getContext(), mParentView); /* Bug */
         unregisterObserver(
                 OBSERVED,
                 toString());
-
         super.onPause();
     }
 
@@ -223,15 +206,12 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
         mColorView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // After start - refreshed entry will be use in
-                // onSaveInstanceState()-method.
                 refreshEntry();
 
-                // Start color picker fragment.
                 final ColorPickerFragment fragment =
                         ColorPickerFragment.newInstance(mId, mColor);
 
-                // Init transitions.
+                // Transitions.
                 final View headerBox = mParentView.findViewById(R.id.fragment_item_details_ff_header);
                 final String colorTransName = getString(R.string.shared_transition_name_color_box);
                 final String headerBoxTransName = getString(R.string.shared_transition_name_layout);
@@ -243,7 +223,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                 fragment.setSharedElementEnterTransition(new AutoTransition());
                 fragment.setSharedElementReturnTransition(new AutoTransition());
 
-                // Start fragment.
                 getActivity()
                         .getSupportFragmentManager()
                         .beginTransaction()
@@ -262,47 +241,30 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
      * See also: {@link #ACTION_ADD}, {@link #ACTION_EDIT}.
      */
     private void processAction() {
-
         switch (mAction) {
-
-            // Start activity with Add action.
             case ACTION_ADD:
                 mActionBar.setTitle(getString(R.string.fragment_item_details_title_add));
-
                 if (mSavedInstanceState == null) {
-
-                    // On first start activity.
-                    // Set color box with default color, and create new entry.
                     if (mEntry == null) {
                         mEntry = new ListEntry();
                         mEntry.setColor(getDefaultColor(getContext()));
                     }
 
                 } else {
-
-                    // On restart activity.
-                    // Fill activity views values with restored entry-values.
                     mEntry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
                 }
                 fillActivityViews();
                 break;
 
-            // Start activity with Edit action.
             case ACTION_EDIT:
                 mActionBar.setTitle(getString(R.string.fragment_item_details_title_edit));
-
                 if (mSavedInstanceState == null) {
-
-                    // On first start activity. Get entry from database, with given id.
                     if (mEntry == null) {
                         mEntry = ListDbHelper.getEntry(getContext(), mId);
                         ListDbHelper.updateEntry(getContext(), mEntry, LIST_ITEMS_COLUMN_VIEWED);
                     }
 
-                    // If received object and id is not null.
-                    // Else finish.
                     if (mEntry != null && mEntry.getId() != null) {
-                        // Fill activity views values with received values.
                         fillActivityViews();
 
                     } else {
@@ -316,9 +278,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                     }
 
                 } else {
-
-                    // On restart activity.
-                    // Fill activity views values with restored entry-values.
                     mEntry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
                     fillActivityViews();
                 }
@@ -334,19 +293,15 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
     }
 
     private void initImageUrlValidation() {
-        //
         checkUrlAndSetError(mImageUrlEditText.getText().toString());
 
-        // URL validation on change.
         mImageUrlEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 checkUrlAndSetError(mImageUrlEditText.getText().toString());
             }
-
             @Override
             public void afterTextChanged(Editable s) {}
         });
@@ -371,7 +326,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                         public void onSuccess() {
                             loadingProgressBar.setVisibility(View.GONE);
                         }
-
                         @Override
                         public void onError() {
                             loadingProgressBar.setVisibility(View.GONE);
@@ -451,7 +405,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
     }
 
     /**
-     * Refresh color box, with given color, and color-variable of object.
+     * Refresh color box, with given color.
      * @param color New color.
      */
     private void refreshColorBox(final int color) {
@@ -486,7 +440,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
         mMenu = menu;
         inflater.inflate(R.menu.menu_list_item_details, menu);
 
-        // If "edit action", then set info and delete buttons to visible.
         if (ACTION_EDIT.equals(mAction)) {
             menu.findItem(R.id.menu_list_item_details_info).setVisible(true);
             menu.findItem(R.id.menu_list_item_details_delete).setVisible(true);
@@ -496,42 +449,27 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
-
-            // On save action.
-            // Create database -> process action -> close database.
             case R.id.menu_list_item_details_done:
-
                 switch (mAction) {
-
-                    // If new, then add to database, and finish activity with RESULT_OK.
                     case ACTION_ADD:
-                        //
                         startActionAsyncTask(ACTION_ENTRY_ADD);
                         break;
-
-                    // If edit, then update entry in database, and finish activity with RESULT_OK.
                     case ACTION_EDIT:
-                        //
                         startActionAsyncTask(ACTION_ENTRY_EDIT);
                         break;
-
                     default:
                         break;
                 }
-
                 break;
 
-            // On cancel action. Finish activity.
             case R.id.menu_list_item_details_cancel:
                 finish(null);
                 break;
 
-            // Info button
             case R.id.menu_list_item_details_info:
                 showInfoDialog();
                 break;
 
-            // Delete button
             case R.id.menu_list_item_details_delete:
                 showConfirmDeleteDialog();
                 break;
@@ -547,8 +485,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
      * Show info dialog with next info: created, edited, viewed dates.
      */
     private void showInfoDialog() {
-
-        // Create message.
         final StringBuilder infoMessage = new StringBuilder();
         infoMessage
                 .append(getString(R.string.fragment_item_details_info_dialog_message_created))
@@ -567,7 +503,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                 .append("\n")
                 .append(mEntry.getSyncId());
 
-        // Create alert dialog.
         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder .setTitle(getString(R.string.fragment_item_details_info_dialog_title))
                 .setMessage(infoMessage)
@@ -578,18 +513,11 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                                 dialog.cancel();
                             }
                         });
-
         final AlertDialog alert = builder.create();
-
-        // Show
         alert.show();
     }
 
-    /**
-     * Show confirm delete dialog with Ok, Cancel buttons.
-     */
     private void showConfirmDeleteDialog() {
-
         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder .setTitle(getString(R.string.fragment_item_details_delete_dialog_title))
                 .setMessage(getString(R.string.fragment_item_details_delete_dialog_message))
@@ -611,17 +539,12 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
     }
 
     private void startActionAsyncTask(@NonNull final String action) {
-        //
         showProgressBarAndHideMenuItems();
 
-        // Background task.
         final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-
-                //
                 switch (action) {
-
                     case ACTION_ENTRY_ADD:
                         refreshEntry();
                         ListDbHelper.insertUpdateEntry(
@@ -646,7 +569,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                         break;
                 }
 
-                // Finish.
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -683,18 +605,13 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        //
                         if (data == null
                                 || data.getLong(ColorPickerFragment.EXTRA_ID, -1) != mId) {
                             return;
                         }
-
-                        //
                         final int color = data.getInt(
                                 EXTRA_RESULT_COLOR,
                                 getDefaultColor(getAppContext()));
-
-                        //
                         mEntry.setColor(color);
                         fillActivityViews();
                     }
@@ -712,9 +629,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
      */
 
     private void finish(@Nullable final String action) {
-
         if (action != null) {
-            //
             int resultCode = RESULT_CODE_ENTRY_CANCEL;
             switch (action) {
                 case ACTION_ENTRY_ADD:
@@ -745,11 +660,9 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                     break;
             }
 
-            //
             final Bundle bundle = new Bundle();
             bundle.putLong(EXTRA_ID, mId);
 
-            //
             notifyObservers(
                     ENTRY,
                     resultCode,

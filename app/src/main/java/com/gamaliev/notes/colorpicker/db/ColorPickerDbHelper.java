@@ -64,7 +64,6 @@ public class ColorPickerDbHelper {
 
         try {
             final SQLiteDatabase db = getWritableDb(context);
-
             final ContentValues cv = new ContentValues();
             cv.put(FAVORITE_COLUMN_COLOR, color);
             db.update(
@@ -93,7 +92,6 @@ public class ColorPickerDbHelper {
         int color = -1;
 
         final SQLiteDatabase db = getReadableDb(context);
-
         try (Cursor cursor = db.query(
                 FAVORITE_TABLE_NAME,
                 new String[]{FAVORITE_COLUMN_COLOR},

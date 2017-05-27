@@ -57,7 +57,6 @@ public class ConflictActivity extends AppCompatActivity {
     private void initToolbar() {
         final Toolbar toolbar = (Toolbar) findViewById(R.id.activity_conflict_toolbar);
         setSupportActionBar(toolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
@@ -67,11 +66,6 @@ public class ConflictActivity extends AppCompatActivity {
         Intents
      */
 
-    /**
-     * Start intent.
-     * @param context       Context.
-     * @param requestCode   This code will be returned in onActivityResult() when the activity exits.
-     */
     public static void startIntent(
             @NonNull final Context context,
             final int requestCode) {
@@ -113,37 +107,26 @@ public class ConflictActivity extends AppCompatActivity {
     private static void showConflictStatusBarNotification(
             @NonNull final Context context) {
 
-        final Context appContext = context.getApplicationContext();
-
-        final NotificationManager manager =
-                (NotificationManager) appContext
-                        .getSystemService(Context.NOTIFICATION_SERVICE);
         final NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(appContext);
+                new NotificationCompat.Builder(context);
 
-        builder .setContentTitle(appContext.getString(R.string.activity_sync_notification_status_bar_conflict_exists_title))
-                .setContentText(appContext.getString(R.string.activity_sync_notification_status_bar_conflict_exists_body))
+        builder .setContentTitle(context.getString(R.string.activity_sync_notification_status_bar_conflict_exists_title))
+                .setContentText(context.getString(R.string.activity_sync_notification_status_bar_conflict_exists_body))
                 .setSmallIcon(R.drawable.ic_warning_white_24dp)
                 .setContentIntent(
                         ConflictActivity.getPendingIntentForStatusBarNotification(
-                                appContext))
+                                context))
                 .setAutoCancel(true);
 
-        manager.notify(
-                EXTRA_ID_CONFLICT_STATUS_BAR_NOTIFICATION,
-                builder.build());
+        ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE))
+                .notify(EXTRA_ID_CONFLICT_STATUS_BAR_NOTIFICATION, builder.build());
     }
 
     public static void hideConflictStatusBarNotification(
             @NonNull final Context context) {
 
-        final Context appContext = context.getApplicationContext();
-
-        final NotificationManager manager =
-                (NotificationManager) appContext
-                        .getSystemService(Context.NOTIFICATION_SERVICE);
-
-        manager.cancel(EXTRA_ID_CONFLICT_STATUS_BAR_NOTIFICATION);
+        ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE))
+                .cancel(EXTRA_ID_CONFLICT_STATUS_BAR_NOTIFICATION);
     }
 
 

@@ -15,16 +15,14 @@ import android.widget.ListView;
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 
+import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_CONFIGURE_USER;
+
 /**
  * @author Vadim Gamaliev
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
 public class UserActivity extends AppCompatActivity {
-
-    /* Intents */
-    public static final int REQUEST_CODE_CONFIGURE_USER = 101;
-
 
     /*
         Lifecycle
@@ -57,16 +55,13 @@ public class UserActivity extends AppCompatActivity {
     private void initToolbar() {
         final Toolbar toolbar = (Toolbar) findViewById(R.id.activity_user_toolbar);
         setSupportActionBar(toolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     private void initListView() {
-        // Create adapter.
         final BaseAdapter adapter = new UserAdapter(getApplicationContext());
 
-        // Init list view
         final ListView listView = (ListView) findViewById(R.id.activity_user_list_view);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -100,12 +95,6 @@ public class UserActivity extends AppCompatActivity {
         Intents
      */
 
-    /**
-     * Start intent.
-     *
-     * @param context     Context.
-     * @param requestCode This code will be returned in onActivityResult() when the activity exits.
-     */
     public static void startIntent(
             @NonNull final Context context,
             final int requestCode) {

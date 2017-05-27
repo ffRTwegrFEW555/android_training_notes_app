@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
  */
 
 public interface Observer {
-
     void onNotify(
             final int resultCode,
             @Nullable final Bundle data);

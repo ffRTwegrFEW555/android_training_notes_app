@@ -88,16 +88,13 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
         mGestureDetector.onTouchEvent(e);
 
         switch (e.getAction()) {
-
-            // Elevation animation on.
             case MotionEvent.ACTION_DOWN:
                 animateElevation(mView,
                         mResources.getInteger(R.integer.fragment_color_picker_palette_box_anim_elevation_duration),
                         mResources.getDimensionPixelSize(R.dimen.fragment_color_picker_palette_box_anim_elevation_on));
                 return true;
 
-            // Enable scrolling and turn off "Edit mode". Notify.
-            // Elevation animation off.
+            // Enable scrolling and turn off "Edit mode".
             case MotionEvent.ACTION_UP:
                 if (!mPaletteHsvSv.isEnableScrolling()) {
                     mEditable = false;
@@ -113,7 +110,6 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
                         mResources.getDimensionPixelSize(R.dimen.fragment_color_picker_palette_box_anim_elevation_off));
                 return true;
 
-            // Elevation animation off.
             case MotionEvent.ACTION_CANCEL:
                 mEditable = false;
                 animateElevation(mView,
@@ -121,9 +117,8 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
                         mResources.getDimensionPixelSize(R.dimen.fragment_color_picker_palette_box_anim_elevation_off));
                 return true;
 
-            // Edit mode: Change color
+            // Edit mode: Change color.
             case MotionEvent.ACTION_MOVE:
-                // Check.
                 if (mEditable) {
                     if (mPaletteHsvSv.isEnableScrolling()) {
                         mEditable = false;
@@ -144,7 +139,7 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
                     final int newColor = Color.HSVToColor(new float[] {hue, 1f, value});
                     mFragment.setColorOnMove(mView, newColor, mIndex);
 
-                    // Notify when border reaches
+                    // Notify when border reaches.
                     if (!mPauseNotify && (x0 > size || x0 < 0 || y0 > size || y0 < 0)) {
                         makeVibrate(
                                 mContext,
@@ -193,40 +188,33 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
     @NonNull
     private GestureDetector.SimpleOnGestureListener getSimpleOnGestureListener() {
         return new GestureDetector.SimpleOnGestureListener() {
-
-            // Disable scrolling and turn on "Edit mode"
+            // Disable scrolling and turn on "Edit mode".
             @Override
             public void onLongPress(final MotionEvent e) {
-                // Notification
                 playSoundAndShowToast(
                         mContext,
                         RingtoneManager.TYPE_NOTIFICATION,
                         mResources.getString(R.string.fragment_color_picker_toast_edit_mode_on),
                         Toast.LENGTH_SHORT);
 
-                // Enable scrolling
                 mPaletteHsvSv.setEnableScrolling(false);
-
-                //
                 mLongPressed = true;
                 mX1 = e.getX();
                 mY1 = e.getY();
 
-                // Show popup window, and set current color.
                 mFragment.showPopupWindow();
                 mFragment.setColorOnMove(mView, -1, mIndex);
             }
 
-            // Set default color back to palette box
+            // Set default color back to palette box.
             @Override
             public boolean onDoubleTap(final MotionEvent e) {
                 setBackgroundColorRectangleAPI(mContext, mView, mHsvColors[mIndex]);
-                // Update overridden array.
                 mHsvColorsOverridden[mIndex] = -1;
                 return true;
             }
 
-            // Set palette color to result box
+            // Set palette color to result box.
             @Override
             public boolean onSingleTapConfirmed(final MotionEvent e) {
                 int result = mHsvColorsOverridden[mIndex] != -1

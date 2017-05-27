@@ -43,7 +43,6 @@ public class EditTextPreferenceWithValueSummary extends EditTextPreference {
     @Override
     protected void onDialogClosed(final boolean positiveResult) {
         super.onDialogClosed(positiveResult);
-
         if (positiveResult) {
             this.setSummary(getText());
         }

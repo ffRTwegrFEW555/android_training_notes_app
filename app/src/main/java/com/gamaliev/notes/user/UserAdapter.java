@@ -16,7 +16,7 @@ import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import java.util.Map;
 import java.util.Set;
 
-import static com.gamaliev.notes.user.UserActivity.REQUEST_CODE_CONFIGURE_USER;
+import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_CONFIGURE_USER;
 
 /**
  * @author Vadim Gamaliev
@@ -61,10 +61,8 @@ public class UserAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View convertView, final ViewGroup parent) {
-
         final Context context = parent.getContext();
 
-        // Get or new.
         ViewHolder holder;
         if (convertView == null) {
             convertView = LayoutInflater
@@ -78,7 +76,6 @@ public class UserAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        // Update.
         final Map<String, String> userProfile = SpUsers.get(context, mProfiles[position]);
         holder.mTitleView.setText(
                         userProfile.get(SpUsers.SP_USER_FIRST_NAME) + " " +
@@ -96,7 +93,7 @@ public class UserAdapter extends BaseAdapter {
             }
         });
 
-        // Coloring current user
+        // Colorize current user.
         final String selected = SpUsers.getSelected(context);
         final String fromProfile = userProfile.get(SpUsers.SP_USER_ID);
         if (selected.equals(fromProfile)) {

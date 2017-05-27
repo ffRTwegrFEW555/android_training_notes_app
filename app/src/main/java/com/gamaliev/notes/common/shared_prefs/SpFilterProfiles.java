@@ -108,11 +108,8 @@ public final class SpFilterProfiles {
             @NonNull final String userId,
             @NonNull final String profileId) {
 
-        // Get profiles, found.
         final Set<String> set = getProfiles(context, userId);
         for (String profile : set) {
-
-            //
             JSONObject jsonObject;
             try {
                 jsonObject = new JSONObject(profile);
@@ -121,7 +118,6 @@ public final class SpFilterProfiles {
                 return null;
             }
 
-            // If found.
             if (profileId.equals(jsonObject.optString(SP_FILTER_ID))) {
                 return profile;
             }
@@ -186,15 +182,12 @@ public final class SpFilterProfiles {
             @NonNull final Context context,
             @NonNull final String userId) {
 
-        // Get user preferences.
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(userId),
                 MODE_PRIVATE);
 
-        // Get id of selected profile.
         final String profileId = getSelectedId(context, userId);
 
-        // Default, current, other.
         if (SP_FILTER_PROFILE_DEFAULT_ID.equals(profileId)) {
             return sp.getString(SP_FILTER_PROFILE_DEFAULT, null);
         } else if (SP_FILTER_PROFILE_CURRENT_ID.equals(profileId)) {
@@ -267,11 +260,9 @@ public final class SpFilterProfiles {
             @NonNull final String userId,
             @NonNull final Map<String, String> profile) {
 
-        // Generate id.
         final UUID newId = UUID.randomUUID();
         profile.put(SP_FILTER_ID, newId.toString());
 
-        // Get, add, save.
         final Set<String> set = getProfiles(context, userId);
         set.add(convertMapToJson(profile));
         updateProfiles(context, userId, set);
@@ -407,30 +398,24 @@ public final class SpFilterProfiles {
             @NonNull final String userId,
             @NonNull final String profileId) {
 
-        // If default profile, then access denied.
         if (SP_FILTER_PROFILE_DEFAULT_ID.equals(profileId)) {
             return;
         }
 
-        // If profile is current, then reset profile.
         if (SP_FILTER_PROFILE_CURRENT_ID.equals(profileId)) {
             resetCurrent(context, userId);
             return;
         }
 
-        // If "removed profile id" equals "selected profile id", then reset current profile.
         if (profileId.equals(getSelectedId(context, userId))) {
             resetCurrent(context, userId);
         }
 
-        // Remove from profiles.
         final Set<String> set = getProfiles(context, userId);
-
         final Iterator<String> iterator = set.iterator();
         while (iterator.hasNext()) {
             final String next = iterator.next();
 
-            //
             JSONObject jsonObject;
             try {
                 jsonObject = new JSONObject(next);
@@ -440,7 +425,6 @@ public final class SpFilterProfiles {
             }
             final String id = jsonObject.optString(SP_FILTER_ID);
 
-            // Remove.
             if (profileId.equals(id)) {
                 iterator.remove();
                 break;

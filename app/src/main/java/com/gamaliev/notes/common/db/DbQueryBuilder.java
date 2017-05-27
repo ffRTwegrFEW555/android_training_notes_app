@@ -17,6 +17,7 @@ public final class DbQueryBuilder {
     /* SQL */
     public static final String OPERATOR_OR      = " OR ";
     public static final String OPERATOR_AND     = " AND ";
+
     public static final String OPERATOR_EQUALS  = " = ";
     public static final String OPERATOR_BETWEEN = " BETWEEN ";
     public static final String OPERATOR_LIKE    = " LIKE ";
@@ -142,7 +143,6 @@ public final class DbQueryBuilder {
                 .append(queryBuilder.getSelectionResult())
                 .append(") ");
 
-        // Add new selection clause to old.
         updateSelectionClauses(
                 sb.toString(),
                 queryBuilder.getSelectionArgs());
@@ -180,10 +180,8 @@ public final class DbQueryBuilder {
 
             Example: "OR (title LIKE %Droid%) "
             Example: "OR (color = 12345) "
-            Example: "OR (created BETWEEN 2017-04-25T21:25:35+05:00 AND 2017-04-25T21:25:35+05:00) "
+            Example: "OR (created BETWEEN 2017-04-25 21:25:35 AND 2017-04-25 21:25:35) "
         */
-
-        // Example: 'OR (title' or '(title'
         final StringBuilder sb = new StringBuilder();
 
         // If clause is first in current query builder, then add without operator 'OR' or 'ADD'.
@@ -195,11 +193,9 @@ public final class DbQueryBuilder {
                 .append(column);
 
         switch (operatorSecondary) {
-
             // Example: " LIKE ?"
             // Example: " LIKE %Droid%"
             case OPERATOR_LIKE:
-
                 // Check exist one operand.
                 if (operands.length != 1) {
                     throw new IllegalArgumentException(
@@ -216,7 +212,6 @@ public final class DbQueryBuilder {
             // Example: " = ?"
             // Example: " = 12345"
             case OPERATOR_EQUALS:
-
                 // Check exist one operand.
                 if (operands.length != 1) {
                     throw new IllegalArgumentException(
@@ -228,9 +223,8 @@ public final class DbQueryBuilder {
                 break;
 
             // Example: " BETWEEN ? AND ?"
-            // Example: " BETWEEN 2017-04-25T21:25:35+05:00 AND 2017-04-25T21:25:35+05:00"
+            // Example: " BETWEEN 2017-04-25 21:25:35 AND 2017-04-25 21:25:35"
             case OPERATOR_BETWEEN:
-
                 // Check exist two operands.
                 if (operands.length != 2) {
                     throw new IllegalArgumentException(
@@ -243,17 +237,12 @@ public final class DbQueryBuilder {
                 }
                 break;
 
-            //
             default:
                 break;
         }
 
-        // Example: ') '
         sb.append(") ");
-
-        // Add new selection clause to old.
         updateSelectionClauses(sb.toString(), operands);
-
         return this;
     }
 
@@ -273,12 +262,9 @@ public final class DbQueryBuilder {
 
         // Update if clauses exists.
         if (mSelection != null && mSelectionArgs != null) {
-
-            // Create new selection, and selectionArgs clauses.
             newSelection        = new String[mSelection.length       + 1];
             newSelectionArgs    = new String[mSelectionArgs.length   + newOperands.length];
 
-            // Copy old array to new array.
             System.arraycopy(mSelection,     0, newSelection,        0, mSelection.length);
             System.arraycopy(mSelectionArgs, 0, newSelectionArgs,    0, mSelectionArgs.length);
 
@@ -292,7 +278,6 @@ public final class DbQueryBuilder {
                     newOperands.length);
         }
 
-        // Replacing old clauses with new.
         mSelection = newSelection;
         mSelectionArgs = newSelectionArgs;
     }
@@ -348,8 +333,6 @@ public final class DbQueryBuilder {
         if (mSelection == null) {
             return null;
         }
-
-        // Convert clauses array to one string clauses.
         final StringBuilder sb = new StringBuilder();
         for (String cause : mSelection) {
             sb      .append(cause)

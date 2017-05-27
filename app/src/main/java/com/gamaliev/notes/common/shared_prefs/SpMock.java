@@ -146,7 +146,6 @@ public final class SpMock {
      */
 
     public static void addMockData(@NonNull final Context context) {
-
         int entriesCount = context.getResources().getInteger(R.integer.mock_items_number_start);
         boolean allProfiles = false;
 
@@ -159,13 +158,10 @@ public final class SpMock {
         }
 
         for (Map<String, String> userProfile : mockUserProfiles) {
-            // Get user id.
             final String userId = userProfile.get(SpUsers.SP_USER_ID);
 
-            // Add user.
             SpUsers.add(context, userProfile);
 
-            // Add filter profiles to user.
             SpFilterProfiles.updateProfiles(
                     context,
                     userId,
@@ -185,6 +181,7 @@ public final class SpMock {
                     DbHelper.getInstance(context).getWritableDatabase(),
                     null,
                     false);
+
             entriesCount += entriesCount;
         }
     }
@@ -240,7 +237,6 @@ public final class SpMock {
         Map<String, String> map;
 
         for (String[] entry : SP_MOCK_USER_PROFILES) {
-
             map = new HashMap<>();
             map.put(SP_USER_ID,             entry[0]);
             map.put(SP_USER_SYNC_ID,        entry[1]);

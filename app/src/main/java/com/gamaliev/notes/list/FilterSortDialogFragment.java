@@ -147,7 +147,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
     @Override
     public void onViewStateRestored(final Bundle savedInstanceState) {
-        // Restore local variables, if exists, else init.
         if (savedInstanceState != null) {
             mFilterProfileMap       = (HashMap) savedInstanceState.getSerializable(EXTRA_PROFILE_MAP);
             mFoundedEntriesCache    = (HashMap) savedInstanceState.getSerializable(EXTRA_FOUNDED_MAP);
@@ -156,16 +155,10 @@ public final class FilterSortDialogFragment extends DialogFragment {
             initLocalVariables();
         }
 
-        //
         mSingleThreadExecutor = Executors.newSingleThreadExecutor();
         mRunnableTasks = new HashSet<>();
-
-        // Init
         initComponents();
-
-        // Set listeners
         setListeners();
-
         super.onViewStateRestored(savedInstanceState);
     }
 
@@ -217,7 +210,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
         initDateComponents();
         initColorComponents();
 
-        // Refresh found text.
         refreshFoundText();
     }
 
@@ -234,40 +226,26 @@ public final class FilterSortDialogFragment extends DialogFragment {
      * Init profiles components. Set listeners.
      */
     private void initProfilesComponents() {
-
-        // Get profiles viewGroup
-        final ViewGroup profiles = (ViewGroup) mDialog.findViewById(
+        final ViewGroup profilesViewGroup = (ViewGroup) mDialog.findViewById(
                 R.id.fragment_list_filter_dialog_profiles);
+        profilesViewGroup.removeAllViews();
 
-        // Remove all child.
-        profiles.removeAllViews();
-
-        // Get profiles set from shared preferences.
         final Set<String> profilesSet = getProfilesForCurrentUser(getActivity());
-
-        // Seek.
         for (String profileJson : profilesSet) {
-
-            // Create new child view.
             final View newView = View.inflate(
                     getActivity(),
                     R.layout.fragment_list_filter_dialog_profile,
                     null);
-
-            // Convert profile Json to Map.
-            final Map<String, String> profileMap =
-                    convertJsonToMap(profileJson);
-
-            // Get id
+            final Map<String, String> profileMap = convertJsonToMap(profileJson);
             final String id = profileMap.get(SP_FILTER_ID);
 
-            // Title. Get and set.
+            // Title.
             final String title = profileMap.get(SP_FILTER_TITLE);
             final TextView newTitleView = (TextView) newView.findViewById(
                     R.id.fragment_list_filter_dialog_profile_title);
             newTitleView.setText(title);
 
-            // Found text view.
+            // Found text.
             final TextView foundTextView = (TextView) newView.findViewById(
                     R.id.fragment_list_filter_dialog_profile_found);
 
@@ -275,29 +253,16 @@ public final class FilterSortDialogFragment extends DialogFragment {
             final View progressBar = newView.findViewById(
                     R.id.fragment_list_filter_dialog_profile_found_progress_bar);
 
-            // Check cached
+            // Cache.
             final String foundedEntries = mFoundedEntriesCache.get(id);
             if (foundedEntries == null) {
-                // If not exists.
-                // Get "found entries"-text dependent this profile and set.
-                // Get entries from database, with given profile-params and count result.
-
-                // Hide found text view.
                 foundTextView.setVisibility(View.GONE);
-
-                // Show progress bar.
                 progressBar.setVisibility(View.VISIBLE);
 
-                // Background task.
                 mRunnableTasks.add(new Runnable() {
                     @Override
                     public void run() {
-
-                        // Update views, if attached.
-                        // Double check. Bug.
                         if (getActivity() != null && mDialog.isAttachedToWindow()) {
-
-                            // Get number of entries.
                             final int count = getEntriesCount(
                                     getActivity(),
                                     LIST_ITEMS_TABLE_NAME,
@@ -306,21 +271,14 @@ public final class FilterSortDialogFragment extends DialogFragment {
                                             null,
                                             profileMap));
 
-                            // Caching
                             mFoundedEntriesCache.put(id, String.valueOf(count));
 
-                            // Update view
                             if (getActivity() != null && mDialog.isAttachedToWindow()) {
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        // Set text.
                                         foundTextView.setText("(" + count + ")");
-
-                                        // Hide progress bar.
                                         progressBar.setVisibility(View.GONE);
-
-                                        // Show found text view.
                                         foundTextView.setVisibility(View.VISIBLE);
                                     }
                                 });
@@ -330,32 +288,25 @@ public final class FilterSortDialogFragment extends DialogFragment {
                 });
 
             } else {
-                // If exists.
                 foundTextView.setText("(" + foundedEntries + ")");
-
-                // Show found text view.
                 foundTextView.setVisibility(View.VISIBLE);
             }
 
-            // Color. Get id and check selected.
-            // If id is selectedId, then set contrast color.
+            // Colorize  the title., and set underline.
             if (mSelectedFilterProfile.equals(id)) {
                 mFilterProfileMap = profileMap;
                 final int color = getResourceColorApi(getActivity(), R.color.color_primary_contrast);
                 newTitleView.setTextColor(color);
 
-                // Also add underline to title.
                 SpannableString titleUnderline = new SpannableString(title);
                 titleUnderline.setSpan(new UnderlineSpan(), 0, titleUnderline.length(), 0);
                 newTitleView.setText(titleUnderline);
             }
 
-            // Set layout on click listener.
             // On click change local profile id, and update views.
             newView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     mSelectedFilterProfile = profileMap.get(SP_FILTER_ID);
 
                     // BUG.
@@ -364,7 +315,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
                     ((RadioGroup) mDialog.findViewById(R.id.fragment_list_filter_dialog_sorting_by_radio_group_asc_desc))
                             .setOnCheckedChangeListener(null);
 
-                    // Reinitialize.
                     initComponents();
 
                     // BUG.
@@ -372,37 +322,27 @@ public final class FilterSortDialogFragment extends DialogFragment {
                 }
             });
 
-            // Set "delete button" on click listener.
             final ImageButton deleteButton = (ImageButton) newView.findViewById(
                     R.id.fragment_list_filter_dialog_profile_delete);
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-                    // Delete profile.
                     deleteForCurrentUser(getActivity(), id);
 
-                    // If deleted profile equals selected, then set default settings.
                     if (mSelectedFilterProfile.equals(id)) {
-                        // Reinitialize.
                         initLocalVariables();
                         initComponents();
-
                     } else {
-                        // Reinitialize profiles block.
                         initProfilesComponents();
                     }
                 }
             });
 
-            // Add child view to parent.
-            profiles.addView(newView);
+            profilesViewGroup.addView(newView);
         }
     }
 
     private void initSortComponents() {
-
-        // Sorting.
         switch (mFilterProfileMap.get(SP_FILTER_ORDER)) {
             case LIST_ITEMS_COLUMN_TITLE:
                 ((RadioButton) mDialog.findViewById(R.id.fragment_list_filter_dialog_order_title))
@@ -424,7 +364,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
                 break;
         }
 
-        // Sorting asc / desc.
         switch (mFilterProfileMap.get(SP_FILTER_ORDER_ASC)) {
             case ORDER_ASCENDING:
                 ((RadioButton) mDialog.findViewById(R.id.fragment_list_filter_dialog_order_asc))
@@ -440,22 +379,18 @@ public final class FilterSortDialogFragment extends DialogFragment {
     }
 
     private void initDateComponents() {
-
-        // filter created.
         setDatesStatus(
                 SP_FILTER_CREATED,
                 R.id.fragment_list_filter_dialog_filter_by_created_checkbox,
                 R.id.fragment_list_filter_dialog_filter_by_created_button_from,
                 R.id.fragment_list_filter_dialog_filter_by_created_button_to);
 
-        // filter edited.
         setDatesStatus(
                 SP_FILTER_EDITED,
                 R.id.fragment_list_filter_dialog_filter_by_edited_checkbox,
                 R.id.fragment_list_filter_dialog_filter_by_edited_button_from,
                 R.id.fragment_list_filter_dialog_filter_by_edited_button_to);
 
-        // filter viewed.
         setDatesStatus(
                 SP_FILTER_VIEWED,
                 R.id.fragment_list_filter_dialog_filter_by_viewed_checkbox,
@@ -464,44 +399,30 @@ public final class FilterSortDialogFragment extends DialogFragment {
     }
 
     private void initColorComponents() {
-
-        // Get colors matrix.
-        final GridLayout colorsMatrix = (GridLayout) mDialog.findViewById(
+        final GridLayout colorsMatrixVg = (GridLayout) mDialog.findViewById(
                 R.id.fragment_list_filter_dialog_color_by_body);
+        colorsMatrixVg.removeAllViews();
 
-        // Remove all child.
-        colorsMatrix.removeAllViews();
-
-        // Init colorCheckbox default.
         final CheckBox colorCb = (CheckBox) mDialog.findViewById(
                 R.id.fragment_list_filter_dialog_color_by_default);
-
-        // Set off.
         colorCb.setChecked(false);
 
-        // Set on click listener.
         colorCb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (colorCb.isChecked()) {
-
-                    // Set empty value.
                     mFilterProfileMap.put(SP_FILTER_COLOR, "");
-
-                    // Reinitialize.
                     mSelectedFilterProfile = SP_FILTER_PROFILE_CURRENT_ID;
                     initComponents();
                 }
-                // Set on.
                 colorCb.setChecked(true);
             }});
 
-        // If color is not selected
         if (TextUtils.isEmpty(mFilterProfileMap.get(SP_FILTER_COLOR))) {
             colorCb.setChecked(true);
         }
 
-        // Get dimension and create params.
+        // Params for color button.
         final int s = (int) getResources().getDimension(R.dimen.fragment_list_filter_dialog_color_button_size);
         final int m = (int) getResources().getDimension(R.dimen.fragment_list_filter_dialog_color_button_margin);
         final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(s, s);
@@ -509,10 +430,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
         // Seek all favorite colors.
         for (int i = 0; i < ColorPickerDbHelper.FAVORITE_COLORS_DEFAULT.length; i++) {
-            // Create new button
             final ImageButton button = new ImageButton(getActivity());
-
-            // Set params.
             button.setLayoutParams(params);
 
             // Set oval drawable
@@ -530,32 +448,22 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
             // If color is selected, then set done icon.
             final String colorFromSettings = mFilterProfileMap.get(SP_FILTER_COLOR);
-
             if (!TextUtils.isEmpty(colorFromSettings)
                     && Integer.parseInt(colorFromSettings) == color) {
-
                 button.setImageResource(R.drawable.ic_done_white_24dp);
             }
 
-            // Set on click listener
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-                    // Set off.
                     colorCb.setChecked(false);
-
-                    // Set new value
                     mFilterProfileMap.put(SP_FILTER_COLOR, String.valueOf(color));
-
-                    // Reinitialize.
                     mSelectedFilterProfile = SP_FILTER_PROFILE_CURRENT_ID;
                     initComponents();
                 }
             });
 
-            // Add button to colors matrix.
-            colorsMatrix.addView(button);
+            colorsMatrixVg.addView(button);
         }
     }
 
@@ -565,7 +473,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
             final int dateFromId,
             final int dateToId) {
 
-        // Init.
         Button button;
 
         if (!TextUtils.isEmpty(getDateFromProfileMap(
@@ -597,8 +504,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
             setDateButtonOn(button, localtimeDateTo);
 
         } else {
-
-            // Set checkbox status on.
+            // Set checkbox status off.
             ((CheckBox) mDialog.findViewById(checkboxId))
                     .setChecked(false);
 
@@ -616,7 +522,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
             @NonNull final Button button,
             @NonNull final String text) {
 
-        // Get alpha on.
         final float alpha = getResources()
                 .getFraction(R.fraction.fragment_list_filter_dialog_date_alpha_on, 1, 1);
 
@@ -627,10 +532,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
     }
 
     private void setDateButtonOff(@NonNull final Button button) {
-        // Get default string.
         final String defaultText = getString(R.string.fragment_list_filter_dialog_date_text_default);
-
-        // Get alpha off.
         final float alpha = getResources()
                 .getFraction(R.fraction.fragment_list_filter_dialog_date_alpha_off, 1, 1);
 
@@ -645,62 +547,43 @@ public final class FilterSortDialogFragment extends DialogFragment {
         Listeners
      */
 
-    /**
-     * Reset to default profile.
-     */
     private void setResetProfileListener() {
         mDialog.findViewById(R.id.fragment_list_filter_dialog_profile_reset)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-                        // Set default profile id.
                         mSelectedFilterProfile = SP_FILTER_PROFILE_CURRENT_ID;
-
-                        // Set default profile map.
                         mFilterProfileMap = convertJsonToMap(getDefaultProfile());
-
-                        // Reinitialize.
                         initComponents();
                     }
                 });
     }
 
-    /**
-     * Show input text dialog, if confirm, then add new profile, and reinitialize.
-     */
     private void setAddCurrentProfileListener() {
         mDialog.findViewById(R.id.fragment_list_filter_dialog_profiles_save_current_button)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-                        // Show input text dialog, if confirm, then add new profile, and reinitialize.
                         showInputDialogAddProfile();
                     }
                 });
     }
 
     private void setSortingListeners() {
-        // Order listener. On click: change profileMap value.
         ((RadioGroup) mDialog.findViewById(R.id.fragment_list_filter_dialog_sorting_by_radio_group_order))
                 .setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
                         switch (checkedId) {
-                            // Title order
                             case R.id.fragment_list_filter_dialog_order_title:
                                 mFilterProfileMap.put(SP_FILTER_ORDER, LIST_ITEMS_COLUMN_TITLE);
                                 break;
-                            // Created order
                             case R.id.fragment_list_filter_dialog_order_created:
                                 mFilterProfileMap.put(SP_FILTER_ORDER, LIST_ITEMS_COLUMN_CREATED);
                                 break;
-                            // Edited order
                             case R.id.fragment_list_filter_dialog_order_edited:
                                 mFilterProfileMap.put(SP_FILTER_ORDER, LIST_ITEMS_COLUMN_EDITED);
                                 break;
-                            // Viewed order
                             case R.id.fragment_list_filter_dialog_order_viewed:
                                 mFilterProfileMap.put(SP_FILTER_ORDER, LIST_ITEMS_COLUMN_VIEWED);
                                 break;
@@ -708,23 +591,19 @@ public final class FilterSortDialogFragment extends DialogFragment {
                                 break;
                         }
 
-                        // Reinitialize.
                         mSelectedFilterProfile = SP_FILTER_PROFILE_CURRENT_ID;
                         initProfilesComponents();
                     }
                 });
 
-        // Order_asc_desc listener. On click: change profileMap value.
         ((RadioGroup) mDialog.findViewById(R.id.fragment_list_filter_dialog_sorting_by_radio_group_asc_desc))
                 .setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
                         switch (checkedId) {
-                            // ASC order
                             case R.id.fragment_list_filter_dialog_order_asc:
                                 mFilterProfileMap.put(SP_FILTER_ORDER_ASC, ORDER_ASCENDING);
                                 break;
-                            // DESC order
                             case R.id.fragment_list_filter_dialog_order_desc:
                                 mFilterProfileMap.put(SP_FILTER_ORDER_ASC, ORDER_DESCENDING);
                                 break;
@@ -732,7 +611,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
                                 break;
                         }
 
-                        // Reinitialize.
                         mSelectedFilterProfile = SP_FILTER_PROFILE_CURRENT_ID;
                         initProfilesComponents();
                     }
@@ -740,22 +618,18 @@ public final class FilterSortDialogFragment extends DialogFragment {
     }
 
     private void setFilterDatesListeners() {
-        
-        // Created
         setFilterDateListeners(
                 SP_FILTER_CREATED,
                 R.id.fragment_list_filter_dialog_filter_by_created_checkbox,
                 R.id.fragment_list_filter_dialog_filter_by_created_button_from,
                 R.id.fragment_list_filter_dialog_filter_by_created_button_to);
         
-        // Edited
         setFilterDateListeners(
                 SP_FILTER_EDITED,
                 R.id.fragment_list_filter_dialog_filter_by_edited_checkbox,
                 R.id.fragment_list_filter_dialog_filter_by_edited_button_from,
                 R.id.fragment_list_filter_dialog_filter_by_edited_button_to);
         
-        // Viewed
         setFilterDateListeners(
                 SP_FILTER_VIEWED,
                 R.id.fragment_list_filter_dialog_filter_by_viewed_checkbox,
@@ -770,18 +644,14 @@ public final class FilterSortDialogFragment extends DialogFragment {
             final int dateFromId, 
             final int dateToId) {
 
-        // Find views
         final CheckBox checkBox = (CheckBox) mDialog.findViewById(checkBoxId);
         final Button dateFrom   = (Button) mDialog.findViewById(dateFromId);
         final Button dateTo     = (Button) mDialog.findViewById(dateToId);
 
-        // Set checkbox listeners
         checkBox.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (checkBox.isChecked()) {
-
-                            // On buttons
                             setDateButtonOn(
                                     dateFrom,
                                     getString(R.string.fragment_list_filter_dialog_date_text_from));
@@ -790,25 +660,19 @@ public final class FilterSortDialogFragment extends DialogFragment {
                                     getString(R.string.fragment_list_filter_dialog_date_text_to));
 
                         } else {
-                            // Off buttons.
                             setDateButtonOff(dateFrom);
                             setDateButtonOff(dateTo);
 
-                            // Update profileMap.
                             mFilterProfileMap.put(filterCategory, "");
                         }
 
-                        // Reinitialize.
                         mSelectedFilterProfile = SP_FILTER_PROFILE_CURRENT_ID;
                         initProfilesComponents();
                         refreshFoundText();
                     }
                 });
 
-        // Set date from button listener
         dateFrom.setOnClickListener(getFilterDateListener(filterCategory, true));
-
-        // Set date to button listener
         dateTo.setOnClickListener(getFilterDateListener(filterCategory, false));
     }
 
@@ -820,13 +684,10 @@ public final class FilterSortDialogFragment extends DialogFragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                // Init.
                 int year;
                 int month;
                 int dayOfMonth;
 
-                // Check on empty or null.
                 if (!TextUtils.isEmpty(getDateFromProfileMap(
                         getActivity(),
                         mFilterProfileMap,
@@ -877,15 +738,12 @@ public final class FilterSortDialogFragment extends DialogFragment {
                     dayOfMonth  = instance.get(Calendar.DATE);
                 }
 
-                // Create date picker dialog
                 final DatePickerDialog datePicker = new DatePickerDialog(
                         getActivity(),
                         getDatePickerListener(filterCategory, isDateFrom),
                         year,
                         month,
                         dayOfMonth);
-
-                // Show.
                 datePicker.show();
             }
         };
@@ -899,21 +757,14 @@ public final class FilterSortDialogFragment extends DialogFragment {
         return new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-
                 // if action done -- called twice. Checking.
                 if (view.isShown()) {
-
-                    // Get date string format.
                     final Calendar date = Calendar.getInstance();
                     date.set(year, month, dayOfMonth, 0, 0, 0);
                     final String resultDate =
                             getStringDateFormatSqlite(getActivity(), date.getTime(), false);
 
-                    // Update profileMap values.
                     updateDateSettings(filterCategory, resultDate, isDateFrom);
-
-
-                    // Reinitialize.
                     mSelectedFilterProfile = SP_FILTER_PROFILE_CURRENT_ID;
                     initComponents();
                 }
@@ -926,15 +777,12 @@ public final class FilterSortDialogFragment extends DialogFragment {
             @NonNull final String resultLocaltimeDateS,
             final boolean isDateFrom) {
 
-        // New dates
         final String resultUtcDateS = convertLocalToUtc(getActivity(), resultLocaltimeDateS);
         String newUtcDateFromS = null;
         String newUtcDateToS = null;
 
-        // Get date format
         final DateFormat dateFormatUtc = CommonUtils.getDateFormatSqlite(getActivity(), true);
 
-        // Parse result date;
         Date resultUtcDateD = null;
         try {
             resultUtcDateD = dateFormatUtc.parse(resultLocaltimeDateS);
@@ -942,7 +790,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
             Log.e(TAG, e.toString());
         }
 
-        // Check null or empty.
         if (!TextUtils.isEmpty(getDateFromProfileMap(
                 getActivity(),
                 mFilterProfileMap,
@@ -950,7 +797,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
                 EXTRA_DATES_BOTH))) {
 
             try {
-
                 // Parse "date_from".
                 final Date utcDateFrom = dateFormatUtc.parse(
                         getDateFromProfileMap(
@@ -967,9 +813,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
                                 filterCategory,
                                 EXTRA_DATES_TO_DATETIME));
 
-                // Check.
                 if (isDateFrom) {
-
                     // Set new date;
                     newUtcDateFromS = resultUtcDateS;
 
@@ -1003,19 +847,18 @@ public final class FilterSortDialogFragment extends DialogFragment {
             }
 
         } else {
-
             // If profileMap not contains dates - Create new pair.
             newUtcDateFromS = resultUtcDateS;
             newUtcDateToS = resultUtcDateS;
         }
 
         // Update dates.
-        mFilterProfileMap.put(filterCategory, newUtcDateFromS + SP_FILTER_SYMBOL_DATE_SPLIT + newUtcDateToS);
+        mFilterProfileMap.put(
+                filterCategory,
+                newUtcDateFromS + SP_FILTER_SYMBOL_DATE_SPLIT + newUtcDateToS);
     }
 
     private void setActionButtonsListeners() {
-
-        // Cancel button. Dismiss on click.
         mDialog.findViewById(R.id.fragment_list_filter_dialog_action_button_cancel)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -1025,7 +868,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
                     }
                 });
 
-        // Filter button. Save changes
         mDialog.findViewById(R.id.fragment_list_filter_dialog_action_button_filter)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -1043,7 +885,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
             public void onViewAttachedToWindow(View v) {
                 startRunnableTasks();
             }
-
             @Override
             public void onViewDetachedFromWindow(View v) {
                 mSingleThreadExecutor.shutdownNow();
@@ -1060,48 +901,32 @@ public final class FilterSortDialogFragment extends DialogFragment {
      * Get from database count of entries, with given profile params.
      */
     private void refreshFoundText() {
-
-        // Found text view.
         final TextView foundTextView = (TextView) mDialog
                 .findViewById(R.id.fragment_list_filter_dialog_found_text_view);
 
-        // Progress bar.
         final View progressBar = mDialog.findViewById(
                 R.id.fragment_list_filter_dialog_found_progress_bar);
 
-        // Check cache, if exist, then set, else get from db in async task.
+        // Cache.
         if (mSelectedFilterProfile.equals(mFilterProfileMap.get(SP_FILTER_ID))
                 && mFoundedEntriesCache.get(mSelectedFilterProfile) != null) {
 
-            // Hide progress bar.
             progressBar.setVisibility(View.GONE);
 
-            // Set text.
             final String text = getString(
                     R.string.fragment_list_filter_dialog_profile_found_text)
                     + " " + mFoundedEntriesCache.get(mSelectedFilterProfile);
             foundTextView.setText(text);
-
-            // Show found text view.
             foundTextView.setVisibility(View.VISIBLE);
 
         } else {
-            // Hide found text view.
             foundTextView.setVisibility(View.GONE);
-
-            // Show progress bar.
             progressBar.setVisibility(View.VISIBLE);
 
-            // Background task.
             mRunnableTasks.add(new Runnable() {
                 @Override
                 public void run() {
-
-                    // Update views, if attached.
-                    // Double check. Bug.
                     if (getActivity() != null && mDialog.isAttachedToWindow()) {
-
-                        // Get number of entries.
                         final long count = getEntriesCount(
                                 getActivity(),
                                 LIST_ITEMS_TABLE_NAME,
@@ -1109,23 +934,16 @@ public final class FilterSortDialogFragment extends DialogFragment {
                                         getActivity(),
                                         null,
                                         mFilterProfileMap));
-                        // Update view.
+
                         if (getActivity() != null && mDialog.isAttachedToWindow()) {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    //
                                     final String text = getString(
                                             R.string.fragment_list_filter_dialog_profile_found_text)
                                             + " " + count;
-
-                                    // Set text.
                                     foundTextView.setText(text);
-
-                                    // Hide progress bar.
                                     progressBar.setVisibility(View.GONE);
-
-                                    // Show found text view.
                                     foundTextView.setVisibility(View.VISIBLE);
                                 }
                             });
@@ -1144,7 +962,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
      */
 
     private void startRunnableTasks() {
-        // Run all tasks, and clear.
         if (mDialog.isAttachedToWindow()) {
             for (Runnable task : mRunnableTasks) {
                 mSingleThreadExecutor.submit(task);
@@ -1158,25 +975,16 @@ public final class FilterSortDialogFragment extends DialogFragment {
         Add profile dialog.
      */
 
-    /**
-     * Show input text dialog for add profile, if confirm, then add new profile, and reinitialize.
-     */
     private void showInputDialogAddProfile() {
-        // Create builder.
         final AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        // Create edit text.
-        final EditText editText = new EditText(getActivity());
-
-        // Get string.
         final String title = getString(R.string.fragment_list_filter_dialog_profile_input_text_title);
         final String save = getString(R.string.fragment_list_filter_dialog_profile_input_text_save_title);
         final String cancel = getString(R.string.fragment_list_filter_dialog_profile_input_text_cancel_title);
-
-        // Set title.
         alert.setTitle(title);
 
-        // Create container, set margin, add exitText.
+        // Container with margin.
+        final EditText editText = new EditText(getActivity());
         final FrameLayout container = new FrameLayout(getActivity());
         final FrameLayout.LayoutParams params =
                 new FrameLayout.LayoutParams(
@@ -1187,31 +995,21 @@ public final class FilterSortDialogFragment extends DialogFragment {
         editText.setLayoutParams(params);
         container.addView(editText);
 
-        // Set view.
-        alert.setView(container);
+        alert   .setView(container)
+                .setPositiveButton(save, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        String enteredText = editText.getText().toString();
 
-        // Set save button listener.
-        alert.setPositiveButton(save, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
+                        mFilterProfileMap.put(SP_FILTER_ID, "");
+                        mFilterProfileMap.put(SP_FILTER_TITLE, enteredText);
+                        String newId = addForCurrentUser(getActivity(), mFilterProfileMap);
+                        mFilterProfileMap.put(SP_FILTER_ID, newId);
 
-                String enteredText = editText.getText().toString();
-
-                // Add to profiles, get newId, set selected newId.
-                mFilterProfileMap.put(SP_FILTER_ID, "");
-                mFilterProfileMap.put(SP_FILTER_TITLE, enteredText);
-                String newId = addForCurrentUser(getActivity(), mFilterProfileMap);
-                mFilterProfileMap.put(SP_FILTER_ID, newId);
-
-                // Reinitialize
-                initComponents();
-            }
-        });
-
-        // Set cancel button listener.
-        alert.setNegativeButton(cancel, null);
-
-        // Show.
-        alert.show();
+                        initComponents();
+                    }
+                })
+                .setNegativeButton(cancel, null)
+                .show();
     }
 
 
@@ -1220,21 +1018,17 @@ public final class FilterSortDialogFragment extends DialogFragment {
      */
 
     private void finish() {
-        // Refresh selected profile id.
         setSelectedForCurrentUser(getActivity(), mSelectedFilterProfile);
 
-        // If current id, then update current profile.
         if (SP_FILTER_PROFILE_CURRENT_ID.equals(mSelectedFilterProfile)) {
             updateCurrentForCurrentUser(getActivity(), mFilterProfileMap);
         }
 
-        //
         showToast(
                 getContext(),
                 getString(R.string.fragment_list_notification_filtered),
                 Toast.LENGTH_SHORT);
 
-        // Notify.
         notifyObservers(
                 LIST_FILTER,
                 RESULT_CODE_LIST_FILTERED,

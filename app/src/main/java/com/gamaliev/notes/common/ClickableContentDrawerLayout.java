@@ -36,7 +36,6 @@ public class ClickableContentDrawerLayout extends DrawerLayout {
     @Override
     public boolean onInterceptTouchEvent(@NonNull final MotionEvent ev) {
         final View drawer = getChildAt(1);
-
         if (getDrawerLockMode(drawer) == LOCK_MODE_LOCKED_OPEN
                 && ev.getRawX() > drawer.getWidth()) {
             return false;

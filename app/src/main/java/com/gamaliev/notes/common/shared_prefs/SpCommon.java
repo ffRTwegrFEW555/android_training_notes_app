@@ -57,21 +57,13 @@ public final class SpCommon {
     public static void initSharedPreferences(
             @NonNull final Context context) {
 
-        // Get main preferences.
         final SharedPreferences sp = context.getSharedPreferences(SP_MAIN, MODE_PRIVATE);
-
-        // If app start first time.
         if (!sp.getBoolean(SP_INITIALIZED, false)) {
-
-            // Add default user.
             final Map<String, String> map = SpUsers.getDefaultProfile(context);
             SpUsers.add(context, map);
 
-            // Add mock data.
             SpMock.addMockData(context);
 
-            // Set Id counter
-            // Mark initialized.
             sp      .edit()
                     .putString(SpUsers.SP_USERS_ID_COUNTER, "5")
                     .putBoolean(SP_INITIALIZED, true)
@@ -162,7 +154,7 @@ public final class SpCommon {
      * @return      Formatted string, with line breaks.
      */
     @Nullable
-    public static String convertJsonToString(
+    public static String convertEntryJsonToString(
             @NonNull final Context context,
             @NonNull final String json) {
 

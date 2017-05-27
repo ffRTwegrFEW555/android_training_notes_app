@@ -19,7 +19,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -71,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     @NonNull private DrawerLayout mDrawer;
     @NonNull private Toolbar mToolbar;
 
+
     /*
         Lifecycle
      */
@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
     }
 
+
     /*
         ...
      */
@@ -106,43 +107,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initToolbarAndNavigationDrawer() {
-        // Set toolbar.
         mToolbar = (Toolbar) findViewById(R.id.activity_main_toolbar);
         setSupportActionBar(mToolbar);
 
-        // Init toggle.
         mDrawer = (DrawerLayout) findViewById(R.id.activity_main_drawer_layout);
 
-        // Set navigation view listener.
         mNavView = (NavigationView) findViewById(R.id.activity_main_nav_view);
         mNavView.setNavigationItemSelectedListener(getNavItemSelectedListener());
 
-        //
         initUserInfo(mNavView);
     }
 
     private void initDrawerLockMode() {
-        if (getResources().getConfiguration().orientation
-                == ORIENTATION_LANDSCAPE) {
-
+        if (getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) {
             mDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
             mDrawer.setScrimColor(Color.TRANSPARENT);
-            mDrawer.addDrawerListener(new DrawerLayout.DrawerListener() {
-                @Override
-                public void onDrawerSlide(final View drawerView, final float slideOffset) {}
-                @Override
-                public void onDrawerOpened(final View drawerView) {
-
-                }
-                @Override
-                public void onDrawerClosed(final View drawerView) {
-                    mDrawer.openDrawer(GravityCompat.START);
-                }
-                @Override
-                public void onDrawerStateChanged(final int newState) {
-                    mDrawer.openDrawer(GravityCompat.START);
-                }
-            });
 
         } else {
             final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -159,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initUserInfo(@NonNull final NavigationView navView) {
-
         final Map<String, String> userProfile
                 = SpUsers.get(
                 getApplicationContext(),
@@ -222,27 +200,16 @@ public class MainActivity extends AppCompatActivity {
 
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CODE_NOTES_IMPORT) {
-
-                // If file selected, then start import.
                 final Uri selectedFile = data.getData();
                 importEntriesAsync(this, selectedFile);
 
             } else if (requestCode == REQUEST_CODE_NOTES_EXPORT) {
-
-                // If file selected, then start export.
                 final Uri selectedFile = data.getData();
                 exportEntriesAsync(this, selectedFile);
             }
         }
     }
 
-    /**
-     * Request permission result handler.
-     *
-     * @param requestCode  Request code.
-     * @param permissions  Checked permissions. See: {@link android.Manifest.permission}
-     * @param grantResults Result.
-     */
     @Override
     public void onRequestPermissionsResult(
             final int requestCode,
@@ -251,15 +218,11 @@ public class MainActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE:
-
-                // If access to write is granted, then export entries.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
                     startExportFileChooser();
 
                 } else {
-                    // If denied, then make explanation notification.
                     final String deniedMessage = getString(R.string.file_utils_export_message_write_external_storage_denied);
                     Log.i(TAG, deniedMessage);
                     showMessageDialog(
@@ -267,20 +230,14 @@ public class MainActivity extends AppCompatActivity {
                             null,
                             deniedMessage);
                 }
-
                 break;
 
             case REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE:
-
-                // If access to read is granted, then import entries.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
                     startImportFileChooser();
 
                 } else {
-
-                    // If denied, then make explanation notification.
                     final String deniedMessage = getString(R.string.file_utils_import_message_read_external_storage_denied);
                     Log.i(TAG, deniedMessage);
                     showMessageDialog(
@@ -288,7 +245,6 @@ public class MainActivity extends AppCompatActivity {
                             null,
                             deniedMessage);
                 }
-
                 break;
 
             default:
@@ -302,21 +258,18 @@ public class MainActivity extends AppCompatActivity {
      */
 
     private void showInputDialogAddMockEntries() {
-
         final AlertDialog.Builder alert = new AlertDialog.Builder(this);
-
-        final EditText editText = new EditText(this);
-        editText.setText(
-                String.valueOf(SpUsers.getNumberMockEntriesForCurrentUser(getApplicationContext())));
-        editText.setInputType(InputType.TYPE_CLASS_NUMBER);
 
         final String title = getString(R.string.activity_main_notification_add_mock_title);
         final String save = getString(R.string.activity_main_notification_add_mock_ok);
         final String cancel = getString(R.string.activity_main_notification_add_mock_cancel);
-
         alert.setTitle(title);
 
-        // Create container, set margin, add editText.
+        // Container with margin.
+        final EditText editText = new EditText(this);
+        editText.setText(
+                String.valueOf(SpUsers.getNumberMockEntriesForCurrentUser(getApplicationContext())));
+        editText.setInputType(InputType.TYPE_CLASS_NUMBER);
         final FrameLayout container = new FrameLayout(this);
         final FrameLayout.LayoutParams params =
                 new FrameLayout.LayoutParams(
@@ -327,26 +280,21 @@ public class MainActivity extends AppCompatActivity {
         editText.setLayoutParams(params);
         container.addView(editText);
 
-        alert.setView(container);
-
-        alert.setPositiveButton(save, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-
-                final String enteredText = editText.getText().toString();
-                addMockEntries(Integer.parseInt(enteredText));
-            }
-        });
-        alert.setNegativeButton(cancel, null);
-
-        alert.show();
+        alert   .setView(container)
+                .setPositiveButton(save, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        final String enteredText = editText.getText().toString();
+                        addMockEntries(Integer.parseInt(enteredText));
+                    }
+                })
+                .setNegativeButton(cancel, null)
+                .show();
     }
 
     private void addMockEntries(final int numberOfEntries) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-
-                // Start notification.
                 showToastRunOnUiThread(
                         MainActivity.this,
                         getString(R.string.activity_main_notification_add_mock_entries_start),
@@ -358,18 +306,15 @@ public class MainActivity extends AppCompatActivity {
                                 getString(R.string.activity_main_notification_add_mock_title),
                                 getString(R.string.activity_main_notification_add_mock_text),
                                 getString(R.string.activity_main_notification_add_mock_finish));
-
                 notification.startTimerToEnableNotification(
                         SpUsers.getProgressNotificationTimerForCurrentUser(getApplicationContext()),
                         false);
 
-                // Adding.
                 final int added = ListDbHelper.addMockEntries(
                         MainActivity.this,
                         notification,
                         numberOfEntries);
 
-                // Result notification.
                 showToastRunOnUiThread(
                         MainActivity.this,
                         added > -1
@@ -378,7 +323,6 @@ public class MainActivity extends AppCompatActivity {
                                 : getString(R.string.activity_main_notification_add_mock_entries_failed),
                         Toast.LENGTH_SHORT);
 
-                //
                 notifyObservers(
                         ENTRIES_MOCK,
                         RESULT_CODE_MOCK_ENTRIES_ADDED,
@@ -417,44 +361,31 @@ public class MainActivity extends AppCompatActivity {
         return new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-                final int id = item.getItemId();
-                switch (id) {
-
-                    // Import entries.
+                switch (item.getItemId()) {
                     case R.id.activity_main_nav_drawer_item_import_entries:
-
-                        // Check readable. If denied, make request, then break.
                         if (checkAndRequestPermissions(
                                 MainActivity.this,
                                 Manifest.permission.READ_EXTERNAL_STORAGE,
                                 REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE)) {
-
                             startImportFileChooser();
                         }
                         break;
 
-                    // Export entries.
                     case R.id.activity_main_nav_drawer_item_export_entries:
-
-                        // Check writable. If denied, make request, then break.
                         if (checkAndRequestPermissions(
                                 MainActivity.this,
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                 REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE)) {
-
                             startExportFileChooser();
                         }
                         break;
 
-                    // Synchronization notes.
                     case R.id.activity_main_nav_drawer_item_sync_notes:
                         SyncActivity.startIntent(
                                 MainActivity.this,
                                 REQUEST_CODE_SYNC_NOTES);
                         break;
 
-                    // Add mock entries.
                     case R.id.activity_main_nav_drawer_item_add_mock_entries:
                         showInputDialogAddMockEntries();
                         break;
@@ -464,28 +395,27 @@ public class MainActivity extends AppCompatActivity {
                         deleteAllEntries();
                         break;*/
 
-                    // Change user.
                     case R.id.activity_main_nav_drawer_item_change_user:
                         UserActivity.startIntent(
                                 MainActivity.this,
                                 REQUEST_CODE_CHANGE_USER);
                         break;
 
-                    // Settings.
                     case R.id.activity_main_nav_drawer_item_settings:
                         SettingsPreferenceActivity.startIntent(
                                 MainActivity.this,
                                 REQUEST_CODE_SETTINGS);
                         break;
 
-                    //
                     default:
                         break;
                 }
 
                 // Close nav drawer after click.
-                final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_main_drawer_layout);
-                drawer.closeDrawer(GravityCompat.START);
+                if (getResources().getConfiguration().orientation != ORIENTATION_LANDSCAPE) {
+                    final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.activity_main_drawer_layout);
+                    drawer.closeDrawer(GravityCompat.START);
+                }
                 return true;
             }
         };
@@ -495,10 +425,8 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                // Remove.
                 final boolean success = ListDbHelper.removeAllEntries(MainActivity.this);
 
-                // Result notification.
                 showToastRunOnUiThread(
                         MainActivity.this,
                         success

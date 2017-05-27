@@ -123,7 +123,6 @@ public class ListFragment extends Fragment
                 R.layout.fragment_list,
                 container,
                 false);
-
         return mParentView;
     }
 
@@ -139,7 +138,6 @@ public class ListFragment extends Fragment
     public void onResume() {
         initFilterProfile();
         updateFilterAdapter();
-
         registerObserver(
                 OBSERVED,
                 toString(),
@@ -190,7 +188,7 @@ public class ListFragment extends Fragment
                 final ItemDetailsPagerItemFragment fragment =
                         ItemDetailsPagerItemFragment.newInstance(ACTION_ADD, -1);
 
-                // Init transitions.
+                // Transitions.
                 final String transName =
                         getContext().getString(R.string.shared_transition_name_layout);
                 ViewCompat.setTransitionName(v, transName);
@@ -211,24 +209,17 @@ public class ListFragment extends Fragment
         });
     }
 
-    /**
-     * Get cursor from database, create and set adapter,
-     * set on click listener, set filter query provider.<br>
-     */
     private void initAdapterAndList() {
-
-        // Create adapter.
         mAdapter = new ListRecyclerViewAdapter(this, this);
         mAdapter.updateCursor(getContext(), "", mFilterProfileMap);
 
-        // Init
         mRecyclerView = (RecyclerView) mParentView.findViewById(R.id.fragment_list_rv);
         mRecyclerView.addItemDecoration(
                 new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerView.setAdapter(mAdapter);
 
-        //
+        // Drag & Drop.
         ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(mAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
@@ -239,9 +230,6 @@ public class ListFragment extends Fragment
         Options menu
      */
 
-    /**
-     * Inflate action bar menu and setup search function.
-     */
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
         inflater.inflate(R.menu.menu_list, menu);
@@ -249,21 +237,13 @@ public class ListFragment extends Fragment
         initFilterMenu(menu);
     }
 
-    /**
-     * Setting SearchView listener.<br>
-     * Filtering and updating list on text change.<br>
-     * Also there is a notification about the number of positions found.
-     * @param menu Action bar menu of activity.
-     */
     private void initSearchView(@NonNull final Menu menu) {
         mSearchView = (SearchView) menu.findItem(R.id.menu_list_search).getActionView();
-
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 return false;
             }
-
             @Override
             public boolean onQueryTextChange(String newText) {
                 updateAdapter(newText);
@@ -273,13 +253,10 @@ public class ListFragment extends Fragment
     }
 
     private void initFilterMenu(@NonNull final Menu menu) {
-        // Filter / Sort list.
         menu.findItem(R.id.menu_list_filter_sort)
                 .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        // Launch dialog.
                         FilterSortDialogFragment df = new FilterSortDialogFragment();
                         df.show(getChildFragmentManager(), null);
                         return true;
@@ -292,10 +269,6 @@ public class ListFragment extends Fragment
         Found notification
      */
 
-    /**
-     * Show found notification.<br>
-     * After stopping the input of text, after some times, the notification closes.
-     */
     private void showFoundNotification() {
         final Handler handler = new Handler();
         handler.postDelayed(
@@ -303,15 +276,11 @@ public class ListFragment extends Fragment
                 getResources().getInteger(R.integer.fragment_list_notification_delay));
     }
 
-    /**
-     * @return Runnable task for found notification, contains all logic.
-     */
     @NonNull
     private Runnable getRunnableForFoundNotification() {
         return new Runnable() {
             @Override
             public void run() {
-
                 if (!ListFragment.this.isAdded()) {
                     return;
                 }
@@ -321,19 +290,14 @@ public class ListFragment extends Fragment
                 final int delayClose = getResources()
                         .getInteger(R.integer.fragment_list_notification_delay_auto_close);
 
-                // Check..
                 if (mFoundView.isAttachedToWindow()) {
-
-                    // Set text.
                     mFoundView.setText(String.format(Locale.ENGLISH,
                             getString(R.string.fragment_list_notification_found_text) + "\n%d",
                             mAdapter.getItemCount()));
 
-                    // Set start time of the notification display.
                     mTimerFound = System.currentTimeMillis();
 
                     if (mFoundView.getVisibility() == View.INVISIBLE) {
-                        // Show notification. If API >= 21, then with circular reveal animation.
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             circularRevealAnimationOn(
                                     mFoundView,
@@ -400,11 +364,8 @@ public class ListFragment extends Fragment
     }
 
     private void updateAdapter(String newText) {
-        // Refresh view.
         mAdapter.updateCursor(getContext(), newText, mFilterProfileMap);
         mAdapter.notifyDataSetChanged();
-
-        //
         showFoundNotification();
     }
 
@@ -441,7 +402,6 @@ public class ListFragment extends Fragment
                     }
                 });
                 break;
-
             default:
                 break;
         }

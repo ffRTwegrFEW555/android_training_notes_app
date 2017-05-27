@@ -8,7 +8,6 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.GradientDrawable;
@@ -80,14 +79,6 @@ public class CommonUtils {
         Animation
      */
 
-    /**
-     * Animates the elevation of the received view.<br>
-     * Work only with API level 21 and more.<br>
-     * See also: {@link android.view.ViewPropertyAnimator#z}
-     * @param view      View, whose elevation is changes.
-     * @param duration  Duration of animation.
-     * @param valueTo   The value to be animated to, in px.
-     */
     public static void animateElevation(
             @NonNull final View view,
             final int duration,
@@ -100,12 +91,6 @@ public class CommonUtils {
         }
     }
 
-    /**
-     * Animates the scale of the received view.
-     * @param view      View, whose scale is changes.
-     * @param valueTo   The value to be animated to.
-     * @param duration  Duration of animation.
-     */
     public static void animateScaleXY(
             @NonNull final View view,
             final float valueTo,
@@ -140,7 +125,6 @@ public class CommonUtils {
                 new ArgbEvaluator(),
                 factor < 0 ? from : adjustColorAlpha(from, factor),
                 factor < 0 ? to : adjustColorAlpha(to, factor));
-
         animator
                 .setDuration(duration)
                 .start();
@@ -187,25 +171,20 @@ public class CommonUtils {
                 y = view.getHeight() / 2;
                 radius = (float) Math.hypot(x, y);
                 break;
-
             case EXTRA_REVEAL_ANIM_CENTER_TOP_END:
                 x = view.getWidth();
                 y = 0;
                 radius = (float) Math.hypot(view.getWidth(), view.getHeight());
                 break;
-
             default:
                 break;
         }
 
-        //
         final Animator anim =
                 ViewAnimationUtils.createCircularReveal(view, x, y, 0, radius);
         if (duration > 0) {
             anim.setDuration(duration);
         }
-
-        // Make the view visible and start the animation.
         view.setVisibility(View.VISIBLE);
         anim.start();
     }
@@ -238,25 +217,20 @@ public class CommonUtils {
                     y = view.getHeight() / 2;
                     radius = (float) Math.hypot(x, y);
                     break;
-
                 case EXTRA_REVEAL_ANIM_CENTER_TOP_END:
                     x = view.getWidth();
                     y = 0;
                     radius = (float) Math.hypot(view.getWidth(), view.getHeight());
                     break;
-
                 default:
                     break;
             }
 
-            //
             final Animator anim =
                     ViewAnimationUtils.createCircularReveal(view, x, y, radius, 0);
             if (duration > 0) {
                 anim.setDuration(duration);
             }
-
-            // Make the view invisible when the animation is done.
             anim.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
@@ -264,8 +238,6 @@ public class CommonUtils {
                     view.setVisibility(View.INVISIBLE);
                 }
             });
-
-            // Start the animation.
             anim.start();
         }
     }
@@ -381,8 +353,6 @@ public class CommonUtils {
             @NonNull final View view,
             final int color) {
 
-        final Resources resources = context.getResources();
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             view.getBackground().setColorFilter(color, PorterDuff.Mode.SRC);
             view.invalidate();
@@ -390,20 +360,14 @@ public class CommonUtils {
         } else {
             GradientDrawable g = new GradientDrawable();
             g.setStroke(
-                    (int) resources.getDimension(R.dimen.fragment_color_picker_box_border_width),
+                    (int) context.getResources()
+                            .getDimension(R.dimen.fragment_color_picker_box_border_width),
                     getResourceColorApi(context, R.color.color_white));
             g.setColor(color);
             view.setBackground(g);
         }
     }
 
-    /**
-     * Sets a background color to the received view.<br>
-     * See also: {@link android.graphics.drawable.Drawable#setColorFilter(int, PorterDuff.Mode)}
-     *
-     * @param view  View, whose background color is set.
-     * @param color Color.
-     */
     public static void setBackgroundColor(@NonNull final View view, final int color) {
         view.getBackground().setColorFilter(color, PorterDuff.Mode.SRC);
     }
@@ -559,10 +523,10 @@ public class CommonUtils {
             @NonNull final String utcString) {
 
         try {
-            // Parse UTC string to date.
+            // Convert UTC string to Date-object.
             final Date parsedUtcDate = getDateFormatSqlite(context, true).parse(utcString);
 
-            // Get localtime string from date and return.
+            // Convert Date-object to Localtime string, and return.
             return getDateFormatSqlite(context, false).format(parsedUtcDate);
 
         } catch (ParseException e) {
@@ -584,10 +548,10 @@ public class CommonUtils {
             @NonNull final String localtimeString) {
 
         try {
-            // Parse Localtime string to date.
+            // Parse Localtime string to Date-object.
             final Date parsedLocaltimeDate = getDateFormatSqlite(context, false).parse(localtimeString);
 
-            // Get UTC string from date and return.
+            // Convert Date-object to UTC string, and return.
             return getDateFormatSqlite(context, true).format(parsedLocaltimeDate);
 
         } catch (ParseException e) {
@@ -615,15 +579,13 @@ public class CommonUtils {
             @NonNull final String filterCategory,
             final int fromToBothResult) {
 
-        // Init.
         final String dates = profileMap.get(filterCategory);
 
-        // Check
         if (TextUtils.isEmpty(dates)) {
             return null;
         }
 
-        // Get both dates.
+        // Get From / To dates.
         final String[] datesBoth = dates.split(SP_FILTER_SYMBOL_DATE_SPLIT);
         final String dateFrom = datesBoth[0];
         final String dateTo = datesBoth[1];
@@ -631,31 +593,22 @@ public class CommonUtils {
         switch (fromToBothResult) {
             case EXTRA_DATES_FROM_DATETIME:
                 return dateFrom;
-
             case EXTRA_DATES_FROM_DATE:
                 return dateFrom.split(" ")[0];
-
             case EXTRA_DATES_FROM_DATE_UTC_TO_LOCALTIME:
                 return convertUtcToLocal(context, dateFrom).split(" ")[0];
-
             case EXTRA_DATES_FROM_DATE_LOCALTIME_TO_UTC:
                 return convertLocalToUtc(context, dateFrom).split(" ")[1];
-
             case EXTRA_DATES_TO_DATETIME:
                 return dateTo;
-
             case EXTRA_DATES_TO_DATE:
                 return dateTo.split(" ")[0];
-
             case EXTRA_DATES_TO_DATE_UTC_TO_LOCALTIME:
                 return convertUtcToLocal(context, dateTo).split(" ")[0];
-
             case EXTRA_DATES_TO_DATE_LOCALTIME_TO_UTC:
                 return convertLocalToUtc(context, dateTo).split(" ")[1];
-
             case EXTRA_DATES_BOTH:
                 return dates;
-
             default:
                 return null;
         }
@@ -677,24 +630,16 @@ public class CommonUtils {
             @Nullable final String title,
             @NonNull final String message) {
 
-        // Create builder.
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
-
-        // Set title, if exist.
         if (title != null) {
             dialogBuilder.setTitle(title);
         }
-
-        // Set message.
-        dialogBuilder.setMessage(message);
-
-        // Init OK button.
-        dialogBuilder.setPositiveButton(
-                R.string.common_utils_message_dialog_ok_action,
-                null);
-
-        // Show dialog.
-        dialogBuilder.show();
+        dialogBuilder
+                .setMessage(message)
+                .setPositiveButton(
+                        R.string.common_utils_message_dialog_ok_action,
+                        null)
+                .show();
     }
 
 
@@ -717,23 +662,15 @@ public class CommonUtils {
             @NonNull final String permission,
             final int requestCode) {
 
-        // Check write external storage permission.
-        if (ContextCompat.checkSelfPermission(
-                activity,
-                permission)
+        if (ContextCompat.checkSelfPermission(activity, permission)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            // Request the permission.
             ActivityCompat.requestPermissions(
                     activity,
                     new String[]{permission},
                     requestCode);
-
-            // If denied.
             return false;
         }
-
-        // If granted.
         return true;
     }
 

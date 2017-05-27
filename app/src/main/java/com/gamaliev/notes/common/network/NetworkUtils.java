@@ -34,10 +34,8 @@ public class NetworkUtils {
      * @return          -1 - no network; 0 - mobile; 1 - wi-fi;
      */
     public static int checkNetwork(@NonNull final Context context) {
-
         final ConnectivityManager connMgr = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
-
         final NetworkInfo activeInfo = connMgr.getActiveNetworkInfo();
 
         if (activeInfo != null && activeInfo.isConnected()) {

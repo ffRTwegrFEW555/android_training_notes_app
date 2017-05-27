@@ -83,12 +83,9 @@ public class ListDbMockHelper {
                         final boolean           yieldIfContendedSafely) throws SQLiteException {
 
         final Random random = new Random();
-
-        // Number of entries;
         int percent = 0;
 
         for (int i = 0; i < entriesNumber; i++) {
-            // Content values.
             final ContentValues cv = new ContentValues();
             cv.put(LIST_ITEMS_COLUMN_TITLE,         getRandomMockName(random));
             cv.put(LIST_ITEMS_COLUMN_DESCRIPTION,   getRandomMockDescription(random));
@@ -98,7 +95,6 @@ public class ListDbMockHelper {
             cv.put(LIST_ITEMS_COLUMN_EDITED,        getRandomMockDate(random));
             cv.put(LIST_ITEMS_COLUMN_VIEWED,        getRandomMockDate(random));
 
-            // Insert query.
             if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
                 throw new SQLiteException("[ERROR] Add mock entries.");
             }
@@ -107,9 +103,7 @@ public class ListDbMockHelper {
             if (notification != null) {
                 final int percentNew = i * 100 / entriesNumber;
                 if (percentNew > percent) {
-                    //
                     percent = percentNew;
-                    //
                     notification.setProgress(100, percentNew);
                 }
             }
@@ -120,7 +114,6 @@ public class ListDbMockHelper {
             }
         }
 
-        // Notification panel success.
         if (notification != null) {
             notification.endProgress();
         }

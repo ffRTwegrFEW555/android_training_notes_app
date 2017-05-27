@@ -47,8 +47,8 @@ import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.deleteEntryWithSingle;
 import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
+import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertEntryJsonToString;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
-import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToString;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertMapToJson;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
 import static com.gamaliev.notes.conflict.ConflictActivity.checkConflictExistsAndHideStatusBarNotification;
@@ -59,8 +59,8 @@ import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_ID;
 import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_STATUS;
 import static com.gamaliev.notes.rest.NoteApiUtils.API_STATUS_OK;
 import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
-import static com.gamaliev.notes.sync.SyncUtils.ACTION_ADDED_TO_LOCAL;
-import static com.gamaliev.notes.sync.SyncUtils.ACTION_ADDED_TO_SERVER;
+import static com.gamaliev.notes.sync.SyncUtils.ACTION_UPDATED_ON_LOCAL;
+import static com.gamaliev.notes.sync.SyncUtils.ACTION_UPDATED_ON_SERVER;
 import static com.gamaliev.notes.sync.SyncUtils.STATUS_OK;
 import static com.gamaliev.notes.sync.SyncUtils.addToSyncJournalAndLogAndNotify;
 
@@ -139,7 +139,6 @@ public class ConflictSelectDialogFragment extends DialogFragment {
 
     @Override
     public void onResume() {
-
         // Set max size of dialog. ( XML is not work :/ )
         final DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
         final ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
@@ -150,10 +149,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
         getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
 
-        //
         super.onResume();
-
-        //
         init();
     }
 
@@ -185,8 +181,6 @@ public class ConflictSelectDialogFragment extends DialogFragment {
     }
 
     private void initServerLayout() {
-
-        // Check connection.
         final int networkResult = NetworkUtils.checkNetwork(getContext());
         switch (networkResult) {
             case NetworkUtils.NETWORK_MOBILE:
@@ -217,16 +211,13 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                     .get(getSyncIdForCurrentUser(getContext()), mSyncId)
                     .execute();
 
-            // If response ok.
             if (response.isSuccessful()) {
                 final JSONObject jsonResponse = new JSONObject(response.body());
                 final String status = jsonResponse.optString(API_KEY_STATUS);
 
-                // If status ok.
                 if (status.equals(API_STATUS_OK)) {
                     final String data = jsonResponse.getString(API_KEY_DATA);
 
-                    // If entry exists.
                     if (!TextUtils.isEmpty(data)) {
                         final Map<String, String> mapServer = convertJsonToMap(data);
                         mapServer.remove(API_KEY_ID);
@@ -239,7 +230,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                                 .findViewById(R.id.fragment_dialog_conflict_select_server_body_tv);
 
                         final String textServer =
-                                convertJsonToString(
+                                convertEntryJsonToString(
                                         getContext(),
                                         convertMapToJson(mapServer));
 
@@ -263,6 +254,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
 
                     } else {
                         // If entry not exists.
+                        Log.e(TAG, response.toString());
                         showToastRunOnUiThread(
                                 getContext(),
                                 getString(R.string.fragment_dialog_conflict_select_connection_server_entry_not_found),
@@ -270,6 +262,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                     }
                 } else {
                     // If status not ok.
+                    Log.e(TAG, response.toString());
                     showToastRunOnUiThread(
                             getContext(),
                             getString(R.string.fragment_dialog_conflict_select_connection_server_error_request),
@@ -277,12 +270,13 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                 }
             } else {
                 // If response not ok.
+                Log.e(TAG, response.toString());
                 showToastRunOnUiThread(
                         getContext(),
                         getString(R.string.fragment_dialog_conflict_select_connection_server_error),
                         Toast.LENGTH_LONG);
             }
-            // bye-bye.
+
             dismiss();
 
         } catch (IOException | JSONException e) {
@@ -300,19 +294,18 @@ public class ConflictSelectDialogFragment extends DialogFragment {
     }
 
     private void initLocalLayout() {
-
         // Get entry from database
         final DbQueryBuilder queryBuilder = new DbQueryBuilder();
         queryBuilder.addOr(
                 COMMON_COLUMN_SYNC_ID,
                 DbQueryBuilder.OPERATOR_EQUALS,
                 new String[]{mSyncId});
+
         final Cursor entryCursor = getEntries(
                 getContext(),
                 LIST_ITEMS_TABLE_NAME,
                 queryBuilder);
 
-        // Check entry exists.
         if (entryCursor == null || entryCursor.getCount() == 0) {
             showToastRunOnUiThread(
                     getContext(),
@@ -324,7 +317,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
 
         entryCursor.moveToFirst();
         final JSONObject jsonObject = ListEntry.getJsonObject(getContext(), entryCursor);
-        final String textLocal = convertJsonToString(getContext(), jsonObject.toString());
+        final String textLocal = convertEntryJsonToString(getContext(), jsonObject.toString());
         entryCursor.close();
 
         // Header and body text.
@@ -359,14 +352,12 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 SyncUtils.getSingleThreadExecutor().submit(new Runnable() {
                     @Override
                     public void run() {
-                        updateOnServer(activity, data);
+                        saveServerEntryToLocal(activity, data);
                     }
                 });
-
                 dismiss();
             }
         };
@@ -380,14 +371,12 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 SyncUtils.getSingleThreadExecutor().submit(new Runnable() {
                     @Override
                     public void run() {
-                        updateOnLocal(activity, jsonEntry);
+                        saveLocalEntryToServer(activity, jsonEntry);
                     }
                 });
-
                 dismiss();
             }
         };
@@ -398,30 +387,25 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         Sync operations.
      */
 
-    private void updateOnServer(
+    private void saveServerEntryToLocal(
             @NonNull final Activity activity,
             @NonNull final String data) {
 
         final Context context = activity.getApplicationContext();
 
-        // Create entry
         final ListEntry entry = ListEntry
                 .convertJsonToListEntry(context, data);
         entry.setSyncId(Long.parseLong(mSyncId));
 
-        // Begin transaction.
         final SQLiteDatabase db = getWritableDb(context);
         db.beginTransaction();
-
         try {
-            // Update in local.
             insertUpdateEntry(
                     context,
                     entry,
                     db,
                     true);
 
-            // Delete from conflict table.
             final boolean result = deleteEntryWithSingle(
                     context,
                     db,
@@ -435,19 +419,16 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                         "[ERROR] Delete entry from conflict table is failed.");
             }
 
-            // If ok.
             db.setTransactionSuccessful();
 
-            // Add to journal. Add to local finish.
             addToSyncJournalAndLogAndNotify(
                     context,
-                    ACTION_ADDED_TO_LOCAL,
+                    ACTION_UPDATED_ON_LOCAL,
                     STATUS_OK,
                     1,
                     RESULT_CODE_SYNC_SUCCESS,
                     true);
 
-            // Callback
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -467,13 +448,12 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         }
     }
 
-    private void updateOnLocal(
+    private void saveLocalEntryToServer(
             @NonNull final Activity activity,
             @NonNull final String jsonEntry) {
 
         final Context context = activity.getApplicationContext();
 
-        // Update on server.
         Response<String> response;
         try {
             response = getNoteApi()
@@ -483,14 +463,11 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                             jsonEntry)
                     .execute();
 
-            // If 200 OK
             if (response.isSuccessful()) {
                 final JSONObject jsonResponse = new JSONObject(response.body());
                 final String status = jsonResponse.optString(API_KEY_STATUS);
 
-                // If json OK
                 if (status.equals(API_STATUS_OK)) {
-                    // Delete from conflict table.
                     final boolean result = deleteEntryWithSingle(
                             context,
                             null,
@@ -504,16 +481,14 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                                 "[ERROR] Delete entry from conflict table is failed.");
                     }
 
-                    // Add to journal. Add to Server finish.
                     addToSyncJournalAndLogAndNotify(
                             context,
-                            ACTION_ADDED_TO_SERVER,
+                            ACTION_UPDATED_ON_SERVER,
                             STATUS_OK,
                             1,
                             RESULT_CODE_SYNC_SUCCESS,
                             true);
 
-                    // Callback
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

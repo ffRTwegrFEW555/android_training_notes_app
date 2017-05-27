@@ -39,13 +39,11 @@ public final class ItemDetailsFragment extends Fragment {
      */
 
     public static ItemDetailsFragment newInstance(final long id) {
-
         final Bundle bundle = new Bundle();
         bundle.putLong(EXTRA_ID, id);
 
         final ItemDetailsFragment fragment = new ItemDetailsFragment();
         fragment.setArguments(bundle);
-        
         return fragment;
     }
 
@@ -71,7 +69,6 @@ public final class ItemDetailsFragment extends Fragment {
                 R.layout.fragment_item_details,
                 container,
                 false);
-
         return mParentView;
     }
 
@@ -95,7 +92,6 @@ public final class ItemDetailsFragment extends Fragment {
 
     private void initViewPager() {
 
-        //
         final Map<String, String> currentFilter = convertJsonToMap(
                 SpFilterProfiles.getSelectedForCurrentUser(getContext()));
         final Cursor cursor = ListDbHelper.getCursorWithParams(
@@ -103,7 +99,6 @@ public final class ItemDetailsFragment extends Fragment {
                 "",
                 currentFilter);
 
-        //
         int startPosition = 0;
         if (cursor != null) {
             cursor.moveToFirst();
@@ -117,14 +112,12 @@ public final class ItemDetailsFragment extends Fragment {
             } while (cursor.moveToNext());
         }
 
-        //
         final FragmentStatePagerAdapter adapter =
                 new ItemDetailsPagerAdapter(
                         getChildFragmentManager(),
                         this,
                         cursor);
 
-        //
         final ViewPager viewPager =
                 (ViewPager) mParentView.findViewById(R.id.fragment_item_details_vp);
         viewPager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT);

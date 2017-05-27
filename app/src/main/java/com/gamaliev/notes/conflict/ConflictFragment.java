@@ -42,10 +42,8 @@ public class ConflictFragment extends Fragment {
             @Nullable final ViewGroup container,
             @Nullable final Bundle savedInstanceState) {
 
-        // Adapter.
         mAdapter = new ConflictRecyclerViewAdapter(getContext(), this);
 
-        // RecyclerView
         mRecyclerView = (RecyclerView) inflater.inflate(
                 R.layout.fragment_conflict,
                 container,

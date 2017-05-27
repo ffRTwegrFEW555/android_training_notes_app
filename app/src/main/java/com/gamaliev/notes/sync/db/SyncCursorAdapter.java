@@ -38,8 +38,6 @@ public final class SyncCursorAdapter extends CursorAdapter {
 
     @Override
     public View newView(final Context context, final Cursor cursor, final ViewGroup parent) {
-
-        // Create new view, new view holder, and binding.
         final View view = LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.activity_sync_item, parent, false);
@@ -50,10 +48,8 @@ public final class SyncCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(final View view, final Context context, final Cursor cursor) {
-        // Get view holder.
         final ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        // Get values from current row.
         final int indexFinished = cursor.getColumnIndex(DbHelper.SYNC_COLUMN_FINISHED);
         final int indexAction   = cursor.getColumnIndex(DbHelper.SYNC_COLUMN_ACTION);
         final int indexStatus   = cursor.getColumnIndex(DbHelper.SYNC_COLUMN_STATUS);
@@ -66,14 +62,12 @@ public final class SyncCursorAdapter extends CursorAdapter {
         final int statusIndex   = Integer.parseInt(cursor.getString(indexStatus));
         final String status     = context.getString(STATUS_TEXT[statusIndex]);
         final String amount     = cursor.getString(indexAmount);
-
         final String description =
                 context.getString(R.string.activity_sync_item_status_prefix) + ": "
                         + action + ", "
                         + status + " ("
                         + amount + ")";
 
-        // Fill view holder values.
         viewHolder.mFinishedView.setText(finished);
         viewHolder.mDescriptionView.setText(description);
     }

@@ -26,9 +26,6 @@ import com.gamaliev.notes.sync.db.SyncDbHelper;
 
 import static com.gamaliev.notes.common.CommonUtils.showToast;
 import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_CONFLICTING;
-import static com.gamaliev.notes.common.observers.ObserverHelper.ENTRY;
-import static com.gamaliev.notes.common.observers.ObserverHelper.FILE_IMPORT;
-import static com.gamaliev.notes.common.observers.ObserverHelper.LIST_FILTER;
 import static com.gamaliev.notes.common.observers.ObserverHelper.SYNC;
 import static com.gamaliev.notes.common.observers.ObserverHelper.registerObserver;
 import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObserver;
@@ -131,13 +128,11 @@ public class SyncActivity extends AppCompatActivity implements Observer {
     }
 
     private void initListView() {
-        // Create adapter.
         mAdapter = new SyncCursorAdapter(
                 getApplicationContext(),
                 SyncDbHelper.getAll(getApplicationContext()),
                 0);
 
-        // Init list view
         mListView = (ListView) findViewById(R.id.activity_sync_list_view);
         mListView.setAdapter(mAdapter);
         scrollListViewToBottom();
@@ -148,40 +143,29 @@ public class SyncActivity extends AppCompatActivity implements Observer {
         Options menu
      */
 
-    /**
-     * Inflate action bar menu.
-     */
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_sync, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
-    /**
-     * Action bar menu item selection handler
-     */
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
-
-            // Synchronize button
             case R.id.menu_sync_synchronize:
                 SyncUtils.synchronize(getApplicationContext());
                 break;
 
-            // Show conflicting
             case R.id.menu_sync_show_conflicting:
                 ConflictActivity.startIntent(
                         this,
                         REQUEST_CODE_CONFLICTING);
                 break;
 
-            // Delete all from server button
             case R.id.menu_sync_delete_all_from_server:
                 showConfirmDeleteAllFromServerDialog();
                 break;
 
-            // Clear journal
             case R.id.menu_sync_clear_journal:
                 showConfirmClearJournalDialog();
                 break;
@@ -198,11 +182,6 @@ public class SyncActivity extends AppCompatActivity implements Observer {
         Intents
      */
 
-    /**
-     * Start intent.
-     * @param context       Context.
-     * @param requestCode   This code will be returned in onActivityResult() when the activity exits.
-     */
     public static void startIntent(
             @NonNull final Context context,
             final int requestCode) {
@@ -257,16 +236,13 @@ public class SyncActivity extends AppCompatActivity implements Observer {
      */
 
     private void showConfirmDeleteAllFromServerDialog() {
-
         final AlertDialog.Builder builder = new AlertDialog.Builder(SyncActivity.this);
         builder .setTitle(getString(R.string.activity_sync_dialog_confirm_delete_all_from_server_title))
                 .setMessage(getString(R.string.activity_sync_dialog_confirm_delete_all_from_server_body))
                 .setPositiveButton(getString(R.string.activity_sync_dialog_confirm_delete_all_from_server_btn_delete),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                //
                                 dialog.cancel();
-                                //
                                 SyncUtils.deleteAllFromServerAsync(getApplicationContext());
                             }
                         })
@@ -279,16 +255,13 @@ public class SyncActivity extends AppCompatActivity implements Observer {
     }
 
     private void showConfirmClearJournalDialog() {
-
         final AlertDialog.Builder builder = new AlertDialog.Builder(SyncActivity.this);
         builder .setTitle(getString(R.string.activity_sync_dialog_confirm_clear_journal_title))
                 .setMessage(getString(R.string.activity_sync_dialog_confirm_clear_journal_body))
                 .setPositiveButton(getString(R.string.activity_sync_dialog_confirm_clear_journal_btn_clear),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                //
                                 dialog.cancel();
-                                //
                                 if (SyncDbHelper.clear(getApplicationContext())) {
                                     showToast(
                                             getApplicationContext(),

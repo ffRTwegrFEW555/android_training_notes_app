@@ -69,24 +69,19 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
         // Elevation and scale animation.
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                // Elevation animation on.
                 animateElevation(v,
                         mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_elevation_duration),
                         mRes.getDimensionPixelOffset(R.dimen.fragment_color_picker_favorite_box_anim_elevation_on));
                 return true;
-
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                // Elevation animation off.
                 animateElevation(v,
                         mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_elevation_duration),
                         mRes.getDimensionPixelOffset(R.dimen.fragment_color_picker_favorite_box_anim_elevation_off));
-                // Scale animation off.
                 animateScaleXY(v,
                         mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_scale_off) / 100.0f,
                         mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_scale_duration));
                 return true;
-
             default:
                 break;
         }
@@ -110,23 +105,17 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
     private GestureDetector.SimpleOnGestureListener getSimpleOnGestureListener() {
         return new GestureDetector.SimpleOnGestureListener() {
 
-            // Add result color to favorite box
+            // Add result color to favorite box.
             @Override
             public void onLongPress(final MotionEvent e) {
                 final int resultColor = mFragment.getResultColor();
-                // Update database entry.
                 if (ColorPickerDbHelper.updateFavoriteColor(mContext, mIndex, resultColor)) {
-                    // Notification
                     playSoundAndShowToast(
                             mContext,
                             RingtoneManager.TYPE_NOTIFICATION,
                             mRes.getString(R.string.fragment_color_picker_toast_favorite_color_added),
                             Toast.LENGTH_SHORT);
-
-                    // Set new color to result box.
                     setBackgroundColor(mView, resultColor);
-
-                    // Scale animation on.
                     animateScaleXY(mView,
                             mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_scale_on) / 100.0f,
                             mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_scale_duration));
@@ -136,8 +125,6 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
             // Set favorite color to result box.
             @Override
             public boolean onSingleTapConfirmed(final MotionEvent e) {
-                // Refresh color from database.
-                // Update current color box and result box.
                 final int color = ColorPickerDbHelper.getFavoriteColor(mContext, mIndex);
                 if (color != -1) {
                     setBackgroundColor(mView, color);

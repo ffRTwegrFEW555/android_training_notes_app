@@ -98,8 +98,6 @@ public class ListDbHelper {
         try {
             final SQLiteDatabase db = getWritableDb(context);
             insertUpdateEntry(context, entry, db, updateBySyncId);
-
-            // If ok
             return true;
 
         } catch (SQLiteException e) {
@@ -121,7 +119,6 @@ public class ListDbHelper {
             @NonNull final SQLiteDatabase db,
             final boolean updateBySyncId) throws SQLiteException {
 
-        // Variables
         final String syncId         = (entry.getSyncId() == null || entry.getSyncId() == 0)
                 ? null
                 : entry.getSyncId().toString();
@@ -132,7 +129,6 @@ public class ListDbHelper {
                 : entry.getColor();
         final String imageUrl       = entry.getImageUrl();
 
-        // Content values
         final ContentValues cv = new ContentValues();
         cv.put(COMMON_COLUMN_SYNC_ID,           syncId);
         cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
@@ -155,13 +151,11 @@ public class ListDbHelper {
                         context,
                         entry.getViewed() == null ? new Date() : entry.getViewed(),
                         true);
-
         cv.put(LIST_ITEMS_COLUMN_CREATED,   utcCreatedDate);
         cv.put(LIST_ITEMS_COLUMN_EDITED,    utcEditedDate);
         cv.put(LIST_ITEMS_COLUMN_VIEWED,    utcViewedDate);
 
         if (updateBySyncId) {
-            // Update
             final int updateResult = db.update(
                     LIST_ITEMS_TABLE_NAME,
                     cv,
@@ -173,7 +167,6 @@ public class ListDbHelper {
             }
 
         } else {
-            // Insert
             if (db.insert(LIST_ITEMS_TABLE_NAME, null, cv) == -1) {
                 final String error = String.format(Locale.ENGLISH,
                         "[ERROR] Insert entry {%s: %s, %s: %s, %s: %d, %s: %s}",
@@ -206,9 +199,7 @@ public class ListDbHelper {
         }
 
         try {
-            final SQLiteDatabase db = getWritableDb(context);
-
-            // Variables
+            final SQLiteDatabase db     = getWritableDb(context);
             final long id               = entry.getId();
             final String syncId         = (entry.getSyncId() == null || entry.getSyncId() == 0)
                     ? null
@@ -220,7 +211,6 @@ public class ListDbHelper {
                     : entry.getColor();
             final String imageUrl       = entry.getImageUrl();
 
-            // Content values
             final ContentValues cv = new ContentValues();
             cv.put(COMMON_COLUMN_SYNC_ID,           syncId);
             cv.put(LIST_ITEMS_COLUMN_TITLE,         title);
@@ -229,7 +219,6 @@ public class ListDbHelper {
             cv.put(LIST_ITEMS_COLUMN_IMAGE_URL,     imageUrl);
             cv.put(editedViewedColumn,              getStringDateFormatSqlite(context, new Date(), true));
 
-            // Update
             final int updateResult = db.update(
                     LIST_ITEMS_TABLE_NAME,
                     cv,
@@ -240,7 +229,6 @@ public class ListDbHelper {
                 throw new SQLiteException("[ERROR] The number of rows affected is 0");
             }
 
-            // If ok
             return true;
 
         } catch (SQLiteException e) {
@@ -258,11 +246,9 @@ public class ListDbHelper {
         try {
             final SQLiteDatabase db = getWritableDb(context);
 
-            // Content values
             final ContentValues cv = new ContentValues();
             cv.put(COMMON_COLUMN_SYNC_ID, syncId);
 
-            // Update
             final int updateResult = db.update(
                     LIST_ITEMS_TABLE_NAME,
                     cv,
@@ -273,7 +259,6 @@ public class ListDbHelper {
                 throw new SQLiteException("[ERROR] The number of rows affected is 0");
             }
 
-            // If ok.
             return true;
 
         } catch (SQLiteException e) {
@@ -293,8 +278,6 @@ public class ListDbHelper {
 
         try {
             final SQLiteDatabase db = getReadableDb(context);
-
-            // Make query and return cursor, if ok;
             return db.query(
                     LIST_ITEMS_TABLE_NAME,
                     null,
@@ -321,10 +304,7 @@ public class ListDbHelper {
             @NonNull final Context context,
             @NonNull final Long id) {
 
-        // Create new entry.
         final ListEntry entry = new ListEntry();
-
-        //
         final SQLiteDatabase db = getReadableDb(context);
 
         try (Cursor cursor = db.query(
@@ -336,7 +316,6 @@ public class ListDbHelper {
                 null,
                 null)) {
 
-            // Fill new entry.
             if (cursor.moveToFirst()) {
                 final int indexId           = cursor.getColumnIndex(BASE_COLUMN_ID);
                 final int indexSyncId       = cursor.getColumnIndex(COMMON_COLUMN_SYNC_ID);
@@ -355,7 +334,6 @@ public class ListDbHelper {
                 entry.setColor(         cursor.getInt(      indexColor));
                 entry.setImageUrl(      cursor.getString(   indexImageUrl));
 
-                // Parse sqlite format (yyyy-MM-dd HH:mm:ss, UTC), in localtime.
                 DateFormat df = CommonUtils.getDateFormatSqlite(context, true);
                 try {
                     Date created    = df.parse(cursor.getString(indexCreated));
@@ -398,17 +376,15 @@ public class ListDbHelper {
 
         try {
             final SQLiteDatabase db = getWritableDb(context);
-            db.beginTransaction();
-
             int deleteResult;
+
+            db.beginTransaction();
             try {
-                // Delete query.
                 deleteResult = db.delete(
                         LIST_ITEMS_TABLE_NAME,
                         BASE_COLUMN_ID + " = ?",
                         new String[]{id.toString()});
 
-                // Add to deleted table.
                 if (addToDeletedTable) {
                     if (syncId != null && syncId > 0) {
                         insertEntryWithSingleValue(
@@ -420,7 +396,6 @@ public class ListDbHelper {
                     }
                 }
 
-                // Delete from conflicting table.
                 if (syncId != null && syncId > 0) {
                     deleteEntryWithSingle(
                             context,
@@ -431,7 +406,6 @@ public class ListDbHelper {
                             false);
                 }
 
-                // If error.
                 if (deleteResult == 0) {
                     throw new SQLiteException("[ERROR] The number of rows affected is 0");
                 }
@@ -442,7 +416,6 @@ public class ListDbHelper {
                 db.endTransaction();
             }
 
-            // If ok.
             return true;
 
         } catch (SQLiteException e) {
@@ -461,16 +434,10 @@ public class ListDbHelper {
 
         try {
             final SQLiteDatabase db = getWritableDb(context);
-
-            // Begin transaction.
             db.beginTransaction();
-
             try {
-                // Exec SQL queries.
                 db.execSQL(SQL_LIST_ITEMS_DROP_TABLE);
                 db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
-
-                // If ok.
                 db.setTransactionSuccessful();
                 return true;
 
@@ -497,20 +464,15 @@ public class ListDbHelper {
 
         try {
             final SQLiteDatabase db = getWritableDb(context);
-
-            // Begin transaction.
             db.beginTransaction();
 
             try {
-                // Helper method for add entries.
                 ListDbMockHelper.addMockEntries(
                         context,
                         numberOfEntries,
                         db,
                         notification,
                         true);
-
-                // If ok.
                 db.setTransactionSuccessful();
                 return numberOfEntries;
 
@@ -538,12 +500,9 @@ public class ListDbHelper {
             @Nullable final CharSequence constraint,
             @NonNull final Map<String, String> profileMap) {
 
-        //
         final DbQueryBuilder resultQueryBuilder =
                 convertToQueryBuilder(
                         context, constraint, profileMap);
-
-        //
         return getEntries(context, LIST_ITEMS_TABLE_NAME, resultQueryBuilder);
     }
 
@@ -559,10 +518,7 @@ public class ListDbHelper {
             @Nullable final CharSequence constraint,
             @NonNull final Map<String, String> profileMap) {
 
-        // Create and fill query builder for text search.
         final DbQueryBuilder searchTextQueryBuilder = new DbQueryBuilder();
-
-        // Add text for search in 'Name' and 'Description' columns, if not empty or null.
         if (!TextUtils.isEmpty(constraint)) {
             searchTextQueryBuilder
                     .addOr( SEARCH_COLUMNS[0],
@@ -574,10 +530,7 @@ public class ListDbHelper {
                             new String[] {constraint.toString()});
         }
 
-        // Create and fill query result builder.
         final DbQueryBuilder resultQueryBuilder = new DbQueryBuilder();
-
-        // Add color filter, if not empty or null.
         if (!TextUtils.isEmpty(profileMap.get(FAVORITE_COLUMN_COLOR))) {
             resultQueryBuilder.addAnd(
                     FAVORITE_COLUMN_COLOR,
@@ -585,12 +538,7 @@ public class ListDbHelper {
                     new String[]{profileMap.get(FAVORITE_COLUMN_COLOR)});
         }
 
-        // For each column.
         for (int i = 0; i < DATES_COLUMNS.length; i++) {
-
-            // Add +1 day to dateTo.
-
-            // Get dateTo from profile.
             final String dates = getDateFromProfileMap(
                     context,
                     profileMap,
@@ -601,7 +549,6 @@ public class ListDbHelper {
                 continue;
             }
 
-            // Parse DateTo.
             final DateFormat df = CommonUtils.getDateFormatSqlite(context, false);
             Date dateUtc = null;
             try {
