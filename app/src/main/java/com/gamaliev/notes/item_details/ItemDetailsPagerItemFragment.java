@@ -512,9 +512,9 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
                             }
-                        });
-        final AlertDialog alert = builder.create();
-        alert.show();
+                        })
+                .create()
+                .show();
     }
 
     private void showConfirmDeleteDialog() {
@@ -524,18 +524,15 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                 .setPositiveButton(getString(R.string.fragment_item_details_delete_dialog_button_ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                //
                                 dialog.cancel();
-                                //
                                 startActionAsyncTask(ACTION_ENTRY_DELETE);
                             }
                         })
                 .setNegativeButton(
                         getString(R.string.fragment_item_details_delete_dialog_button_cancel),
-                        null);
-
-        final AlertDialog alert = builder.create();
-        alert.show();
+                        null)
+                .create()
+                .show();
     }
 
     private void startActionAsyncTask(@NonNull final String action) {

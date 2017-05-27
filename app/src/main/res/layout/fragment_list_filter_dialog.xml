@@ -171,6 +171,14 @@
                     app:layout_gravity="fill_horizontal">
 
                     <RadioButton
+                        android:id="@+id/fragment_list_filter_dialog_order_manually"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/fragment_list_filter_dialog_order_manually_text"
+                        android:textSize="@dimen/fragment_list_filter_dialog_title_small_size" />
+
+                    <RadioButton
                         android:id="@+id/fragment_list_filter_dialog_order_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

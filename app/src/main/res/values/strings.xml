@@ -10,7 +10,7 @@
 
 
     <!--                -->
-    <!-- Activity List  -->
+    <!-- Activity Main  -->
     <!--                -->
 
     <!-- Activity -->
@@ -120,6 +120,7 @@
     <string name="fragment_list_filter_dialog_filter_by_viewed_title_text">Viewed:</string>
     <string name="fragment_list_filter_dialog_profiles_save_current_button_text">Add current</string>
     <string name="fragment_list_filter_dialog_profiles_reset_text">reset</string>
+    <string name="fragment_list_filter_dialog_order_manually_text">manually</string>
     <string name="fragment_list_filter_dialog_order_title_text">title</string>
     <string name="fragment_list_filter_dialog_order_created_text">created</string>
     <string name="fragment_list_filter_dialog_order_edited_text">edited</string>
@@ -131,6 +132,12 @@
     <string name="fragment_list_filter_dialog_profile_input_text_save_title">Save</string>
     <string name="fragment_list_filter_dialog_profile_input_text_cancel_title">Cancel</string>
     <string name="fragment_list_filter_dialog_profile_found_text">Found:</string>
+
+    <!-- Drag & Drop, Alert dialog -->
+    <string name="fragment_list_drag_drop_dialog_title">Drag &amp; Drop</string>
+    <string name="fragment_list_drag_drop_dialog_message">To use the Drag&amp;Drop function, you must switch the filter and sorting profile into manual sort mode</string>
+    <string name="fragment_list_drag_drop_dialog_button_ok">Switch</string>
+    <string name="fragment_list_drag_drop_dialog_button_cancel">Cancel</string>
 
 
     <!--                -->

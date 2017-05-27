@@ -1,6 +1,7 @@
 package com.gamaliev.notes.list.db;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -8,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.transition.AutoTransition;
 import android.transition.Fade;
@@ -26,6 +28,17 @@ import com.gamaliev.notes.item_details.ItemDetailsFragment;
 
 import java.util.Map;
 
+import static com.gamaliev.notes.app.NotesApp.getAppContext;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_LIST_FILTERED;
+import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
+import static com.gamaliev.notes.common.db.DbHelper.findColumnValueByCursorPosition;
+import static com.gamaliev.notes.common.observers.ObserverHelper.LIST_FILTER;
+import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
+import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_PROFILE_MANUAL_ID;
+import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.getSelectedIdForCurrentUser;
+import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.setSelectedForCurrentUser;
+import static com.gamaliev.notes.list.db.ListDbHelper.getCursorWithParams;
+
 /**
  * @author Vadim Gamaliev
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
@@ -39,6 +52,9 @@ public final class ListRecyclerViewAdapter
     @NonNull private final Fragment mFragment;
     @NonNull private final OnStartDragListener mDragStartListener;
     @Nullable private Cursor mCursor;
+    @NonNull private String mConstraint;
+    @NonNull private Map<String, String> mFilterProfileMap;
+    private boolean mSwipeEnable;
 
 
     /*
@@ -129,8 +145,10 @@ public final class ListRecyclerViewAdapter
         // Drag & Drop
         holder.mParentView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public boolean onLongClick(View v) {
-                mDragStartListener.onStartDrag(holder);
+            public boolean onLongClick(final View v) {
+                if (dragDropEnable()) {
+                    mDragStartListener.onStartDrag(holder);
+                }
                 return false;
             }
         });
@@ -187,17 +205,26 @@ public final class ListRecyclerViewAdapter
      */
 
     public void updateCursor(
-            @NonNull final Context context,
             @NonNull final String constraint,
             @NonNull final Map<String, String> filterProfileMap) {
 
+        mConstraint = constraint;
+        mFilterProfileMap = filterProfileMap;
+        updateCursor();
+    }
+
+    private void updateCursor() {
         if (mCursor != null && !mCursor.isClosed()) {
             mCursor.close();
         }
-        mCursor = ListDbHelper.getCursorWithParams(
-                context,
-                constraint,
-                filterProfileMap);
+        mCursor = getCursorWithParams(
+                getAppContext(),
+                mConstraint,
+                mFilterProfileMap);
+    }
+
+    public void setSwipeEnable(boolean swipeEnable) {
+        this.mSwipeEnable = swipeEnable;
     }
 
 
@@ -206,14 +233,74 @@ public final class ListRecyclerViewAdapter
      */
 
     @Override
+    public boolean swipeEnable() {
+        return mSwipeEnable;
+    }
+
+    @Override
+    public boolean dragDropEnable() {
+        final Context context = mFragment.getContext();
+
+        if (!SP_FILTER_PROFILE_MANUAL_ID.equals(getSelectedIdForCurrentUser(context))) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder .setTitle(context.getString(R.string.fragment_list_drag_drop_dialog_title))
+                    .setMessage(context.getString(R.string.fragment_list_drag_drop_dialog_message))
+                    .setPositiveButton(context.getString(R.string.fragment_list_drag_drop_dialog_button_ok),
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                    setSelectedForCurrentUser(context, SP_FILTER_PROFILE_MANUAL_ID);
+                                    notifyObservers(
+                                            LIST_FILTER,
+                                            RESULT_CODE_LIST_FILTERED,
+                                            null);
+                                }
+                            })
+                    .setNegativeButton(
+                            context.getString(R.string.fragment_list_drag_drop_dialog_button_cancel),
+                            null)
+                    .create()
+                    .show();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
     public void onItemDismiss(final int position) {
-//        mItems.remove(position);
         notifyItemRemoved(position);
     }
 
     @Override
     public boolean onItemMove(final int fromPosition, final int toPosition) {
-//        Collections.swap(mItems, fromPosition, toPosition);
+        if (mCursor == null || mCursor.isClosed()) {
+            return false;
+        }
+
+        final String entryIdFrom = findColumnValueByCursorPosition(
+                mCursor,
+                BASE_COLUMN_ID,
+                fromPosition);
+        if (entryIdFrom == null) {
+            return false;
+        }
+
+        final String entryIdTo = findColumnValueByCursorPosition(
+                mCursor,
+                BASE_COLUMN_ID,
+                toPosition);
+        if (entryIdTo == null) {
+            return false;
+        }
+
+        ListDbHelper.swapManuallyColumnValue(
+                getAppContext(),
+                entryIdFrom,
+                entryIdTo);
+
+        updateCursor();
         notifyItemMoved(fromPosition, toPosition);
         return true;
     }

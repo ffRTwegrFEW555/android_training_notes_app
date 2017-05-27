@@ -20,6 +20,7 @@ import com.gamaliev.notes.list.db.ListDbHelper;
 import java.util.Map;
 
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
+import static com.gamaliev.notes.common.db.DbHelper.findCursorPositionByColumnValue;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
 
 public final class ItemDetailsFragment extends Fragment {
@@ -31,6 +32,7 @@ public final class ItemDetailsFragment extends Fragment {
     private static final int OFFSCREEN_PAGE_LIMIT = 5;
 
     @NonNull private View mParentView;
+    @Nullable private Cursor mCursor;
     private long mId;
 
 
@@ -80,6 +82,13 @@ public final class ItemDetailsFragment extends Fragment {
         init();
     }
 
+    @Override
+    public void onDestroyView() {
+        if (mCursor != null && !mCursor.isClosed()) {
+            mCursor.close();
+        }
+        super.onDestroyView();
+    }
 
     /*
         ...
@@ -94,29 +103,24 @@ public final class ItemDetailsFragment extends Fragment {
 
         final Map<String, String> currentFilter = convertJsonToMap(
                 SpFilterProfiles.getSelectedForCurrentUser(getContext()));
-        final Cursor cursor = ListDbHelper.getCursorWithParams(
+        mCursor = ListDbHelper.getCursorWithParams(
                 getContext(),
                 "",
                 currentFilter);
 
         int startPosition = 0;
-        if (cursor != null) {
-            cursor.moveToFirst();
-            startPosition = cursor.getPosition();
-            do {
-                final long id = cursor.getLong(cursor.getColumnIndex(BASE_COLUMN_ID));
-                if (mId == id) {
-                    startPosition = cursor.getPosition();
-                    break;
-                }
-            } while (cursor.moveToNext());
+        if (mCursor != null) {
+            startPosition = findCursorPositionByColumnValue(
+                    mCursor,
+                    BASE_COLUMN_ID,
+                    String.valueOf(mId));
         }
 
         final FragmentStatePagerAdapter adapter =
                 new ItemDetailsPagerAdapter(
                         getChildFragmentManager(),
                         this,
-                        cursor);
+                        mCursor);
 
         final ViewPager viewPager =
                 (ViewPager) mParentView.findViewById(R.id.fragment_item_details_vp);

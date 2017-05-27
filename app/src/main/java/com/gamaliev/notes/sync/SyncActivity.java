@@ -248,10 +248,9 @@ public class SyncActivity extends AppCompatActivity implements Observer {
                         })
                 .setNegativeButton(
                         getString(R.string.activity_sync_dialog_confirm_delete_all_from_server_btn_cancel),
-                        null);
-
-        final AlertDialog alert = builder.create();
-        alert.show();
+                        null)
+                .create()
+                .show();
     }
 
     private void showConfirmClearJournalDialog() {
@@ -278,10 +277,9 @@ public class SyncActivity extends AppCompatActivity implements Observer {
                         })
                 .setNegativeButton(
                         getString(R.string.activity_sync_dialog_confirm_clear_journal_btn_cancel),
-                        null);
-
-        final AlertDialog alert = builder.create();
-        alert.show();
+                        null)
+                .create()
+                .show();
     }
 
 

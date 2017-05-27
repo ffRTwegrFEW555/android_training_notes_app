@@ -39,6 +39,7 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_CREATED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_IMAGE_URL;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_MANUALLY;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_TITLE;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
@@ -593,5 +594,107 @@ public class ListDbHelper {
         resultQueryBuilder.setAscDesc(profileMap.get(SpFilterProfiles.SP_FILTER_ORDER_ASC));
 
         return resultQueryBuilder;
+    }
+
+    public static boolean swapManuallyColumnValue(
+            @NonNull final Context context,
+            @NonNull final String entryFirstId,
+            @NonNull final String entrySecondId) {
+
+        final SQLiteDatabase db = getWritableDb(context.getApplicationContext());
+        db.beginTransaction();
+        try {
+            final String entryFirstValue = getManuallyColumnValue(context, db, entryFirstId);
+            if (entryFirstValue == null) {
+                throw new SQLiteException(
+                        String.format(
+                                Locale.ENGLISH,
+                                "Getting value, from 'manually column', with entry id: %s",
+                                entryFirstId));
+            }
+
+            final String entrySecondValue = getManuallyColumnValue(context, db, entrySecondId);
+            if (entrySecondValue == null) {
+                throw new SQLiteException(
+                        String.format(
+                                Locale.ENGLISH,
+                                "Getting value, from 'manually column', with entry id: %s",
+                                entrySecondId));
+            }
+
+            updateManuallyColumnValue(context, db, entryFirstId, entrySecondValue);
+            updateManuallyColumnValue(context, db, entrySecondId, entryFirstValue);
+
+            db.setTransactionSuccessful();
+
+        } catch (SQLiteException e) {
+            Log.e(TAG, e.toString());
+            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            return false;
+
+        } finally {
+            db.endTransaction();
+        }
+
+        return true;
+    }
+
+    @Nullable
+    private static String getManuallyColumnValue(
+            @NonNull final Context context,
+            @NonNull final SQLiteDatabase db,
+            @NonNull final String entryId) {
+
+        String value = null;
+        try {
+            final Cursor cursor = db.query(
+                    LIST_ITEMS_TABLE_NAME,
+                    null,
+                    BASE_COLUMN_ID + " = ?",
+                    new String[] {entryId},
+                    null,
+                    null,
+                    null);
+
+            if (cursor.moveToFirst()) {
+                value = cursor.getString(
+                        cursor.getColumnIndex(LIST_ITEMS_COLUMN_MANUALLY));
+            } else {
+                throw new SQLiteException(
+                        String.format(
+                                Locale.ENGLISH,
+                                "Entry, with id '%s', is not exists", entryId));
+            }
+
+        } catch (SQLiteException e) {
+            Log.e(TAG, e.toString());
+            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+        }
+
+        return value;
+    }
+
+    private static boolean updateManuallyColumnValue(
+            @NonNull final Context context,
+            @NonNull final SQLiteDatabase db,
+            @NonNull final String entryId,
+            @NonNull final String value) {
+
+        final ContentValues cv = new ContentValues();
+        cv.put(LIST_ITEMS_COLUMN_MANUALLY, value);
+
+        final int updateResult = db.update(
+                LIST_ITEMS_TABLE_NAME,
+                cv,
+                BASE_COLUMN_ID + " = ?",
+                new String[] {entryId});
+
+        if (updateResult == 0) {
+            Log.e(TAG, "[ERROR] The number of rows affected is 0");
+            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            return false;
+        }
+
+        return true;
     }
 }

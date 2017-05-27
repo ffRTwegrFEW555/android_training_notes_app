@@ -69,6 +69,9 @@ public final class DbHelper extends SQLiteOpenHelper {
     public static final String LIST_ITEMS_COLUMN_EDITED     = "edited";
     public static final String LIST_ITEMS_COLUMN_VIEWED     = "viewed";
 
+    public static final String LIST_ITEMS_TRIGGER_COLUMN_MANUALLY_AUTOINCREMENT
+            = "manually_autoincrement";
+
     /* Sync. Journal table */
     public static final String SYNC_TABLE_NAME              = "sync_journal";
     public static final String SYNC_COLUMN_FINISHED         = "finished";
@@ -98,7 +101,7 @@ public final class DbHelper extends SQLiteOpenHelper {
     public static final String SQL_LIST_ITEMS_CREATE_TABLE =
             "CREATE TABLE " + LIST_ITEMS_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    LIST_ITEMS_COLUMN_MANUALLY +            " INTEGER, " +
+                    LIST_ITEMS_COLUMN_MANUALLY +            " INTEGER DEFAULT 0, " +
                     LIST_ITEMS_COLUMN_TITLE +               " TEXT, " +
                     COMMON_COLUMN_SYNC_ID +                 " INTEGER, " +
                     LIST_ITEMS_COLUMN_DESCRIPTION +         " TEXT, " +
@@ -136,6 +139,23 @@ public final class DbHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + SYNC_DELETED_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     COMMON_COLUMN_SYNC_ID +                 " INTEGER NOT NULL UNIQUE); ";
+
+
+    /*
+        Triggers
+     */
+
+    /* Entries. Autoincrement "manually" column */
+    private static final String SQL_LIST_ITEMS_MANUALLY_AUTOINCREMENT =
+            "CREATE TRIGGER " + LIST_ITEMS_TRIGGER_COLUMN_MANUALLY_AUTOINCREMENT + " "
+                    + "AFTER INSERT ON " + LIST_ITEMS_TABLE_NAME + " "
+                        + "BEGIN "
+                            + "UPDATE " + LIST_ITEMS_TABLE_NAME + " SET "
+                                + LIST_ITEMS_COLUMN_MANUALLY + "=(SELECT MAX("
+                                + LIST_ITEMS_COLUMN_MANUALLY + ")+1 FROM "
+                                + LIST_ITEMS_TABLE_NAME + ") "
+                        + "WHERE rowid=NEW.rowid; "
+                        + "END;";
 
 
     /*
@@ -220,6 +240,7 @@ public final class DbHelper extends SQLiteOpenHelper {
                 db.execSQL(SQL_SYNC_CREATE_TABLE);
                 db.execSQL(SQL_SYNC_CONFLICT_CREATE_TABLE);
                 db.execSQL(SQL_SYNC_DELETED_CREATE_TABLE);
+                db.execSQL(SQL_LIST_ITEMS_MANUALLY_AUTOINCREMENT);
 
                 populateDatabase(db);
 
@@ -435,6 +456,33 @@ public final class DbHelper extends SQLiteOpenHelper {
                 return true;
             }
         }
+    }
+
+    public static int findCursorPositionByColumnValue(
+            @NonNull final Cursor cursor,
+            @NonNull final String column,
+            @NonNull final String value) {
+
+        int position = cursor.getPosition();
+        while (cursor.moveToNext()) {
+            final String valueSeek = cursor.getString(cursor.getColumnIndex(column));
+            if (value.equals(valueSeek)) {
+                position = cursor.getPosition();
+                break;
+            }
+        }
+        return position;
+    }
+
+    public static String findColumnValueByCursorPosition(
+            @NonNull final Cursor cursor,
+            @NonNull final String column,
+            final int position) {
+
+        if (cursor.moveToPosition(position)) {
+            return cursor.getString(cursor.getColumnIndex(column));
+        }
+        return null;
     }
 
     public static void clearInstances() {

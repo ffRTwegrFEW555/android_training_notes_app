@@ -193,9 +193,8 @@ public final class UserPreferenceActivity extends AppCompatActivity {
                         })
                 .setNegativeButton(
                         getString(R.string.activity_user_preference_delete_dialog_button_cancel),
-                        null);
-
-        final AlertDialog alert = builder.create();
-        alert.show();
+                        null)
+                .create()
+                .show();
     }
 }

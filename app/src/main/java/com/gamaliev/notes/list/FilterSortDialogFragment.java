@@ -63,6 +63,7 @@ import static com.gamaliev.notes.common.DialogFragmentUtils.initCircularRevealAn
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_LIST_FILTERED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_CREATED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_MANUALLY;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_TITLE;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
@@ -344,6 +345,10 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
     private void initSortComponents() {
         switch (mFilterProfileMap.get(SP_FILTER_ORDER)) {
+            case LIST_ITEMS_COLUMN_MANUALLY:
+                ((RadioButton) mDialog.findViewById(R.id.fragment_list_filter_dialog_order_manually))
+                        .setChecked(true);
+                break;
             case LIST_ITEMS_COLUMN_TITLE:
                 ((RadioButton) mDialog.findViewById(R.id.fragment_list_filter_dialog_order_title))
                         .setChecked(true);
@@ -575,6 +580,9 @@ public final class FilterSortDialogFragment extends DialogFragment {
                     @Override
                     public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
                         switch (checkedId) {
+                            case R.id.fragment_list_filter_dialog_order_manually:
+                                mFilterProfileMap.put(SP_FILTER_ORDER, LIST_ITEMS_COLUMN_MANUALLY);
+                                break;
                             case R.id.fragment_list_filter_dialog_order_title:
                                 mFilterProfileMap.put(SP_FILTER_ORDER, LIST_ITEMS_COLUMN_TITLE);
                                 break;

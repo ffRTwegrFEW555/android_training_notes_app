@@ -68,14 +68,12 @@ public class ListFragment extends Fragment
         implements OnStartDragListener, Observer {
 
     /* SQLite */
-    @NonNull
-    public static final String[] SEARCH_COLUMNS = {
+    @NonNull public static final String[] SEARCH_COLUMNS = {
             DbHelper.LIST_ITEMS_COLUMN_TITLE,
             DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION};
 
     /* Observed */
-    @NonNull
-    public static final String[] OBSERVED = {
+    @NonNull public static final String[] OBSERVED = {
             FILE_IMPORT,
             LIST_FILTER,
             ENTRY,
@@ -211,7 +209,7 @@ public class ListFragment extends Fragment
 
     private void initAdapterAndList() {
         mAdapter = new ListRecyclerViewAdapter(this, this);
-        mAdapter.updateCursor(getContext(), "", mFilterProfileMap);
+        mAdapter.updateCursor("", mFilterProfileMap);
 
         mRecyclerView = (RecyclerView) mParentView.findViewById(R.id.fragment_list_rv);
         mRecyclerView.addItemDecoration(
@@ -364,7 +362,7 @@ public class ListFragment extends Fragment
     }
 
     private void updateAdapter(String newText) {
-        mAdapter.updateCursor(getContext(), newText, mFilterProfileMap);
+        mAdapter.updateCursor(newText, mFilterProfileMap);
         mAdapter.notifyDataSetChanged();
         showFoundNotification();
     }

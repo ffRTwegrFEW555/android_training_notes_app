@@ -25,6 +25,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpCommon.SP_MAIN;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_PROFILE_CURRENT;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_PROFILE_CURRENT_ID;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_PROFILE_DEFAULT;
+import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_PROFILE_MANUAL;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_PROFILE_SELECTED_ID;
 
 /**
@@ -304,6 +305,7 @@ public final class SpUsers {
 
         /* Filter profiles */
         editor  .putString(SP_FILTER_PROFILE_DEFAULT, SpFilterProfiles.getDefaultProfile())
+                .putString(SP_FILTER_PROFILE_MANUAL, SpFilterProfiles.getManualProfile())
                 .putString(SP_FILTER_PROFILE_CURRENT, SpFilterProfiles.getDefaultProfile())
                 .putString(SP_FILTER_PROFILE_SELECTED_ID, SP_FILTER_PROFILE_CURRENT_ID);
 

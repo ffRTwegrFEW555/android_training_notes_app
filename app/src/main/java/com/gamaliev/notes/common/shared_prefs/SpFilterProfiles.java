@@ -20,8 +20,10 @@ import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
 import static com.gamaliev.notes.common.db.DbHelper.FAVORITE_COLUMN_COLOR;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_CREATED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_MANUALLY;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_TITLE;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
+import static com.gamaliev.notes.common.db.DbHelper.ORDER_ASCENDING;
 import static com.gamaliev.notes.common.db.DbHelper.ORDER_ASC_DESC_DEFAULT;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertMapToJson;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.setString;
@@ -41,8 +43,10 @@ public final class SpFilterProfiles {
     public static final String SP_FILTER_PROFILE_SELECTED_ID = "filterProfileSelectedId";
     public static final String SP_FILTER_PROFILE_DEFAULT    = "filterProfileDefault";
     public static final String SP_FILTER_PROFILE_DEFAULT_ID = "-1";
+    public static final String SP_FILTER_PROFILE_MANUAL     = "filterProfileManual";
+    public static final String SP_FILTER_PROFILE_MANUAL_ID  = "-2";
     public static final String SP_FILTER_PROFILE_CURRENT    = "filterProfileCurrent";
-    public static final String SP_FILTER_PROFILE_CURRENT_ID = "-2";
+    public static final String SP_FILTER_PROFILE_CURRENT_ID = "-3";
     public static final String SP_FILTER_PROFILES_SET       = "filterProfilesSet";
 
     /* Filter */
@@ -86,6 +90,32 @@ public final class SpFilterProfiles {
             jsonObject.put(SP_FILTER_VIEWED,    "");
             jsonObject.put(SP_FILTER_ORDER,     LIST_ITEMS_COLUMN_TITLE);
             jsonObject.put(SP_FILTER_ORDER_ASC, ORDER_ASC_DESC_DEFAULT);
+
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+            return null;
+        }
+
+        return jsonObject.toString();
+    }
+
+    /**
+     * Get hardcoded filter profile for manual sorting (Drag & Drop).
+     * @return Profile in Json-format, for manual sorting (Drag & Drop).
+     */
+    @Nullable
+    public static String getManualProfile() {
+        final JSONObject jsonObject = new JSONObject();
+
+        try {
+            jsonObject.put(SP_FILTER_ID,        SP_FILTER_PROFILE_MANUAL_ID);
+            jsonObject.put(SP_FILTER_TITLE,     "");
+            jsonObject.put(SP_FILTER_COLOR,     "");
+            jsonObject.put(SP_FILTER_CREATED,   "");
+            jsonObject.put(SP_FILTER_EDITED,    "");
+            jsonObject.put(SP_FILTER_VIEWED,    "");
+            jsonObject.put(SP_FILTER_ORDER,     LIST_ITEMS_COLUMN_MANUALLY);
+            jsonObject.put(SP_FILTER_ORDER_ASC, ORDER_ASCENDING);
 
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
@@ -188,10 +218,12 @@ public final class SpFilterProfiles {
 
         final String profileId = getSelectedId(context, userId);
 
-        if (SP_FILTER_PROFILE_DEFAULT_ID.equals(profileId)) {
-            return sp.getString(SP_FILTER_PROFILE_DEFAULT, null);
-        } else if (SP_FILTER_PROFILE_CURRENT_ID.equals(profileId)) {
+        if (SP_FILTER_PROFILE_CURRENT_ID.equals(profileId)) {
             return sp.getString(SP_FILTER_PROFILE_CURRENT, null);
+        } else if (SP_FILTER_PROFILE_DEFAULT_ID.equals(profileId)) {
+            return sp.getString(SP_FILTER_PROFILE_DEFAULT, null);
+        } else if (SP_FILTER_PROFILE_MANUAL_ID.equals(profileId)) {
+            return sp.getString(SP_FILTER_PROFILE_MANUAL, null);
         } else {
             return get(context, userId, profileId);
         }
@@ -398,7 +430,8 @@ public final class SpFilterProfiles {
             @NonNull final String userId,
             @NonNull final String profileId) {
 
-        if (SP_FILTER_PROFILE_DEFAULT_ID.equals(profileId)) {
+        if (SP_FILTER_PROFILE_DEFAULT_ID.equals(profileId)
+                || SP_FILTER_PROFILE_MANUAL_ID.equals(profileId)) {
             return;
         }
 
