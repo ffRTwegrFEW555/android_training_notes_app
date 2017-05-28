@@ -64,18 +64,13 @@ public class SyncActivity extends AppCompatActivity implements Observer {
     @Override
     public void onResume() {
         notifyDataSetChangedAndScrollToEnd();
-        registerObserver(
-                OBSERVED,
-                toString(),
-                this);
+        registerObserver(OBSERVED, toString(), this);
         super.onResume();
     }
 
     @Override
     public void onPause() {
-        unregisterObserver(
-                OBSERVED,
-                toString());
+        unregisterObserver(OBSERVED, toString());
         super.onPause();
     }
 

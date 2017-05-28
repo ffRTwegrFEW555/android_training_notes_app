@@ -35,6 +35,11 @@ public class ResultCode {
     /* Conflicted entries */
     public static final int RESULT_CODE_CONFLICTED_SUCCESS      = 161;
 
+    /* Users */
+    public static final int RESULT_CODE_USER_SELECTED           = 171;
+    public static final int RESULT_CODE_USER_DELETED            = 172;
+    public static final int RESULT_CODE_USER_CHANGE_PREFERENCES = 173;
+
 
     /*
         Init

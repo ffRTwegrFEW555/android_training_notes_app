@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -29,12 +30,13 @@ import android.widget.Toast;
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.FileUtils;
 import com.gamaliev.notes.common.ProgressNotificationHelper;
+import com.gamaliev.notes.common.observers.Observer;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import com.gamaliev.notes.list.ListFragment;
 import com.gamaliev.notes.list.db.ListDbHelper;
-import com.gamaliev.notes.settings.SettingsPreferenceActivity;
+import com.gamaliev.notes.settings.SettingsPreferenceFragment;
 import com.gamaliev.notes.sync.SyncActivity;
-import com.gamaliev.notes.user.UserActivity;
+import com.gamaliev.notes.user.UserFragment;
 
 import java.util.Map;
 
@@ -44,26 +46,33 @@ import static com.gamaliev.notes.common.CommonUtils.showMessageDialog;
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 import static com.gamaliev.notes.common.FileUtils.exportEntriesAsync;
 import static com.gamaliev.notes.common.FileUtils.importEntriesAsync;
-import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_CHANGE_USER;
 import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_NOTES_EXPORT;
 import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_NOTES_IMPORT;
 import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE;
 import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE;
-import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_SETTINGS;
 import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_SYNC_NOTES;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_MOCK_ENTRIES_ADDED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_CHANGE_PREFERENCES;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_DELETED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_SELECTED;
 import static com.gamaliev.notes.common.observers.ObserverHelper.ENTRIES_MOCK;
+import static com.gamaliev.notes.common.observers.ObserverHelper.USERS;
 import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
+import static com.gamaliev.notes.common.observers.ObserverHelper.registerObserver;
+import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObserver;
 
 /**
  * @author Vadim Gamaliev
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Observer {
 
     /* Logger */
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    /* Observed */
+    @NonNull public static final String[] OBSERVED = {USERS};
 
     /* ... */
     @NonNull private NavigationView mNavView;
@@ -94,7 +103,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         initDrawerLockMode();
         initUserInfo(mNavView);
+        registerObserver(OBSERVED, toString(), this);
         super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        unregisterObserver(OBSERVED, toString());
+        super.onPause();
     }
 
 
@@ -171,18 +187,7 @@ public class MainActivity extends AppCompatActivity {
             drawer.closeDrawer(GravityCompat.START);
 
         } else {
-            // Show Action bar.
-            final ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.setElevation(
-                        getResources().getDimension(R.dimen.activity_main_toolbar_elevation));
-                actionBar.show();
-            }
-
-            // Fullscreen off.
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-
+            showActionBarAndFullscreenOff();
             super.onBackPressed();
         }
     }
@@ -380,10 +385,14 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
 
-                    case R.id.activity_main_nav_drawer_item_sync_notes:
-                        SyncActivity.startIntent(
-                                MainActivity.this,
-                                REQUEST_CODE_SYNC_NOTES);
+                    case R.id.activity_main_nav_drawer_item_notes_list:
+                        showActionBarAndFullscreenOff();
+                        final ListFragment listFragment = ListFragment.newInstance();
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.activity_main_fragment_container, listFragment)
+                                .addToBackStack(null)
+                                .commit();
                         break;
 
                     case R.id.activity_main_nav_drawer_item_add_mock_entries:
@@ -395,16 +404,31 @@ public class MainActivity extends AppCompatActivity {
                         deleteAllEntries();
                         break;*/
 
-                    case R.id.activity_main_nav_drawer_item_change_user:
-                        UserActivity.startIntent(
+                    case R.id.activity_main_nav_drawer_item_sync_notes:
+                    SyncActivity.startIntent(
                                 MainActivity.this,
-                                REQUEST_CODE_CHANGE_USER);
+                                REQUEST_CODE_SYNC_NOTES);
+                    break;
+
+                    case R.id.activity_main_nav_drawer_item_change_user:
+                        showActionBarAndFullscreenOff();
+                        final UserFragment userFragment = UserFragment.newInstance();
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.activity_main_fragment_container, userFragment)
+                                .addToBackStack(null)
+                                .commit();
                         break;
 
                     case R.id.activity_main_nav_drawer_item_settings:
-                        SettingsPreferenceActivity.startIntent(
-                                MainActivity.this,
-                                REQUEST_CODE_SETTINGS);
+                        showActionBarAndFullscreenOff();
+                        final SettingsPreferenceFragment settingsFragment
+                                = SettingsPreferenceFragment.newInstance();
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.activity_main_fragment_container, settingsFragment)
+                                .addToBackStack(null)
+                                .commit();
                         break;
 
                     default:
@@ -435,5 +459,36 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT);
             }
         }).start();
+    }
+
+    private void showActionBarAndFullscreenOff() {
+        // Show Action bar.
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setElevation(
+                    getResources().getDimension(R.dimen.activity_main_toolbar_elevation));
+            actionBar.show();
+        }
+
+        // Fullscreen off.
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+    }
+
+
+    /*
+        Observer
+     */
+
+    @Override
+    public void onNotify(int resultCode, @Nullable Bundle data) {
+        switch (resultCode) {
+            case RESULT_CODE_USER_SELECTED:
+            case RESULT_CODE_USER_DELETED:
+            case RESULT_CODE_USER_CHANGE_PREFERENCES:
+                initUserInfo(mNavView);
+            default:
+                break;
+        }
     }
 }

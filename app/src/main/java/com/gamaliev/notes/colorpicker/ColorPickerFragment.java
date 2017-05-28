@@ -13,6 +13,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.transition.AutoTransition;
+import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,7 +51,6 @@ public final class ColorPickerFragment extends Fragment {
     public static final String EXTRA_COLOR          = "ColorPickerFragment.EXTRA_COLOR";
     public static final String EXTRA_RESULT_COLOR   = "ColorPickerFragment.EXTRA_RESULT_COLOR";
     public static final String EXTRA_HSV_COLOR_OVERRIDDEN = "ColorPickerFragment.EXTRA_HSV_COLOR_OVERRIDDEN";
-    public static final String EXTRA_COLOR_BUNDLE   = "ColorPickerFragment.EXTRA_COLOR_BUNDLE";
 
     /* ... */
     @NonNull private View mParentView;
@@ -89,12 +90,6 @@ public final class ColorPickerFragment extends Fragment {
         Lifecycle
      */
 
-    @Override
-    public void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
-
     @Nullable
     @Override
     public View onCreateView(
@@ -107,16 +102,8 @@ public final class ColorPickerFragment extends Fragment {
                 R.layout.fragment_color_picker,
                 wrapper,
                 true);
-
-        return wrapper;
-    }
-
-    @Override
-    public void onViewCreated(
-            final View view,
-            @Nullable final Bundle savedInstanceState) {
-
         init(savedInstanceState);
+        return wrapper;
     }
 
     @Override
@@ -159,15 +146,37 @@ public final class ColorPickerFragment extends Fragment {
             mHsvColorsOverridden = savedInstanceState.getIntArray(EXTRA_HSV_COLOR_OVERRIDDEN);
         }
 
+        initTransition();
+        initFullScreen();
         setGradient();
         addColorBoxesAndSetListeners();
         addFavoriteColorBoxesAndSetListeners();
         setResultBoxColor(mResultColor);
         setDoneCancelListeners();
-        initTransition();
-        initFullScreen();
     }
 
+    private void initTransition() {
+        setExitTransition(new Fade());
+        setEnterTransition(new Fade());
+        setSharedElementEnterTransition(new AutoTransition());
+        setSharedElementReturnTransition(new AutoTransition());
+        ViewCompat.setTransitionName(
+                mResultView,
+                getString(R.string.shared_transition_name_color_box));
+        ViewCompat.setTransitionName(
+                mResultParentView,
+                getString(R.string.shared_transition_name_layout));
+    }
+
+    private void initFullScreen() {
+        final ActionBar actionBar =
+                ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
+        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+    }
 
     /**
      * Set HSV gradient color (0-360) to background of palette bar.
@@ -297,25 +306,6 @@ public final class ColorPickerFragment extends Fragment {
                         finish(false);
                     }
                 });
-    }
-
-    private void initTransition() {
-        ViewCompat.setTransitionName(
-                mResultView,
-                getString(R.string.shared_transition_name_color_box));
-        ViewCompat.setTransitionName(
-                mResultParentView,
-                getString(R.string.shared_transition_name_layout));
-    }
-
-    private void initFullScreen() {
-        final ActionBar actionBar =
-                ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
-        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
     }
 
     /**

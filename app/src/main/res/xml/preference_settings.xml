@@ -3,48 +3,48 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-        android:title="@string/activity_settings_preference_category_sync_title">
+        android:title="@string/fragment_settings_preference_category_sync_title">
 
         <!--<SwitchPreference
             android:key="sync"
-            android:title="@string/activity_settings_preference_sync_enable_title"
-            android:summary="@string/activity_settings_preference_sync_enable_summary"/>-->
+            android:title="@string/fragment_settings_preference_sync_enable_title"
+            android:summary="@string/fragment_settings_preference_sync_enable_summary"/>-->
 
         <SwitchPreference
             android:key="sync_wifi"
-            android:title="@string/activity_settings_preference_sync_wifi_title"
-            android:summary="@string/activity_settings_preference_sync_wifi_summary"/>
+            android:title="@string/fragment_settings_preference_sync_wifi_title"
+            android:summary="@string/fragment_settings_preference_sync_wifi_summary"/>
 
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="sync_api_url"
             android:selectAllOnFocus="true"
-            android:title="@string/activity_settings_preference_sync_api_url_title"/>
+            android:title="@string/fragment_settings_preference_sync_api_url_title"/>
 
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="ext_id"
             android:selectAllOnFocus="true"
-            android:title="@string/activity_user_preference_sync_id_title"/>
+            android:title="@string/fragment_user_preference_sync_id_title"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/activity_settings_preference_category_mock_entries_title">
+        android:title="@string/fragment_settings_preference_category_mock_entries_title">
 
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="mock_entries"
             android:selectAllOnFocus="true"
-            android:title="@string/activity_settings_preference_mock_entries_default_value_title"
+            android:title="@string/fragment_settings_preference_mock_entries_default_value_title"
             android:inputType="number"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/activity_settings_preference_category_progress_notification_title">
+        android:title="@string/fragment_settings_preference_category_progress_notification_title">
 
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="progress_notification_timer"
             android:selectAllOnFocus="true"
-            android:title="@string/activity_settings_preference_progress_notification_timer"
+            android:title="@string/fragment_settings_preference_progress_notification_timer"
             android:inputType="number"/>
 
     </PreferenceCategory>

@@ -23,8 +23,9 @@
     <string name="activity_main_nav_drawer_item_delete_all_entries">Delete all</string>
     <string name="activity_main_nav_drawer_item_import_entries">Import notes</string>
     <string name="activity_main_nav_drawer_item_export_entries">Export notes</string>
-    <string name="activity_main_nav_drawer_item_change_user">Change user</string>
+    <string name="activity_main_nav_drawer_item_notes_list">Notes list</string>
     <string name="activity_main_nav_drawer_item_sync">Synchronization</string>
+    <string name="activity_main_nav_drawer_item_change_user">Change user</string>
     <string name="activity_main_nav_drawer_item_settings">Settings</string>
     <string name="activity_main_nav_drawable_header_image_view_description">Notes</string>
 
@@ -141,44 +142,44 @@
 
 
     <!--                -->
-    <!-- Activity User  -->
+    <!-- Fragment User  -->
     <!--                -->
 
-    <!-- Activity -->
-    <string name="activity_user">Users</string>
+    <!-- Fragment -->
+    <string name="fragment_user">Users</string>
 
     <!-- Other -->
-    <string name="activity_user_item_configure_button_description">Configure user</string>
-    <string name="activity_user_item_photo_description">Photo</string>
+    <string name="fragment_user_item_configure_button_description">Configure user</string>
+    <string name="fragment_user_item_photo_description">Photo</string>
 
 
     <!--                            -->
-    <!-- Activity User Preference   -->
+    <!-- Fragment User Preference   -->
     <!--                            -->
 
-    <!-- Activity -->
-    <string name="activity_user_preference">User preference</string>
+    <!-- Fragment -->
+    <string name="fragment_user_preference">User preference</string>
 
     <!-- Preference -->
-    <string name="activity_user_preference_category_name_title">Name</string>
-    <string name="activity_user_preference_first_name_title">First name</string>
-    <string name="activity_user_preference_last_name_title">Last name</string>
-    <string name="activity_user_preference_middle_name_title">Middle name</string>
+    <string name="fragment_user_preference_category_name_title">Name</string>
+    <string name="fragment_user_preference_first_name_title">First name</string>
+    <string name="fragment_user_preference_last_name_title">Last name</string>
+    <string name="fragment_user_preference_middle_name_title">Middle name</string>
 
-    <string name="activity_user_preference_category_additional_title">Additional</string>
-    <string name="activity_user_preference_email_title">Email</string>
-    <string name="activity_user_preference_description_title">Description</string>
+    <string name="fragment_user_preference_category_additional_title">Additional</string>
+    <string name="fragment_user_preference_email_title">Email</string>
+    <string name="fragment_user_preference_description_title">Description</string>
 
-    <string name="activity_user_preference_category_identifiers_title">Identifiers</string>
-    <string name="activity_user_preference_user_id_title">User ID</string>
-    <string name="activity_user_preference_sync_id_title">Synchronization ID</string>
+    <string name="fragment_user_preference_category_identifiers_title">Identifiers</string>
+    <string name="fragment_user_preference_user_id_title">User ID</string>
+    <string name="fragment_user_preference_sync_id_title">Synchronization ID</string>
 
     <!-- Delete alert dialog -->
-    <string name="activity_user_preference_delete_dialog_title">Delete</string>
-    <string name="activity_user_preference_delete_dialog_message">Do you really want to delete this user?</string>
-    <string name="activity_user_preference_delete_dialog_button_ok">Delete</string>
-    <string name="activity_user_preference_delete_dialog_button_cancel">Cancel</string>
-    <string name="activity_user_preference_delete_default_error">Can\'t delete default profile</string>
+    <string name="fragment_user_preference_delete_dialog_title">Delete</string>
+    <string name="fragment_user_preference_delete_dialog_message">Do you really want to delete this user?</string>
+    <string name="fragment_user_preference_delete_dialog_button_ok">Delete</string>
+    <string name="fragment_user_preference_delete_dialog_button_cancel">Cancel</string>
+    <string name="fragment_user_preference_delete_default_error">Can\'t delete default profile</string>
 
     <!-- Other -->
     <string name="menu_user_preference_action_delete">Delete</string>
@@ -259,36 +260,36 @@
 
 
     <!--                    -->
-    <!-- Activity Settings  -->
+    <!-- Fragment Settings  -->
     <!--                    -->
 
-    <!-- Activity -->
-    <string name="activity_settings_preference">User settings</string>
+    <!-- Fragment -->
+    <string name="fragment_settings_preference">User settings</string>
 
     <!-- Preference -->
-    <string name="activity_settings_preference_category_sync_title">Synchronization</string>
-    <string name="activity_settings_preference_sync_enable_title">Enable</string>
-    <string name="activity_settings_preference_sync_enable_summary">Auto synchronization</string>
-    <string name="activity_settings_preference_sync_wifi_title">Wi-fi</string>
-    <string name="activity_settings_preference_sync_wifi_summary">Synchronization wi-fi only</string>
-    <string name="activity_settings_preference_sync_api_url_title">Base API url</string>
+    <string name="fragment_settings_preference_category_sync_title">Synchronization</string>
+    <string name="fragment_settings_preference_sync_enable_title">Enable</string>
+    <string name="fragment_settings_preference_sync_enable_summary">Auto synchronization</string>
+    <string name="fragment_settings_preference_sync_wifi_title">Wi-fi</string>
+    <string name="fragment_settings_preference_sync_wifi_summary">Synchronization wi-fi only</string>
+    <string name="fragment_settings_preference_sync_api_url_title">Base API url</string>
 
-    <string name="activity_settings_preference_category_mock_entries_title">Mock entries</string>
-    <string name="activity_settings_preference_mock_entries_default_value_title">Default number</string>
+    <string name="fragment_settings_preference_category_mock_entries_title">Mock entries</string>
+    <string name="fragment_settings_preference_mock_entries_default_value_title">Default number</string>
 
-    <string name="activity_settings_preference_category_progress_notification_title">Progress notification</string>
-    <string name="activity_settings_preference_progress_notification_timer">Time to start, ms</string>
+    <string name="fragment_settings_preference_category_progress_notification_title">Progress notification</string>
+    <string name="fragment_settings_preference_progress_notification_timer">Time to start, ms</string>
 
-    <string name="activity_settings_default_external_id">-1</string>
-    <string name="activity_settings_default_email">no email</string>
-    <string name="activity_settings_default_first_name">no first name</string>
-    <string name="activity_settings_default_last_name">no last name</string>
-    <string name="activity_settings_default_middle_name">no middle name</string>
-    <string name="activity_settings_default_number_mock_entries">100000</string>
-    <string name="activity_settings_default_progress_notification_timer">3000</string>
-    <string name="activity_settings_default_sync">true</string>
-    <string name="activity_settings_default_sync_wifi">false</string>
-    <string name="activity_settings_default_sync_api_url">https://notesbackend-yufimtsev.rhcloud.com/</string>
+    <string name="fragment_settings_default_external_id">-1</string>
+    <string name="fragment_settings_default_email">no email</string>
+    <string name="fragment_settings_default_first_name">no first name</string>
+    <string name="fragment_settings_default_last_name">no last name</string>
+    <string name="fragment_settings_default_middle_name">no middle name</string>
+    <string name="fragment_settings_default_number_mock_entries">100000</string>
+    <string name="fragment_settings_default_progress_notification_timer">3000</string>
+    <string name="fragment_settings_default_sync">true</string>
+    <string name="fragment_settings_default_sync_wifi">false</string>
+    <string name="fragment_settings_default_sync_api_url">https://notesbackend-yufimtsev.rhcloud.com/</string>
 
 
     <!--                    -->

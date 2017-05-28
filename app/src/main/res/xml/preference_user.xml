@@ -3,47 +3,47 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-        android:title="@string/activity_user_preference_category_name_title">
+        android:title="@string/fragment_user_preference_category_name_title">
 
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="f_name"
             android:selectAllOnFocus="true"
-            android:title="@string/activity_user_preference_first_name_title"/>
+            android:title="@string/fragment_user_preference_first_name_title"/>
 
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="l_name"
             android:selectAllOnFocus="true"
-            android:title="@string/activity_user_preference_last_name_title"/>
+            android:title="@string/fragment_user_preference_last_name_title"/>
 
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="m_name"
             android:selectAllOnFocus="true"
-            android:title="@string/activity_user_preference_middle_name_title"/>
+            android:title="@string/fragment_user_preference_middle_name_title"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/activity_user_preference_category_additional_title">
+        android:title="@string/fragment_user_preference_category_additional_title">
 
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="email"
             android:selectAllOnFocus="true"
-            android:title="@string/activity_user_preference_email_title"/>
+            android:title="@string/fragment_user_preference_email_title"/>
 
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="desc"
             android:selectAllOnFocus="true"
-            android:title="@string/activity_user_preference_description_title"/>
+            android:title="@string/fragment_user_preference_description_title"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/activity_user_preference_category_identifiers_title">
+        android:title="@string/fragment_user_preference_category_identifiers_title">
 
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="id"
             android:selectAllOnFocus="true"
-            android:title="@string/activity_user_preference_user_id_title"
+            android:title="@string/fragment_user_preference_user_id_title"
             android:enabled="false"/>
 
     </PreferenceCategory>

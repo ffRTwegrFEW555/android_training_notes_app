@@ -11,8 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
-import android.transition.AutoTransition;
-import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -125,11 +123,6 @@ public final class ListRecyclerViewAdapter
                         context.getString(R.string.shared_transition_name_layout);
                 ViewCompat.setTransitionName(colorView, colorTransName);
                 ViewCompat.setTransitionName(v, viewTransName);
-
-                mFragment.setExitTransition(new Fade());
-                fragment.setEnterTransition(new Fade());
-                fragment.setSharedElementEnterTransition(new AutoTransition());
-                fragment.setSharedElementReturnTransition(new AutoTransition());
 
                 mFragment.getActivity()
                         .getSupportFragmentManager()

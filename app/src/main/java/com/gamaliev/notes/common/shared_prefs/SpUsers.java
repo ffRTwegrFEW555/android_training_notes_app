@@ -84,16 +84,16 @@ public final class SpUsers {
     public static Map<String, String> getDefaultProfile(@NonNull final Context context) {
         final Map<String, String> map = new HashMap<>();
         map.put(SP_USER_ID,             SP_USERS_DEFAULT_USER_ID);
-        map.put(SP_USER_SYNC_ID,        context.getString(R.string.activity_settings_default_external_id));
-        map.put(SP_USER_EMAIL,          context.getString(R.string.activity_settings_default_email));
-        map.put(SP_USER_FIRST_NAME,     context.getString(R.string.activity_settings_default_first_name));
-        map.put(SP_USER_LAST_NAME,      context.getString(R.string.activity_settings_default_last_name));
-        map.put(SP_USER_MIDDLE_NAME,    context.getString(R.string.activity_settings_default_middle_name));
-        map.put(SP_USER_MOCK_ENTRIES_DEFAULT, context.getString(R.string.activity_settings_default_number_mock_entries));
-        map.put(SP_USER_PROGRESS_NOTIF_TIMER, context.getString(R.string.activity_settings_default_progress_notification_timer));
-        map.put(SP_USER_SYNC,           context.getString(R.string.activity_settings_default_sync));
-        map.put(SP_USER_SYNC_WIFI,      context.getString(R.string.activity_settings_default_sync_wifi));
-        map.put(SP_USER_SYNC_API_URL,   context.getString(R.string.activity_settings_default_sync_api_url));
+        map.put(SP_USER_SYNC_ID,        context.getString(R.string.fragment_settings_default_external_id));
+        map.put(SP_USER_EMAIL,          context.getString(R.string.fragment_settings_default_email));
+        map.put(SP_USER_FIRST_NAME,     context.getString(R.string.fragment_settings_default_first_name));
+        map.put(SP_USER_LAST_NAME,      context.getString(R.string.fragment_settings_default_last_name));
+        map.put(SP_USER_MIDDLE_NAME,    context.getString(R.string.fragment_settings_default_middle_name));
+        map.put(SP_USER_MOCK_ENTRIES_DEFAULT, context.getString(R.string.fragment_settings_default_number_mock_entries));
+        map.put(SP_USER_PROGRESS_NOTIF_TIMER, context.getString(R.string.fragment_settings_default_progress_notification_timer));
+        map.put(SP_USER_SYNC,           context.getString(R.string.fragment_settings_default_sync));
+        map.put(SP_USER_SYNC_WIFI,      context.getString(R.string.fragment_settings_default_sync_wifi));
+        map.put(SP_USER_SYNC_API_URL,   context.getString(R.string.fragment_settings_default_sync_api_url));
         map.put(SP_USER_SYNC_PENDING,   SP_USER_SYNC_PENDING_FALSE);
 
         return map;
@@ -181,7 +181,7 @@ public final class SpUsers {
                 MODE_PRIVATE);
         final String string = sp.getString(
                 SP_USER_MOCK_ENTRIES_DEFAULT,
-                context.getString(R.string.activity_settings_default_number_mock_entries));
+                context.getString(R.string.fragment_settings_default_number_mock_entries));
         return Integer.parseInt(string);
     }
 
@@ -195,7 +195,7 @@ public final class SpUsers {
                 MODE_PRIVATE);
         final String string = sp.getString(
                 SP_USER_PROGRESS_NOTIF_TIMER,
-                context.getString(R.string.activity_settings_default_progress_notification_timer));
+                context.getString(R.string.fragment_settings_default_progress_notification_timer));
         return Integer.parseInt(string);
 
     }

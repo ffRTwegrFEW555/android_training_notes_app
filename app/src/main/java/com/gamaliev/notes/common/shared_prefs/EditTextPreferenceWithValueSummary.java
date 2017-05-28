@@ -1,11 +1,9 @@
 package com.gamaliev.notes.common.shared_prefs;
 
 import android.content.Context;
-import android.preference.EditTextPreference;
 import android.support.annotation.NonNull;
+import android.support.v7.preference.EditTextPreference;
 import android.util.AttributeSet;
-import android.view.View;
-import android.view.ViewGroup;
 
 /**
  * @author Vadim Gamaliev
@@ -35,16 +33,7 @@ public class EditTextPreferenceWithValueSummary extends EditTextPreference {
      */
 
     @Override
-    protected View onCreateView(final ViewGroup parent) {
-        this.setSummary(this.getText());
-        return super.onCreateView(parent);
-    }
-
-    @Override
-    protected void onDialogClosed(final boolean positiveResult) {
-        super.onDialogClosed(positiveResult);
-        if (positiveResult) {
-            this.setSummary(getText());
-        }
+    public CharSequence getSummary() {
+        return getText();
     }
 }

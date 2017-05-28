@@ -27,6 +27,7 @@ public class ObserverHelper {
     public static final String ENTRIES_MOCK     = "ENTRIES_MOCK";
     public static final String LIST_FILTER      = "LIST_FILTER";
     public static final String SYNC             = "SYNC";
+    public static final String USERS            = "USERS";
 
 
     /*

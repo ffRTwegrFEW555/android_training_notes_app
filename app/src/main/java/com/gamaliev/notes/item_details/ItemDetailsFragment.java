@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,12 +55,6 @@ public final class ItemDetailsFragment extends Fragment {
         Lifecycle
      */
 
-    @Override
-    public void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mId = getArguments().getLong(EXTRA_ID);
-    }
-
     @Nullable
     @Override
     public View onCreateView(
@@ -71,15 +66,8 @@ public final class ItemDetailsFragment extends Fragment {
                 R.layout.fragment_item_details,
                 container,
                 false);
-        return mParentView;
-    }
-
-    @Override
-    public void onViewCreated(
-            final View view,
-            @Nullable final Bundle savedInstanceState) {
-
         init();
+        return mParentView;
     }
 
     @Override
@@ -95,12 +83,31 @@ public final class ItemDetailsFragment extends Fragment {
      */
 
     private void init() {
+        initArgs();
+        initTransition();
+        initActionBar();
         initViewPager();
-        initActionBat();
+    }
+
+    private void initArgs() {
+        mId = getArguments().getLong(EXTRA_ID);
+    }
+
+    private void initTransition() {
+        setExitTransition(new Fade());
+        setEnterTransition(new Fade());
+    }
+
+    private void initActionBar() {
+        final ActionBar actionBar =
+                ((AppCompatActivity) getActivity()).getSupportActionBar();
+
+        if (actionBar != null) {
+            actionBar.setElevation(0);
+        }
     }
 
     private void initViewPager() {
-
         final Map<String, String> currentFilter = convertJsonToMap(
                 SpFilterProfiles.getSelectedForCurrentUser(getContext()));
         mCursor = ListDbHelper.getCursorWithParams(
@@ -127,14 +134,5 @@ public final class ItemDetailsFragment extends Fragment {
         viewPager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT);
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(startPosition);
-    }
-
-    private void initActionBat() {
-        final ActionBar actionBar =
-                ((AppCompatActivity) getActivity()).getSupportActionBar();
-
-        if (actionBar != null) {
-            actionBar.setElevation(0);
-        }
     }
 }

@@ -83,7 +83,6 @@ public class ListFragment extends Fragment
     /* ... */
     @NonNull private View mParentView;
     @NonNull private ListRecyclerViewAdapter mAdapter;
-    @NonNull private RecyclerView mRecyclerView;
     @NonNull private Button mFoundView;
     @NonNull private SearchView mSearchView;
     @NonNull private Map<String, String> mFilterProfileMap;
@@ -104,12 +103,6 @@ public class ListFragment extends Fragment
         Lifecycle
      */
 
-    @Override
-    public void onCreate(@Nullable final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
-
     @Nullable
     @Override
     public View onCreateView(
@@ -121,62 +114,52 @@ public class ListFragment extends Fragment
                 R.layout.fragment_list,
                 container,
                 false);
-        return mParentView;
-    }
-
-    @Override
-    public void onViewCreated(
-            final View view,
-            @Nullable final Bundle savedInstanceState) {
-
         init();
+        return mParentView;
     }
 
     @Override
     public void onResume() {
         initFilterProfile();
-        updateFilterAdapter();
-        registerObserver(
-                OBSERVED,
-                toString(),
-                this);
+        updateAdapter();
+        registerObserver(OBSERVED, toString(), this);
         super.onResume();
     }
 
     @Override
     public void onPause() {
-        unregisterObserver(
-                OBSERVED,
-                toString());
+        unregisterObserver(OBSERVED, toString());
         super.onPause();
     }
+
 
     /*
         ...
      */
 
     private void init() {
-        mFoundView = (Button) mParentView.findViewById(R.id.fragment_list_button_found);
-
-        initActionBarTitle();
-        initFilterProfile();
+        initTransition();
+        initActionBar();
         initFabOnClickListener();
-        initAdapterAndList();
+        initFoundView();
+        initAdapter();
+        initRecyclerView();
     }
 
-    private void initActionBarTitle() {
+    private void initTransition() {
+        setExitTransition(new Fade());
+        setEnterTransition(new Fade());
+    }
+
+    private void initActionBar() {
         ((AppCompatActivity) getActivity())
                 .getSupportActionBar()
                 .setTitle(getString(R.string.activity_main_name));
-    }
-
-    private void initFilterProfile() {
-        mFilterProfileMap = convertJsonToMap(
-                SpFilterProfiles.getSelectedForCurrentUser(getContext()));
+        setHasOptionsMenu(true);
     }
 
     /**
-     * Start fragment, with Add new entry action.
+     * Add new entry.
      */
     private void initFabOnClickListener() {
         final View fab = mParentView.findViewById(R.id.fragment_list_fab);
@@ -191,8 +174,6 @@ public class ListFragment extends Fragment
                         getContext().getString(R.string.shared_transition_name_layout);
                 ViewCompat.setTransitionName(v, transName);
 
-                setExitTransition(new Fade());
-                fragment.setEnterTransition(new Fade());
                 fragment.setSharedElementEnterTransition(new AutoTransition());
                 fragment.setSharedElementReturnTransition(new AutoTransition());
 
@@ -207,20 +188,53 @@ public class ListFragment extends Fragment
         });
     }
 
-    private void initAdapterAndList() {
-        mAdapter = new ListRecyclerViewAdapter(this, this);
-        mAdapter.updateCursor("", mFilterProfileMap);
+    private void initFilterProfile() {
+        mFilterProfileMap = convertJsonToMap(
+                SpFilterProfiles.getSelectedForCurrentUser(getContext()));
+    }
 
-        mRecyclerView = (RecyclerView) mParentView.findViewById(R.id.fragment_list_rv);
-        mRecyclerView.addItemDecoration(
-                new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerView.setAdapter(mAdapter);
+
+    /*
+        RecyclerView & Adapter
+     */
+
+    private void initAdapter() {
+        mAdapter = new ListRecyclerViewAdapter(this, this);
+    }
+
+    /**
+     * Getting text from search view, and use for filter. If text is empty, then using empty string.
+     */
+    @SuppressWarnings("ConstantConditions")
+    private void updateAdapter() {
+        if (mSearchView != null) {
+            final String searchText = mSearchView.getQuery().toString();
+            updateAdapter(TextUtils.isEmpty(searchText) ? "" : searchText);
+
+        } else {
+            updateAdapter("");
+        }
+    }
+
+    private void updateAdapter(String newText) {
+        mAdapter.updateCursor(newText, mFilterProfileMap);
+        mAdapter.notifyDataSetChanged();
+        showFoundNotification();
+    }
+
+    private void initRecyclerView() {
+        final RecyclerView rv = (RecyclerView) mParentView.findViewById(R.id.fragment_list_rv);
+        rv.addItemDecoration(
+                new DividerItemDecoration(
+                        getActivity(),
+                        DividerItemDecoration.VERTICAL));
+        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
+        rv.setAdapter(mAdapter);
 
         // Drag & Drop.
         ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(mAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
-        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
+        mItemTouchHelper.attachToRecyclerView(rv);
     }
 
 
@@ -266,6 +280,10 @@ public class ListFragment extends Fragment
     /*
         Found notification
      */
+
+    private void initFoundView() {
+        mFoundView = (Button) mParentView.findViewById(R.id.fragment_list_button_found);
+    }
 
     private void showFoundNotification() {
         final Handler handler = new Handler();
@@ -344,31 +362,6 @@ public class ListFragment extends Fragment
 
 
     /*
-        ...
-     */
-
-    /**
-     * Getting text from search view, and use for filter. If text is empty, then using empty string.
-     */
-    @SuppressWarnings("ConstantConditions")
-    private void updateFilterAdapter() {
-        if (mSearchView != null) {
-            final String searchText = mSearchView.getQuery().toString();
-            updateAdapter(TextUtils.isEmpty(searchText) ? "" : searchText);
-
-        } else {
-            updateAdapter("");
-        }
-    }
-
-    private void updateAdapter(String newText) {
-        mAdapter.updateCursor(newText, mFilterProfileMap);
-        mAdapter.notifyDataSetChanged();
-        showFoundNotification();
-    }
-
-
-    /*
         OnStartDragListener
      */
 
@@ -396,10 +389,9 @@ public class ListFragment extends Fragment
                     @Override
                     public void run() {
                         initFilterProfile();
-                        updateFilterAdapter();
+                        updateAdapter();
                     }
                 });
-                break;
             default:
                 break;
         }

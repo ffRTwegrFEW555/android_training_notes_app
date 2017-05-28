@@ -155,27 +155,27 @@
 
 
     <!--                -->
-    <!-- Activity User  -->
+    <!-- Fragment User  -->
     <!--                -->
 
     <!-- Other -->
-    <dimen name="activity_user_fab_margin">16dp</dimen>
-    <dimen name="activity_user_padding_top">8dp</dimen>
-    <dimen name="activity_user_padding_bottom">8dp</dimen>
+    <dimen name="fragment_user_fab_margin">16dp</dimen>
+    <dimen name="fragment_user_padding_top">8dp</dimen>
+    <dimen name="fragment_user_padding_bottom">8dp</dimen>
     
     <!-- list item. Photo box -->
-    <dimen name="activity_user_item_photo_width">40dp</dimen>
-    <dimen name="activity_user_item_photo_height">40dp</dimen>
-    <dimen name="activity_user_item_photo_margin_end">16dp</dimen>
+    <dimen name="fragment_user_item_photo_width">40dp</dimen>
+    <dimen name="fragment_user_item_photo_height">40dp</dimen>
+    <dimen name="fragment_user_item_photo_margin_end">16dp</dimen>
 
     <!-- list item. Other -->
-    <dimen name="activity_user_item_height">88dp</dimen>
-    <dimen name="activity_user_item_padding">16dp</dimen>
-    <dimen name="activity_user_item_padding_bottom">12dp</dimen>
-    <dimen name="activity_user_item_title_text_size">16sp</dimen>
-    <dimen name="activity_user_item_description_text_size">14sp</dimen>
-    <dimen name="activity_user_item_description_padding_end">8dp</dimen>
-    <dimen name="activity_user_item_button_width">56dp</dimen>
+    <dimen name="fragment_user_item_height">88dp</dimen>
+    <dimen name="fragment_user_item_padding">16dp</dimen>
+    <dimen name="fragment_user_item_padding_bottom">12dp</dimen>
+    <dimen name="fragment_user_item_title_text_size">16sp</dimen>
+    <dimen name="fragment_user_item_description_text_size">14sp</dimen>
+    <dimen name="fragment_user_item_description_padding_end">8dp</dimen>
+    <dimen name="fragment_user_item_button_width">56dp</dimen>
 
 
     <!--                -->

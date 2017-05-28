@@ -117,15 +117,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
         Lifecycle
      */
 
-    @Override
-    public void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //noinspection ConstantConditions
-        mAction = getArguments().getString(ACTION);
-        mId = getArguments().getLong(EXTRA_ID);
-        setHasOptionsMenu(true);
-    }
-
     @Nullable
     @Override
     public View onCreateView(
@@ -137,15 +128,21 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                 R.layout.fragment_item_details_pager_item,
                 container,
                 false);
+        init(savedInstanceState);
         return mParentView;
     }
 
     @Override
-    public void onViewCreated(
-            final View view,
-            @Nullable final Bundle savedInstanceState) {
+    public void onResume() {
+        registerObserver(OBSERVED, toString(), this);
+        super.onResume();
+    }
 
-        init(savedInstanceState);
+    @Override
+    public void onPause() {
+        hideKeyboard(getContext(), mParentView); /* Bug */
+        unregisterObserver(OBSERVED, toString());
+        super.onPause();
     }
 
     @Override
@@ -154,31 +151,12 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
         super.onSaveInstanceState(outState);
     }
 
-    @Override
-    public void onResume() {
-        registerObserver(
-                OBSERVED,
-                toString(),
-                this);
-        super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        hideKeyboard(getContext(), mParentView); /* Bug */
-        unregisterObserver(
-                OBSERVED,
-                toString());
-        super.onPause();
-    }
-
 
     /*
         ...
      */
 
     private void init(@Nullable final Bundle savedInstanceState) {
-        mActionBar      = ((AppCompatActivity) getActivity()).getSupportActionBar();
         mColorView      = mParentView.findViewById(R.id.fragment_item_details_color);
         mTitleEditText  = (EditText) mParentView.findViewById(R.id.fragment_item_details_title_text_view);
         mDescEditText   = (EditText) mParentView.findViewById(R.id.fragment_item_details_description_text_view);
@@ -188,51 +166,36 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
         mImageView      = (ImageView) mParentView.findViewById(R.id.fragment_item_details_image_view);
         mSavedInstanceState = savedInstanceState;
 
-        setColorBoxListener();
-        processAction();
+        initArgs();
+        initTransition();
         initActionBar();
+        initAction();
         initImageUrlValidation();
         initImageView();
         initRefreshImageButton();
-        initTransition();
+        setColorViewListener();
     }
 
-    /**
-     * Set color box listener.<br>
-     * Start choosing color activity on click.<br>
-     * If API >= 21, then enable shared transition color box.
-     */
-    private void setColorBoxListener() {
-        mColorView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                refreshEntry();
+    private void initArgs() {
+        mAction = getArguments().getString(ACTION);
+        mId = getArguments().getLong(EXTRA_ID);
+    }
 
-                final ColorPickerFragment fragment =
-                        ColorPickerFragment.newInstance(mId, mColor);
+    private void initTransition() {
+        setExitTransition(new Fade());
+        setEnterTransition(new Fade());
+        ViewCompat.setTransitionName(
+                mColorView,
+                getString(R.string.shared_transition_name_color_box));
+        ViewCompat.setTransitionName(
+                mParentView.findViewById(R.id.fragment_item_details_ff_header),
+                getString(R.string.shared_transition_name_layout));
+    }
 
-                // Transitions.
-                final View headerBox = mParentView.findViewById(R.id.fragment_item_details_ff_header);
-                final String colorTransName = getString(R.string.shared_transition_name_color_box);
-                final String headerBoxTransName = getString(R.string.shared_transition_name_layout);
-                ViewCompat.setTransitionName(mColorView, colorTransName);
-                ViewCompat.setTransitionName(headerBox, headerBoxTransName);
-
-                setExitTransition(new Fade());
-                fragment.setEnterTransition(new Fade());
-                fragment.setSharedElementEnterTransition(new AutoTransition());
-                fragment.setSharedElementReturnTransition(new AutoTransition());
-
-                getActivity()
-                        .getSupportFragmentManager()
-                        .beginTransaction()
-                        .addSharedElement(headerBox, headerBoxTransName)
-                        .addSharedElement(mColorView, colorTransName)
-                        .replace(R.id.activity_main_fragment_container, fragment)
-                        .addToBackStack(null)
-                        .commit();
-            }
-        });
+    private void initActionBar() {
+        mActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        mActionBar.setElevation(0);
+        setHasOptionsMenu(true);
     }
 
     /**
@@ -240,7 +203,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
      * Filling in the necessary views.<br>
      * See also: {@link #ACTION_ADD}, {@link #ACTION_EDIT}.
      */
-    private void processAction() {
+    private void initAction() {
         switch (mAction) {
             case ACTION_ADD:
                 mActionBar.setTitle(getString(R.string.fragment_item_details_title_add));
@@ -286,10 +249,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
             default:
                 break;
         }
-    }
-
-    private void initActionBar() {
-        mActionBar.setElevation(0);
     }
 
     private void initImageUrlValidation() {
@@ -351,15 +310,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                 });
     }
 
-    private void initTransition() {
-        ViewCompat.setTransitionName(
-                mColorView,
-                getString(R.string.shared_transition_name_color_box));
-        ViewCompat.setTransitionName(
-                mParentView.findViewById(R.id.fragment_item_details_ff_header),
-                getString(R.string.shared_transition_name_layout));
-    }
-
     /**
      * Check URL, and set error if needed.
      * @param url Checked URL.
@@ -377,6 +327,40 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
             mImageUrlEditTextLayout.setError(null);
             return false;
         }
+    }
+
+    /**
+     * Starting choosing color.
+     */
+    private void setColorViewListener() {
+        mColorView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refreshEntry();
+
+                final ColorPickerFragment fragment =
+                        ColorPickerFragment.newInstance(mId, mColor);
+
+                // Transitions.
+                final View headerBox = mParentView.findViewById(R.id.fragment_item_details_ff_header);
+                final String colorTransName = getString(R.string.shared_transition_name_color_box);
+                final String headerBoxTransName = getString(R.string.shared_transition_name_layout);
+                ViewCompat.setTransitionName(mColorView, colorTransName);
+                ViewCompat.setTransitionName(headerBox, headerBoxTransName);
+
+                fragment.setSharedElementEnterTransition(new AutoTransition());
+                fragment.setSharedElementReturnTransition(new AutoTransition());
+
+                getActivity()
+                        .getSupportFragmentManager()
+                        .beginTransaction()
+                        .addSharedElement(headerBox, headerBoxTransName)
+                        .addSharedElement(mColorView, colorTransName)
+                        .replace(R.id.activity_main_fragment_container, fragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
     }
 
 
@@ -613,8 +597,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                         fillActivityViews();
                     }
                 });
-                break;
-
             default:
                 break;
         }
