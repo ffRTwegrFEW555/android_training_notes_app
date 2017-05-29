@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.RecyclerView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_conflict_recycler_view"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scrollbars="vertical"/>
+    android:orientation="vertical"
+    tools:context="com.gamaliev.notes.conflict.ConflictFragment">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/fragment_conflict_rv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="@dimen/fragment_conflict_padding_top"
+        android:paddingBottom="@dimen/fragment_conflict_padding_bottom"
+        android:scrollbars="vertical"/>
+
+</LinearLayout>

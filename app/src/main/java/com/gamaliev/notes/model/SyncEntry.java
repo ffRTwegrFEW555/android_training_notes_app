@@ -40,7 +40,7 @@ public class SyncEntry implements Parcelable {
         Parcelable
      */
 
-    protected SyncEntry(Parcel in) {
+    private SyncEntry(Parcel in) {
         int whatToRead = in.readInt();
         if ((whatToRead & RW_ID) > 0)           mId = in.readLong();
         if ((whatToRead & RW_FINISHED) > 0)     mFinished = (Date) in.readSerializable();

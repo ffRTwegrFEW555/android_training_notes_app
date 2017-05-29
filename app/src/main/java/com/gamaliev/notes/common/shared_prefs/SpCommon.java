@@ -35,8 +35,8 @@ public final class SpCommon {
     private static final String TAG = SpCommon.class.getSimpleName();
 
     /* ... */
-    public static final String SP_INITIALIZED = "initialized";
-    public static final String SP_MAIN = "Main";
+    static final String SP_INITIALIZED = "initialized";
+    static final String SP_MAIN = "Main";
 
 
     /*
@@ -125,7 +125,7 @@ public final class SpCommon {
      * @param json  Json-format.
      * @return      Map-format.
      */
-    @Nullable
+    @NonNull
     public static Map<String, String> convertJsonToMap(
             @NonNull final String json) {
 
@@ -136,7 +136,7 @@ public final class SpCommon {
             jsonObject = new JSONObject(json);
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
-            return null;
+            return map;
         }
 
         final Iterator<String> keys = jsonObject.keys();
@@ -153,7 +153,7 @@ public final class SpCommon {
      * @param json  Json-format.
      * @return      Formatted string, with line breaks.
      */
-    @Nullable
+    @NonNull
     public static String convertEntryJsonToString(
             @NonNull final Context context,
             @NonNull final String json) {
@@ -165,7 +165,7 @@ public final class SpCommon {
             jsonObject = new JSONObject(json);
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
-            return null;
+            return "";
         }
 
         final String title = jsonObject.optString(LIST_ITEMS_COLUMN_TITLE, "");
@@ -217,7 +217,7 @@ public final class SpCommon {
      * @param map   Map-format.
      * @return      Json-format.
      */
-    @Nullable
+    @NonNull
     public static String convertMapToJson(
             @NonNull final Map<String, String> map) {
 

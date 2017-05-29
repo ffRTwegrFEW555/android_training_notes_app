@@ -97,7 +97,7 @@ public class SyncDbHelper {
      * @return Result cursor.
      */
     @Nullable
-    public static Cursor getAll(@NonNull final Context context) {
+    static Cursor getAll(@NonNull final Context context) {
 
         try {
             final SQLiteDatabase db = getReadableDb(context);

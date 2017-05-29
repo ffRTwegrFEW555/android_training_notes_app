@@ -33,6 +33,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("WeakerAccess")
 public final class SpUsers {
 
     /* Logger */
@@ -81,7 +82,7 @@ public final class SpUsers {
      * @return Default user profile.
      */
     @NonNull
-    public static Map<String, String> getDefaultProfile(@NonNull final Context context) {
+    static Map<String, String> getDefaultProfile(@NonNull final Context context) {
         final Map<String, String> map = new HashMap<>();
         map.put(SP_USER_ID,             SP_USERS_DEFAULT_USER_ID);
         map.put(SP_USER_SYNC_ID,        context.getString(R.string.fragment_settings_default_external_id));
@@ -139,10 +140,10 @@ public final class SpUsers {
      * @param context   Context.
      * @return          Id of selected user.
      */
-    @Nullable
+    @NonNull
     public static String getSelected(@NonNull final Context context) {
         final SharedPreferences sp = context.getSharedPreferences(SP_MAIN, MODE_PRIVATE);
-        return sp.getString(SP_USERS_SELECTED_ID, null);
+        return sp.getString(SP_USERS_SELECTED_ID, "");
     }
 
     /**
@@ -163,8 +164,8 @@ public final class SpUsers {
         return SP_USERS_FILENAME_PREFIX + "." + userId;
     }
 
-    @Nullable
-    public static String getNextUserId(@NonNull final Context context) {
+    @NonNull
+    private static String getNextUserId(@NonNull final Context context) {
         int number = Integer.parseInt(getIdCounter(context));
         final String nextNumber = String.valueOf(++number);
         setIdCounter(context, String.valueOf(++number));
@@ -204,10 +205,10 @@ public final class SpUsers {
      * @param context   Context.
      * @return          Number of id counter
      */
-    @Nullable
-    public static String getIdCounter(@NonNull final Context context) {
+    @NonNull
+    private static String getIdCounter(@NonNull final Context context) {
         final SharedPreferences sp = context.getSharedPreferences(SP_MAIN, MODE_PRIVATE);
-        return sp.getString(SP_USERS_ID_COUNTER, null);
+        return sp.getString(SP_USERS_ID_COUNTER, "");
     }
 
     /**
@@ -225,36 +226,36 @@ public final class SpUsers {
      * @param context   Context.
      * @return          Api url for current user.
      */
-    @Nullable
+    @NonNull
     public static String getApiUrlForCurrentUser(@NonNull final Context context) {
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(getSelected(context)),
                 MODE_PRIVATE);
-        return sp.getString(SP_USER_SYNC_API_URL, null);
+        return sp.getString(SP_USER_SYNC_API_URL, "");
     }
 
     /**
      * @param context   Context.
      * @return          Sync id for current user.
      */
-    @Nullable
+    @NonNull
     public static String getSyncIdForCurrentUser(@NonNull final Context context) {
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(getSelected(context)),
                 MODE_PRIVATE);
-        return sp.getString(SP_USER_SYNC_ID, null);
+        return sp.getString(SP_USER_SYNC_ID, "");
     }
 
     /**
      * @param context   Context.
      * @return          Pending sync status for current user.
      */
-    @Nullable
+    @NonNull
     public static String getPendingSyncStatusForCurrentUser(@NonNull final Context context) {
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(getSelected(context)),
                 MODE_PRIVATE);
-        return sp.getString(SP_USER_SYNC_PENDING, null);
+        return sp.getString(SP_USER_SYNC_PENDING, "");
     }
 
 
@@ -322,7 +323,7 @@ public final class SpUsers {
      * @param context   Context.
      * @param userId    User id.
      */
-    public static void addToProfiles(
+    private static void addToProfiles(
             @NonNull final Context context,
             @NonNull final String userId) {
 
@@ -336,7 +337,7 @@ public final class SpUsers {
      * @param context   Context.
      * @param profiles  User profiles.
      */
-    public static void updateProfiles(
+    private static void updateProfiles(
             @NonNull final Context context,
             @NonNull final Set<String> profiles) {
 
@@ -366,7 +367,7 @@ public final class SpUsers {
      * @param context   Context.
      * @param number    Number of id counter.
      */
-    public static void setIdCounter(
+    private static void setIdCounter(
             @NonNull final Context context,
             @NonNull final String number) {
 

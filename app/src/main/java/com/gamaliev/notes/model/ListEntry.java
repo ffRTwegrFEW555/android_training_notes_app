@@ -64,7 +64,7 @@ public class ListEntry implements Parcelable {
         Parcelable
      */
 
-    protected ListEntry(Parcel in) {
+    private ListEntry(Parcel in) {
         int whatToRead = in.readInt();
         if ((whatToRead & RW_ID) > 0)           mId = in.readLong();
         if ((whatToRead & RW_SYNC_ID) > 0)      mSyncId = in.readLong();
@@ -284,6 +284,7 @@ public class ListEntry implements Parcelable {
         return convertJsonToListEntry(context, jsonObject);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @NonNull
     public static ListEntry convertJsonToListEntry(
             @NonNull final Context context,
@@ -311,44 +312,5 @@ public class ListEntry implements Parcelable {
         entry.setViewed(getDateFromISO8601String(context, viewed));
 
         return entry;
-    }
-
-
-    /*
-        Equals & Hashcode
-     */
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ListEntry entry = (ListEntry) o;
-
-        if (mId != null ? !mId.equals(entry.mId) : entry.mId != null) return false;
-        if (mTitle != null ? !mTitle.equals(entry.mTitle) : entry.mTitle != null) return false;
-        if (mDescription != null ? !mDescription.equals(entry.mDescription) : entry.mDescription != null)
-            return false;
-        if (mColor != null ? !mColor.equals(entry.mColor) : entry.mColor != null) return false;
-        if (mImageUrl != null ? !mImageUrl.equals(entry.mImageUrl) : entry.mImageUrl != null)
-            return false;
-        if (mCreated != null ? !mCreated.equals(entry.mCreated) : entry.mCreated != null)
-            return false;
-        if (mEdited != null ? !mEdited.equals(entry.mEdited) : entry.mEdited != null) return false;
-        return mViewed != null ? mViewed.equals(entry.mViewed) : entry.mViewed == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = mId != null ? mId.hashCode() : 0;
-        result = 31 * result + (mTitle != null ? mTitle.hashCode() : 0);
-        result = 31 * result + (mDescription != null ? mDescription.hashCode() : 0);
-        result = 31 * result + (mColor != null ? mColor.hashCode() : 0);
-        result = 31 * result + (mImageUrl != null ? mImageUrl.hashCode() : 0);
-        result = 31 * result + (mCreated != null ? mCreated.hashCode() : 0);
-        result = 31 * result + (mEdited != null ? mEdited.hashCode() : 0);
-        result = 31 * result + (mViewed != null ? mViewed.hashCode() : 0);
-        return result;
     }
 }

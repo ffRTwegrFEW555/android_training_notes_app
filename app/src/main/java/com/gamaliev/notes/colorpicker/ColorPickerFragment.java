@@ -44,6 +44,7 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("NullableProblems")
 public final class ColorPickerFragment extends Fragment {
 
     /* Extra */

@@ -53,10 +53,6 @@
     <!-- Mock entries -->
     <integer name="mock_items_number_start">10</integer>
 
-    <!-- Shared transition -->
-    <integer name="shared_transition_animation_duration">200</integer>
-    <integer name="shared_transition_animation_start_delay">100</integer>
-
     <!-- Reveal animation -->
     <integer name="circular_reveal_animation_default_value">-1</integer>
 

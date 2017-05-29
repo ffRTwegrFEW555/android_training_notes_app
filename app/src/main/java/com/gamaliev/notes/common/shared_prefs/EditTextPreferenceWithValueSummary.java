@@ -16,10 +16,12 @@ public class EditTextPreferenceWithValueSummary extends EditTextPreference {
         Init
      */
 
+    @SuppressWarnings("unused")
     public EditTextPreferenceWithValueSummary(@NonNull final Context context) {
         super(context);
     }
 
+    @SuppressWarnings("unused")
     public EditTextPreferenceWithValueSummary(
             @NonNull final Context context,
             @NonNull final AttributeSet attrs) {

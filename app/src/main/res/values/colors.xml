@@ -14,11 +14,6 @@
     <color name="color_white">#ffffff</color>
     <color name="color_fab">@color/color_primary_contrast</color>
 
-    <!-- Activity list nav drawer header gradient -->
-    <color name="activity_list_nav_drawer_header_gradient_start">#BF360C</color>
-    <color name="activity_list_nav_drawer_header_gradient_center">#F4511E</color>
-    <color name="activity_list_nav_drawer_header_gradient_end">#FFAB91</color>
-
 
     <!--                -->
     <!-- Activity Main  -->

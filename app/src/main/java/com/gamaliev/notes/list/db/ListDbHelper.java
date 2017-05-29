@@ -190,6 +190,7 @@ public class ListDbHelper {
      * If null, then default is
      * {@link DbHelper#LIST_ITEMS_COLUMN_EDITED}.
      */
+    @SuppressWarnings("ConstantConditions")
     public static boolean updateEntry(
             @NonNull final Context context,
             @NonNull final ListEntry entry,
@@ -539,11 +540,11 @@ public class ListDbHelper {
                     new String[]{profileMap.get(FAVORITE_COLUMN_COLOR)});
         }
 
-        for (int i = 0; i < DATES_COLUMNS.length; i++) {
+        for (String DATES_COLUMN : DATES_COLUMNS) {
             final String dates = getDateFromProfileMap(
                     context,
                     profileMap,
-                    DATES_COLUMNS[i],
+                    DATES_COLUMN,
                     EXTRA_DATES_TO_DATETIME);
 
             if (TextUtils.isEmpty(dates)) {
@@ -568,7 +569,7 @@ public class ListDbHelper {
             datesArray[0] = getDateFromProfileMap(
                     context,
                     profileMap,
-                    DATES_COLUMNS[i],
+                    DATES_COLUMN,
                     EXTRA_DATES_FROM_DATE);
             datesArray[1] = getStringDateFormatSqlite(
                     context,
@@ -576,9 +577,9 @@ public class ListDbHelper {
                     false);
 
             // Add viewed filter, if not empty or null.
-            if (!TextUtils.isEmpty(profileMap.get(DATES_COLUMNS[i]))) {
+            if (!TextUtils.isEmpty(profileMap.get(DATES_COLUMN))) {
                 resultQueryBuilder.addAnd(
-                        DATES_COLUMNS[i],
+                        DATES_COLUMN,
                         OPERATOR_BETWEEN,
                         datesArray);
             }
@@ -596,7 +597,7 @@ public class ListDbHelper {
         return resultQueryBuilder;
     }
 
-    public static boolean swapManuallyColumnValue(
+    static boolean swapManuallyColumnValue(
             @NonNull final Context context,
             @NonNull final String entryFirstId,
             @NonNull final String entrySecondId) {
@@ -646,15 +647,14 @@ public class ListDbHelper {
             @NonNull final String entryId) {
 
         String value = null;
-        try {
-            final Cursor cursor = db.query(
+        try (Cursor cursor = db.query(
                     LIST_ITEMS_TABLE_NAME,
                     null,
                     BASE_COLUMN_ID + " = ?",
                     new String[] {entryId},
                     null,
                     null,
-                    null);
+                    null)) {
 
             if (cursor.moveToFirst()) {
                 value = cursor.getString(

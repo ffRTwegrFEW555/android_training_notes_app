@@ -42,6 +42,7 @@ import static com.gamaliev.notes.list.db.ListDbHelper.getCursorWithParams;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings({"NullableProblems", "unused"})
 public final class ListRecyclerViewAdapter
         extends RecyclerView.Adapter<ListRecyclerViewAdapter.ViewHolder>
         implements ItemTouchHelperAdapter {
@@ -149,7 +150,12 @@ public final class ListRecyclerViewAdapter
 
     @Override
     public int getItemCount() {
-        return mCursor == null ? 0 : mCursor.getCount();
+        return mCursor == null || mCursor.isClosed() ? 0 : mCursor.getCount();
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        closeCursor();
     }
 
 
@@ -207,17 +213,17 @@ public final class ListRecyclerViewAdapter
     }
 
     private void updateCursor() {
-        if (mCursor != null && !mCursor.isClosed()) {
-            mCursor.close();
-        }
+        closeCursor();
         mCursor = getCursorWithParams(
                 getAppContext(),
                 mConstraint,
                 mFilterProfileMap);
     }
 
-    public void setSwipeEnable(boolean swipeEnable) {
-        this.mSwipeEnable = swipeEnable;
+    private void closeCursor() {
+        if (mCursor != null && !mCursor.isClosed()) {
+            mCursor.close();
+        }
     }
 
 

@@ -11,6 +11,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("unused")
 public class NoteApiUtils {
 
     /* ... */

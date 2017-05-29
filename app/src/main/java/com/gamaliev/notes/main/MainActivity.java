@@ -35,7 +35,7 @@ import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import com.gamaliev.notes.list.ListFragment;
 import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.settings.SettingsPreferenceFragment;
-import com.gamaliev.notes.sync.SyncActivity;
+import com.gamaliev.notes.sync.SyncFragment;
 import com.gamaliev.notes.user.UserFragment;
 
 import java.util.Map;
@@ -50,7 +50,6 @@ import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_NOTES_EXP
 import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_NOTES_IMPORT;
 import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE;
 import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE;
-import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_SYNC_NOTES;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_MOCK_ENTRIES_ADDED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_CHANGE_PREFERENCES;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_DELETED;
@@ -66,6 +65,7 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObser
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("NullableProblems")
 public class MainActivity extends AppCompatActivity implements Observer {
 
     /* Logger */
@@ -405,9 +405,13 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         break;*/
 
                     case R.id.activity_main_nav_drawer_item_sync_notes:
-                    SyncActivity.startIntent(
-                                MainActivity.this,
-                                REQUEST_CODE_SYNC_NOTES);
+                        showActionBarAndFullscreenOff();
+                        final SyncFragment syncFragment = SyncFragment.newInstance();
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.activity_main_fragment_container, syncFragment)
+                                .addToBackStack(null)
+                                .commit();
                     break;
 
                     case R.id.activity_main_nav_drawer_item_change_user:
@@ -445,12 +449,12 @@ public class MainActivity extends AppCompatActivity implements Observer {
         };
     }
 
+    @SuppressWarnings("unused")
     private void deleteAllEntries() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 final boolean success = ListDbHelper.removeAllEntries(MainActivity.this);
-
                 showToastRunOnUiThread(
                         MainActivity.this,
                         success
@@ -481,12 +485,17 @@ public class MainActivity extends AppCompatActivity implements Observer {
      */
 
     @Override
-    public void onNotify(int resultCode, @Nullable Bundle data) {
+    public void onNotify(final int resultCode, @Nullable final Bundle data) {
         switch (resultCode) {
             case RESULT_CODE_USER_SELECTED:
             case RESULT_CODE_USER_DELETED:
             case RESULT_CODE_USER_CHANGE_PREFERENCES:
-                initUserInfo(mNavView);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        initUserInfo(mNavView);
+                    }
+                });
             default:
                 break;
         }

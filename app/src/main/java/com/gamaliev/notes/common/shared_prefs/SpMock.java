@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.common.db.DbHelper;
 import com.gamaliev.notes.list.db.ListDbMockHelper;
 
 import org.json.JSONException;
@@ -23,6 +22,7 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_TITLE;
 import static com.gamaliev.notes.common.db.DbHelper.ORDER_ASCENDING;
 import static com.gamaliev.notes.common.db.DbHelper.ORDER_ASC_DESC_DEFAULT;
 import static com.gamaliev.notes.common.db.DbHelper.ORDER_DESCENDING;
+import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_COLOR;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_CREATED;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_EDITED;
@@ -51,7 +51,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_WIFI;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public final class SpMock {
+final class SpMock {
 
     /* Logger */
     private static final String TAG = SpMock.class.getSimpleName();
@@ -145,7 +145,7 @@ public final class SpMock {
         ...
      */
 
-    public static void addMockData(@NonNull final Context context) {
+    static void addMockData(@NonNull final Context context) {
         int entriesCount = context.getResources().getInteger(R.integer.mock_items_number_start);
         boolean allProfiles = false;
 
@@ -178,7 +178,7 @@ public final class SpMock {
             ListDbMockHelper.addMockEntries(
                     context,
                     entriesCount,
-                    DbHelper.getInstance(context).getWritableDatabase(),
+                    getWritableDb(context),
                     null,
                     false);
 
@@ -195,7 +195,7 @@ public final class SpMock {
      * @return Set of mock filter profiles, in JSON-format.
      */
     @Nullable
-    public static Set<String> getMockFilterProfiles() {
+    private static Set<String> getMockFilterProfiles() {
         final Set<String> set = new HashSet<>();
 
         JSONObject jsonObject;
@@ -231,7 +231,7 @@ public final class SpMock {
      * @return Set of mock user profiles, in Map-format.
      */
     @NonNull
-    public static Set<Map<String, String>> getMockUserProfiles() {
+    private static Set<Map<String, String>> getMockUserProfiles() {
         final Set<Map<String, String>> set = new HashSet<>();
 
         Map<String, String> map;

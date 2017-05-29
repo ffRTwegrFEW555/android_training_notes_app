@@ -31,10 +31,10 @@
         <item name="android:textColorHint">@color/color_white</item>
     </style>
 
-    <!-- Activity Color Picker -->
+    <!-- Fragment Color Picker -->
     <style name="ColorPickerPopupWindowAnimation">
-        <item name="android:windowEnterAnimation">@anim/activity_color_picker_pw_on_show</item>
-        <item name="android:windowExitAnimation">@anim/activity_color_picker_pw_on_dismiss</item>
+        <item name="android:windowEnterAnimation">@anim/fragment_color_picker_pw_on_show</item>
+        <item name="android:windowExitAnimation">@anim/fragment_color_picker_pw_on_dismiss</item>
     </style>
 
     <style name="ColorPickerHelperIcons">
@@ -59,12 +59,12 @@
         <item name="android:tint">@color/color_picker_default</item>
     </style>
 
-    <!-- Activity List. Filter dialog. Progress bar -->
+    <!-- Fragment List. Filter dialog. Progress bar -->
     <style name="AppTheme.ContrastColorAccent">
         <item name="colorAccent">@color/color_primary_contrast</item>
     </style>
 
-    <!-- Activity Item Details. Progress Header -->
+    <!-- Fragment Item Details. Progress Header -->
     <style name="AppTheme.WhileColor">
         <item name="colorAccent">@color/color_white</item>
     </style>

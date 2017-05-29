@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
@@ -84,9 +85,10 @@ public class SettingsPreferenceFragment extends PreferenceFragmentCompat
     }
 
     private void initActionBar() {
-        ((AppCompatActivity) getActivity())
-                .getSupportActionBar()
-                .setTitle(getString(R.string.fragment_settings_preference));
+        final ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(getString(R.string.fragment_settings_preference));
+        }
     }
 
 

@@ -1,5 +1,6 @@
 package com.gamaliev.notes.conflict;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -47,11 +48,14 @@ import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.deleteEntryWithSingle;
 import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
+import static com.gamaliev.notes.common.observers.ObserverHelper.CONFLICT;
+import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertEntryJsonToString;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertMapToJson;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
-import static com.gamaliev.notes.conflict.ConflictActivity.checkConflictExistsAndHideStatusBarNotification;
+import static com.gamaliev.notes.conflict.ConflictFragment.EXTRA_CONFLICT_SELECT_POSITION;
+import static com.gamaliev.notes.conflict.ConflictUtils.checkConflictExistsAndHideStatusBarNotification;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
 import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_DATA;
 import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_EXTRA;
@@ -69,6 +73,7 @@ import static com.gamaliev.notes.sync.SyncUtils.addToSyncJournalAndLogAndNotify;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("NullableProblems")
 public class ConflictSelectDialogFragment extends DialogFragment {
 
     /* Logger */
@@ -78,7 +83,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
     private static final String EXTRA_SYNC_ID = "syncId";
     private static final String EXTRA_POSITION = "position";
 
-    @Nullable private View mDialog;
+    @NonNull private View mDialog;
     @NonNull private Button mServerSaveBtn;
     @NonNull private Button mLocalSaveBtn;
     @NonNull private String mSyncId;
@@ -90,8 +95,6 @@ public class ConflictSelectDialogFragment extends DialogFragment {
     /*
         Init
      */
-
-    public ConflictSelectDialogFragment() {}
 
     public static ConflictSelectDialogFragment newInstance(
             @NonNull final String syncId,
@@ -111,13 +114,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         Lifecycle
      */
 
-    @Override
-    public void onCreate(@Nullable final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mSyncId = getArguments().getString(EXTRA_SYNC_ID);
-        mPosition = getArguments().getInt(EXTRA_POSITION);
-    }
-
+    @SuppressLint("InflateParams")
     @Nullable
     @Override
     public View onCreateView(
@@ -126,29 +123,12 @@ public class ConflictSelectDialogFragment extends DialogFragment {
             final Bundle savedInstanceState) {
 
         mDialog = inflater.inflate(R.layout.fragment_dialog_conflict_select, null);
-        initCircularRevealAnimation(
-                mDialog,
-                true,
-                EXTRA_REVEAL_ANIM_CENTER_CENTER);
-
-        // Disable title for more space.
-        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-
+        disableTitle();
         return mDialog;
     }
 
     @Override
     public void onResume() {
-        // Set max size of dialog. ( XML is not work :/ )
-        final DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
-        final ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
-        params.width = Math.min(
-                displayMetrics.widthPixels,
-                getActivity().getResources().getDimensionPixelSize(
-                        R.dimen.fragment_dialog_conflict_select_max_width));
-        params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
-        getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
-
         super.onResume();
         init();
     }
@@ -159,9 +139,44 @@ public class ConflictSelectDialogFragment extends DialogFragment {
      */
 
     private void init() {
+        initDialogSize();
+        initCircularAnimation();
+        initArgs();
         initSaveButtons();
         initServerLayoutAsync();
         initLocalLayoutAsync();
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    private void disableTitle() {
+        // Disable title for more space.
+        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    private void initDialogSize() {
+        // Set max size of dialog. ( XML is not work :/ )
+        final DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
+        final ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
+        params.width = Math.min(
+                displayMetrics.widthPixels,
+                getActivity().getResources().getDimensionPixelSize(
+                        R.dimen.fragment_dialog_conflict_select_max_width));
+        params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
+        getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+    }
+
+    private void initCircularAnimation() {
+        initCircularRevealAnimation(
+                mDialog,
+                true,
+                EXTRA_REVEAL_ANIM_CENTER_CENTER);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    private void initArgs() {
+        mSyncId = getArguments().getString(EXTRA_SYNC_ID);
+        mPosition = getArguments().getInt(EXTRA_POSITION);
     }
 
     private void initSaveButtons() {
@@ -294,49 +309,56 @@ public class ConflictSelectDialogFragment extends DialogFragment {
     }
 
     private void initLocalLayout() {
-        // Get entry from database
+        // Get entry from database.
         final DbQueryBuilder queryBuilder = new DbQueryBuilder();
         queryBuilder.addOr(
                 COMMON_COLUMN_SYNC_ID,
                 DbQueryBuilder.OPERATOR_EQUALS,
                 new String[]{mSyncId});
 
-        final Cursor entryCursor = getEntries(
+        try (Cursor entryCursor = getEntries(
                 getContext(),
                 LIST_ITEMS_TABLE_NAME,
-                queryBuilder);
+                queryBuilder)) {
 
-        if (entryCursor == null || entryCursor.getCount() == 0) {
-            showToastRunOnUiThread(
-                    getContext(),
-                    getString(R.string.fragment_dialog_conflict_select_local_database_error),
-                    Toast.LENGTH_LONG);
-            dismiss();
-            return;
+            if (entryCursor == null || !entryCursor.moveToFirst()) {
+                showToastRunOnUiThread(
+                        getContext(),
+                        getString(R.string.fragment_dialog_conflict_select_local_database_error),
+                        Toast.LENGTH_LONG);
+                dismiss();
+                return;
+            }
+
+            final JSONObject jsonObject = ListEntry.getJsonObject(getContext(), entryCursor);
+            if (jsonObject == null) {
+                showToastRunOnUiThread(
+                        getContext(),
+                        getString(R.string.fragment_dialog_conflict_select_local_database_error),
+                        Toast.LENGTH_LONG);
+                dismiss();
+                return;
+            }
+            final String textLocal = convertEntryJsonToString(getContext(), jsonObject.toString());
+
+            // Header and body text.
+            final TextView localHeaderTv = (TextView) mDialog
+                    .findViewById(R.id.fragment_dialog_conflict_select_local_header_tv);
+            final TextView localBodyTv = (TextView) mDialog
+                    .findViewById(R.id.fragment_dialog_conflict_select_local_body_tv);
+
+            localHeaderTv.setText(
+                    getString(R.string.fragment_dialog_conflict_select_local_header_prefix)
+                            + ": "
+                            + mSyncId);
+            localBodyTv.setText(textLocal);
+
+            // Save button.
+            mLocalSaveBtn.setOnClickListener(
+                    getLocalBtnSaveOnClickListener(getActivity(), jsonObject.toString()));
+            mLocalEntryLoaded = true;
+            tryEnableButtons();
         }
-
-        entryCursor.moveToFirst();
-        final JSONObject jsonObject = ListEntry.getJsonObject(getContext(), entryCursor);
-        final String textLocal = convertEntryJsonToString(getContext(), jsonObject.toString());
-        entryCursor.close();
-
-        // Header and body text.
-        final TextView localHeaderTv = (TextView) mDialog
-                .findViewById(R.id.fragment_dialog_conflict_select_local_header_tv);
-        final TextView localBodyTv = (TextView) mDialog
-                .findViewById(R.id.fragment_dialog_conflict_select_local_body_tv);
-
-        localHeaderTv.setText(
-                getString(R.string.fragment_dialog_conflict_select_local_header_prefix)
-                        + ": "
-                        + mSyncId);
-        localBodyTv.setText(textLocal);
-
-        // Save button.
-        mLocalSaveBtn.setOnClickListener(
-                getLocalBtnSaveOnClickListener(getActivity(), jsonObject.toString()));
-        mLocalEntryLoaded = true;
-        tryEnableButtons();
     }
 
 
@@ -395,6 +417,9 @@ public class ConflictSelectDialogFragment extends DialogFragment {
 
         final ListEntry entry = ListEntry
                 .convertJsonToListEntry(context, data);
+        if (entry == null) {
+            return;
+        }
         entry.setSyncId(Long.parseLong(mSyncId));
 
         final SQLiteDatabase db = getWritableDb(context);
@@ -503,6 +528,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void tryEnableButtons() {
         if (mServerEntryLoaded && mLocalEntryLoaded) {
             if (mDialog != null && mDialog.isAttachedToWindow()) {
@@ -523,10 +549,10 @@ public class ConflictSelectDialogFragment extends DialogFragment {
      */
 
     private void makeFinishOperations(@NonNull final Context context) {
-        getTargetFragment().onActivityResult(
-                getTargetRequestCode(),
-                RESULT_CODE_CONFLICTED_SUCCESS,
-                ConflictFragment.getResultIntent(mPosition));
+        final Bundle bundle = new Bundle();
+        bundle.putInt(EXTRA_CONFLICT_SELECT_POSITION, mPosition);
+        notifyObservers(CONFLICT, RESULT_CODE_CONFLICTED_SUCCESS, bundle);
+
         checkConflictExistsAndHideStatusBarNotification(context);
     }
 }

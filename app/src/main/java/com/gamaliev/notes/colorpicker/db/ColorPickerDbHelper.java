@@ -26,7 +26,7 @@ import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class ColorPickerDbHelper {
+public final class ColorPickerDbHelper {
 
     /* Logger */
     private static final String TAG = ColorPickerDbHelper.class.getSimpleName();

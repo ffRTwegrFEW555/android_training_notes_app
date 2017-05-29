@@ -24,6 +24,7 @@ import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
 import static com.gamaliev.notes.common.db.DbHelper.findCursorPositionByColumnValue;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
 
+@SuppressWarnings("NullableProblems")
 public final class ItemDetailsFragment extends Fragment {
 
     /* Extra */

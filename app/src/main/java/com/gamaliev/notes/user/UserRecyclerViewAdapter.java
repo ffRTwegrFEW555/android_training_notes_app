@@ -27,24 +27,22 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_ID;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("NullableProblems")
 public class UserRecyclerViewAdapter
         extends RecyclerView.Adapter<UserRecyclerViewAdapter.ViewHolder>{
 
     /* ... */
     @NonNull private final Fragment mFragment;
-    @NonNull private final String[] mProfiles;
+    @NonNull private String[] mProfiles;
 
 
     /*
         Init
      */
 
-    public UserRecyclerViewAdapter(
-            @NonNull final Fragment fragment) {
+    UserRecyclerViewAdapter(@NonNull final Fragment fragment) {
         mFragment = fragment;
-        final Set<String> profiles = SpUsers.getProfiles(fragment.getContext());
-        mProfiles = new String[profiles.size()];
-        profiles.toArray(mProfiles);
+        updateProfiles();
     }
 
 
@@ -128,5 +126,16 @@ public class UserRecyclerViewAdapter
             mDescriptionView        = (TextView) view.findViewById(R.id.fragment_user_item_description);
             mConfigureImageButton   = (ImageButton) view.findViewById(R.id.fragment_user_item_configure_button);
         }
+    }
+
+
+    /*
+        ...
+     */
+
+    private void updateProfiles() {
+        final Set<String> profiles = SpUsers.getProfiles(mFragment.getContext());
+        mProfiles = new String[profiles.size()];
+        profiles.toArray(mProfiles);
     }
 }

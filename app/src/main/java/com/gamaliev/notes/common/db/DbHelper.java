@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings({"NullableProblems", "WeakerAccess"})
 public final class DbHelper extends SQLiteOpenHelper {
 
     /* Logger */
@@ -69,7 +71,7 @@ public final class DbHelper extends SQLiteOpenHelper {
     public static final String LIST_ITEMS_COLUMN_EDITED     = "edited";
     public static final String LIST_ITEMS_COLUMN_VIEWED     = "viewed";
 
-    public static final String LIST_ITEMS_TRIGGER_COLUMN_MANUALLY_AUTOINCREMENT
+    private static final String LIST_ITEMS_TRIGGER_COLUMN_MANUALLY_AUTOINCREMENT
             = "manually_autoincrement";
 
     /* Sync. Journal table */
@@ -162,7 +164,7 @@ public final class DbHelper extends SQLiteOpenHelper {
         ...
      */
 
-    @NonNull private static Map<String, DbHelper> sInstances;
+    @NonNull private static final Map<String, DbHelper> INSTANCES;
     @NonNull private static String mDbFailMessage;
 
 
@@ -171,7 +173,7 @@ public final class DbHelper extends SQLiteOpenHelper {
      */
 
     static {
-        sInstances = new ConcurrentHashMap<>();
+        INSTANCES = new ConcurrentHashMap<>();
     }
 
     /**
@@ -184,10 +186,11 @@ public final class DbHelper extends SQLiteOpenHelper {
             @NonNull final Context context) {
 
         final String userId = SpUsers.getSelected(context);
-        if (userId == null) {
+        if (TextUtils.isEmpty(userId)) {
             return null;
         }
 
+        //noinspection ConstantConditions
         if (mDbFailMessage == null) {
             mDbFailMessage = context.getString(R.string.sql_toast_fail);
         }
@@ -195,10 +198,10 @@ public final class DbHelper extends SQLiteOpenHelper {
         // Use the application context, which will ensure that you
         // don't accidentally leak an Activity's context.
         // See this article for more information: http://bit.ly/6LRzfx
-        if (sInstances.get(userId) == null) {
-            sInstances.put(userId, new DbHelper(context.getApplicationContext(), userId));
+        if (INSTANCES.get(userId) == null) {
+            INSTANCES.put(userId, new DbHelper(context.getApplicationContext(), userId));
         }
-        return sInstances.get(userId);
+        return INSTANCES.get(userId);
     }
 
     private DbHelper(
@@ -364,7 +367,7 @@ public final class DbHelper extends SQLiteOpenHelper {
             cv.put(columnName, value);
             if (db.insert(tableName, null, cv) == -1) {
                 final String error = String.format(Locale.ENGLISH,
-                        "[ERROR] Insert entry {%s: %d}",
+                        "[ERROR] Insert entry {%s: %s}",
                         columnName, value);
                 throw new SQLiteException(error);
             }
@@ -486,7 +489,7 @@ public final class DbHelper extends SQLiteOpenHelper {
     }
 
     public static void clearInstances() {
-        sInstances.clear();
+        INSTANCES.clear();
     }
 
 
@@ -494,11 +497,13 @@ public final class DbHelper extends SQLiteOpenHelper {
         Getters
      */
 
+    @SuppressWarnings("ConstantConditions")
     @NonNull
     public static SQLiteDatabase getWritableDb(@NonNull final Context context) {
         return getInstance(context).getWritableDatabase();
     }
 
+    @SuppressWarnings("ConstantConditions")
     @NonNull
     public static SQLiteDatabase getReadableDb(@NonNull final Context context) {
         return getInstance(context).getReadableDatabase();

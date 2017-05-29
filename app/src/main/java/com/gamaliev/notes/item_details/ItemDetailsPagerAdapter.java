@@ -17,7 +17,7 @@ import static com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment.ACTIO
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
+class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
 
     /* ... */
     @NonNull private final Fragment mFragment;
@@ -28,7 +28,7 @@ public class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
         Init
      */
 
-    public ItemDetailsPagerAdapter(
+    ItemDetailsPagerAdapter(
             @NonNull final FragmentManager fm,
             @NonNull final Fragment fragment,
             @Nullable final Cursor cursor) {

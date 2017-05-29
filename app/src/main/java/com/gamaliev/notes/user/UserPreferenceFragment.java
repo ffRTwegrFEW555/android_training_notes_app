@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceFragmentCompat;
@@ -31,6 +32,7 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("NullableProblems")
 public class UserPreferenceFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -58,6 +60,7 @@ public class UserPreferenceFragment extends PreferenceFragmentCompat
         Lifecycle
     */
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         mUserId = getArguments().getString(EXTRA_USER_ID);
@@ -130,9 +133,10 @@ public class UserPreferenceFragment extends PreferenceFragmentCompat
     }
 
     private void initActionBar() {
-        ((AppCompatActivity) getActivity())
-                .getSupportActionBar()
-                .setTitle(getString(R.string.fragment_user_preference));
+        final ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(getString(R.string.fragment_user_preference));
+        }
         setHasOptionsMenu(true);
     }
 

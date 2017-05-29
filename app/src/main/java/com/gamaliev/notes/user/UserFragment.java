@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,7 +18,6 @@ import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.observers.Observer;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 
-import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_DELETED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_SELECTED;
 import static com.gamaliev.notes.common.observers.ObserverHelper.USERS;
 import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
@@ -29,6 +29,7 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObser
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("NullableProblems")
 public class UserFragment extends Fragment implements Observer {
 
     /* Observed */
@@ -36,7 +37,6 @@ public class UserFragment extends Fragment implements Observer {
 
     /* ... */
     @NonNull private View mParentView;
-    @NonNull private RecyclerView mRecyclerView;
     @NonNull private UserRecyclerViewAdapter mAdapter;
 
 
@@ -99,9 +99,10 @@ public class UserFragment extends Fragment implements Observer {
     }
 
     private void initActionBar() {
-        ((AppCompatActivity) getActivity())
-                .getSupportActionBar()
-                .setTitle(getString(R.string.fragment_user));
+        final ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(getString(R.string.fragment_user));
+        }
     }
 
     /**
@@ -135,19 +136,14 @@ public class UserFragment extends Fragment implements Observer {
     }
 
     private void initRecyclerView() {
-        mRecyclerView = (RecyclerView) mParentView.findViewById(R.id.fragment_user_rv);
-        mRecyclerView.addItemDecoration(
+        final RecyclerView rv =
+                (RecyclerView) mParentView.findViewById(R.id.fragment_user_rv);
+        rv.addItemDecoration(
                 new DividerItemDecoration(
                         getActivity(),
                         DividerItemDecoration.VERTICAL));
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerView.setAdapter(mAdapter);
-    }
-
-    private void updateAdapter() {
-        initAdapter();
-        mRecyclerView.setAdapter(mAdapter);
-        mAdapter.notifyDataSetChanged();
+        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
+        rv.setAdapter(mAdapter);
     }
 
 
@@ -156,13 +152,15 @@ public class UserFragment extends Fragment implements Observer {
      */
 
     @Override
-    public void onNotify(int resultCode, @Nullable Bundle data) {
+    public void onNotify(final int resultCode, @Nullable final Bundle data) {
         switch (resultCode) {
             case RESULT_CODE_USER_SELECTED:
-                finish();
-                break;
-            case RESULT_CODE_USER_DELETED:
-                updateAdapter();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        finish();
+                    }
+                });
                 break;
             default:
                 break;

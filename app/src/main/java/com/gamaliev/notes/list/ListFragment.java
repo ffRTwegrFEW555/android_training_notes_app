@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -49,6 +50,8 @@ import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_LIST_FILTER
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_MOCK_ENTRIES_ADDED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_NOTES_IMPORTED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_SYNC_SUCCESS;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_DELETED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_SELECTED;
 import static com.gamaliev.notes.common.observers.ObserverHelper.ENTRIES_MOCK;
 import static com.gamaliev.notes.common.observers.ObserverHelper.ENTRY;
 import static com.gamaliev.notes.common.observers.ObserverHelper.FILE_IMPORT;
@@ -64,6 +67,7 @@ import static com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment.ACTIO
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("NullableProblems")
 public class ListFragment extends Fragment
         implements OnStartDragListener, Observer {
 
@@ -152,9 +156,10 @@ public class ListFragment extends Fragment
     }
 
     private void initActionBar() {
-        ((AppCompatActivity) getActivity())
-                .getSupportActionBar()
-                .setTitle(getString(R.string.activity_main_name));
+        final ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(getString(R.string.activity_main));
+        }
         setHasOptionsMenu(true);
     }
 
@@ -269,7 +274,7 @@ public class ListFragment extends Fragment
                 .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        FilterSortDialogFragment df = new FilterSortDialogFragment();
+                        FilterSortDialogFragment df = FilterSortDialogFragment.newInstance();
                         df.show(getChildFragmentManager(), null);
                         return true;
                     }
@@ -385,6 +390,8 @@ public class ListFragment extends Fragment
             case RESULT_CODE_ENTRY_ADDED:
             case RESULT_CODE_ENTRY_EDITED:
             case RESULT_CODE_ENTRY_DELETED:
+            case RESULT_CODE_USER_SELECTED:
+            case RESULT_CODE_USER_DELETED:
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

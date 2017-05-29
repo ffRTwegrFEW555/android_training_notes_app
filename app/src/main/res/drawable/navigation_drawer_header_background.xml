@@ -1,9 +1,0 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <gradient
-        android:angle="135"
-        android:startColor="@color/activity_list_nav_drawer_header_gradient_start"
-        android:centerColor="@color/activity_list_nav_drawer_header_gradient_center"
-        android:endColor="@color/activity_list_nav_drawer_header_gradient_end"
-        android:type="linear" />
-</shape>

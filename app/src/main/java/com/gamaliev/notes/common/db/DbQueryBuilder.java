@@ -15,12 +15,12 @@ import android.text.TextUtils;
 public final class DbQueryBuilder {
 
     /* SQL */
-    public static final String OPERATOR_OR      = " OR ";
-    public static final String OPERATOR_AND     = " AND ";
-
     public static final String OPERATOR_EQUALS  = " = ";
     public static final String OPERATOR_BETWEEN = " BETWEEN ";
     public static final String OPERATOR_LIKE    = " LIKE ";
+
+    private static final String OPERATOR_OR     = " OR ";
+    private static final String OPERATOR_AND    = " AND ";
 
     private static final String SYMBOL_MASK     = " ? ";
     private static final String SYMBOL_PERCENT  = "%";
@@ -100,6 +100,7 @@ public final class DbQueryBuilder {
      * @param queryBuilder Query builder, whose selection clauses will be added.
      * @return A reference to this object.
      */
+    @SuppressWarnings("unused")
     @NonNull
     public DbQueryBuilder addOrInner(@NonNull final DbQueryBuilder queryBuilder) {
         addInner(queryBuilder, OPERATOR_OR);
@@ -143,6 +144,7 @@ public final class DbQueryBuilder {
                 .append(queryBuilder.getSelectionResult())
                 .append(") ");
 
+        //noinspection ConstantConditions
         updateSelectionClauses(
                 sb.toString(),
                 queryBuilder.getSelectionArgs());
@@ -314,7 +316,7 @@ public final class DbQueryBuilder {
      *     {@link DbHelper#ORDER_ASCENDING}<br>
      *     {@link DbHelper#ORDER_DESCENDING}<br>
      */
-    public void setAscDesc(@NonNull String ascDesc) {
+    public void setAscDesc(@NonNull final String ascDesc) {
         if (!TextUtils.isEmpty(ascDesc)) {
             mAscDesc = ascDesc;
         }
@@ -329,7 +331,7 @@ public final class DbQueryBuilder {
      * @return Selection result of query, with mask.
      */
     @Nullable
-    public String getSelectionResult() {
+    String getSelectionResult() {
         if (mSelection == null) {
             return null;
         }
@@ -345,7 +347,7 @@ public final class DbQueryBuilder {
      * @return Selection arguments of query.
      */
     @Nullable
-    public String[] getSelectionArgs() {
+    String[] getSelectionArgs() {
         return mSelectionArgs;
     }
 
@@ -353,7 +355,7 @@ public final class DbQueryBuilder {
      * @return Get formed sort order. {@link #mOrder} + {@link #mAscDesc}. Default value is "id ASC"
      */
     @NonNull
-    public String getSortOrder() {
+    String getSortOrder() {
         return mOrder + " " + mAscDesc;
     }
 }

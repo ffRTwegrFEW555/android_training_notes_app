@@ -3,7 +3,6 @@ package com.gamaliev.notes.common.shared_prefs;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -34,20 +33,21 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPreferencesName;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("WeakerAccess")
 public final class SpFilterProfiles {
 
     /* Logger */
     private static final String TAG = SpFilterProfiles.class.getSimpleName();
 
     /* Filter, profiles */
-    public static final String SP_FILTER_PROFILE_SELECTED_ID = "filterProfileSelectedId";
-    public static final String SP_FILTER_PROFILE_DEFAULT    = "filterProfileDefault";
-    public static final String SP_FILTER_PROFILE_DEFAULT_ID = "-1";
-    public static final String SP_FILTER_PROFILE_MANUAL     = "filterProfileManual";
-    public static final String SP_FILTER_PROFILE_MANUAL_ID  = "-2";
-    public static final String SP_FILTER_PROFILE_CURRENT    = "filterProfileCurrent";
-    public static final String SP_FILTER_PROFILE_CURRENT_ID = "-3";
-    public static final String SP_FILTER_PROFILES_SET       = "filterProfilesSet";
+    public static final String SP_FILTER_PROFILE_SELECTED_ID    = "filterProfileSelectedId";
+    public static final String SP_FILTER_PROFILE_DEFAULT        = "filterProfileDefault";
+    public static final String SP_FILTER_PROFILE_DEFAULT_ID     = "-1";
+    public static final String SP_FILTER_PROFILE_MANUAL         = "filterProfileManual";
+    public static final String SP_FILTER_PROFILE_MANUAL_ID      = "-2";
+    public static final String SP_FILTER_PROFILE_CURRENT        = "filterProfileCurrent";
+    public static final String SP_FILTER_PROFILE_CURRENT_ID     = "-3";
+    public static final String SP_FILTER_PROFILES_SET           = "filterProfilesSet";
 
     /* Filter */
     public static final String SP_FILTER_ID                 = BASE_COLUMN_ID;
@@ -77,7 +77,7 @@ public final class SpFilterProfiles {
      * Get hardcoded default filter profile.
      * @return Default profile in Json-format.
      */
-    @Nullable
+    @NonNull
     public static String getDefaultProfile() {
         final JSONObject jsonObject = new JSONObject();
 
@@ -93,7 +93,6 @@ public final class SpFilterProfiles {
 
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
-            return null;
         }
 
         return jsonObject.toString();
@@ -103,7 +102,7 @@ public final class SpFilterProfiles {
      * Get hardcoded filter profile for manual sorting (Drag & Drop).
      * @return Profile in Json-format, for manual sorting (Drag & Drop).
      */
-    @Nullable
+    @NonNull
     public static String getManualProfile() {
         final JSONObject jsonObject = new JSONObject();
 
@@ -119,7 +118,6 @@ public final class SpFilterProfiles {
 
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
-            return null;
         }
 
         return jsonObject.toString();
@@ -132,7 +130,7 @@ public final class SpFilterProfiles {
      * @param profileId Profile id.
      * @return          Filter profile in Json-format if found, otherwise null.
      */
-    @Nullable
+    @NonNull
     public static String get(
             @NonNull final Context context,
             @NonNull final String userId,
@@ -145,7 +143,7 @@ public final class SpFilterProfiles {
                 jsonObject = new JSONObject(profile);
             } catch (JSONException e) {
                 Log.e(TAG, e.toString());
-                return null;
+                return "";
             }
 
             if (profileId.equals(jsonObject.optString(SP_FILTER_ID))) {
@@ -153,7 +151,7 @@ public final class SpFilterProfiles {
             }
         }
 
-        return null;
+        return "";
     }
 
     /**
@@ -161,7 +159,7 @@ public final class SpFilterProfiles {
      * @param context   Context.
      * @return          Id of selected filter profile.
      */
-    @Nullable
+    @NonNull
     public static String getSelectedIdForCurrentUser(
             @NonNull final Context context) {
 
@@ -176,7 +174,7 @@ public final class SpFilterProfiles {
      * @param userId    User id.
      * @return          Id of selected filter profile.
      */
-    @Nullable
+    @NonNull
     public static String getSelectedId(
             @NonNull final Context context,
             @NonNull final String userId) {
@@ -184,7 +182,7 @@ public final class SpFilterProfiles {
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(userId),
                 MODE_PRIVATE);
-        return sp.getString(SP_FILTER_PROFILE_SELECTED_ID, null);
+        return sp.getString(SP_FILTER_PROFILE_SELECTED_ID, "");
     }
 
     /**
@@ -192,7 +190,7 @@ public final class SpFilterProfiles {
      * @param context   Context.
      * @return          Filter profile in Json-format.
      */
-    @Nullable
+    @NonNull
     public static String getSelectedForCurrentUser(
             @NonNull final Context context) {
 
@@ -207,7 +205,7 @@ public final class SpFilterProfiles {
      * @param userId    User id.
      * @return          Filter profile in Json-format.
      */
-    @Nullable
+    @NonNull
     public static String getSelected(
             @NonNull final Context context,
             @NonNull final String userId) {
@@ -219,11 +217,11 @@ public final class SpFilterProfiles {
         final String profileId = getSelectedId(context, userId);
 
         if (SP_FILTER_PROFILE_CURRENT_ID.equals(profileId)) {
-            return sp.getString(SP_FILTER_PROFILE_CURRENT, null);
+            return sp.getString(SP_FILTER_PROFILE_CURRENT, "");
         } else if (SP_FILTER_PROFILE_DEFAULT_ID.equals(profileId)) {
-            return sp.getString(SP_FILTER_PROFILE_DEFAULT, null);
+            return sp.getString(SP_FILTER_PROFILE_DEFAULT, "");
         } else if (SP_FILTER_PROFILE_MANUAL_ID.equals(profileId)) {
-            return sp.getString(SP_FILTER_PROFILE_MANUAL, null);
+            return sp.getString(SP_FILTER_PROFILE_MANUAL, "");
         } else {
             return get(context, userId, profileId);
         }

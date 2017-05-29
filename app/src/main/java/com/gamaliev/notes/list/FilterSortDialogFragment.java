@@ -1,5 +1,6 @@
 package com.gamaliev.notes.list;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
@@ -97,6 +98,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.updateCurr
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("NullableProblems")
 public final class FilterSortDialogFragment extends DialogFragment {
 
     /* Logger */
@@ -120,13 +122,16 @@ public final class FilterSortDialogFragment extends DialogFragment {
         Init
      */
 
-    public FilterSortDialogFragment() {}
+    public static FilterSortDialogFragment newInstance() {
+        return new FilterSortDialogFragment();
+    }
 
 
     /*
         Lifecycle
      */
 
+    @SuppressLint("InflateParams")
     @Nullable
     @Override
     public View onCreateView(
@@ -135,19 +140,13 @@ public final class FilterSortDialogFragment extends DialogFragment {
             final Bundle savedInstanceState) {
 
         mDialog = inflater.inflate(R.layout.fragment_list_filter_dialog, null);
-        initCircularRevealAnimation(
-                mDialog,
-                true,
-                EXTRA_REVEAL_ANIM_CENTER_TOP_END);
-
-        // Disable title for more space.
-        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-
+        disableTitle();
         return mDialog;
     }
 
+    @SuppressWarnings({"unchecked", "ConstantConditions"})
     @Override
-    public void onViewStateRestored(final Bundle savedInstanceState) {
+    public void onViewCreated(final View view, @Nullable final Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             mFilterProfileMap       = (HashMap) savedInstanceState.getSerializable(EXTRA_PROFILE_MAP);
             mFoundedEntriesCache    = (HashMap) savedInstanceState.getSerializable(EXTRA_FOUNDED_MAP);
@@ -160,22 +159,13 @@ public final class FilterSortDialogFragment extends DialogFragment {
         mRunnableTasks = new HashSet<>();
         initComponents();
         setListeners();
-        super.onViewStateRestored(savedInstanceState);
     }
 
     @Override
     public void onResume() {
-        // Set max size of dialog. ( XML is not work :/ )
-        final DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
-        final ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
-        params.width = Math.min(
-                displayMetrics.widthPixels,
-                getActivity().getResources().getDimensionPixelSize(
-                        R.dimen.fragment_list_filter_dialog_max_width));
-        params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
-        getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
-
         super.onResume();
+        initDialogSize();
+        initCircularAnimation();
     }
 
     @Override
@@ -190,6 +180,32 @@ public final class FilterSortDialogFragment extends DialogFragment {
     /*
         ...
      */
+
+    @SuppressWarnings("ConstantConditions")
+    private void disableTitle() {
+        // Disable title for more space.
+        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    private void initDialogSize() {
+        // Set max size of dialog. ( XML is not work :/ )
+        final DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
+        final ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
+        params.width = Math.min(
+                displayMetrics.widthPixels,
+                getActivity().getResources().getDimensionPixelSize(
+                        R.dimen.fragment_list_filter_dialog_max_width));
+        params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
+        getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+    }
+
+    private void initCircularAnimation() {
+        initCircularRevealAnimation(
+                mDialog,
+                true,
+                EXTRA_REVEAL_ANIM_CENTER_TOP_END);
+    }
 
     private void initLocalVariables() {
         initFilterProfile();
@@ -307,7 +323,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
             // On click change local profile id, and update views.
             newView.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
+                public void onClick(final View v) {
                     mSelectedFilterProfile = profileMap.get(SP_FILTER_ID);
 
                     // BUG.
@@ -327,7 +343,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
                     R.id.fragment_list_filter_dialog_profile_delete);
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
+                public void onClick(final View v) {
                     deleteForCurrentUser(getActivity(), id);
 
                     if (mSelectedFilterProfile.equals(id)) {
@@ -414,7 +430,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
         colorCb.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 if (colorCb.isChecked()) {
                     mFilterProfileMap.put(SP_FILTER_COLOR, "");
                     mSelectedFilterProfile = SP_FILTER_PROFILE_CURRENT_ID;
@@ -443,6 +459,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                 oval = getResources().getDrawable(R.drawable.btn_oval, null);
             } else {
+                //noinspection deprecation
                 oval = getResources().getDrawable(R.drawable.btn_oval);
             }
             button.setBackground(oval);
@@ -460,7 +477,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
+                public void onClick(final View v) {
                     colorCb.setChecked(false);
                     mFilterProfileMap.put(SP_FILTER_COLOR, String.valueOf(color));
                     mSelectedFilterProfile = SP_FILTER_PROFILE_CURRENT_ID;
@@ -556,7 +573,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
         mDialog.findViewById(R.id.fragment_list_filter_dialog_profile_reset)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
+                    public void onClick(final View v) {
                         mSelectedFilterProfile = SP_FILTER_PROFILE_CURRENT_ID;
                         mFilterProfileMap = convertJsonToMap(getDefaultProfile());
                         initComponents();
@@ -568,7 +585,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
         mDialog.findViewById(R.id.fragment_list_filter_dialog_profiles_save_current_button)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
+                    public void onClick(final View v) {
                         showInputDialogAddProfile();
                     }
                 });
@@ -578,7 +595,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
         ((RadioGroup) mDialog.findViewById(R.id.fragment_list_filter_dialog_sorting_by_radio_group_order))
                 .setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                     @Override
-                    public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+                    public void onCheckedChanged(final RadioGroup group, @IdRes final int checkedId) {
                         switch (checkedId) {
                             case R.id.fragment_list_filter_dialog_order_manually:
                                 mFilterProfileMap.put(SP_FILTER_ORDER, LIST_ITEMS_COLUMN_MANUALLY);
@@ -607,7 +624,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
         ((RadioGroup) mDialog.findViewById(R.id.fragment_list_filter_dialog_sorting_by_radio_group_asc_desc))
                 .setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                     @Override
-                    public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+                    public void onCheckedChanged(final RadioGroup group, @IdRes final int checkedId) {
                         switch (checkedId) {
                             case R.id.fragment_list_filter_dialog_order_asc:
                                 mFilterProfileMap.put(SP_FILTER_ORDER_ASC, ORDER_ASCENDING);
@@ -658,7 +675,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
         checkBox.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
+                    public void onClick(final View v) {
                         if (checkBox.isChecked()) {
                             setDateButtonOn(
                                     dateFrom,
@@ -796,6 +813,9 @@ public final class FilterSortDialogFragment extends DialogFragment {
             resultUtcDateD = dateFormatUtc.parse(resultLocaltimeDateS);
         } catch (ParseException e) {
             Log.e(TAG, e.toString());
+        }
+        if (resultUtcDateD == null) {
+            return;
         }
 
         if (!TextUtils.isEmpty(getDateFromProfileMap(

@@ -53,7 +53,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPendingSyncStatu
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getProgressNotificationTimerForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.setPendingSyncStatusForCurrentUser;
-import static com.gamaliev.notes.conflict.ConflictActivity.checkConflictExistsAndShowStatusBarNotification;
+import static com.gamaliev.notes.conflict.ConflictUtils.checkConflictExistsAndShowStatusBarNotification;
 import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntry;
 import static com.gamaliev.notes.list.db.ListDbHelper.getNewEntries;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
@@ -69,6 +69,7 @@ import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings({"WeakerAccess", "unused"})
 public final class SyncUtils {
 
     /* Logger */
@@ -93,24 +94,24 @@ public final class SyncUtils {
     public static final int ACTION_PENDING_START_NO_INET = 12;
 
     public static final int[] STATUS_TEXT = {
-            R.string.activity_sync_item_status_error,
-            R.string.activity_sync_item_status_success
+            R.string.fragment_sync_item_status_error,
+            R.string.fragment_sync_item_status_success
     };
 
     public static final int[] ACTION_TEXT = {
-            R.string.activity_sync_item_action_nothing,
-            R.string.activity_sync_item_action_add_to_server,
-            R.string.activity_sync_item_action_add_to_local,
-            R.string.activity_sync_item_action_delete_from_server,
-            R.string.activity_sync_item_action_delete_from_local,
-            R.string.activity_sync_item_action_updated_on_server,
-            R.string.activity_sync_item_action_updated_on_local,
-            R.string.activity_sync_item_action_started,
-            R.string.activity_sync_item_action_completed,
-            R.string.activity_sync_item_action_delete_all_from_server_start,
-            R.string.activity_sync_item_action_conflict,
-            R.string.activity_sync_item_action_pending_start_no_wifi,
-            R.string.activity_sync_item_action_pending_start_no_internet
+            R.string.fragment_sync_item_action_nothing,
+            R.string.fragment_sync_item_action_add_to_server,
+            R.string.fragment_sync_item_action_add_to_local,
+            R.string.fragment_sync_item_action_delete_from_server,
+            R.string.fragment_sync_item_action_delete_from_local,
+            R.string.fragment_sync_item_action_updated_on_server,
+            R.string.fragment_sync_item_action_updated_on_local,
+            R.string.fragment_sync_item_action_started,
+            R.string.fragment_sync_item_action_completed,
+            R.string.fragment_sync_item_action_delete_all_from_server_start,
+            R.string.fragment_sync_item_action_conflict,
+            R.string.fragment_sync_item_action_pending_start_no_wifi,
+            R.string.fragment_sync_item_action_pending_start_no_internet
     };
     
     private static final ExecutorService SINGLE_THREAD_EXECUTOR;
@@ -218,9 +219,9 @@ public final class SyncUtils {
         final ProgressNotificationHelper notification =
                 new ProgressNotificationHelper(
                         context,
-                        context.getString(R.string.activity_sync_notification_panel_title),
-                        context.getString(R.string.activity_sync_notification_panel_text),
-                        context.getString(R.string.activity_sync_notification_panel_complete));
+                        context.getString(R.string.fragment_sync_notification_panel_title),
+                        context.getString(R.string.fragment_sync_notification_panel_text),
+                        context.getString(R.string.fragment_sync_notification_panel_complete));
         notification.startTimerToEnableNotification(
                 getProgressNotificationTimerForCurrentUser(context.getApplicationContext()),
                 true);
@@ -243,9 +244,10 @@ public final class SyncUtils {
 
         setPendingSyncStatusForCurrentUser(context, SP_USER_SYNC_PENDING_FALSE);
         setSyncRunning(false);
-        return false;
+        return true;
     }
 
+    @SuppressWarnings("ConstantConditions")
     private static int addNewToServer(@NonNull final Context context) {
         int counter = 0;
         final Cursor cursor = getNewEntries(context);
@@ -353,6 +355,7 @@ public final class SyncUtils {
         return counter;
     }
 
+    @SuppressWarnings("ConstantConditions")
     private static int synchronizeFromServer(@NonNull final Context context) {
         int counterAddedOnLocal     = 0;
         int counterConflicting      = 0;
@@ -514,7 +517,7 @@ public final class SyncUtils {
                 if (SpUsers.getSyncWifiOnlyForCurrentUser(context)) {
                     logAndNotify(
                             context,
-                            context.getString(R.string.activity_sync_item_action_delete_all_from_server_no_wifi),
+                            context.getString(R.string.fragment_sync_item_action_delete_all_from_server_no_wifi),
                             true,
                             RESULT_CODE_SYNC_FAILED);
                     break;
@@ -527,7 +530,7 @@ public final class SyncUtils {
             case NetworkUtils.NETWORK_NO:
                 logAndNotify(
                         context,
-                        context.getString(R.string.activity_sync_item_action_delete_all_from_server_no_internet),
+                        context.getString(R.string.fragment_sync_item_action_delete_all_from_server_no_internet),
                         true,
                         RESULT_CODE_SYNC_FAILED);
 
@@ -548,9 +551,9 @@ public final class SyncUtils {
         final ProgressNotificationHelper notification =
                 new ProgressNotificationHelper(
                         context,
-                        context.getString(R.string.activity_sync_notification_panel_del_all_title),
-                        context.getString(R.string.activity_sync_notification_panel_del_all_text),
-                        context.getString(R.string.activity_sync_notification_panel_del_all_complete));
+                        context.getString(R.string.fragment_sync_notification_panel_del_all_title),
+                        context.getString(R.string.fragment_sync_notification_panel_del_all_text),
+                        context.getString(R.string.fragment_sync_notification_panel_del_all_complete));
         notification.startTimerToEnableNotification(
                 getProgressNotificationTimerForCurrentUser(context.getApplicationContext()),
                 true);

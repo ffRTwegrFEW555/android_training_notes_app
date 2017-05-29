@@ -6,12 +6,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.common.db.DbHelper;
 import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.model.ListEntry;
 
@@ -29,6 +27,7 @@ import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_NOTES_EXPOR
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_NOTES_IMPORTED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.getEntries;
+import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
 import static com.gamaliev.notes.common.observers.ObserverHelper.FILE_EXPORT;
 import static com.gamaliev.notes.common.observers.ObserverHelper.FILE_IMPORT;
 import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
@@ -107,7 +106,7 @@ public class FileUtils {
      * @param activity              Activity.
      * @param selectedFile          Selected file.
      */
-    public static void exportEntries(
+    private static void exportEntries(
             @NonNull final Activity activity,
             @NonNull final Uri selectedFile) {
 
@@ -149,7 +148,7 @@ public class FileUtils {
      *
      * @return String in needed Json-format, containing all entries from database.
      */
-    @Nullable
+    @NonNull
     private static String getEntriesFromDatabase(
             @NonNull final Activity activity,
             @NonNull final JSONArray jsonArray,
@@ -159,6 +158,10 @@ public class FileUtils {
                 activity,
                 LIST_ITEMS_TABLE_NAME,
                 null);
+
+        if (cursor == null) {
+            return "";
+        }
 
         final int size = cursor.getCount();
         int percent = 0;
@@ -207,6 +210,9 @@ public class FileUtils {
             final OutputStream os = activity
                     .getContentResolver()
                     .openOutputStream(selectedFile);
+            if (os == null) {
+                throw new IOException("OutputStream is null.");
+            }
             os.write(result.getBytes());
             os.close();
 
@@ -248,7 +254,6 @@ public class FileUtils {
             @NonNull final Activity activity,
             @NonNull final Uri selectedFile) {
 
-        //
         IMPORT_EXPORT_HANDLER_LOOPER_THREAD.getHandler().post(new Runnable() {
             @Override
             public void run() {
@@ -264,7 +269,7 @@ public class FileUtils {
      * @param activity      Activity.
      * @param selectedFile  Selected file.
      */
-    public static void importEntries(
+    private static void importEntries(
             @NonNull final Activity activity,
             @NonNull final Uri selectedFile){
 
@@ -295,16 +300,19 @@ public class FileUtils {
      * @param activity      Activity.
      * @param selectedFile  File with string.
      */
-    @Nullable
+    @NonNull
     private static String getStringFromFile(
             @NonNull final Activity activity,
             @NonNull final Uri selectedFile) {
 
-        String inputJson = null;
+        String inputJson = "";
         try {
             final InputStream is = activity
                     .getContentResolver()
                     .openInputStream(selectedFile);
+            if (is == null) {
+                throw new IOException("InputStream is null.");
+            }
             final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             final byte[] buffer = new byte[1024];
             int count;
@@ -340,9 +348,7 @@ public class FileUtils {
             @NonNull final ProgressNotificationHelper notification) {
 
         try {
-            final SQLiteDatabase db = DbHelper
-                    .getInstance(activity.getApplicationContext())
-                    .getWritableDatabase();
+            final SQLiteDatabase db = getWritableDb(activity.getApplicationContext());
             final JSONArray jsonArray = new JSONArray(inputJson);
             final int size = jsonArray.length();
             int percent = 0;

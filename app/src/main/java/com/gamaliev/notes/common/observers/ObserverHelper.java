@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("WeakerAccess")
 public class ObserverHelper {
 
     /* Observers */
@@ -28,6 +29,7 @@ public class ObserverHelper {
     public static final String LIST_FILTER      = "LIST_FILTER";
     public static final String SYNC             = "SYNC";
     public static final String USERS            = "USERS";
+    public static final String CONFLICT         = "CONFLICT";
 
 
     /*

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.gamaliev.notes">
 
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -29,22 +30,12 @@
         <activity
             android:name="com.gamaliev.notes.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:label="@string/activity_main_name">
+            android:label="@string/activity_main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name="com.gamaliev.notes.sync.SyncActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:label="@string/activity_sync"/>
-
-        <activity
-            android:name="com.gamaliev.notes.conflict.ConflictActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:label="@string/activity_conflict"/>
 
     </application>
 

@@ -47,7 +47,8 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class CommonUtils {
+@SuppressWarnings("WeakerAccess")
+public final class CommonUtils {
 
     /* Logger */
     private static final String TAG = CommonUtils.class.getSimpleName();
@@ -378,6 +379,7 @@ public class CommonUtils {
      * @param resourceColor Resource of color.
      * @return Color, associated with given resource.
      */
+    @SuppressWarnings("deprecation")
     public static int getResourceColorApi(
             @NonNull final Context context,
             final int resourceColor) {
@@ -517,7 +519,7 @@ public class CommonUtils {
      * @param utcString String with UTC format.
      * @return          String with Localtime format.
      */
-    @Nullable
+    @NonNull
     public static String convertUtcToLocal(
             @NonNull final Context context,
             @NonNull final String utcString) {
@@ -533,7 +535,7 @@ public class CommonUtils {
             Log.e(TAG, e.toString());
         }
 
-        return null;
+        return "";
     }
 
     /**
@@ -542,7 +544,7 @@ public class CommonUtils {
      * @param localtimeString   String with Localtime format.
      * @return                  String with UTC format.
      */
-    @Nullable
+    @NonNull
     public static String convertLocalToUtc(
             @NonNull final Context context,
             @NonNull final String localtimeString) {
@@ -558,7 +560,7 @@ public class CommonUtils {
             Log.e(TAG, e.toString());
         }
 
-        return null;
+        return "";
     }
 
     /**
@@ -572,7 +574,7 @@ public class CommonUtils {
      * @param fromToBothResult  EXTRA_DATES_*.
      * @return                  date in different formats.
      */
-    @Nullable
+    @NonNull
     public static String getDateFromProfileMap(
             @NonNull final Context context,
             @NonNull final Map<String, String> profileMap,
@@ -582,7 +584,7 @@ public class CommonUtils {
         final String dates = profileMap.get(filterCategory);
 
         if (TextUtils.isEmpty(dates)) {
-            return null;
+            return "";
         }
 
         // Get From / To dates.
@@ -610,7 +612,7 @@ public class CommonUtils {
             case EXTRA_DATES_BOTH:
                 return dates;
             default:
-                return null;
+                return "";
         }
     }
 
@@ -682,8 +684,9 @@ public class CommonUtils {
     /**
      * Thread, contains {@link android.os.Handler}, whose running into {@link android.os.Looper}.
      */
+    @SuppressWarnings("NullableProblems")
     public static class LooperHandlerThread extends Thread {
-        @Nullable private Handler mHandler;
+        @NonNull private Handler mHandler;
 
         @Override
         public void run() {
@@ -692,12 +695,13 @@ public class CommonUtils {
             Looper.loop();
         }
 
-        @Nullable
+        @NonNull
         public Handler getHandler() {
             return mHandler;
         }
     }
 
+    @SuppressWarnings("unused")
     public static Handler getMainHandler() {
         return new Handler(Looper.getMainLooper());
     }
@@ -712,8 +716,7 @@ public class CommonUtils {
             @NonNull final View view) {
 
         final InputMethodManager imm =
-                (InputMethodManager) context.getSystemService(
-                        context.INPUT_METHOD_SERVICE);
+                (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
