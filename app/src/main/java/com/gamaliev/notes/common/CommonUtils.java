@@ -47,7 +47,6 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-@SuppressWarnings("WeakerAccess")
 public final class CommonUtils {
 
     /* Logger */
@@ -379,7 +378,6 @@ public final class CommonUtils {
      * @param resourceColor Resource of color.
      * @return Color, associated with given resource.
      */
-    @SuppressWarnings("deprecation")
     public static int getResourceColorApi(
             @NonNull final Context context,
             final int resourceColor) {
@@ -519,7 +517,7 @@ public final class CommonUtils {
      * @param utcString String with UTC format.
      * @return          String with Localtime format.
      */
-    @NonNull
+    @Nullable
     public static String convertUtcToLocal(
             @NonNull final Context context,
             @NonNull final String utcString) {
@@ -535,7 +533,7 @@ public final class CommonUtils {
             Log.e(TAG, e.toString());
         }
 
-        return "";
+        return null;
     }
 
     /**
@@ -544,7 +542,7 @@ public final class CommonUtils {
      * @param localtimeString   String with Localtime format.
      * @return                  String with UTC format.
      */
-    @NonNull
+    @Nullable
     public static String convertLocalToUtc(
             @NonNull final Context context,
             @NonNull final String localtimeString) {
@@ -560,7 +558,7 @@ public final class CommonUtils {
             Log.e(TAG, e.toString());
         }
 
-        return "";
+        return null;
     }
 
     /**
@@ -574,7 +572,7 @@ public final class CommonUtils {
      * @param fromToBothResult  EXTRA_DATES_*.
      * @return                  date in different formats.
      */
-    @NonNull
+    @Nullable
     public static String getDateFromProfileMap(
             @NonNull final Context context,
             @NonNull final Map<String, String> profileMap,
@@ -584,7 +582,7 @@ public final class CommonUtils {
         final String dates = profileMap.get(filterCategory);
 
         if (TextUtils.isEmpty(dates)) {
-            return "";
+            return null;
         }
 
         // Get From / To dates.
@@ -612,7 +610,7 @@ public final class CommonUtils {
             case EXTRA_DATES_BOTH:
                 return dates;
             default:
-                return "";
+                return null;
         }
     }
 
@@ -684,7 +682,6 @@ public final class CommonUtils {
     /**
      * Thread, contains {@link android.os.Handler}, whose running into {@link android.os.Looper}.
      */
-    @SuppressWarnings("NullableProblems")
     public static class LooperHandlerThread extends Thread {
         @NonNull private Handler mHandler;
 
@@ -701,7 +698,6 @@ public final class CommonUtils {
         }
     }
 
-    @SuppressWarnings("unused")
     public static Handler getMainHandler() {
         return new Handler(Looper.getMainLooper());
     }

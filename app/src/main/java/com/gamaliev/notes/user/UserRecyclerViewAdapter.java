@@ -27,7 +27,6 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_ID;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-@SuppressWarnings("NullableProblems")
 public class UserRecyclerViewAdapter
         extends RecyclerView.Adapter<UserRecyclerViewAdapter.ViewHolder>{
 

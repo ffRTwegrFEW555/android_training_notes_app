@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -148,7 +149,7 @@ public class FileUtils {
      *
      * @return String in needed Json-format, containing all entries from database.
      */
-    @NonNull
+    @Nullable
     private static String getEntriesFromDatabase(
             @NonNull final Activity activity,
             @NonNull final JSONArray jsonArray,
@@ -160,7 +161,7 @@ public class FileUtils {
                 null);
 
         if (cursor == null) {
-            return "";
+            return null;
         }
 
         final int size = cursor.getCount();
@@ -300,12 +301,12 @@ public class FileUtils {
      * @param activity      Activity.
      * @param selectedFile  File with string.
      */
-    @NonNull
+    @Nullable
     private static String getStringFromFile(
             @NonNull final Activity activity,
             @NonNull final Uri selectedFile) {
 
-        String inputJson = "";
+        String inputJson = null;
         try {
             final InputStream is = activity
                     .getContentResolver()

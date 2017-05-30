@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-@SuppressWarnings("WeakerAccess")
 public class ObserverHelper {
 
     /* Observers */

@@ -29,7 +29,6 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObser
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-@SuppressWarnings("NullableProblems")
 public class UserFragment extends Fragment implements Observer {
 
     /* Observed */

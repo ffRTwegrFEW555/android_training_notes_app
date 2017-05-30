@@ -1,6 +1,5 @@
 package com.gamaliev.notes.list;
 
-import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
@@ -98,7 +97,6 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.updateCurr
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-@SuppressWarnings("NullableProblems")
 public final class FilterSortDialogFragment extends DialogFragment {
 
     /* Logger */
@@ -131,7 +129,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
         Lifecycle
      */
 
-    @SuppressLint("InflateParams")
     @Nullable
     @Override
     public View onCreateView(
@@ -144,7 +141,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
         return mDialog;
     }
 
-    @SuppressWarnings({"unchecked", "ConstantConditions"})
     @Override
     public void onViewCreated(final View view, @Nullable final Bundle savedInstanceState) {
         if (savedInstanceState != null) {
@@ -181,13 +177,11 @@ public final class FilterSortDialogFragment extends DialogFragment {
         ...
      */
 
-    @SuppressWarnings("ConstantConditions")
     private void disableTitle() {
         // Disable title for more space.
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
     }
 
-    @SuppressWarnings("ConstantConditions")
     private void initDialogSize() {
         // Set max size of dialog. ( XML is not work :/ )
         final DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
@@ -459,7 +453,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                 oval = getResources().getDrawable(R.drawable.btn_oval, null);
             } else {
-                //noinspection deprecation
                 oval = getResources().getDrawable(R.drawable.btn_oval);
             }
             button.setBackground(oval);

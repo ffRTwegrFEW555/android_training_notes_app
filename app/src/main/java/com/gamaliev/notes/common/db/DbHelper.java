@@ -30,7 +30,6 @@ import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-@SuppressWarnings({"NullableProblems", "WeakerAccess"})
 public final class DbHelper extends SQLiteOpenHelper {
 
     /* Logger */
@@ -190,7 +189,6 @@ public final class DbHelper extends SQLiteOpenHelper {
             return null;
         }
 
-        //noinspection ConstantConditions
         if (mDbFailMessage == null) {
             mDbFailMessage = context.getString(R.string.sql_toast_fail);
         }
@@ -497,13 +495,11 @@ public final class DbHelper extends SQLiteOpenHelper {
         Getters
      */
 
-    @SuppressWarnings("ConstantConditions")
     @NonNull
     public static SQLiteDatabase getWritableDb(@NonNull final Context context) {
         return getInstance(context).getWritableDatabase();
     }
 
-    @SuppressWarnings("ConstantConditions")
     @NonNull
     public static SQLiteDatabase getReadableDb(@NonNull final Context context) {
         return getInstance(context).getReadableDatabase();

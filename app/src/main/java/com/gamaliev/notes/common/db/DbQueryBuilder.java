@@ -100,7 +100,6 @@ public final class DbQueryBuilder {
      * @param queryBuilder Query builder, whose selection clauses will be added.
      * @return A reference to this object.
      */
-    @SuppressWarnings("unused")
     @NonNull
     public DbQueryBuilder addOrInner(@NonNull final DbQueryBuilder queryBuilder) {
         addInner(queryBuilder, OPERATOR_OR);
@@ -144,7 +143,6 @@ public final class DbQueryBuilder {
                 .append(queryBuilder.getSelectionResult())
                 .append(") ");
 
-        //noinspection ConstantConditions
         updateSelectionClauses(
                 sb.toString(),
                 queryBuilder.getSelectionArgs());

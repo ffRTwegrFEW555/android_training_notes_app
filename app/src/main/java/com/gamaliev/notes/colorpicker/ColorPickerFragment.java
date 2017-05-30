@@ -44,7 +44,6 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-@SuppressWarnings("NullableProblems")
 public final class ColorPickerFragment extends Fragment {
 
     /* Extra */
@@ -143,7 +142,6 @@ public final class ColorPickerFragment extends Fragment {
 
         } else {
             mResultColor = savedInstanceState.getInt(EXTRA_RESULT_COLOR);
-            //noinspection ConstantConditions
             mHsvColorsOverridden = savedInstanceState.getIntArray(EXTRA_HSV_COLOR_OVERRIDDEN);
         }
 
@@ -243,7 +241,6 @@ public final class ColorPickerFragment extends Fragment {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                 button.setBackground(mRes.getDrawable(R.drawable.btn_oval, null));
             } else {
-                //noinspection deprecation
                 button.setBackground(mRes.getDrawable(R.drawable.btn_oval));
             }
             button.getBackground()

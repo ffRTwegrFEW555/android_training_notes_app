@@ -75,7 +75,6 @@ public final class ProgressNotificationHelper {
         }
     }
 
-    @SuppressWarnings("WeakerAccess")
     public void setContinuingProgress() {
         if (isEnable()) {
             mBuilder.setProgress(0, 0, true);
@@ -130,12 +129,10 @@ public final class ProgressNotificationHelper {
         Setters and getters
     */
 
-    @SuppressWarnings("WeakerAccess")
     public void setEnable(final boolean enable) {
         mEnable = enable;
     }
 
-    @SuppressWarnings("WeakerAccess")
     public boolean isEnable() {
         return mEnable;
     }

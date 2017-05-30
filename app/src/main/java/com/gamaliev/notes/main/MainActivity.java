@@ -65,7 +65,6 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObser
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-@SuppressWarnings("NullableProblems")
 public class MainActivity extends AppCompatActivity implements Observer {
 
     /* Logger */
@@ -449,7 +448,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
         };
     }
 
-    @SuppressWarnings("unused")
     private void deleteAllEntries() {
         new Thread(new Runnable() {
             @Override

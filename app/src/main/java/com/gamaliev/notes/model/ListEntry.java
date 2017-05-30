@@ -284,7 +284,6 @@ public class ListEntry implements Parcelable {
         return convertJsonToListEntry(context, jsonObject);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @NonNull
     public static ListEntry convertJsonToListEntry(
             @NonNull final Context context,

@@ -1,6 +1,5 @@
 package com.gamaliev.notes.conflict;
 
-import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -53,9 +52,7 @@ final class ConflictRecyclerViewAdapter
     }
 
     @Override
-    public void onBindViewHolder(
-            final ViewHolder holder,
-            @SuppressLint("RecyclerView") final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
 
         if (mCursor == null || !mCursor.moveToPosition(position)) {
             return;

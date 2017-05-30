@@ -41,8 +41,6 @@ import static com.gamaliev.notes.list.db.ListDbHelper.getCursorWithParams;
  * @author Vadim Gamaliev
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
-
-@SuppressWarnings({"NullableProblems", "unused"})
 public final class ListRecyclerViewAdapter
         extends RecyclerView.Adapter<ListRecyclerViewAdapter.ViewHolder>
         implements ItemTouchHelperAdapter {

@@ -33,7 +33,6 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-@SuppressWarnings("WeakerAccess")
 public final class SpUsers {
 
     /* Logger */
@@ -140,10 +139,10 @@ public final class SpUsers {
      * @param context   Context.
      * @return          Id of selected user.
      */
-    @NonNull
+    @Nullable
     public static String getSelected(@NonNull final Context context) {
         final SharedPreferences sp = context.getSharedPreferences(SP_MAIN, MODE_PRIVATE);
-        return sp.getString(SP_USERS_SELECTED_ID, "");
+        return sp.getString(SP_USERS_SELECTED_ID, null);
     }
 
     /**
@@ -205,10 +204,10 @@ public final class SpUsers {
      * @param context   Context.
      * @return          Number of id counter
      */
-    @NonNull
+    @Nullable
     private static String getIdCounter(@NonNull final Context context) {
         final SharedPreferences sp = context.getSharedPreferences(SP_MAIN, MODE_PRIVATE);
-        return sp.getString(SP_USERS_ID_COUNTER, "");
+        return sp.getString(SP_USERS_ID_COUNTER, null);
     }
 
     /**
@@ -226,36 +225,36 @@ public final class SpUsers {
      * @param context   Context.
      * @return          Api url for current user.
      */
-    @NonNull
+    @Nullable
     public static String getApiUrlForCurrentUser(@NonNull final Context context) {
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(getSelected(context)),
                 MODE_PRIVATE);
-        return sp.getString(SP_USER_SYNC_API_URL, "");
+        return sp.getString(SP_USER_SYNC_API_URL, null);
     }
 
     /**
      * @param context   Context.
      * @return          Sync id for current user.
      */
-    @NonNull
+    @Nullable
     public static String getSyncIdForCurrentUser(@NonNull final Context context) {
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(getSelected(context)),
                 MODE_PRIVATE);
-        return sp.getString(SP_USER_SYNC_ID, "");
+        return sp.getString(SP_USER_SYNC_ID, null);
     }
 
     /**
      * @param context   Context.
      * @return          Pending sync status for current user.
      */
-    @NonNull
+    @Nullable
     public static String getPendingSyncStatusForCurrentUser(@NonNull final Context context) {
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(getSelected(context)),
                 MODE_PRIVATE);
-        return sp.getString(SP_USER_SYNC_PENDING, "");
+        return sp.getString(SP_USER_SYNC_PENDING, null);
     }
 
 

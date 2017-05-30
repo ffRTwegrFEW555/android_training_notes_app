@@ -190,7 +190,6 @@ public class ListDbHelper {
      * If null, then default is
      * {@link DbHelper#LIST_ITEMS_COLUMN_EDITED}.
      */
-    @SuppressWarnings("ConstantConditions")
     public static boolean updateEntry(
             @NonNull final Context context,
             @NonNull final ListEntry entry,

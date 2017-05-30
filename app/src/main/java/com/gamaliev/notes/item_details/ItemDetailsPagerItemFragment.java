@@ -56,7 +56,6 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers
 import static com.gamaliev.notes.common.observers.ObserverHelper.registerObserver;
 import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObserver;
 
-@SuppressWarnings("NullableProblems")
 public final class ItemDetailsPagerItemFragment extends Fragment implements Observer {
 
     /* Logger */
@@ -177,7 +176,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
         setColorViewListener();
     }
 
-    @SuppressWarnings("ConstantConditions")
     private void initArgs() {
         mAction = getArguments().getString(ACTION);
         mId = getArguments().getLong(EXTRA_ID);
@@ -194,7 +192,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                 getString(R.string.shared_transition_name_layout));
     }
 
-    @SuppressWarnings("ConstantConditions")
     private void initActionBar() {
         mActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         mActionBar.setElevation(0);
@@ -206,7 +203,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
      * Filling in the necessary views.<br>
      * See also: {@link #ACTION_ADD}, {@link #ACTION_EDIT}.
      */
-    @SuppressWarnings("ConstantConditions")
     private void initAction() {
         switch (mAction) {
             case ACTION_ADD:
@@ -375,7 +371,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
     /**
      * Fill all activity views with values from the entry-object.
      */
-    @SuppressWarnings("ConstantConditions")
     private void fillActivityViews() {
         mTitleEditText.setText(mEntry.getTitle());
         mDescEditText.setText(mEntry.getDescription());
@@ -473,7 +468,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
     /**
      * Show info dialog with next info: created, edited, viewed dates.
      */
-    @SuppressWarnings("ConstantConditions")
     private void showInfoDialog() {
         final StringBuilder infoMessage = new StringBuilder();
         infoMessage
@@ -529,7 +523,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
         showProgressBarAndHideMenuItems();
 
         final Thread thread = new Thread(new Runnable() {
-            @SuppressWarnings("ConstantConditions")
             @Override
             public void run() {
                 switch (action) {

@@ -67,7 +67,6 @@ import static com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment.ACTIO
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-@SuppressWarnings("NullableProblems")
 public class ListFragment extends Fragment
         implements OnStartDragListener, Observer {
 
@@ -210,7 +209,6 @@ public class ListFragment extends Fragment
     /**
      * Getting text from search view, and use for filter. If text is empty, then using empty string.
      */
-    @SuppressWarnings("ConstantConditions")
     private void updateAdapter() {
         if (mSearchView != null) {
             final String searchText = mSearchView.getQuery().toString();

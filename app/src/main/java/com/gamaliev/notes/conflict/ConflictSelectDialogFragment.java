@@ -1,6 +1,5 @@
 package com.gamaliev.notes.conflict;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -73,7 +72,6 @@ import static com.gamaliev.notes.sync.SyncUtils.addToSyncJournalAndLogAndNotify;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-@SuppressWarnings("NullableProblems")
 public class ConflictSelectDialogFragment extends DialogFragment {
 
     /* Logger */
@@ -114,7 +112,6 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         Lifecycle
      */
 
-    @SuppressLint("InflateParams")
     @Nullable
     @Override
     public View onCreateView(
@@ -147,13 +144,11 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         initLocalLayoutAsync();
     }
 
-    @SuppressWarnings("ConstantConditions")
     private void disableTitle() {
         // Disable title for more space.
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
     }
 
-    @SuppressWarnings("ConstantConditions")
     private void initDialogSize() {
         // Set max size of dialog. ( XML is not work :/ )
         final DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
@@ -173,7 +168,6 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                 EXTRA_REVEAL_ANIM_CENTER_CENTER);
     }
 
-    @SuppressWarnings("ConstantConditions")
     private void initArgs() {
         mSyncId = getArguments().getString(EXTRA_SYNC_ID);
         mPosition = getArguments().getInt(EXTRA_POSITION);
@@ -528,7 +522,6 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     private void tryEnableButtons() {
         if (mServerEntryLoaded && mLocalEntryLoaded) {
             if (mDialog != null && mDialog.isAttachedToWindow()) {

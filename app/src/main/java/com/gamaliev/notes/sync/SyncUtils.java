@@ -69,7 +69,6 @@ import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-@SuppressWarnings({"WeakerAccess", "unused"})
 public final class SyncUtils {
 
     /* Logger */
@@ -247,7 +246,6 @@ public final class SyncUtils {
         return true;
     }
 
-    @SuppressWarnings("ConstantConditions")
     private static int addNewToServer(@NonNull final Context context) {
         int counter = 0;
         final Cursor cursor = getNewEntries(context);
@@ -355,7 +353,6 @@ public final class SyncUtils {
         return counter;
     }
 
-    @SuppressWarnings("ConstantConditions")
     private static int synchronizeFromServer(@NonNull final Context context) {
         int counterAddedOnLocal     = 0;
         int counterConflicting      = 0;

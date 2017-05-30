@@ -17,7 +17,6 @@ import static com.gamaliev.notes.conflict.ConflictUtils.checkConflictExistsAndSh
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-@SuppressWarnings("NullableProblems")
 public class NotesApp extends Application {
 
     /* ... */

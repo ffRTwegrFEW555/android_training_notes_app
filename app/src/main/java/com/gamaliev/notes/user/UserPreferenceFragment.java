@@ -32,7 +32,6 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-@SuppressWarnings("NullableProblems")
 public class UserPreferenceFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -60,7 +59,6 @@ public class UserPreferenceFragment extends PreferenceFragmentCompat
         Lifecycle
     */
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         mUserId = getArguments().getString(EXTRA_USER_ID);

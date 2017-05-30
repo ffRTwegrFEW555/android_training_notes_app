@@ -125,7 +125,7 @@ public final class SpCommon {
      * @param json  Json-format.
      * @return      Map-format.
      */
-    @NonNull
+    @Nullable
     public static Map<String, String> convertJsonToMap(
             @NonNull final String json) {
 
@@ -136,7 +136,7 @@ public final class SpCommon {
             jsonObject = new JSONObject(json);
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
-            return map;
+            return null;
         }
 
         final Iterator<String> keys = jsonObject.keys();
@@ -153,7 +153,7 @@ public final class SpCommon {
      * @param json  Json-format.
      * @return      Formatted string, with line breaks.
      */
-    @NonNull
+    @Nullable
     public static String convertEntryJsonToString(
             @NonNull final Context context,
             @NonNull final String json) {
@@ -165,7 +165,7 @@ public final class SpCommon {
             jsonObject = new JSONObject(json);
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
-            return "";
+            return null;
         }
 
         final String title = jsonObject.optString(LIST_ITEMS_COLUMN_TITLE, "");

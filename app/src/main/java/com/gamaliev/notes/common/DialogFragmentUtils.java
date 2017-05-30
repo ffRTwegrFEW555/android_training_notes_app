@@ -43,7 +43,6 @@ public final class DialogFragmentUtils {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             dialog.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-                @SuppressWarnings("NewApi")
                 @Override
                 public void onLayoutChange(View v,
                                            int left, int top, int right, int bottom,

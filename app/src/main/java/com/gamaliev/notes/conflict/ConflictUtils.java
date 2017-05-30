@@ -43,7 +43,6 @@ public final class ConflictUtils {
         }
     }
 
-    @SuppressWarnings("WeakerAccess")
     public static void checkConflictExistsAndHideStatusBarNotification(
             @NonNull final Context context) {
 

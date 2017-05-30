@@ -3,6 +3,7 @@ package com.gamaliev.notes.common.shared_prefs;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -33,7 +34,6 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPreferencesName;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-@SuppressWarnings("WeakerAccess")
 public final class SpFilterProfiles {
 
     /* Logger */
@@ -130,7 +130,7 @@ public final class SpFilterProfiles {
      * @param profileId Profile id.
      * @return          Filter profile in Json-format if found, otherwise null.
      */
-    @NonNull
+    @Nullable
     public static String get(
             @NonNull final Context context,
             @NonNull final String userId,
@@ -143,7 +143,7 @@ public final class SpFilterProfiles {
                 jsonObject = new JSONObject(profile);
             } catch (JSONException e) {
                 Log.e(TAG, e.toString());
-                return "";
+                return null;
             }
 
             if (profileId.equals(jsonObject.optString(SP_FILTER_ID))) {
@@ -151,7 +151,7 @@ public final class SpFilterProfiles {
             }
         }
 
-        return "";
+        return null;
     }
 
     /**
@@ -174,7 +174,7 @@ public final class SpFilterProfiles {
      * @param userId    User id.
      * @return          Id of selected filter profile.
      */
-    @NonNull
+    @Nullable
     public static String getSelectedId(
             @NonNull final Context context,
             @NonNull final String userId) {
@@ -182,7 +182,7 @@ public final class SpFilterProfiles {
         final SharedPreferences sp = context.getSharedPreferences(
                 getPreferencesName(userId),
                 MODE_PRIVATE);
-        return sp.getString(SP_FILTER_PROFILE_SELECTED_ID, "");
+        return sp.getString(SP_FILTER_PROFILE_SELECTED_ID, null);
     }
 
     /**
@@ -205,7 +205,7 @@ public final class SpFilterProfiles {
      * @param userId    User id.
      * @return          Filter profile in Json-format.
      */
-    @NonNull
+    @Nullable
     public static String getSelected(
             @NonNull final Context context,
             @NonNull final String userId) {
@@ -217,11 +217,11 @@ public final class SpFilterProfiles {
         final String profileId = getSelectedId(context, userId);
 
         if (SP_FILTER_PROFILE_CURRENT_ID.equals(profileId)) {
-            return sp.getString(SP_FILTER_PROFILE_CURRENT, "");
+            return sp.getString(SP_FILTER_PROFILE_CURRENT, null);
         } else if (SP_FILTER_PROFILE_DEFAULT_ID.equals(profileId)) {
-            return sp.getString(SP_FILTER_PROFILE_DEFAULT, "");
+            return sp.getString(SP_FILTER_PROFILE_DEFAULT, null);
         } else if (SP_FILTER_PROFILE_MANUAL_ID.equals(profileId)) {
-            return sp.getString(SP_FILTER_PROFILE_MANUAL, "");
+            return sp.getString(SP_FILTER_PROFILE_MANUAL, null);
         } else {
             return get(context, userId, profileId);
         }
