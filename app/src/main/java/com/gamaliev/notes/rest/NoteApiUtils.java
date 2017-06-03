@@ -1,5 +1,7 @@
 package com.gamaliev.notes.rest;
 
+import android.support.annotation.Nullable;
+
 import com.gamaliev.notes.app.NotesApp;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 
@@ -17,11 +19,12 @@ public class NoteApiUtils {
     public static final String API_KEY_STATUS   = "status";
     public static final String API_KEY_DATA     = "data";
     public static final String API_STATUS_OK    = "ok";
+    @SuppressWarnings("unused")
     public static final String API_STATUS_ERROR = "error";
     public static final String API_KEY_ID       = "id";
     public static final String API_KEY_EXTRA    = "extra";
 
-    private static final NoteApi sNoteApi;
+    @Nullable private static final NoteApi sNoteApi;
 
 
     /*
@@ -29,11 +32,16 @@ public class NoteApiUtils {
      */
 
     static {
-        sNoteApi = new Retrofit.Builder()
-                .baseUrl(SpUsers.getApiUrlForCurrentUser(NotesApp.getAppContext()))
-                .addConverterFactory(ScalarsConverterFactory.create())
-                .build()
-                .create(NoteApi.class);
+        final String url = SpUsers.getApiUrlForCurrentUser(NotesApp.getAppContext());
+        if (url == null) {
+            sNoteApi = null;
+        } else {
+            sNoteApi = new Retrofit.Builder()
+                    .baseUrl(url)
+                    .addConverterFactory(ScalarsConverterFactory.create())
+                    .build()
+                    .create(NoteApi.class);
+        }
     }
 
 
@@ -41,6 +49,7 @@ public class NoteApiUtils {
         Getters
      */
 
+    @Nullable
     public static NoteApi getNoteApi() {
         return sNoteApi;
     }

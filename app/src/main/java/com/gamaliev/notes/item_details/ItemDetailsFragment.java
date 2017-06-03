@@ -10,12 +10,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.Fade;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.common.shared_prefs.SpFilterProfiles;
 import com.gamaliev.notes.list.db.ListDbHelper;
 
 import java.util.Map;
@@ -23,8 +23,12 @@ import java.util.Map;
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
 import static com.gamaliev.notes.common.db.DbHelper.findCursorPositionByColumnValue;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
+import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.getSelectedForCurrentUser;
 
 public final class ItemDetailsFragment extends Fragment {
+
+    /* Logger */
+    private static final String TAG = ItemDetailsFragment.class.getSimpleName();
 
     /* Extra */
     private static final String EXTRA_ID = "ItemDetailsFragment.EXTRA_ID";
@@ -32,6 +36,7 @@ public final class ItemDetailsFragment extends Fragment {
     /* ... */
     private static final int OFFSCREEN_PAGE_LIMIT = 5;
 
+    @SuppressWarnings("NullableProblems")
     @NonNull private View mParentView;
     @Nullable private Cursor mCursor;
     private long mId;
@@ -108,12 +113,23 @@ public final class ItemDetailsFragment extends Fragment {
     }
 
     private void initViewPager() {
-        final Map<String, String> currentFilter = convertJsonToMap(
-                SpFilterProfiles.getSelectedForCurrentUser(getContext()));
+        final String filterProfile = getSelectedForCurrentUser(getContext());
+        if (filterProfile == null) {
+            Log.e(TAG, "Filter profile for current user is null.");
+            getActivity().onBackPressed();
+            return;
+        }
+        final Map<String, String> filterProfileMap = convertJsonToMap(filterProfile);
+        if (filterProfileMap == null) {
+            Log.e(TAG, "Filter profile for current user is null.");
+            getActivity().onBackPressed();
+            return;
+        }
+
         mCursor = ListDbHelper.getCursorWithParams(
                 getContext(),
                 "",
-                currentFilter);
+                filterProfileMap);
 
         int startPosition = 0;
         if (mCursor != null) {

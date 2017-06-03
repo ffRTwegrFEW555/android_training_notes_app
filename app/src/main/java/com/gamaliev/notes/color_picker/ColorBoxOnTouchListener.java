@@ -1,4 +1,4 @@
-package com.gamaliev.notes.colorpicker;
+package com.gamaliev.notes.color_picker;
 
 import android.content.Context;
 import android.content.res.Resources;

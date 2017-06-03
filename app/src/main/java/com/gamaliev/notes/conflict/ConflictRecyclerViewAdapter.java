@@ -53,7 +53,6 @@ final class ConflictRecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-
         if (mCursor == null || !mCursor.moveToPosition(position)) {
             return;
         }
@@ -69,7 +68,7 @@ final class ConflictRecyclerViewAdapter
             @Override
             public void onClick(View v) {
                 final ConflictSelectDialogFragment df =
-                        ConflictSelectDialogFragment.newInstance(syncId, position);
+                        ConflictSelectDialogFragment.newInstance(syncId, holder.getAdapterPosition());
                 df.show(mFragment.getFragmentManager() , null);
             }
         });

@@ -1,4 +1,4 @@
-package com.gamaliev.notes.colorpicker;
+package com.gamaliev.notes.color_picker;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.colorpicker.db.ColorPickerDbHelper;
+import com.gamaliev.notes.color_picker.db.ColorPickerDbHelper;
 
 import static com.gamaliev.notes.common.CommonUtils.animateElevation;
 import static com.gamaliev.notes.common.CommonUtils.animateScaleXY;

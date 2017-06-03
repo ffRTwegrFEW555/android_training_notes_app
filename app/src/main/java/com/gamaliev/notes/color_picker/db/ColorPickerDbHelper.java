@@ -1,4 +1,4 @@
-package com.gamaliev.notes.colorpicker.db;
+package com.gamaliev.notes.color_picker.db;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -64,6 +64,9 @@ public final class ColorPickerDbHelper {
 
         try {
             final SQLiteDatabase db = getWritableDb(context);
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
+            }
             final ContentValues cv = new ContentValues();
             cv.put(FAVORITE_COLUMN_COLOR, color);
             db.update(
@@ -76,8 +79,9 @@ public final class ColorPickerDbHelper {
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -91,25 +95,32 @@ public final class ColorPickerDbHelper {
 
         int color = -1;
 
-        final SQLiteDatabase db = getReadableDb(context);
-        try (Cursor cursor = db.query(
-                FAVORITE_TABLE_NAME,
-                new String[]{FAVORITE_COLUMN_COLOR},
-                FAVORITE_COLUMN_INDEX + " = ?",
-                new String[]{Integer.toString(index)},
-                null, null, null)) {
-
-            if (cursor.moveToFirst()) {
-                final int indexColor = cursor.getColumnIndex(DbHelper.LIST_ITEMS_COLUMN_COLOR);
-                color = cursor.getInt(indexColor);
+        try {
+            final SQLiteDatabase db = getReadableDb(context);
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
             }
-            return color;
+
+            try (Cursor cursor = db.query(
+                    FAVORITE_TABLE_NAME,
+                    new String[]{FAVORITE_COLUMN_COLOR},
+                    FAVORITE_COLUMN_INDEX + " = ?",
+                    new String[]{Integer.toString(index)},
+                    null, null, null)) {
+
+                if (cursor.moveToFirst()) {
+                    final int indexColor = cursor.getColumnIndex(DbHelper.LIST_ITEMS_COLUMN_COLOR);
+                    color = cursor.getInt(indexColor);
+                }
+                return color;
+            }
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return color;
         }
+
+        return color;
     }
 
     /**

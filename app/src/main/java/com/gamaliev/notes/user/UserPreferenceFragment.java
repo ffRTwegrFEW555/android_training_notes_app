@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.transition.Fade;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -35,8 +36,12 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers
 public class UserPreferenceFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    /* Logger */
+    private static final String TAG = UserPreferenceFragment.class.getSimpleName();
+
     /* ... */
     private static final String EXTRA_USER_ID = "UserPreferenceFragment.EXTRA_USER_ID";
+    @SuppressWarnings("NullableProblems")
     @NonNull private String mUserId;
 
 
@@ -61,7 +66,12 @@ public class UserPreferenceFragment extends PreferenceFragmentCompat
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        mUserId = getArguments().getString(EXTRA_USER_ID);
+        final String userID = getArguments().getString(EXTRA_USER_ID);
+        if (userID == null) {
+            Log.e(TAG, "User id is null.");
+            return;
+        }
+        mUserId = userID;
 
         // Change preference name to current user.
         final PreferenceManager manager = getPreferenceManager();

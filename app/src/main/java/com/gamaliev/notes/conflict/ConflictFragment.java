@@ -27,10 +27,11 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObser
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("NullableProblems")
 public class ConflictFragment extends Fragment implements Observer {
 
     /* Observed */
-    @NonNull public static final String[] OBSERVED = {CONFLICT};
+    @NonNull private static final String[] OBSERVED = {CONFLICT};
 
     /* ... */
     public static final String EXTRA_CONFLICT_SELECT_POSITION = "position";

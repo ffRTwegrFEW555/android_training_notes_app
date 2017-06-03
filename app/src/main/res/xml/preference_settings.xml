@@ -15,11 +15,13 @@
             android:title="@string/fragment_settings_preference_sync_wifi_title"
             android:summary="@string/fragment_settings_preference_sync_wifi_summary"/>
 
+        <!--suppress AndroidElementNotAllowed -->
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="sync_api_url"
             android:selectAllOnFocus="true"
             android:title="@string/fragment_settings_preference_sync_api_url_title"/>
 
+        <!--suppress AndroidElementNotAllowed -->
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="ext_id"
             android:selectAllOnFocus="true"
@@ -30,6 +32,7 @@
     <PreferenceCategory
         android:title="@string/fragment_settings_preference_category_mock_entries_title">
 
+        <!--suppress AndroidElementNotAllowed -->
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="mock_entries"
             android:selectAllOnFocus="true"
@@ -41,6 +44,7 @@
     <PreferenceCategory
         android:title="@string/fragment_settings_preference_category_progress_notification_title">
 
+        <!--suppress AndroidElementNotAllowed -->
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="progress_notification_timer"
             android:selectAllOnFocus="true"

@@ -3,7 +3,6 @@ package com.gamaliev.notes.common.shared_prefs;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -33,6 +32,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("WeakerAccess")
 public final class SpUsers {
 
     /* Logger */
@@ -54,7 +54,7 @@ public final class SpUsers {
     public static final String SP_USER_MIDDLE_NAME          = "m_name";
     public static final String SP_USER_DESCRIPTION          = "desc";
     public static final String SP_USER_MOCK_ENTRIES_DEFAULT = "mock_entries";
-    public static final String SP_USER_PROGRESS_NOTIF_TIMER = "progress_notification_timer";
+    public static final String SP_USER_PROGRESS_NOTIFICATION_TIMER = "progress_notification_timer";
     public static final String SP_USER_SYNC                 = "sync";
     public static final String SP_USER_SYNC_WIFI            = "sync_wifi";
     public static final String SP_USER_SYNC_API_URL         = "sync_api_url";
@@ -90,7 +90,7 @@ public final class SpUsers {
         map.put(SP_USER_LAST_NAME,      context.getString(R.string.fragment_settings_default_last_name));
         map.put(SP_USER_MIDDLE_NAME,    context.getString(R.string.fragment_settings_default_middle_name));
         map.put(SP_USER_MOCK_ENTRIES_DEFAULT, context.getString(R.string.fragment_settings_default_number_mock_entries));
-        map.put(SP_USER_PROGRESS_NOTIF_TIMER, context.getString(R.string.fragment_settings_default_progress_notification_timer));
+        map.put(SP_USER_PROGRESS_NOTIFICATION_TIMER, context.getString(R.string.fragment_settings_default_progress_notification_timer));
         map.put(SP_USER_SYNC,           context.getString(R.string.fragment_settings_default_sync));
         map.put(SP_USER_SYNC_WIFI,      context.getString(R.string.fragment_settings_default_sync_wifi));
         map.put(SP_USER_SYNC_API_URL,   context.getString(R.string.fragment_settings_default_sync_api_url));
@@ -125,7 +125,7 @@ public final class SpUsers {
         map.put(SP_USER_MIDDLE_NAME,sp.getString(SP_USER_MIDDLE_NAME,   defaultProfile.get(SP_USER_MIDDLE_NAME)));
         map.put(SP_USER_DESCRIPTION,sp.getString(SP_USER_DESCRIPTION,   defaultProfile.get(SP_USER_DESCRIPTION)));
         map.put(SP_USER_MOCK_ENTRIES_DEFAULT, sp.getString(SP_USER_MOCK_ENTRIES_DEFAULT, defaultProfile.get(SP_USER_MOCK_ENTRIES_DEFAULT)));
-        map.put(SP_USER_PROGRESS_NOTIF_TIMER, sp.getString(SP_USER_PROGRESS_NOTIF_TIMER, defaultProfile.get(SP_USER_PROGRESS_NOTIF_TIMER)));
+        map.put(SP_USER_PROGRESS_NOTIFICATION_TIMER, sp.getString(SP_USER_PROGRESS_NOTIFICATION_TIMER, defaultProfile.get(SP_USER_PROGRESS_NOTIFICATION_TIMER)));
         map.put(SP_USER_SYNC,       String.valueOf(sp.getBoolean(SP_USER_SYNC,      Boolean.valueOf(defaultProfile.get(SP_USER_SYNC)))));
         map.put(SP_USER_SYNC_WIFI,  String.valueOf(sp.getBoolean(SP_USER_SYNC_WIFI, Boolean.valueOf(defaultProfile.get(SP_USER_SYNC)))));
         map.put(SP_USER_SYNC_API_URL,sp.getString(SP_USER_SYNC_API_URL, defaultProfile.get(SP_USER_SYNC_API_URL)));
@@ -173,11 +173,17 @@ public final class SpUsers {
 
     /**
      * @param context   Context.
-     * @return          Number of mock entries for current user.
+     * @return          Number of mock entries for current user. Return 0, if error.
      */
     public static int getNumberMockEntriesForCurrentUser(@NonNull final Context context) {
+        final String selected = getSelected(context);
+        if (selected == null) {
+            Log.e(TAG, "Id of selected user is null");
+            return 0;
+        }
+
         final SharedPreferences sp = context.getSharedPreferences(
-                getPreferencesName(getSelected(context)),
+                getPreferencesName(selected),
                 MODE_PRIVATE);
         final String string = sp.getString(
                 SP_USER_MOCK_ENTRIES_DEFAULT,
@@ -187,14 +193,20 @@ public final class SpUsers {
 
     /**
      * @param context   Context.
-     * @return          Progress notification timer for current user, ms.
+     * @return          Progress notification timer for current user, ms. Return 0, if error.
      */
     public static int getProgressNotificationTimerForCurrentUser(@NonNull final Context context) {
+        final String selected = getSelected(context);
+        if (selected == null) {
+            Log.e(TAG, "Id of selected user is null");
+            return 0;
+        }
+
         final SharedPreferences sp = context.getSharedPreferences(
-                getPreferencesName(getSelected(context)),
+                getPreferencesName(selected),
                 MODE_PRIVATE);
         final String string = sp.getString(
-                SP_USER_PROGRESS_NOTIF_TIMER,
+                SP_USER_PROGRESS_NOTIFICATION_TIMER,
                 context.getString(R.string.fragment_settings_default_progress_notification_timer));
         return Integer.parseInt(string);
 
@@ -212,47 +224,71 @@ public final class SpUsers {
 
     /**
      * @param context   Context.
-     * @return          Sync Wi-fi only status.
+     * @return          Sync Wi-fi only status. Return true, if error.
      */
     public static boolean getSyncWifiOnlyForCurrentUser(@NonNull final Context context) {
+        final String selected = getSelected(context);
+        if (selected == null) {
+            Log.e(TAG, "Id of selected user is null");
+            return true;
+        }
+
         final SharedPreferences sp = context.getSharedPreferences(
-                getPreferencesName(getSelected(context)),
+                getPreferencesName(selected),
                 MODE_PRIVATE);
-        return sp.getBoolean(SP_USER_SYNC_WIFI, false);
+        return sp.getBoolean(SP_USER_SYNC_WIFI, true);
     }
 
     /**
      * @param context   Context.
-     * @return          Api url for current user.
+     * @return          Api url for current user. Return null, if error.
      */
     @Nullable
     public static String getApiUrlForCurrentUser(@NonNull final Context context) {
+        final String selected = getSelected(context);
+        if (selected == null) {
+            Log.e(TAG, "Id of selected user is null");
+            return null;
+        }
+
         final SharedPreferences sp = context.getSharedPreferences(
-                getPreferencesName(getSelected(context)),
+                getPreferencesName(selected),
                 MODE_PRIVATE);
         return sp.getString(SP_USER_SYNC_API_URL, null);
     }
 
     /**
      * @param context   Context.
-     * @return          Sync id for current user.
+     * @return          Sync id for current user. Return null, if error.
      */
     @Nullable
     public static String getSyncIdForCurrentUser(@NonNull final Context context) {
+        final String selected = getSelected(context);
+        if (selected == null) {
+            Log.e(TAG, "Id of selected user is null");
+            return null;
+        }
+
         final SharedPreferences sp = context.getSharedPreferences(
-                getPreferencesName(getSelected(context)),
+                getPreferencesName(selected),
                 MODE_PRIVATE);
         return sp.getString(SP_USER_SYNC_ID, null);
     }
 
     /**
      * @param context   Context.
-     * @return          Pending sync status for current user.
+     * @return          Pending sync status for current user. Return null, if error.
      */
     @Nullable
     public static String getPendingSyncStatusForCurrentUser(@NonNull final Context context) {
+        final String selected = getSelected(context);
+        if (selected == null) {
+            Log.e(TAG, "Id of selected user is null");
+            return null;
+        }
+
         final SharedPreferences sp = context.getSharedPreferences(
-                getPreferencesName(getSelected(context)),
+                getPreferencesName(selected),
                 MODE_PRIVATE);
         return sp.getString(SP_USER_SYNC_PENDING, null);
     }
@@ -297,7 +333,7 @@ public final class SpUsers {
                 .putString(SP_USER_MIDDLE_NAME, profile.get(SP_USER_MIDDLE_NAME))
                 .putString(SP_USER_DESCRIPTION, profile.get(SP_USER_DESCRIPTION))
                 .putString(SP_USER_MOCK_ENTRIES_DEFAULT, profile.get(SP_USER_MOCK_ENTRIES_DEFAULT))
-                .putString(SP_USER_PROGRESS_NOTIF_TIMER, profile.get(SP_USER_PROGRESS_NOTIF_TIMER))
+                .putString(SP_USER_PROGRESS_NOTIFICATION_TIMER, profile.get(SP_USER_PROGRESS_NOTIFICATION_TIMER))
                 .putBoolean(SP_USER_SYNC,       Boolean.parseBoolean(profile.get(SP_USER_SYNC)))
                 .putBoolean(SP_USER_SYNC_WIFI,  Boolean.parseBoolean(profile.get(SP_USER_SYNC_WIFI)))
                 .putString(SP_USER_SYNC_API_URL,profile.get(SP_USER_SYNC_API_URL))
@@ -381,13 +417,21 @@ public final class SpUsers {
      * @param context   Context.
      * @param status    See:    {@link #SP_USER_SYNC_PENDING_TRUE},
      *                          {@link #SP_USER_SYNC_PENDING_FALSE},
+     * @return True, if ok, otherwise false.
      */
-    public static void setPendingSyncStatusForCurrentUser(
+    @SuppressWarnings("UnusedReturnValue")
+    public static boolean setPendingSyncStatusForCurrentUser(
             @NonNull final Context context,
             @NonNull final String status) {
 
+        final String selected = getSelected(context);
+        if (selected == null) {
+            Log.e(TAG, "Id of selected user is null");
+            return false;
+        }
+
         final SharedPreferences sp = context.getSharedPreferences(
-                getPreferencesName(getSelected(context)),
+                getPreferencesName(selected),
                 MODE_PRIVATE);
 
         sp      .edit()
@@ -395,22 +439,22 @@ public final class SpUsers {
                 .apply();
 
         // Register / Unregister broadcast receiver manually
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            if (status.equals(SP_USER_SYNC_PENDING_TRUE)) {
-                IntentFilter intentFilter = new IntentFilter();
-                intentFilter.addAction(CONNECTIVITY_ACTION);
-                context.registerReceiver(
-                        NetworkBroadcastReceiver.getInstance(),
-                        intentFilter);
+        if (status.equals(SP_USER_SYNC_PENDING_TRUE)) {
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(CONNECTIVITY_ACTION);
+            context.registerReceiver(
+                    NetworkBroadcastReceiver.getInstance(),
+                    intentFilter);
 
-            } else if (status.equals(SP_USER_SYNC_PENDING_FALSE)) {
-                try {
-                    context.unregisterReceiver(NetworkBroadcastReceiver.getInstance());
-                } catch (Exception e) {
-                    Log.e(TAG, e.toString());
-                }
+        } else if (status.equals(SP_USER_SYNC_PENDING_FALSE)) {
+            try {
+                context.unregisterReceiver(NetworkBroadcastReceiver.getInstance());
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
             }
         }
+
+        return true;
     }
 
     /**
@@ -419,17 +463,25 @@ public final class SpUsers {
      * If deleted user is default user, then denied.
      * @param context   Context.
      * @param userId    User id.
+     * @return True, if ok, otherwise false.
      */
-    public static void delete(
+    @SuppressWarnings("UnusedReturnValue")
+    public static boolean delete(
             @NonNull final Context context,
             @NonNull final String userId) {
 
-        if (getSelected(context).equals(userId)) {
+        final String selected = getSelected(context);
+        if (selected == null) {
+            Log.e(TAG, "Id of selected user is null");
+            return false;
+        }
+
+        if (selected.equals(userId)) {
             setSelected(context, SP_USERS_DEFAULT_USER_ID);
         }
 
         if (SP_USERS_DEFAULT_USER_ID.equals(userId)) {
-            return;
+            return true;
         }
 
         // Remove from profiles
@@ -455,5 +507,7 @@ public final class SpUsers {
         // Remove database and update..
         context.deleteDatabase(userId);
         DbHelper.clearInstances();
+
+        return true;
     }
 }

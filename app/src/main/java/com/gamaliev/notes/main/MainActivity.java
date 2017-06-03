@@ -65,13 +65,14 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObser
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("NullableProblems")
 public class MainActivity extends AppCompatActivity implements Observer {
 
     /* Logger */
     private static final String TAG = MainActivity.class.getSimpleName();
 
     /* Observed */
-    @NonNull public static final String[] OBSERVED = {USERS};
+    @NonNull private static final String[] OBSERVED = {USERS};
 
     /* ... */
     @NonNull private NavigationView mNavView;
@@ -153,10 +154,13 @@ public class MainActivity extends AppCompatActivity implements Observer {
     }
 
     private void initUserInfo(@NonNull final NavigationView navView) {
-        final Map<String, String> userProfile
-                = SpUsers.get(
-                getApplicationContext(),
-                SpUsers.getSelected(getApplicationContext()));
+        final String userId = SpUsers.getSelected(getApplicationContext());
+        if (userId == null) {
+            Log.e(TAG, "User ID is null.");
+            return;
+        }
+
+        final Map<String, String> userProfile = SpUsers.get(getApplicationContext(), userId);
 
         ((TextView) navView
                 .getHeaderView(0)
@@ -448,20 +452,22 @@ public class MainActivity extends AppCompatActivity implements Observer {
         };
     }
 
-    private void deleteAllEntries() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final boolean success = ListDbHelper.removeAllEntries(MainActivity.this);
-                showToastRunOnUiThread(
-                        MainActivity.this,
-                        success
-                                ? getString(R.string.activity_main_notification_delete_all_entries_success)
-                                : getString(R.string.activity_main_notification_delete_all_entries_failed),
-                        Toast.LENGTH_SHORT);
-            }
-        }).start();
-    }
+// --Commented out by Inspection START:
+//    private void deleteAllEntries() {
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                final boolean success = ListDbHelper.removeAllEntries(MainActivity.this);
+//                showToastRunOnUiThread(
+//                        MainActivity.this,
+//                        success
+//                                ? getString(R.string.activity_main_notification_delete_all_entries_success)
+//                                : getString(R.string.activity_main_notification_delete_all_entries_failed),
+//                        Toast.LENGTH_SHORT);
+//            }
+//        }).start();
+//    }
+// --Commented out by Inspection STOP
 
     private void showActionBarAndFullscreenOff() {
         // Show Action bar.

@@ -18,6 +18,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.transition.AutoTransition;
 import android.transition.Fade;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -67,8 +68,12 @@ import static com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment.ACTIO
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("NullableProblems")
 public class ListFragment extends Fragment
         implements OnStartDragListener, Observer {
+
+    /* Logger */
+    private static final String TAG = ListFragment.class.getSimpleName();
 
     /* SQLite */
     @NonNull public static final String[] SEARCH_COLUMNS = {
@@ -76,7 +81,7 @@ public class ListFragment extends Fragment
             DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION};
 
     /* Observed */
-    @NonNull public static final String[] OBSERVED = {
+    @NonNull private static final String[] OBSERVED = {
             FILE_IMPORT,
             LIST_FILTER,
             ENTRY,
@@ -193,8 +198,22 @@ public class ListFragment extends Fragment
     }
 
     private void initFilterProfile() {
-        mFilterProfileMap = convertJsonToMap(
-                SpFilterProfiles.getSelectedForCurrentUser(getContext()));
+        final String filterProfile = SpFilterProfiles.getSelectedForCurrentUser(getContext());
+        if (filterProfile == null) {
+            final Map<String, String> map = convertJsonToMap(SpFilterProfiles.getDefaultProfile());
+            if (map != null) {
+                mFilterProfileMap = map;
+            } else {
+                Log.e(TAG, "Cannot get default filter profile.");
+            }
+        } else {
+            final Map<String, String> map = convertJsonToMap(filterProfile);
+            if (map != null) {
+                mFilterProfileMap = map;
+            } else {
+                Log.e(TAG, "Cannot get filter profile for current user.");
+            }
+        }
     }
 
 
@@ -210,13 +229,8 @@ public class ListFragment extends Fragment
      * Getting text from search view, and use for filter. If text is empty, then using empty string.
      */
     private void updateAdapter() {
-        if (mSearchView != null) {
-            final String searchText = mSearchView.getQuery().toString();
-            updateAdapter(TextUtils.isEmpty(searchText) ? "" : searchText);
-
-        } else {
-            updateAdapter("");
-        }
+        final String searchText = mSearchView.getQuery().toString();
+        updateAdapter(TextUtils.isEmpty(searchText) ? "" : searchText);
     }
 
     private void updateAdapter(String newText) {

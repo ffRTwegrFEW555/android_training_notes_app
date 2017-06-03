@@ -90,9 +90,11 @@ public class SyncEntry implements Parcelable {
         Setters
      */
 
-    public void setId(@NonNull final Long id) {
-        mId = id;
-    }
+// --Commented out by Inspection START:
+//    public void setId(@NonNull final Long id) {
+//        mId = id;
+//    }
+// --Commented out by Inspection STOP
 
     public void setFinished(@NonNull final Date finished) {
         mFinished = finished;
@@ -115,10 +117,12 @@ public class SyncEntry implements Parcelable {
         Getters
      */
 
-    @Nullable
-    public Long getId() {
-        return mId;
-    }
+// --Commented out by Inspection START:
+//    @Nullable
+//    public Long getId() {
+//        return mId;
+//    }
+// --Commented out by Inspection STOP
 
     @Nullable
     public Date getFinished() {

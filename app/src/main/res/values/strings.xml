@@ -20,7 +20,7 @@
     <string name="activity_main_nav_drawer_open">Open navigation drawer</string>
     <string name="activity_main_nav_drawer_close">Close navigation drawer</string>
     <string name="activity_main_nav_drawer_item_add_mock_entries">Add mock entries</string>
-    <string name="activity_main_nav_drawer_item_delete_all_entries">Delete all</string>
+    <!--<string name="activity_main_nav_drawer_item_delete_all_entries">Delete all</string>-->
     <string name="activity_main_nav_drawer_item_import_entries">Import notes</string>
     <string name="activity_main_nav_drawer_item_export_entries">Export notes</string>
     <string name="activity_main_nav_drawer_item_notes_list">Notes list</string>
@@ -40,8 +40,8 @@
     <string name="activity_main_notification_add_mock_cancel">Cancel</string>
     
     <!-- Delete all from local -->
-    <string name="activity_main_notification_delete_all_entries_success">All entries deleted</string>
-    <string name="activity_main_notification_delete_all_entries_failed">All entries deleting failed</string>
+    <!--<string name="activity_main_notification_delete_all_entries_success">All entries deleted</string>
+    <string name="activity_main_notification_delete_all_entries_failed">All entries deleting failed</string>-->
 
 
     <!--                        -->
@@ -267,8 +267,8 @@
 
     <!-- Preference -->
     <string name="fragment_settings_preference_category_sync_title">Synchronization</string>
-    <string name="fragment_settings_preference_sync_enable_title">Enable</string>
-    <string name="fragment_settings_preference_sync_enable_summary">Auto synchronization</string>
+    <!--<string name="fragment_settings_preference_sync_enable_title">Enable</string>
+    <string name="fragment_settings_preference_sync_enable_summary">Auto synchronization</string>-->
     <string name="fragment_settings_preference_sync_wifi_title">Wi-fi</string>
     <string name="fragment_settings_preference_sync_wifi_summary">Synchronization wi-fi only</string>
     <string name="fragment_settings_preference_sync_api_url_title">Base API url</string>
@@ -341,6 +341,7 @@
     <string name="fragment_dialog_conflict_select_local_header_prefix">Local sync id</string>
     <string name="fragment_dialog_conflict_select_save_btn_text">Save</string>
     <string name="fragment_dialog_conflict_resolution_failed">Conflict resolution failed. Please try later</string>
+    <string name="fragment_dialog_conflict_sync_id_is_null">Synchronization ID is null</string>
 
 
     <!--        -->

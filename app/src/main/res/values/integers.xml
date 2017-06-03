@@ -7,7 +7,7 @@
     <!--                        -->
 
     <!-- Popup window -->
-    <integer name="fragment_color_picker_popupwindow_gravity">17</integer> <!-- Gravity.CENTER : 17-->
+    <integer name="fragment_color_picker_popup_window_gravity">17</integer> <!-- Gravity.CENTER : 17-->
 
     <!-- Notification -->
     <integer name="fragment_color_picker_vibration_duration">200</integer>

@@ -41,6 +41,7 @@ import static com.gamaliev.notes.list.db.ListDbHelper.getCursorWithParams;
  * @author Vadim Gamaliev
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
+@SuppressWarnings("NullableProblems")
 public final class ListRecyclerViewAdapter
         extends RecyclerView.Adapter<ListRecyclerViewAdapter.ViewHolder>
         implements ItemTouchHelperAdapter {
@@ -51,6 +52,7 @@ public final class ListRecyclerViewAdapter
     @Nullable private Cursor mCursor;
     @NonNull private String mConstraint;
     @NonNull private Map<String, String> mFilterProfileMap;
+    @SuppressWarnings("unused")
     private boolean mSwipeEnable;
 
 
@@ -96,9 +98,9 @@ public final class ListRecyclerViewAdapter
         final long id               = mCursor.getLong(indexId);
         final String title          = mCursor.getString(indexTitle);
         final String description    = mCursor.getString(indexDescription);
-        final String edited         = CommonUtils
-                .convertUtcToLocal(context, mCursor.getString(indexEdited))
-                .split(" ")[0];
+        final String localDate      = CommonUtils
+                .convertUtcToLocal(context, mCursor.getString(indexEdited));
+        final String edited         = localDate == null ? null : localDate.split(" ")[0];
         final int color             = mCursor.getInt(indexColor);
 
         holder.mTitleView       .setText(title);

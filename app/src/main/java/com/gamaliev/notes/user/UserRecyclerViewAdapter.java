@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,8 +31,12 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_ID;
 public class UserRecyclerViewAdapter
         extends RecyclerView.Adapter<UserRecyclerViewAdapter.ViewHolder>{
 
+    /* Logger */
+    private static final String TAG = UserRecyclerViewAdapter.class.getSimpleName();
+
     /* ... */
     @NonNull private final Fragment mFragment;
+    @SuppressWarnings("NullableProblems")
     @NonNull private String[] mProfiles;
 
 
@@ -92,10 +97,14 @@ public class UserRecyclerViewAdapter
 
         // Colorize current user.
         final String selectedId = SpUsers.getSelected(context);
-        final String currentId = userProfile.get(SP_USER_ID);
-        if (selectedId.equals(currentId)) {
-            holder.mTitleView.setTextColor(
-                    CommonUtils.getResourceColorApi(context, R.color.colorPrimary));
+        if (selectedId == null) {
+            Log.e(TAG, "Selected User ID is null.");
+        } else {
+            final String currentId = userProfile.get(SP_USER_ID);
+            if (selectedId.equals(currentId)) {
+                holder.mTitleView.setTextColor(
+                        CommonUtils.getResourceColorApi(context, R.color.colorPrimary));
+            }
         }
     }
 

@@ -8,7 +8,7 @@
         android:title="@string/menu_list_search_title"
         android:icon="@drawable/ic_search_white_24dp"
         android:orderInCategory="10"
-        app:showAsAction="always|collapseActionView"
+        app:showAsAction="ifRoom|collapseActionView"
         app:actionViewClass="android.support.v7.widget.SearchView" />
 
     <!-- Filter / Sort menu item -->

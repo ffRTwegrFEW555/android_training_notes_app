@@ -47,6 +47,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("WeakerAccess")
 public final class CommonUtils {
 
     /* Logger */
@@ -305,8 +306,7 @@ public final class CommonUtils {
             @NonNull final String message,
             final int duration) {
 
-        final Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(new Runnable() {
+        getMainHandler().post(new Runnable() {
             @Override
             public void run() {
                 showToast(context, message, duration);
@@ -325,6 +325,7 @@ public final class CommonUtils {
      * @param message   Message to show.
      * @param duration  Duration of shows.
      */
+    @SuppressWarnings("SameParameterValue")
     public static void playSoundAndShowToast(
             @NonNull final Context context,
             final int type,
@@ -378,6 +379,7 @@ public final class CommonUtils {
      * @param resourceColor Resource of color.
      * @return Color, associated with given resource.
      */
+    @SuppressWarnings("deprecation")
     public static int getResourceColorApi(
             @NonNull final Context context,
             final int resourceColor) {
@@ -403,18 +405,20 @@ public final class CommonUtils {
         Date. ISO-8601.
      */
 
-    /**
-     * @param context   Context.
-     * @param date      Date, whose will be converted to String in ISO-8610 format.
-     * @return  String, representing a date in ISO-8601 format.<br>
-     *          Example pattern: "yyyy-MM-dd'T'HH:mm:ssZZZZZ", "2017-04-22T21:25:35+05:00".
-     */
-    @NonNull
-    public static String getStringDateISO8601(
-            @NonNull final Context context,
-            @NonNull final Date date) {
-        return getDateFormatISO8601(context).format(date);
-    }
+// --Commented out by Inspection START:
+//    /**
+//     * @param context   Context.
+//     * @param date      Date, whose will be converted to String in ISO-8610 format.
+//     * @return  String, representing a date in ISO-8601 format.<br>
+//     *          Example pattern: "yyyy-MM-dd'T'HH:mm:ssZZZZZ", "2017-04-22T21:25:35+05:00".
+//     */
+//    @NonNull
+//    public static String getStringDateISO8601(
+//            @NonNull final Context context,
+//            @NonNull final Date date) {
+//        return getDateFormatISO8601(context).format(date);
+//    }
+// --Commented out by Inspection STOP
 
     /**
      * @param context   Context.
@@ -569,15 +573,15 @@ public final class CommonUtils {
      * @param filterCategory    {@link com.gamaliev.notes.common.shared_prefs.SpFilterProfiles#SP_FILTER_CREATED},
      *                          {@link com.gamaliev.notes.common.shared_prefs.SpFilterProfiles#SP_FILTER_EDITED},
      *                          {@link com.gamaliev.notes.common.shared_prefs.SpFilterProfiles#SP_FILTER_VIEWED}.
-     * @param fromToBothResult  EXTRA_DATES_*.
-     * @return                  date in different formats.
+     * @param fromToBothReturnResult  EXTRA_DATES_*.
+     * @return                  Date in the specified format. Or null, if dates cannot be getting.
      */
     @Nullable
     public static String getDateFromProfileMap(
             @NonNull final Context context,
             @NonNull final Map<String, String> profileMap,
             @NonNull final String filterCategory,
-            final int fromToBothResult) {
+            final int fromToBothReturnResult) {
 
         final String dates = profileMap.get(filterCategory);
 
@@ -589,24 +593,29 @@ public final class CommonUtils {
         final String[] datesBoth = dates.split(SP_FILTER_SYMBOL_DATE_SPLIT);
         final String dateFrom = datesBoth[0];
         final String dateTo = datesBoth[1];
+        String temp;
 
-        switch (fromToBothResult) {
+        switch (fromToBothReturnResult) {
             case EXTRA_DATES_FROM_DATETIME:
                 return dateFrom;
             case EXTRA_DATES_FROM_DATE:
                 return dateFrom.split(" ")[0];
             case EXTRA_DATES_FROM_DATE_UTC_TO_LOCALTIME:
-                return convertUtcToLocal(context, dateFrom).split(" ")[0];
+                temp = convertUtcToLocal(context, dateFrom);
+                return temp == null ? null : temp.split(" ")[0];
             case EXTRA_DATES_FROM_DATE_LOCALTIME_TO_UTC:
-                return convertLocalToUtc(context, dateFrom).split(" ")[1];
+                temp = convertLocalToUtc(context, dateFrom);
+                return temp == null ? null : temp.split(" ")[1];
             case EXTRA_DATES_TO_DATETIME:
                 return dateTo;
             case EXTRA_DATES_TO_DATE:
                 return dateTo.split(" ")[0];
             case EXTRA_DATES_TO_DATE_UTC_TO_LOCALTIME:
-                return convertUtcToLocal(context, dateTo).split(" ")[0];
+                temp = convertUtcToLocal(context, dateTo);
+                return temp == null ? null : temp.split(" ")[0];
             case EXTRA_DATES_TO_DATE_LOCALTIME_TO_UTC:
-                return convertLocalToUtc(context, dateTo).split(" ")[1];
+                temp = convertLocalToUtc(context, dateTo);
+                return temp == null ? null : temp.split(" ")[1];
             case EXTRA_DATES_BOTH:
                 return dates;
             default:
@@ -627,7 +636,7 @@ public final class CommonUtils {
      */
     public static void showMessageDialog(
             @NonNull final Context context,
-            @Nullable final String title,
+            @SuppressWarnings("SameParameterValue") @Nullable final String title,
             @NonNull final String message) {
 
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
@@ -683,6 +692,7 @@ public final class CommonUtils {
      * Thread, contains {@link android.os.Handler}, whose running into {@link android.os.Looper}.
      */
     public static class LooperHandlerThread extends Thread {
+        @SuppressWarnings("NullableProblems")
         @NonNull private Handler mHandler;
 
         @Override

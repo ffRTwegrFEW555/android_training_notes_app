@@ -15,8 +15,10 @@ import retrofit2.http.Path;
 
 public interface NoteApi {
 
-    @GET("info")
-    Call<String> getInfo();
+// --Commented out by Inspection START:
+//    @GET("info")
+//    Call<String> getInfo();
+// --Commented out by Inspection STOP
 
     @GET("user/{user_id}/notes")
     Call<String> getAll(@Path("user_id") final String userId);

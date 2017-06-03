@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
-    tools:context="com.gamaliev.notes.colorpicker.ColorPickerFragment">
+    tools:context="com.gamaliev.notes.color_picker.ColorPickerFragment">
 
 
     <!-- Favorite icons -->
@@ -71,7 +71,8 @@
         android:layout_height="wrap_content"
         android:elevation="@dimen/fragment_color_picker_scroll_palette_bar_elevation"
         android:background="@color/color_black"
-        android:scrollbars="none">
+        android:scrollbars="none"
+        tools:targetApi="lollipop">
 
         <LinearLayout
             android:id="@+id/fragment_color_picker_ll_palette_bar"
@@ -118,7 +119,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:paddingBottom="@dimen/fragment_color_picker_ff_result_outer_padding"
-            android:paddingTop="@dimen/fragment_color_picker_ff_result_outer_padding">
+            android:paddingTop="@dimen/fragment_color_picker_ff_result_outer_padding"
+            tools:ignore="UselessParent">
 
             <FrameLayout
                 android:id="@+id/fragment_color_picker_ff_result_box"
@@ -127,7 +129,8 @@
                 android:layout_gravity="center"
                 android:layout_margin="@dimen/fragment_color_picker_ff_result_box_margin"
                 android:background="@color/color_picker_default"
-                android:elevation="@dimen/fragment_color_picker_ff_result_box_elevation">
+                android:elevation="@dimen/fragment_color_picker_ff_result_box_elevation"
+                tools:targetApi="lollipop">
 
                 <TextView
                     android:id="@+id/fragment_color_picker_text_result_box"

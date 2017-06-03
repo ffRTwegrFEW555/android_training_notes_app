@@ -1,4 +1,4 @@
-package com.gamaliev.notes.colorpicker;
+package com.gamaliev.notes.color_picker;
 
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -26,7 +26,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.colorpicker.db.ColorPickerDbHelper;
+import com.gamaliev.notes.color_picker.db.ColorPickerDbHelper;
 import com.gamaliev.notes.common.SwitchableHorizontalScrollView;
 
 import java.util.Arrays;
@@ -44,6 +44,7 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings({"WeakerAccess", "NullableProblems"})
 public final class ColorPickerFragment extends Fragment {
 
     /* Extra */
@@ -60,7 +61,7 @@ public final class ColorPickerFragment extends Fragment {
     @NonNull private View mResultParentView;
     @NonNull private PopupWindow mEditPw;
     @NonNull private int[] mHsvColors;
-    @NonNull private int[] mHsvColorsOverridden;
+    @NonNull private int[] mHsvOverriddenColors;
     private long mId;
     private int mBoxesNumber;
     private int mResultColor;
@@ -109,7 +110,7 @@ public final class ColorPickerFragment extends Fragment {
     @Override
     public void onSaveInstanceState(final Bundle outState) {
         outState.putInt(EXTRA_RESULT_COLOR, mResultColor);
-        outState.putIntArray(EXTRA_HSV_COLOR_OVERRIDDEN, mHsvColorsOverridden);
+        outState.putIntArray(EXTRA_HSV_COLOR_OVERRIDDEN, mHsvOverriddenColors);
         super.onSaveInstanceState(outState);
     }
 
@@ -135,14 +136,14 @@ public final class ColorPickerFragment extends Fragment {
             mResultColor = color == -1
                     ? getDefaultColor(getContext())
                     : color;
-
-            // Create and fill overridden colors array.
-            mHsvColorsOverridden = new int[mBoxesNumber * 2 + 1];
-            Arrays.fill(mHsvColorsOverridden, -1);
+            getNewHsvOverriddenColors();
 
         } else {
             mResultColor = savedInstanceState.getInt(EXTRA_RESULT_COLOR);
-            mHsvColorsOverridden = savedInstanceState.getIntArray(EXTRA_HSV_COLOR_OVERRIDDEN);
+            final int[] temp = savedInstanceState.getIntArray(EXTRA_HSV_COLOR_OVERRIDDEN);
+            if (temp == null) {
+                getNewHsvOverriddenColors();
+            }
         }
 
         initTransition();
@@ -177,6 +178,11 @@ public final class ColorPickerFragment extends Fragment {
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
     }
 
+    private void getNewHsvOverriddenColors() {
+        mHsvOverriddenColors = new int[mBoxesNumber * 2 + 1];
+        Arrays.fill(mHsvOverriddenColors, -1);
+    }
+
     /**
      * Set HSV gradient color (0-360) to background of palette bar.
      */
@@ -208,7 +214,7 @@ public final class ColorPickerFragment extends Fragment {
 
         for (int i = 1; i < mHsvColors.length; i += 2) {
             // Create color box with default or overridden color.
-            final int color = mHsvColorsOverridden[i] != -1 ? mHsvColorsOverridden[i] : mHsvColors[i];
+            final int color = mHsvOverriddenColors[i] != -1 ? mHsvOverriddenColors[i] : mHsvColors[i];
             final View colorBox = new FrameLayout(getContext());
             colorBox.setBackground(new ColorDrawable(color));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -241,6 +247,7 @@ public final class ColorPickerFragment extends Fragment {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                 button.setBackground(mRes.getDrawable(R.drawable.btn_oval, null));
             } else {
+                //noinspection deprecation
                 button.setBackground(mRes.getDrawable(R.drawable.btn_oval));
             }
             button.getBackground()
@@ -319,8 +326,8 @@ public final class ColorPickerFragment extends Fragment {
 
         int color;
         if (newColor == -1) {
-            color = mHsvColorsOverridden[index] != -1
-                    ? mHsvColorsOverridden[index]
+            color = mHsvOverriddenColors[index] != -1
+                    ? mHsvOverriddenColors[index]
                     : mHsvColors[index];
         } else {
             color = newColor;
@@ -328,7 +335,7 @@ public final class ColorPickerFragment extends Fragment {
 
         setBackgroundColorRectangleAPI(getContext(), editedView, color);
         mEditPw.getContentView().setBackgroundColor(color);
-        mHsvColorsOverridden[index] = color;
+        mHsvOverriddenColors[index] = color;
     }
 
 
@@ -341,11 +348,11 @@ public final class ColorPickerFragment extends Fragment {
         final FrameLayout fl = new FrameLayout(getContext());
         final PopupWindow popupWindow = new PopupWindow(
                 fl,
-                (int) mRes.getDimension(R.dimen.fragment_color_picker_popupwindow_width),
-                (int) mRes.getDimension(R.dimen.fragment_color_picker_popupwindow_height),
+                (int) mRes.getDimension(R.dimen.fragment_color_picker_popup_window_width),
+                (int) mRes.getDimension(R.dimen.fragment_color_picker_popup_window_height),
                 true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            popupWindow.setElevation(mRes.getDimension(R.dimen.fragment_color_picker_popupwindow_elevation));
+            popupWindow.setElevation(mRes.getDimension(R.dimen.fragment_color_picker_popup_window_elevation));
         }
         return popupWindow;
     }
@@ -353,9 +360,9 @@ public final class ColorPickerFragment extends Fragment {
     void showPopupWindow() {
         mEditPw.setAnimationStyle(R.style.ColorPickerPopupWindowAnimation);
         mEditPw.showAtLocation(mParentView,
-                mRes.getInteger(R.integer.fragment_color_picker_popupwindow_gravity),
-                (int) mRes.getDimension(R.dimen.fragment_color_picker_popupwindow_offset_x),
-                (int) mRes.getDimension(R.dimen.fragment_color_picker_popupwindow_offset_y));
+                mRes.getInteger(R.integer.fragment_color_picker_popup_window_gravity),
+                (int) mRes.getDimension(R.dimen.fragment_color_picker_popup_window_offset_x),
+                (int) mRes.getDimension(R.dimen.fragment_color_picker_popup_window_offset_y));
     }
 
 
@@ -384,7 +391,7 @@ public final class ColorPickerFragment extends Fragment {
 
     @NonNull
     int[] getHsvColorsOverridden() {
-        return mHsvColorsOverridden;
+        return mHsvOverriddenColors;
     }
 
     float getHsvDegree() {

@@ -19,10 +19,8 @@ import com.gamaliev.notes.rest.NoteApi;
 import com.gamaliev.notes.sync.db.SyncDbHelper;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -69,12 +67,14 @@ import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("WeakerAccess")
 public final class SyncUtils {
 
     /* Logger */
     private static final String TAG = SyncUtils.class.getSimpleName();
 
     /* ... */
+    @SuppressWarnings("unused")
     public static final int STATUS_ERROR    = 0;
     public static final int STATUS_OK       = 1;
 
@@ -88,9 +88,10 @@ public final class SyncUtils {
     public static final int ACTION_START                = 7;
     public static final int ACTION_COMPLETE             = 8;
     public static final int ACTION_DELETE_ALL_FROM_SERVER_START = 9;
-    public static final int ACTION_CONFLICTING_ADDED    = 10;
-    public static final int ACTION_PENDING_START_NO_WIFI = 11;
-    public static final int ACTION_PENDING_START_NO_INET = 12;
+    public static final int ACTION_DELETE_ALL_FROM_SERVER_COMPLETE = 10;
+    public static final int ACTION_CONFLICTING_ADDED    = 11;
+    public static final int ACTION_PENDING_START_NO_WIFI = 12;
+    public static final int ACTION_PENDING_START_NO_INTERNET = 13;
 
     public static final int[] STATUS_TEXT = {
             R.string.fragment_sync_item_status_error,
@@ -108,6 +109,7 @@ public final class SyncUtils {
             R.string.fragment_sync_item_action_started,
             R.string.fragment_sync_item_action_completed,
             R.string.fragment_sync_item_action_delete_all_from_server_start,
+            R.string.fragment_sync_item_action_delete_all_from_server_completed,
             R.string.fragment_sync_item_action_conflict,
             R.string.fragment_sync_item_action_pending_start_no_wifi,
             R.string.fragment_sync_item_action_pending_start_no_internet
@@ -146,12 +148,15 @@ public final class SyncUtils {
      */
 
     private static void checkNetworkAndUserSettings(@NonNull final Context context) {
+        String status;
         switch (NetworkUtils.checkNetwork(context)) {
             case NetworkUtils.NETWORK_MOBILE:
                 if (SpUsers.getSyncWifiOnlyForCurrentUser(context)) {
-                    if (!getPendingSyncStatusForCurrentUser(context)
-                            .equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
-
+                    status = getPendingSyncStatusForCurrentUser(context);
+                    if (status == null) {
+                        status = SpUsers.SP_USER_SYNC_PENDING_FALSE;
+                    }
+                    if (!status.equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
                         addToSyncJournalAndLogAndNotify(
                                 context,
                                 ACTION_PENDING_START_NO_WIFI,
@@ -170,12 +175,14 @@ public final class SyncUtils {
 
             case NetworkUtils.NETWORK_NO:
             default:
-                if (!getPendingSyncStatusForCurrentUser(context)
-                        .equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
-
+                status = getPendingSyncStatusForCurrentUser(context);
+                if (status == null) {
+                    status = SpUsers.SP_USER_SYNC_PENDING_FALSE;
+                }
+                if (!status.equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
                     addToSyncJournalAndLogAndNotify(
                             context,
-                            ACTION_PENDING_START_NO_INET,
+                            ACTION_PENDING_START_NO_INTERNET,
                             STATUS_OK,
                             0,
                             RESULT_CODE_SYNC_PENDING_START,
@@ -204,6 +211,7 @@ public final class SyncUtils {
         });
     }
 
+    @SuppressWarnings({"UnusedReturnValue", "SameReturnValue"})
     public static boolean makeSynchronize(@NonNull final Context context) {
         setSyncRunning(true);
 
@@ -251,9 +259,16 @@ public final class SyncUtils {
         final Cursor cursor = getNewEntries(context);
         if (cursor != null) {
             while (cursor.moveToNext()) {
-                final JSONObject jsonNewEntry = ListEntry.getJsonObject(context, cursor);
+                final JSONObject jsonNewEntry = ListEntry.getJsonObjectFromCursor(context, cursor);
+                if (jsonNewEntry == null) {
+                    continue;
+                }
                 try {
-                    final Response<String> response = getNoteApi()
+                    final NoteApi noteApi = getNoteApi();
+                    if (noteApi == null) {
+                        throw new Exception("Cannot get note api.");
+                    }
+                    final Response<String> response = noteApi
                             .add(   getSyncIdForCurrentUser(context),
                                     jsonNewEntry.toString())
                             .execute();
@@ -277,7 +292,7 @@ public final class SyncUtils {
                         Log.e(TAG, response.toString());
                     }
 
-                } catch (IOException | JSONException e) {
+                } catch (Exception e) {
                     Log.e(TAG, e.toString());
                 }
             }
@@ -306,7 +321,11 @@ public final class SyncUtils {
             while (cursor.moveToNext()) {
                 final String syncId = cursor.getString(cursor.getColumnIndex(COMMON_COLUMN_SYNC_ID));
                 try {
-                    final Response<String> response = getNoteApi()
+                    final NoteApi noteApi = getNoteApi();
+                    if (noteApi == null) {
+                        throw new Exception("Cannot get note api.");
+                    }
+                    final Response<String> response = noteApi
                             .delete(getSyncIdForCurrentUser(context),
                                     syncId)
                             .execute();
@@ -334,7 +353,7 @@ public final class SyncUtils {
                         Log.e(TAG, response.toString());
                     }
 
-                } catch (IOException | JSONException e) {
+                } catch (Exception e) {
                     Log.e(TAG, e.toString());
                 }
             }
@@ -359,7 +378,11 @@ public final class SyncUtils {
         int counterDeletedOnLocal   = 0;
 
         try {
-            final Response<String> response = getNoteApi()
+            final NoteApi noteApi = getNoteApi();
+            if (noteApi == null) {
+                throw new Exception("Cannot get note api.");
+            }
+            final Response<String> response = noteApi
                     .getAll(getSyncIdForCurrentUser(context))
                     .execute();
 
@@ -427,11 +450,17 @@ public final class SyncUtils {
 
                                         if (syncIdLocal.equals(syncIdServer)) {
                                             final JSONObject jsonLocal =
-                                                    ListEntry.getJsonObject(context, cursor);
+                                                    ListEntry.getJsonObjectFromCursor(context, cursor);
+                                            if (jsonLocal == null) {
+                                                continue;
+                                            }
                                             final Map<String, String> mapLocal =
                                                     SpCommon.convertJsonToMap(jsonLocal.toString());
                                             final Map<String, String> mapServer =
                                                     SpCommon.convertJsonToMap(data.getString(i));
+                                            if (mapLocal == null || mapServer == null) {
+                                                continue;
+                                            }
                                             mapServer.remove(API_KEY_ID);
                                             mapServer.remove(API_KEY_EXTRA);
 
@@ -485,7 +514,7 @@ public final class SyncUtils {
                 Log.e(TAG, response.toString());
             }
 
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             Log.e(TAG, e.toString());
         }
 
@@ -555,11 +584,14 @@ public final class SyncUtils {
                 getProgressNotificationTimerForCurrentUser(context.getApplicationContext()),
                 true);
 
-        final NoteApi noteApi = getNoteApi();
         final String currentUser = getSyncIdForCurrentUser(context);
         int counter = 0;
 
         try {
+            final NoteApi noteApi = getNoteApi();
+            if (noteApi == null) {
+                throw new Exception("Cannot get note api.");
+            }
             final Response<String> response = noteApi
                     .getAll(currentUser)
                     .execute();
@@ -590,7 +622,7 @@ public final class SyncUtils {
                 Log.e(TAG, response.toString());
             }
 
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             Log.e(TAG, e.toString());
         }
 
@@ -598,7 +630,7 @@ public final class SyncUtils {
 
         addToSyncJournalAndLogAndNotify(
                 context,
-                ACTION_DELETED_FROM_SERVER,
+                ACTION_DELETE_ALL_FROM_SERVER_COMPLETE,
                 STATUS_OK,
                 counter,
                 RESULT_CODE_SYNC_SUCCESS,
@@ -621,7 +653,7 @@ public final class SyncUtils {
     public static void addToSyncJournalAndLogAndNotify(
             @NonNull final Context context,
             final int action,
-            final int status,
+            @SuppressWarnings("SameParameterValue") final int status,
             final int count,
             final int resultCode,
             final boolean showToast) {
@@ -647,6 +679,7 @@ public final class SyncUtils {
                 null);
     }
 
+    @SuppressWarnings("SameParameterValue")
     public static void logAndNotify(
             @NonNull final Context context,
             @NonNull final String message,
@@ -670,9 +703,13 @@ public final class SyncUtils {
         ...
      */
 
+    @SuppressWarnings("UnusedReturnValue")
     public static boolean checkPendingSyncAndStart(@NonNull final Context context) {
-        if (getPendingSyncStatusForCurrentUser(context)
-                .equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
+        String status = getPendingSyncStatusForCurrentUser(context);
+        if (status == null) {
+            status = SpUsers.SP_USER_SYNC_PENDING_FALSE;
+        }
+        if (status.equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
             SyncUtils.synchronize(context);
             return true;
         }

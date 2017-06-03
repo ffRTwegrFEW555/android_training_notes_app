@@ -40,10 +40,14 @@ public class SettingsPreferenceFragment extends PreferenceFragmentCompat
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        final String userId = SpUsers.getSelected(getActivity());
+        if (userId == null) {
+            return;
+        }
+
         // Change preference name to current user.
         final PreferenceManager manager = getPreferenceManager();
-        manager.setSharedPreferencesName(
-                SpUsers.getPreferencesName(SpUsers.getSelected(getActivity())));
+        manager.setSharedPreferencesName(SpUsers.getPreferencesName(userId));
         manager.setSharedPreferencesMode(MODE_PRIVATE);
 
         // Load the preferences from an XML resource

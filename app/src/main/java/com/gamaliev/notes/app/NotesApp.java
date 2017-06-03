@@ -20,6 +20,7 @@ import static com.gamaliev.notes.conflict.ConflictUtils.checkConflictExistsAndSh
 public class NotesApp extends Application {
 
     /* ... */
+    @SuppressWarnings("NullableProblems")
     @NonNull private static Context sAppContext;
 
 

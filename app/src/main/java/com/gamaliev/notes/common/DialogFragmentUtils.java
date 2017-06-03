@@ -2,6 +2,7 @@ package com.gamaliev.notes.common;
 
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 
 import com.gamaliev.notes.R;
@@ -36,31 +37,30 @@ public final class DialogFragmentUtils {
      *                          {@link com.gamaliev.notes.common.CommonUtils#EXTRA_REVEAL_ANIM_CENTER_CENTER},
      *                          {@link com.gamaliev.notes.common.CommonUtils#EXTRA_REVEAL_ANIM_CENTER_TOP_END},
      */
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void initCircularRevealAnimation(
             @NonNull final View dialog,
-            final boolean openAnimation,
+            @SuppressWarnings("SameParameterValue") final boolean openAnimation,
             final int centerOfAnimation) {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            dialog.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-                @Override
-                public void onLayoutChange(View v,
-                                           int left, int top, int right, int bottom,
-                                           int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                    v.removeOnLayoutChangeListener(this);
-                    if (openAnimation) {
-                        circularRevealAnimationOn(
-                                v.getRootView(),
-                                centerOfAnimation,
-                                v.getResources().getInteger(R.integer.circular_reveal_animation_value));
-                    } else {
-                        circularRevealAnimationOff(
-                                v.getRootView(),
-                                centerOfAnimation,
-                                v.getResources().getInteger(R.integer.circular_reveal_animation_value));
-                    }
+        dialog.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v,
+                                       int left, int top, int right, int bottom,
+                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                v.removeOnLayoutChangeListener(this);
+                if (openAnimation) {
+                    circularRevealAnimationOn(
+                            v.getRootView(),
+                            centerOfAnimation,
+                            v.getResources().getInteger(R.integer.circular_reveal_animation_value));
+                } else {
+                    circularRevealAnimationOff(
+                            v.getRootView(),
+                            centerOfAnimation,
+                            v.getResources().getInteger(R.integer.circular_reveal_animation_value));
                 }
-            });
-        }
+            }
+        });
     }
 }

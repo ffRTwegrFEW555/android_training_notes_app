@@ -14,14 +14,14 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.app.NotesApp;
-import com.gamaliev.notes.colorpicker.db.ColorPickerDbHelper;
+import com.gamaliev.notes.color_picker.db.ColorPickerDbHelper;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.gamaliev.notes.app.NotesApp.getAppContext;
 import static com.gamaliev.notes.common.CommonUtils.showToast;
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 
@@ -30,6 +30,7 @@ import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("WeakerAccess")
 public final class DbHelper extends SQLiteOpenHelper {
 
     /* Logger */
@@ -99,7 +100,7 @@ public final class DbHelper extends SQLiteOpenHelper {
                     FAVORITE_COLUMN_COLOR +                 " INTEGER NOT NULL); ";
 
     /* Entries */
-    public static final String SQL_LIST_ITEMS_CREATE_TABLE =
+    private static final String SQL_LIST_ITEMS_CREATE_TABLE =
             "CREATE TABLE " + LIST_ITEMS_TABLE_NAME + " (" +
                     BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     LIST_ITEMS_COLUMN_MANUALLY +            " INTEGER DEFAULT 0, " +
@@ -112,9 +113,11 @@ public final class DbHelper extends SQLiteOpenHelper {
                     LIST_ITEMS_COLUMN_EDITED +  " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                     LIST_ITEMS_COLUMN_VIEWED +  " DATETIME DEFAULT CURRENT_TIMESTAMP); ";
 
-    /* Entries. Drop */
-    public static final String SQL_LIST_ITEMS_DROP_TABLE =
-            "DROP TABLE " + LIST_ITEMS_TABLE_NAME + ";";
+// --Commented out by Inspection START:
+//    /* Entries. Drop */
+//    public static final String SQL_LIST_ITEMS_DROP_TABLE =
+//            "DROP TABLE " + LIST_ITEMS_TABLE_NAME + ";";
+// --Commented out by Inspection STOP
 
     /* Sync. Journal table */
     public static final String SQL_SYNC_CREATE_TABLE =
@@ -164,7 +167,8 @@ public final class DbHelper extends SQLiteOpenHelper {
      */
 
     @NonNull private static final Map<String, DbHelper> INSTANCES;
-    @NonNull private static String mDbFailMessage;
+    @SuppressWarnings("NullableProblems")
+    @NonNull private static final String mDbFailMessage;
 
 
     /*
@@ -173,6 +177,7 @@ public final class DbHelper extends SQLiteOpenHelper {
 
     static {
         INSTANCES = new ConcurrentHashMap<>();
+        mDbFailMessage = getAppContext().getString(R.string.sql_toast_fail);
     }
 
     /**
@@ -187,10 +192,6 @@ public final class DbHelper extends SQLiteOpenHelper {
         final String userId = SpUsers.getSelected(context);
         if (TextUtils.isEmpty(userId)) {
             return null;
-        }
-
-        if (mDbFailMessage == null) {
-            mDbFailMessage = context.getString(R.string.sql_toast_fail);
         }
 
         // Use the application context, which will ensure that you
@@ -231,7 +232,7 @@ public final class DbHelper extends SQLiteOpenHelper {
     private void updateDatabase(
             @NonNull final SQLiteDatabase db,
             final int oldVersion,
-            final int newVersion) {
+            @SuppressWarnings("UnusedParameters") final int newVersion) {
 
         if (oldVersion == 0) {
             db.beginTransaction();
@@ -258,8 +259,8 @@ public final class DbHelper extends SQLiteOpenHelper {
 
     private void populateDatabase(@NonNull final SQLiteDatabase db) {
         // Adding default favorite colors;
-        final int boxesNumber = NotesApp
-                .getAppContext()
+        final int boxesNumber =
+                getAppContext()
                 .getResources()
                 .getInteger(R.integer.fragment_color_picker_favorite_boxes_number);
         for (int i = 0; i < boxesNumber; i++) {
@@ -290,6 +291,9 @@ public final class DbHelper extends SQLiteOpenHelper {
 
         try {
             final SQLiteDatabase db = getReadableDb(context);
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
+            }
             return db.query(
                     tableName,
                     null,
@@ -302,8 +306,9 @@ public final class DbHelper extends SQLiteOpenHelper {
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return null;
         }
+
+        return null;
     }
 
     /**
@@ -315,7 +320,7 @@ public final class DbHelper extends SQLiteOpenHelper {
      */
     public static int getEntriesCount(
             @NonNull final Context context,
-            @NonNull final String tableName,
+            @SuppressWarnings("SameParameterValue") @NonNull final String tableName,
             @Nullable final DbQueryBuilder queryBuilder) {
 
         final Cursor cursor = getEntries(context, tableName, queryBuilder);
@@ -337,35 +342,38 @@ public final class DbHelper extends SQLiteOpenHelper {
      * @param tableName     Table, where to insert a entry.
      * @param columnName    Column name.
      * @param value         Value.
-     * @return              True if ok, otherwise false.
      */
+    @SuppressWarnings("UnusedReturnValue")
     public static boolean insertEntryWithSingleValue(
             @NonNull final Context context,
             @Nullable SQLiteDatabase db,
             @NonNull final String tableName,
-            @NonNull final String columnName,
+            @SuppressWarnings("SameParameterValue") @NonNull final String columnName,
             @NonNull final String value) {
 
-        if (db == null) {
-            db = DbHelper.getWritableDb(context);
-        }
-
-        // If exists, do nothing.
-        final boolean exists = checkExists(
-                context,
-                tableName,
-                columnName,
-                value);
-        if (exists) {
-            return true;
-        }
-
         try {
+            if (db == null) {
+                db = DbHelper.getWritableDb(context);
+                if (db == null) {
+                    throw new SQLiteException(getDbFailMessage());
+                }
+            }
+
+            // If exists, do nothing.
+            final boolean exists = checkExists(
+                    context,
+                    tableName,
+                    columnName,
+                    value);
+            if (exists) {
+                return false;
+            }
+
             final ContentValues cv = new ContentValues();
             cv.put(columnName, value);
             if (db.insert(tableName, null, cv) == -1) {
                 final String error = String.format(Locale.ENGLISH,
-                        "[ERROR] Insert entry {%s: %s}",
+                        "Insert entry is failed: {%s: %s}",
                         columnName, value);
                 throw new SQLiteException(error);
             }
@@ -374,8 +382,9 @@ public final class DbHelper extends SQLiteOpenHelper {
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -386,6 +395,7 @@ public final class DbHelper extends SQLiteOpenHelper {
      * @param value         Value.
      * @return              True if ok, otherwise false.
      */
+    @SuppressWarnings("WeakerAccess")
     public static boolean checkExists(
             @NonNull final Context context,
             @NonNull final String tableName,
@@ -429,14 +439,18 @@ public final class DbHelper extends SQLiteOpenHelper {
             @NonNull final Context context,
             @Nullable SQLiteDatabase db,
             @NonNull final String tableName,
-            @NonNull final String columnName,
+            @SuppressWarnings("SameParameterValue") @NonNull final String columnName,
             @NonNull final String value,
             final boolean handleException) {
 
         try {
             if (db == null) {
                 db = getWritableDb(context);
+                if (db == null) {
+                    throw new SQLiteException(getDbFailMessage());
+                }
             }
+
             int deleteResult = db.delete(
                     tableName,
                     columnName + " = ?",
@@ -452,16 +466,17 @@ public final class DbHelper extends SQLiteOpenHelper {
             if (handleException) {
                 Log.e(TAG, e.toString());
                 showToastRunOnUiThread(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-                return false;
             } else {
                 return true;
             }
         }
+
+        return false;
     }
 
     public static int findCursorPositionByColumnValue(
             @NonNull final Cursor cursor,
-            @NonNull final String column,
+            @SuppressWarnings("SameParameterValue") @NonNull final String column,
             @NonNull final String value) {
 
         int position = cursor.getPosition();
@@ -477,7 +492,7 @@ public final class DbHelper extends SQLiteOpenHelper {
 
     public static String findColumnValueByCursorPosition(
             @NonNull final Cursor cursor,
-            @NonNull final String column,
+            @SuppressWarnings("SameParameterValue") @NonNull final String column,
             final int position) {
 
         if (cursor.moveToPosition(position)) {
@@ -495,14 +510,16 @@ public final class DbHelper extends SQLiteOpenHelper {
         Getters
      */
 
-    @NonNull
+    @Nullable
     public static SQLiteDatabase getWritableDb(@NonNull final Context context) {
-        return getInstance(context).getWritableDatabase();
+        final DbHelper dbHelper = getInstance(context);
+        return dbHelper == null ? null : dbHelper.getWritableDatabase();
     }
 
-    @NonNull
+    @Nullable
     public static SQLiteDatabase getReadableDb(@NonNull final Context context) {
-        return getInstance(context).getReadableDatabase();
+        final DbHelper dbHelper = getInstance(context);
+        return dbHelper == null ? null : dbHelper.getReadableDatabase();
     }
 
     @NonNull

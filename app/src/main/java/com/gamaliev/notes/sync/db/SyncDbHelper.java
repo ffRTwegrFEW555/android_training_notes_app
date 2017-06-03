@@ -51,12 +51,16 @@ public class SyncDbHelper {
         ...
      */
 
+    @SuppressWarnings("UnusedReturnValue")
     public static boolean insertEntry(
             @NonNull final Context context,
             @NonNull final SyncEntry entry) {
 
         try {
             final SQLiteDatabase db = getWritableDb(context);
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
+            }
 
             final String utcFinishedDate =
                     getStringDateFormatSqlite(
@@ -88,8 +92,9 @@ public class SyncDbHelper {
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -101,6 +106,9 @@ public class SyncDbHelper {
 
         try {
             final SQLiteDatabase db = getReadableDb(context);
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
+            }
             return db.query(
                     SYNC_TABLE_NAME,
                     null,
@@ -113,8 +121,9 @@ public class SyncDbHelper {
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return null;
         }
+
+        return null;
     }
 
     /**
@@ -126,6 +135,10 @@ public class SyncDbHelper {
 
         try {
             final SQLiteDatabase db = getWritableDb(context);
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
+            }
+
             db.beginTransaction();
             try {
                 db.execSQL(SQL_SYNC_DROP_TABLE);

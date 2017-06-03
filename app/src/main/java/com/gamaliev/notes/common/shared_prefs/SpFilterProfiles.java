@@ -34,6 +34,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPreferencesName;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("WeakerAccess")
 public final class SpFilterProfiles {
 
     /* Logger */
@@ -159,13 +160,14 @@ public final class SpFilterProfiles {
      * @param context   Context.
      * @return          Id of selected filter profile.
      */
-    @NonNull
+    @Nullable
     public static String getSelectedIdForCurrentUser(
             @NonNull final Context context) {
 
-        return getSelectedId(
-                context,
-                SpUsers.getSelected(context));
+        final String selected = SpUsers.getSelected(context);
+        return selected == null
+                ? null
+                : getSelectedId(context, selected);
     }
 
     /**
@@ -190,13 +192,14 @@ public final class SpFilterProfiles {
      * @param context   Context.
      * @return          Filter profile in Json-format.
      */
-    @NonNull
+    @Nullable
     public static String getSelectedForCurrentUser(
             @NonNull final Context context) {
 
-        return getSelected(
-                context,
-                SpUsers.getSelected(context));
+        final String selected = SpUsers.getSelected(context);
+        return selected == null
+                ? null
+                : getSelected(context, selected);
     }
 
     /**
@@ -215,6 +218,9 @@ public final class SpFilterProfiles {
                 MODE_PRIVATE);
 
         final String profileId = getSelectedId(context, userId);
+        if (profileId == null) {
+            return null;
+        }
 
         if (SP_FILTER_PROFILE_CURRENT_ID.equals(profileId)) {
             return sp.getString(SP_FILTER_PROFILE_CURRENT, null);
@@ -232,13 +238,14 @@ public final class SpFilterProfiles {
      * @param context   Context.
      * @return          All filter profiles.
      */
-    @NonNull
+    @Nullable
     public static Set<String> getProfilesForCurrentUser(
             @NonNull final Context context) {
 
-        return getProfiles(
-                context,
-                SpUsers.getSelected(context));
+        final String selected = SpUsers.getSelected(context);
+        return selected == null
+                ? null
+                : getProfiles(context, selected);
     }
 
     /**
@@ -269,12 +276,15 @@ public final class SpFilterProfiles {
      * @param profile   Filter profile.
      * @return          Id of added filter profile.
      */
-    @NonNull
+    @Nullable
     public static String addForCurrentUser(
             @NonNull final Context context,
             @NonNull final Map<String, String> profile) {
 
-        return add(context, SpUsers.getSelected(context), profile);
+        final String selected = SpUsers.getSelected(context);
+        return selected == null
+                ? null
+                : add(context, selected, profile);
     }
 
     /**
@@ -304,12 +314,19 @@ public final class SpFilterProfiles {
      * Set id of selected filter profile to current user preferences.
      * @param context   Context.
      * @param profileId Profile id.
+     * @return True if ok, otherwise false.
      */
-    public static void setSelectedForCurrentUser(
+    @SuppressWarnings("UnusedReturnValue")
+    public static boolean setSelectedForCurrentUser(
             @NonNull final Context context,
             @NonNull final String profileId) {
 
-        setSelected(context, SpUsers.getSelected(context), profileId);
+        final String selected = SpUsers.getSelected(context);
+        if (selected == null) {
+            return false;
+        }
+        setSelected(context, selected, profileId);
+        return true;
     }
 
     /**
@@ -336,12 +353,19 @@ public final class SpFilterProfiles {
      * Update current profile in current user preferences, by given filter profile.
      * @param context   Context.
      * @param profile   Filter profile.
+     * @return True if ok, otherwise false.
      */
-    public static void updateCurrentForCurrentUser(
+    @SuppressWarnings("UnusedReturnValue")
+    public static boolean updateCurrentForCurrentUser(
             @NonNull final Context context,
             @NonNull final Map<String, String> profile) {
 
-        updateCurrent(context, SpUsers.getSelected(context), profile);
+        final String selected = SpUsers.getSelected(context);
+        if (selected == null) {
+            return false;
+        }
+        updateCurrent(context, selected, profile);
+        return true;
     }
 
     /**
@@ -409,12 +433,15 @@ public final class SpFilterProfiles {
      * Delete filter profile from current user preferences.
      * @param context       Context.
      * @param profileId     Profile id.
+     * @return True if ok, otherwise false.
      */
-    public static void deleteForCurrentUser(
+    @SuppressWarnings("UnusedReturnValue")
+    public static boolean deleteForCurrentUser(
             @NonNull final Context context,
             @NonNull final String profileId) {
 
-        delete(context, SpUsers.getSelected(context), profileId);
+        final String selected = SpUsers.getSelected(context);
+        return selected != null && delete(context, selected, profileId);
     }
 
     /**
@@ -422,20 +449,21 @@ public final class SpFilterProfiles {
      * @param context       Context.
      * @param userId        User id.
      * @param profileId     Profile id.
+     * @return True if ok, otherwise false.
      */
-    public static void delete(
+    public static boolean delete(
             @NonNull final Context context,
             @NonNull final String userId,
             @NonNull final String profileId) {
 
         if (SP_FILTER_PROFILE_DEFAULT_ID.equals(profileId)
                 || SP_FILTER_PROFILE_MANUAL_ID.equals(profileId)) {
-            return;
+            return true;
         }
 
         if (SP_FILTER_PROFILE_CURRENT_ID.equals(profileId)) {
             resetCurrent(context, userId);
-            return;
+            return true;
         }
 
         if (profileId.equals(getSelectedId(context, userId))) {
@@ -447,12 +475,14 @@ public final class SpFilterProfiles {
         while (iterator.hasNext()) {
             final String next = iterator.next();
 
-            JSONObject jsonObject;
+            JSONObject jsonObject = null;
             try {
                 jsonObject = new JSONObject(next);
             } catch (JSONException e) {
                 Log.e(TAG, e.toString());
-                return;
+            }
+            if (jsonObject == null) {
+                return false;
             }
             final String id = jsonObject.optString(SP_FILTER_ID);
 
@@ -463,5 +493,6 @@ public final class SpFilterProfiles {
         }
 
         updateProfiles(context, userId, set);
+        return true;
     }
 }

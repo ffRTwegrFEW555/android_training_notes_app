@@ -87,7 +87,7 @@ public final class SpCommon {
     public static void setString(
             @NonNull final Context context,
             @NonNull final String name,
-            @NonNull final String key,
+            @SuppressWarnings("SameParameterValue") @NonNull final String key,
             @NonNull final String value) {
 
         final SharedPreferences sp = context.getSharedPreferences(name, MODE_PRIVATE);
@@ -96,24 +96,26 @@ public final class SpCommon {
                 .apply();
     }
 
-    /**
-     * Get value from specified preferences, with specified key.
-     *
-     * @param context   Context.
-     * @param name      Name of preferences.
-     * @param key       Key.
-     *
-     * @return          Value.
-     */
-    @Nullable
-    public static String getString(
-            @NonNull final Context context,
-            @NonNull final String name,
-            @NonNull final String key) {
-
-        final SharedPreferences sp = context.getSharedPreferences(name, MODE_PRIVATE);
-        return sp.getString(key, null);
-    }
+// --Commented out by Inspection START:
+//    /**
+//     * Get value from specified preferences, with specified key.
+//     *
+//     * @param context   Context.
+//     * @param name      Name of preferences.
+//     * @param key       Key.
+//     *
+//     * @return          Value.
+//     */
+//    @Nullable
+//    public static String getString(
+//            @NonNull final Context context,
+//            @NonNull final String name,
+//            @NonNull final String key) {
+//
+//        final SharedPreferences sp = context.getSharedPreferences(name, MODE_PRIVATE);
+//        return sp.getString(key, null);
+//    }
+// --Commented out by Inspection STOP
 
 
     /*
@@ -129,8 +131,6 @@ public final class SpCommon {
     public static Map<String, String> convertJsonToMap(
             @NonNull final String json) {
 
-        final Map<String, String> map = new HashMap<>();
-
         JSONObject jsonObject;
         try {
             jsonObject = new JSONObject(json);
@@ -138,6 +138,8 @@ public final class SpCommon {
             Log.e(TAG, e.toString());
             return null;
         }
+
+        final Map<String, String> map = new HashMap<>();
 
         final Iterator<String> keys = jsonObject.keys();
         while (keys.hasNext()) {

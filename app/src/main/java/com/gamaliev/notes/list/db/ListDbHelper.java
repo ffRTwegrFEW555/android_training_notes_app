@@ -43,8 +43,6 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_MANUALLY;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_TITLE;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
-import static com.gamaliev.notes.common.db.DbHelper.SQL_LIST_ITEMS_CREATE_TABLE;
-import static com.gamaliev.notes.common.db.DbHelper.SQL_LIST_ITEMS_DROP_TABLE;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_DELETED_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.deleteEntryWithSingle;
@@ -91,21 +89,26 @@ public class ListDbHelper {
      * @param entry             Entry, contains title, description, color.
      * @param updateBySyncId    If true, then update current entry in database, by sync id.
      */
+    @SuppressWarnings("UnusedReturnValue")
     public static boolean insertUpdateEntry(
             @NonNull final Context context,
             @NonNull final ListEntry entry,
-            final boolean updateBySyncId) {
+            @SuppressWarnings("SameParameterValue") final boolean updateBySyncId) {
 
         try {
             final SQLiteDatabase db = getWritableDb(context);
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
+            }
             insertUpdateEntry(context, entry, db, updateBySyncId);
             return true;
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -190,6 +193,7 @@ public class ListDbHelper {
      * If null, then default is
      * {@link DbHelper#LIST_ITEMS_COLUMN_EDITED}.
      */
+    @SuppressWarnings("UnusedReturnValue")
     public static boolean updateEntry(
             @NonNull final Context context,
             @NonNull final ListEntry entry,
@@ -201,7 +205,13 @@ public class ListDbHelper {
 
         try {
             final SQLiteDatabase db     = getWritableDb(context);
-            final long id               = entry.getId();
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
+            }
+            final Long id               = entry.getId();
+            if (id == null) {
+                throw new SQLiteException("User id is null.");
+            }
             final String syncId         = (entry.getSyncId() == null || entry.getSyncId() == 0)
                     ? null
                     : entry.getSyncId().toString();
@@ -235,10 +245,12 @@ public class ListDbHelper {
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return false;
         }
+
+        return false;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public static boolean updateSyncId(
             @NonNull final Context context,
             @NonNull final String id,
@@ -246,6 +258,9 @@ public class ListDbHelper {
 
         try {
             final SQLiteDatabase db = getWritableDb(context);
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
+            }
 
             final ContentValues cv = new ContentValues();
             cv.put(COMMON_COLUMN_SYNC_ID, syncId);
@@ -265,8 +280,9 @@ public class ListDbHelper {
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -279,6 +295,9 @@ public class ListDbHelper {
 
         try {
             final SQLiteDatabase db = getReadableDb(context);
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
+            }
             return db.query(
                     LIST_ITEMS_TABLE_NAME,
                     null,
@@ -291,8 +310,9 @@ public class ListDbHelper {
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return null;
         }
+
+        return null;
     }
 
     /**
@@ -305,58 +325,59 @@ public class ListDbHelper {
             @NonNull final Context context,
             @NonNull final Long id) {
 
-        final ListEntry entry = new ListEntry();
-        final SQLiteDatabase db = getReadableDb(context);
+        try {
+            final SQLiteDatabase db = getReadableDb(context);
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
+            }
 
-        try (Cursor cursor = db.query(
-                LIST_ITEMS_TABLE_NAME,
-                null,
-                BASE_COLUMN_ID + " = ?",
-                new String[] {id.toString()},
-                null,
-                null,
-                null)) {
+            try (Cursor cursor = db.query(
+                    LIST_ITEMS_TABLE_NAME,
+                    null,
+                    BASE_COLUMN_ID + " = ?",
+                    new String[] {id.toString()},
+                    null,
+                    null,
+                    null)) {
 
-            if (cursor.moveToFirst()) {
-                final int indexId           = cursor.getColumnIndex(BASE_COLUMN_ID);
-                final int indexSyncId       = cursor.getColumnIndex(COMMON_COLUMN_SYNC_ID);
-                final int indexTitle        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_TITLE);
-                final int indexDescription  = cursor.getColumnIndex(LIST_ITEMS_COLUMN_DESCRIPTION);
-                final int indexColor        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_COLOR);
-                final int indexImageUrl     = cursor.getColumnIndex(LIST_ITEMS_COLUMN_IMAGE_URL);
-                final int indexCreated      = cursor.getColumnIndex(LIST_ITEMS_COLUMN_CREATED);
-                final int indexEdited       = cursor.getColumnIndex(LIST_ITEMS_COLUMN_EDITED);
-                final int indexViewed       = cursor.getColumnIndex(LIST_ITEMS_COLUMN_VIEWED);
+                final ListEntry entry = new ListEntry();
 
-                entry.setId(            cursor.getLong(     indexId));
-                entry.setSyncId(        cursor.getLong(     indexSyncId));
-                entry.setTitle(         cursor.getString(   indexTitle));
-                entry.setDescription(   cursor.getString(   indexDescription));
-                entry.setColor(         cursor.getInt(      indexColor));
-                entry.setImageUrl(      cursor.getString(   indexImageUrl));
+                if (cursor.moveToFirst()) {
+                    final int indexId           = cursor.getColumnIndex(BASE_COLUMN_ID);
+                    final int indexSyncId       = cursor.getColumnIndex(COMMON_COLUMN_SYNC_ID);
+                    final int indexTitle        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_TITLE);
+                    final int indexDescription  = cursor.getColumnIndex(LIST_ITEMS_COLUMN_DESCRIPTION);
+                    final int indexColor        = cursor.getColumnIndex(LIST_ITEMS_COLUMN_COLOR);
+                    final int indexImageUrl     = cursor.getColumnIndex(LIST_ITEMS_COLUMN_IMAGE_URL);
+                    final int indexCreated      = cursor.getColumnIndex(LIST_ITEMS_COLUMN_CREATED);
+                    final int indexEdited       = cursor.getColumnIndex(LIST_ITEMS_COLUMN_EDITED);
+                    final int indexViewed       = cursor.getColumnIndex(LIST_ITEMS_COLUMN_VIEWED);
 
-                DateFormat df = CommonUtils.getDateFormatSqlite(context, true);
-                try {
+                    entry.setId(            cursor.getLong(     indexId));
+                    entry.setSyncId(        cursor.getLong(     indexSyncId));
+                    entry.setTitle(         cursor.getString(   indexTitle));
+                    entry.setDescription(   cursor.getString(   indexDescription));
+                    entry.setColor(         cursor.getInt(      indexColor));
+                    entry.setImageUrl(      cursor.getString(   indexImageUrl));
+
+                    DateFormat df   = CommonUtils.getDateFormatSqlite(context, true);
                     Date created    = df.parse(cursor.getString(indexCreated));
                     Date edited     = df.parse(cursor.getString(indexEdited));
                     Date viewed     = df.parse(cursor.getString(indexViewed));
-
                     entry.setCreated(created);
                     entry.setEdited(edited);
                     entry.setViewed(viewed);
 
-                } catch (ParseException e) {
-                    Log.e(TAG, e.toString());
-                }
+                    }
+
+                return entry;
             }
 
-            return entry;
-
-        } catch (SQLiteException e) {
+        } catch (ParseException | SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return null;
         }
+        return null;
     }
 
     /**
@@ -364,6 +385,7 @@ public class ListDbHelper {
      * @param id    Id of entry to be deleted.
      * @return      True if success, otherwise false.
      */
+    @SuppressWarnings("UnusedReturnValue")
     public static boolean deleteEntry(
             @NonNull final Context context,
             @NonNull final Long id,
@@ -377,8 +399,11 @@ public class ListDbHelper {
 
         try {
             final SQLiteDatabase db = getWritableDb(context);
-            int deleteResult;
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
+            }
 
+            int deleteResult;
             db.beginTransaction();
             try {
                 deleteResult = db.delete(
@@ -422,37 +447,40 @@ public class ListDbHelper {
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return false;
-        }
-    }
-
-    /**
-     * Delete all rows from list table.
-     * @return true if ok, otherwise false.
-     */
-    public static boolean removeAllEntries(
-            @NonNull final Context context) {
-
-        try {
-            final SQLiteDatabase db = getWritableDb(context);
-            db.beginTransaction();
-            try {
-                db.execSQL(SQL_LIST_ITEMS_DROP_TABLE);
-                db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
-                db.setTransactionSuccessful();
-                return true;
-
-            } finally {
-                db.endTransaction();
-            }
-
-        } catch (SQLiteException e) {
-            Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
         }
 
         return false;
     }
+
+// --Commented out by Inspection START:
+//    /**
+//     * Delete all rows from list table.
+//     * @return true if ok, otherwise false.
+//     */
+//    public static boolean removeAllEntries(
+//            @NonNull final Context context) {
+//
+//        try {
+//            final SQLiteDatabase db = getWritableDb(context);
+//            db.beginTransaction();
+//            try {
+//                db.execSQL(SQL_LIST_ITEMS_DROP_TABLE);
+//                db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
+//                db.setTransactionSuccessful();
+//                return true;
+//
+//            } finally {
+//                db.endTransaction();
+//            }
+//
+//        } catch (SQLiteException e) {
+//            Log.e(TAG, e.toString());
+//            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+//        }
+//
+//        return false;
+//    }
+// --Commented out by Inspection STOP
 
     /**
      * Add mock entries.
@@ -465,8 +493,11 @@ public class ListDbHelper {
 
         try {
             final SQLiteDatabase db = getWritableDb(context);
-            db.beginTransaction();
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
+            }
 
+            db.beginTransaction();
             try {
                 ListDbMockHelper.addMockEntries(
                         context,
@@ -596,47 +627,54 @@ public class ListDbHelper {
         return resultQueryBuilder;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     static boolean swapManuallyColumnValue(
             @NonNull final Context context,
             @NonNull final String entryFirstId,
             @NonNull final String entrySecondId) {
 
-        final SQLiteDatabase db = getWritableDb(context.getApplicationContext());
-        db.beginTransaction();
         try {
-            final String entryFirstValue = getManuallyColumnValue(context, db, entryFirstId);
-            if (entryFirstValue == null) {
-                throw new SQLiteException(
-                        String.format(
-                                Locale.ENGLISH,
-                                "Getting value, from 'manually column', with entry id: %s",
-                                entryFirstId));
+            final SQLiteDatabase db = getWritableDb(context.getApplicationContext());
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
             }
 
-            final String entrySecondValue = getManuallyColumnValue(context, db, entrySecondId);
-            if (entrySecondValue == null) {
-                throw new SQLiteException(
-                        String.format(
-                                Locale.ENGLISH,
-                                "Getting value, from 'manually column', with entry id: %s",
-                                entrySecondId));
+            db.beginTransaction();
+            try {
+                final String entryFirstValue = getManuallyColumnValue(context, db, entryFirstId);
+                if (entryFirstValue == null) {
+                    throw new SQLiteException(
+                            String.format(
+                                    Locale.ENGLISH,
+                                    "Getting value, from 'manually column', with entry id: %s",
+                                    entryFirstId));
+                }
+
+                final String entrySecondValue = getManuallyColumnValue(context, db, entrySecondId);
+                if (entrySecondValue == null) {
+                    throw new SQLiteException(
+                            String.format(
+                                    Locale.ENGLISH,
+                                    "Getting value, from 'manually column', with entry id: %s",
+                                    entrySecondId));
+                }
+
+                updateManuallyColumnValue(context, db, entryFirstId, entrySecondValue);
+                updateManuallyColumnValue(context, db, entrySecondId, entryFirstValue);
+
+                db.setTransactionSuccessful();
+                return true;
+
+            } finally {
+                db.endTransaction();
             }
-
-            updateManuallyColumnValue(context, db, entryFirstId, entrySecondValue);
-            updateManuallyColumnValue(context, db, entrySecondId, entryFirstValue);
-
-            db.setTransactionSuccessful();
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
             showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-            return false;
-
-        } finally {
-            db.endTransaction();
         }
 
-        return true;
+        return false;
     }
 
     @Nullable
@@ -673,6 +711,7 @@ public class ListDbHelper {
         return value;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     private static boolean updateManuallyColumnValue(
             @NonNull final Context context,
             @NonNull final SQLiteDatabase db,

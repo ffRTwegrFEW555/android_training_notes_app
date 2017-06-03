@@ -14,7 +14,6 @@ public class RequestCode {
     /* Notes. Import. Export */
     public static final int REQUEST_CODE_NOTES_IMPORT               = 111;
     public static final int REQUEST_CODE_NOTES_EXPORT               = 112;
-    public static final int REQUEST_CODE_SYNC_NOTES                 = 114;
 
 
     /*

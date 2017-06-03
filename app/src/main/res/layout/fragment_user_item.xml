@@ -17,7 +17,7 @@
         android:layout_height="@dimen/fragment_user_item_photo_height"
         android:layout_marginEnd="@dimen/fragment_user_item_photo_margin_end"
         android:contentDescription="@string/fragment_user_item_photo_description"
-        android:src="@drawable/ic_account_circle_black_48dp"
+        android:src="@drawable/ic_account_circle_black_non_padding"
         android:tint="@color/color_picker_default"/>
 
     <LinearLayout

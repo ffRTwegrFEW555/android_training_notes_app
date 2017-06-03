@@ -3,6 +3,7 @@ package com.gamaliev.notes.common.db;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 
 /**
  * Helper for create select query, associated with
@@ -13,6 +14,9 @@ import android.text.TextUtils;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 public final class DbQueryBuilder {
+
+    /* Logger */
+    private static final String TAG = DbQueryBuilder.class.getSimpleName();
 
     /* SQL */
     public static final String OPERATOR_EQUALS  = " = ";
@@ -80,6 +84,7 @@ public final class DbQueryBuilder {
      * @param operands  Operands.
      * @return A reference to this object.
      */
+    @SuppressWarnings("UnusedReturnValue")
     @NonNull
     public DbQueryBuilder addAnd(
             @NonNull final String column,
@@ -93,18 +98,20 @@ public final class DbQueryBuilder {
                 operands);
     }
 
-    /**
-     * Add selection and selectionArgs from given query builder, to current query builder.<br>
-     * Add with 'OR' operator.
-     *
-     * @param queryBuilder Query builder, whose selection clauses will be added.
-     * @return A reference to this object.
-     */
-    @NonNull
-    public DbQueryBuilder addOrInner(@NonNull final DbQueryBuilder queryBuilder) {
-        addInner(queryBuilder, OPERATOR_OR);
-        return this;
-    }
+// --Commented out by Inspection START:
+//    /**
+//     * Add selection and selectionArgs from given query builder, to current query builder.<br>
+//     * Add with 'OR' operator.
+//     *
+//     * @param queryBuilder Query builder, whose selection clauses will be added.
+//     * @return A reference to this object.
+//     */
+//    @NonNull
+//    public DbQueryBuilder addOrInner(@NonNull final DbQueryBuilder queryBuilder) {
+//        addInner(queryBuilder, OPERATOR_OR);
+//        return this;
+//    }
+// --Commented out by Inspection STOP
 
     /**
      * Add selection and selectionArgs from given query builder, to current query builder.<br>
@@ -113,6 +120,7 @@ public final class DbQueryBuilder {
      * @param queryBuilder Query builder, whose selection clauses will be added.
      * @return A reference to this object.
      */
+    @SuppressWarnings("UnusedReturnValue")
     @NonNull
     public DbQueryBuilder addAndInner(@NonNull final DbQueryBuilder queryBuilder) {
         addInner(queryBuilder, OPERATOR_AND);
@@ -126,7 +134,7 @@ public final class DbQueryBuilder {
      */
     private void addInner(
             @NonNull final DbQueryBuilder queryBuilder,
-            @NonNull final String operator) {
+            @SuppressWarnings("SameParameterValue") @NonNull final String operator) {
 
         // Create inner clause.
         final StringBuilder sb = new StringBuilder();
@@ -143,9 +151,12 @@ public final class DbQueryBuilder {
                 .append(queryBuilder.getSelectionResult())
                 .append(") ");
 
-        updateSelectionClauses(
-                sb.toString(),
-                queryBuilder.getSelectionArgs());
+        final String[] selectionArgs = queryBuilder.getSelectionArgs();
+        if (selectionArgs == null) {
+            Log.e(TAG, "Selection arguments is null.");
+        } else {
+            updateSelectionClauses(sb.toString(), selectionArgs);
+        }
     }
 
     /**

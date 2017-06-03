@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.colorpicker.db.ColorPickerDbHelper;
+import com.gamaliev.notes.color_picker.db.ColorPickerDbHelper;
 import com.gamaliev.notes.common.ProgressNotificationHelper;
 
 import java.util.Random;
@@ -30,6 +30,7 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
 public class ListDbMockHelper {
 
     /* Mock data */
+    @SuppressWarnings("SpellCheckingInspection")
     private static final String[] LIST_MOCK_NAMES = {
             "Anastasia Aleksandrova", "Boris Babushkin", "Viktor Vasilyev", "Gennady Georgiyev",
             "Dmitry Dudinsky", "Yelena Yeremeyeva", "Pyotr Vorobyov", "Tatyana Terentyeva",
@@ -120,7 +121,7 @@ public class ListDbMockHelper {
     }
 
     /**
-     * @param random Generator of pseudorandom numbers.
+     * @param random Generator of pseudo-random numbers.
      * @return Random name from {@link #LIST_MOCK_NAMES}
      */
     @NonNull
@@ -129,7 +130,7 @@ public class ListDbMockHelper {
     }
 
     /**
-     * @param random Generator of pseudorandom numbers.
+     * @param random Generator of pseudo-random numbers.
      * @return Random description from {@link #LIST_MOCK_DESCRIPTION}
      */
     @NonNull
@@ -143,7 +144,7 @@ public class ListDbMockHelper {
     }
 
     /**
-     * @param random Generator of pseudorandom numbers.
+     * @param random Generator of pseudo-random numbers.
      * @return Random favorite color from
      * {@link ColorPickerDbHelper#FAVORITE_COLORS_DEFAULT}
      */
@@ -159,7 +160,7 @@ public class ListDbMockHelper {
     }
 
     /**
-     * @param random Generator of pseudorandom numbers.
+     * @param random Generator of pseudo-random numbers.
      * @return Random date from {@link #LIST_MOCK_DATE}
      */
     @NonNull

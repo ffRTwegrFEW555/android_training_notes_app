@@ -40,6 +40,7 @@ public interface ItemTouchHelperAdapter {
      * @see RecyclerView#getAdapterPositionFor(RecyclerView.ViewHolder)
      * @see RecyclerView.ViewHolder#getAdapterPosition()
      */
+    @SuppressWarnings("UnusedReturnValue")
     boolean onItemMove(int fromPosition, int toPosition);
 
 
@@ -58,5 +59,6 @@ public interface ItemTouchHelperAdapter {
 
     boolean swipeEnable();
 
+    @SuppressWarnings("unused")
     boolean dragDropEnable();
 }

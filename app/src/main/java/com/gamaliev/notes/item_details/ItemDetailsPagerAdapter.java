@@ -21,7 +21,7 @@ class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
 
     /* ... */
     @NonNull private final Fragment mFragment;
-    @Nullable private Cursor mCursor;
+    @Nullable private final Cursor mCursor;
 
 
     /*
@@ -80,7 +80,9 @@ class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
         return -1;
     }
 
-    public void setCursor(@NonNull final Cursor cursor) {
-        mCursor = cursor;
-    }
+// --Commented out by Inspection START:
+//    public void setCursor(@NonNull final Cursor cursor) {
+//        mCursor = cursor;
+//    }
+// --Commented out by Inspection STOP
 }

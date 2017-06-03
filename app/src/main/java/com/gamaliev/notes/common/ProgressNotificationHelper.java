@@ -68,13 +68,17 @@ public final class ProgressNotificationHelper {
         ...
      */
 
-    public void setProgress(final int max, final int progress) {
+    public void setProgress(
+            @SuppressWarnings("SameParameterValue") final int max,
+            final int progress) {
+
         if (isEnable()) {
             mBuilder.setProgress(max, progress, false);
             mManager.notify(mId, mBuilder.build());
         }
     }
 
+    @SuppressWarnings("WeakerAccess")
     public void setContinuingProgress() {
         if (isEnable()) {
             mBuilder.setProgress(0, 0, true);
@@ -129,10 +133,12 @@ public final class ProgressNotificationHelper {
         Setters and getters
     */
 
+    @SuppressWarnings({"WeakerAccess", "SameParameterValue"})
     public void setEnable(final boolean enable) {
         mEnable = enable;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public boolean isEnable() {
         return mEnable;
     }

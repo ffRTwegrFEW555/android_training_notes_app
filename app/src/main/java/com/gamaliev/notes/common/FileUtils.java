@@ -27,6 +27,7 @@ import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_NOTES_EXPORTED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_NOTES_IMPORTED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
+import static com.gamaliev.notes.common.db.DbHelper.getDbFailMessage;
 import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
 import static com.gamaliev.notes.common.observers.ObserverHelper.FILE_EXPORT;
@@ -34,7 +35,7 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.FILE_IMPORT;
 import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getProgressNotificationTimerForCurrentUser;
 import static com.gamaliev.notes.model.ListEntry.convertJsonToListEntry;
-import static com.gamaliev.notes.model.ListEntry.getJsonObject;
+import static com.gamaliev.notes.model.ListEntry.getJsonObjectFromCursor;
 
 /**
  * Class, for working with files, for exporting/importing entries from/to database.<br>
@@ -61,7 +62,7 @@ public class FileUtils {
     private static final String TAG = FileUtils.class.getSimpleName();
 
     /* ... */
-    public static final String FILE_NAME_EXPORT_DEFAULT = "itemlist.ili";
+    public static final String FILE_NAME_EXPORT_DEFAULT = "item_list.ili";
     private static final CommonUtils.LooperHandlerThread IMPORT_EXPORT_HANDLER_LOOPER_THREAD;
 
 
@@ -132,12 +133,16 @@ public class FileUtils {
                 jsonArray,
                 notification);
 
-        saveStringToFile(
-                activity,
-                jsonArray,
-                result,
-                selectedFile,
-                notification);
+        if (result == null) {
+            Log.e(TAG, "getEntriesFromDatabase() is null.");
+        } else {
+            saveStringToFile(
+                    activity,
+                    jsonArray,
+                    result,
+                    selectedFile,
+                    notification);
+        }
     }
 
     /**
@@ -175,7 +180,7 @@ public class FileUtils {
                     break;
                 }
 
-                jsonObject = getJsonObject(activity, cursor);
+                jsonObject = getJsonObjectFromCursor(activity, cursor);
 
             // Catch clause is used, because during the export there can be changes.
             } catch (IllegalStateException e) {
@@ -290,11 +295,14 @@ public class FileUtils {
                 false);
 
         final String inputJson = getStringFromFile(activity, selectedFile);
-
-        parseAndSaveToDatabase(
-                activity,
-                inputJson,
-                notification);
+        if (inputJson == null) {
+            Log.e(TAG, "getStringFromFile() is null.");
+        } else {
+            parseAndSaveToDatabase(
+                    activity,
+                    inputJson,
+                    notification);
+        }
     }
 
     /**
@@ -350,6 +358,10 @@ public class FileUtils {
 
         try {
             final SQLiteDatabase db = getWritableDb(activity.getApplicationContext());
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
+            }
+
             final JSONArray jsonArray = new JSONArray(inputJson);
             final int size = jsonArray.length();
             int percent = 0;
@@ -420,6 +432,7 @@ public class FileUtils {
     /**
      * Typically used to initialize a variable, and running thread.
      */
+    @SuppressWarnings("UnusedReturnValue")
     public static CommonUtils.LooperHandlerThread getImportExportHandlerLooperThread() {
         return IMPORT_EXPORT_HANDLER_LOOPER_THREAD;
     }

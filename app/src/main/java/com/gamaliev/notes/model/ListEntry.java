@@ -227,7 +227,7 @@ public class ListEntry implements Parcelable {
      * @throws IllegalStateException Usually happens when the data has been changed.
      */
     @Nullable
-    public static JSONObject getJsonObject(
+    public static JSONObject getJsonObjectFromCursor(
             @NonNull final Context context,
             @NonNull final Cursor cursor) throws IllegalStateException {
 
@@ -301,14 +301,26 @@ public class ListEntry implements Parcelable {
         final String viewed         = jsonObject.optString(LIST_ITEMS_COLUMN_VIEWED, null);
 
         final ListEntry entry = new ListEntry();
-        entry.setSyncId(syncIdLong);
+        if (syncIdLong != null) {
+            entry.setSyncId(syncIdLong);
+        }
         entry.setTitle(title);
         entry.setDescription(description);
         entry.setColor(color);
         entry.setImageUrl(imageUrl);
-        entry.setCreated(getDateFromISO8601String(context, created));
-        entry.setEdited(getDateFromISO8601String(context, edited));
-        entry.setViewed(getDateFromISO8601String(context, viewed));
+
+        final Date createdDate = getDateFromISO8601String(context, created);
+        final Date editedDate = getDateFromISO8601String(context, edited);
+        final Date viewedDate = getDateFromISO8601String(context, viewed);
+        if (createdDate != null) {
+            entry.setCreated(createdDate);
+        }
+        if (editedDate != null) {
+            entry.setEdited(editedDate);
+        }
+        if (viewedDate != null) {
+            entry.setViewed(viewedDate);
+        }
 
         return entry;
     }

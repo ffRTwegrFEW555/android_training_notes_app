@@ -19,6 +19,7 @@ public class ObserverHelper {
     private static final Map<String, Map<String, Observer>> OBSERVERS;
 
     /* Types of observation */
+    @SuppressWarnings("WeakerAccess")
     public static final String COMMON           = "COMMON";
     public static final String FILE_EXPORT      = "FILE_EXPORT";
     public static final String FILE_IMPORT      = "FILE_IMPORT";
@@ -85,6 +86,7 @@ public class ObserverHelper {
         Notifying
      */
 
+    @SuppressWarnings("SameParameterValue")
     public static void notifyAllObservers(
             final int resultCode,
             @Nullable final Bundle data) {

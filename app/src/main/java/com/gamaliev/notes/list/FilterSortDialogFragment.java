@@ -3,6 +3,7 @@ package com.gamaliev.notes.list;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -33,7 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.colorpicker.db.ColorPickerDbHelper;
+import com.gamaliev.notes.color_picker.db.ColorPickerDbHelper;
 import com.gamaliev.notes.common.CommonUtils;
 import com.gamaliev.notes.list.db.ListDbHelper;
 
@@ -97,6 +98,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.updateCurr
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("NullableProblems")
 public final class FilterSortDialogFragment extends DialogFragment {
 
     /* Logger */
@@ -136,7 +138,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
             @Nullable final ViewGroup container,
             final Bundle savedInstanceState) {
 
-        mDialog = inflater.inflate(R.layout.fragment_list_filter_dialog, null);
+        mDialog = inflater.inflate(R.layout.fragment_list_filter_dialog, container);
         disableTitle();
         return mDialog;
     }
@@ -144,8 +146,11 @@ public final class FilterSortDialogFragment extends DialogFragment {
     @Override
     public void onViewCreated(final View view, @Nullable final Bundle savedInstanceState) {
         if (savedInstanceState != null) {
-            mFilterProfileMap       = (HashMap) savedInstanceState.getSerializable(EXTRA_PROFILE_MAP);
-            mFoundedEntriesCache    = (HashMap) savedInstanceState.getSerializable(EXTRA_FOUNDED_MAP);
+            //noinspection unchecked,ConstantConditions
+            mFilterProfileMap       = (Map<String, String>) savedInstanceState.getSerializable(EXTRA_PROFILE_MAP);
+            //noinspection unchecked,ConstantConditions
+            mFoundedEntriesCache    = (Map<String, String>) savedInstanceState.getSerializable(EXTRA_FOUNDED_MAP);
+            //noinspection ConstantConditions
             mSelectedFilterProfile  = savedInstanceState.getString(EXTRA_SELECTED_ID);
         } else {
             initLocalVariables();
@@ -179,26 +184,34 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
     private void disableTitle() {
         // Disable title for more space.
-        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        final Window window = getDialog().getWindow();
+        if (window != null) {
+            window.requestFeature(Window.FEATURE_NO_TITLE);
+        }
     }
 
     private void initDialogSize() {
         // Set max size of dialog. ( XML is not work :/ )
-        final DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
-        final ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
-        params.width = Math.min(
-                displayMetrics.widthPixels,
-                getActivity().getResources().getDimensionPixelSize(
-                        R.dimen.fragment_list_filter_dialog_max_width));
-        params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
-        getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+        final Window window = getDialog().getWindow();
+        if (window != null) {
+            final DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
+            final ViewGroup.LayoutParams params = window.getAttributes();
+            params.width = Math.min(
+                    displayMetrics.widthPixels,
+                    getActivity().getResources().getDimensionPixelSize(
+                            R.dimen.fragment_list_filter_dialog_max_width));
+            params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
+            window.setAttributes((android.view.WindowManager.LayoutParams) params);
+        }
     }
 
     private void initCircularAnimation() {
-        initCircularRevealAnimation(
-                mDialog,
-                true,
-                EXTRA_REVEAL_ANIM_CENTER_TOP_END);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            initCircularRevealAnimation(
+                    mDialog,
+                    true,
+                    EXTRA_REVEAL_ANIM_CENTER_TOP_END);
+        }
     }
 
     private void initLocalVariables() {
@@ -208,11 +221,30 @@ public final class FilterSortDialogFragment extends DialogFragment {
     }
 
     private void initFilterProfile() {
-        mFilterProfileMap = convertJsonToMap(getSelectedForCurrentUser(getActivity()));
+        final String selectedFilter = getSelectedForCurrentUser(getActivity());
+        if (selectedFilter == null) {
+            Log.e(TAG, "getSelectedForCurrentUser() is null.");
+            dismiss();
+            return;
+        }
+
+        final Map<String, String> map = convertJsonToMap(selectedFilter);
+        if (map == null) {
+            Log.e(TAG, "convertJsonToMap(selectedFilter) is null.");
+            dismiss();
+        } else {
+            mFilterProfileMap = map;
+        }
     }
 
     private void initSelectedIdFilterProfile() {
-        mSelectedFilterProfile = getSelectedIdForCurrentUser(getActivity());
+        final String selected = getSelectedIdForCurrentUser(getActivity());
+        if (selected == null) {
+            Log.e(TAG, "getSelectedIdForCurrentUser() is null.");
+            dismiss();
+        } else {
+            mSelectedFilterProfile = selected;
+        }
     }
 
     private void initComponents() {
@@ -242,12 +274,23 @@ public final class FilterSortDialogFragment extends DialogFragment {
         profilesViewGroup.removeAllViews();
 
         final Set<String> profilesSet = getProfilesForCurrentUser(getActivity());
+        if (profilesSet == null) {
+            Log.e(TAG, "getProfilesForCurrentUser() is null.");
+            dismiss();
+            return;
+        }
+
         for (String profileJson : profilesSet) {
             final View newView = View.inflate(
                     getActivity(),
                     R.layout.fragment_list_filter_dialog_profile,
                     null);
             final Map<String, String> profileMap = convertJsonToMap(profileJson);
+            if (profileMap == null) {
+                Log.e(TAG, "profileMap is null.");
+                dismiss();
+                return;
+            }
             final String id = profileMap.get(SP_FILTER_ID);
 
             // Title.
@@ -453,6 +496,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                 oval = getResources().getDrawable(R.drawable.btn_oval, null);
             } else {
+                //noinspection deprecation
                 oval = getResources().getDrawable(R.drawable.btn_oval);
             }
             button.setBackground(oval);
@@ -535,7 +579,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
     private void setDateButtonOn(
             @NonNull final Button button,
-            @NonNull final String text) {
+            @Nullable final String text) {
 
         final float alpha = getResources()
                 .getFraction(R.fraction.fragment_list_filter_dialog_date_alpha_on, 1, 1);
@@ -568,7 +612,14 @@ public final class FilterSortDialogFragment extends DialogFragment {
                     @Override
                     public void onClick(final View v) {
                         mSelectedFilterProfile = SP_FILTER_PROFILE_CURRENT_ID;
-                        mFilterProfileMap = convertJsonToMap(getDefaultProfile());
+                        final Map<String, String> map = convertJsonToMap(getDefaultProfile());
+                        if (map == null) {
+                            Log.e(TAG, "convertJsonToMap(getDefaultProfile()) is null.");
+                            dismiss();
+                            return;
+                        } else {
+                            mFilterProfileMap = map;
+                        }
                         initComponents();
                     }
                 });
@@ -714,12 +765,17 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
                     if (isDateFrom) {
                         // If "date_from".
-                        final String[] fromDateArray = getDateFromProfileMap(
+                        final String dateFrom = getDateFromProfileMap(
                                 getActivity(),
                                 mFilterProfileMap,
                                 filterCategory,
-                                EXTRA_DATES_FROM_DATE_UTC_TO_LOCALTIME)
-                                .split("-");
+                                EXTRA_DATES_FROM_DATE_UTC_TO_LOCALTIME);
+                        if (dateFrom == null) {
+                            Log.e(TAG, "Cannot get dateFrom.");
+                            dismiss();
+                            return;
+                        }
+                        final String[] fromDateArray = dateFrom.split("-");
 
                         year        = Integer.parseInt(fromDateArray[0]);
                         month       = Integer.parseInt(fromDateArray[1]);
@@ -727,12 +783,17 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
                     } else {
                         // If "date_to".
-                        final String[] toDateArray = getDateFromProfileMap(
+                        final String dateTo = getDateFromProfileMap(
                                 getActivity(),
                                 mFilterProfileMap,
                                 filterCategory,
-                                EXTRA_DATES_TO_DATE_UTC_TO_LOCALTIME)
-                                .split("-");
+                                EXTRA_DATES_TO_DATE_UTC_TO_LOCALTIME);
+                        if (dateTo == null) {
+                            Log.e(TAG, "Cannot get dateTo.");
+                            dismiss();
+                            return;
+                        }
+                        final String[] toDateArray = dateTo.split("-");
 
                         year        = Integer.parseInt(toDateArray[0]);
                         month       = Integer.parseInt(toDateArray[1]);

@@ -29,7 +29,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.colorpicker.ColorPickerFragment;
+import com.gamaliev.notes.color_picker.ColorPickerFragment;
 import com.gamaliev.notes.common.observers.Observer;
 import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.model.ListEntry;
@@ -37,7 +37,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import static com.gamaliev.notes.app.NotesApp.getAppContext;
-import static com.gamaliev.notes.colorpicker.ColorPickerFragment.EXTRA_RESULT_COLOR;
+import static com.gamaliev.notes.color_picker.ColorPickerFragment.EXTRA_RESULT_COLOR;
 import static com.gamaliev.notes.common.CommonUtils.getDefaultColor;
 import static com.gamaliev.notes.common.CommonUtils.getResourceColorApi;
 import static com.gamaliev.notes.common.CommonUtils.getStringDateFormatSqlite;
@@ -56,12 +56,14 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers
 import static com.gamaliev.notes.common.observers.ObserverHelper.registerObserver;
 import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObserver;
 
+@SuppressWarnings("NullableProblems")
 public final class ItemDetailsPagerItemFragment extends Fragment implements Observer {
 
     /* Logger */
     private static final String TAG = ItemDetailsPagerItemFragment.class.getSimpleName();
 
     /* Action */
+    @SuppressWarnings("WeakerAccess")
     public static final String ACTION      = "ItemDetailsPagerItemFragment.ACTION";
     public static final String ACTION_ADD  = "ItemDetailsPagerItemFragment.ACTION_ADD";
     public static final String ACTION_EDIT = "ItemDetailsPagerItemFragment.ACTION_EDIT";
@@ -75,8 +77,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
     private static final String EXTRA_ENTRY = "ItemDetailsPagerItemFragment.EXTRA_ENTRY";
 
     /* Observed */
-    @NonNull
-    public static final String[] OBSERVED = {COLOR_PICKER};
+    @NonNull private static final String[] OBSERVED = {COLOR_PICKER};
 
     /* ... */
     @NonNull private View       mParentView;
@@ -177,8 +178,14 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
     }
 
     private void initArgs() {
-        mAction = getArguments().getString(ACTION);
-        mId = getArguments().getLong(EXTRA_ID);
+        final String action = getArguments().getString(ACTION);
+        if (action == null) {
+            Log.e(TAG, "Action is null.");
+            getActivity().onBackPressed();
+        } else {
+            mAction = action;
+            mId = getArguments().getLong(EXTRA_ID);
+        }
     }
 
     private void initTransition() {
@@ -193,7 +200,13 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
     }
 
     private void initActionBar() {
-        mActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        final ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar == null) {
+            Log.e(TAG, "Action bar is null");
+            getActivity().onBackPressed();
+            return;
+        }
+        mActionBar = actionBar;
         mActionBar.setElevation(0);
         setHasOptionsMenu(true);
     }
@@ -208,13 +221,14 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
             case ACTION_ADD:
                 mActionBar.setTitle(getString(R.string.fragment_item_details_title_add));
                 if (mSavedInstanceState == null) {
+                    //noinspection ConstantConditions
                     if (mEntry == null) {
                         mEntry = new ListEntry();
                         mEntry.setColor(getDefaultColor(getContext()));
                     }
 
                 } else {
-                    mEntry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
+                    setEntryFromParcelableOrDefault();
                 }
                 fillActivityViews();
                 break;
@@ -222,11 +236,13 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
             case ACTION_EDIT:
                 mActionBar.setTitle(getString(R.string.fragment_item_details_title_edit));
                 if (mSavedInstanceState == null) {
+                    //noinspection ConstantConditions
                     if (mEntry == null) {
                         mEntry = ListDbHelper.getEntry(getContext(), mId);
                         ListDbHelper.updateEntry(getContext(), mEntry, LIST_ITEMS_COLUMN_VIEWED);
                     }
 
+                    //noinspection ConstantConditions
                     if (mEntry != null && mEntry.getId() != null) {
                         fillActivityViews();
 
@@ -241,7 +257,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                     }
 
                 } else {
-                    mEntry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
+                    setEntryFromParcelableOrDefault();
                     fillActivityViews();
                 }
                 break;
@@ -315,6 +331,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
      * @param url Checked URL.
      * @return True if invalid, otherwise false.
      */
+    @SuppressWarnings("UnusedReturnValue")
     private boolean checkUrlAndSetError(
             @NonNull final String url) {
 
@@ -363,6 +380,21 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
         });
     }
 
+    private void setEntryFromParcelableOrDefault() {
+        if (mSavedInstanceState == null) {
+            mEntry = new ListEntry();
+            mEntry.setColor(getDefaultColor(getContext()));
+        } else {
+            final ListEntry entry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
+            if (entry == null) {
+                mEntry = new ListEntry();
+                mEntry.setColor(getDefaultColor(getContext()));
+            } else {
+                mEntry = entry;
+            }
+        }
+    }
+
 
     /*
         Updating views
@@ -375,7 +407,9 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
         mTitleEditText.setText(mEntry.getTitle());
         mDescEditText.setText(mEntry.getDescription());
         mImageUrlEditText.setText(mEntry.getImageUrl());
-        refreshColorBox(mEntry.getColor());
+        refreshColorBox(mEntry.getColor() == null
+                ? getDefaultColor(getContext())
+                : mEntry.getColor());
     }
 
     /**
@@ -469,6 +503,13 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
      * Show info dialog with next info: created, edited, viewed dates.
      */
     private void showInfoDialog() {
+        if (mEntry.getCreated() == null
+                || mEntry.getEdited() == null
+                || mEntry.getViewed() == null) {
+            Log.e(TAG, "Get date from entry error.");
+            return;
+        }
+
         final StringBuilder infoMessage = new StringBuilder();
         infoMessage
                 .append(getString(R.string.fragment_item_details_info_dialog_message_created))
@@ -543,7 +584,12 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                         break;
 
                     case ACTION_ENTRY_DELETE:
-                        ListDbHelper.deleteEntry(getContext(), mEntry.getId(), true);
+                        final Long id = mEntry.getId();
+                        if (id == null) {
+                            Log.e(TAG, "User id is null.");
+                            break;
+                        }
+                        ListDbHelper.deleteEntry(getContext(), id, true);
                         break;
 
                     default:

@@ -1,6 +1,7 @@
 package com.gamaliev.notes.common.shared_prefs;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -38,7 +39,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_ID;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_LAST_NAME;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_MIDDLE_NAME;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_MOCK_ENTRIES_DEFAULT;
-import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_PROGRESS_NOTIF_TIMER;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_PROGRESS_NOTIFICATION_TIMER;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_API_URL;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_ID;
@@ -103,6 +104,7 @@ final class SpMock {
                     ORDER_DESCENDING}
     };
 
+    @SuppressWarnings("SpellCheckingInspection")
     private static final String[][] SP_MOCK_USER_PROFILES = new String[][] {
             {"0",
                     "777",
@@ -175,14 +177,18 @@ final class SpMock {
             allProfiles = true;
 
             // Create personal database, fill default and mock values.
-            ListDbMockHelper.addMockEntries(
-                    context,
-                    entriesCount,
-                    getWritableDb(context),
-                    null,
-                    false);
-
-            entriesCount += entriesCount;
+            final SQLiteDatabase db = getWritableDb(context);
+            if (db == null) {
+                Log.e(TAG, "Database is null. Cannot add mock entries.");
+            } else {
+                ListDbMockHelper.addMockEntries(
+                        context,
+                        entriesCount,
+                        db,
+                        null,
+                        false);
+                entriesCount += entriesCount;
+            }
         }
     }
 
@@ -246,7 +252,7 @@ final class SpMock {
             map.put(SP_USER_MIDDLE_NAME,    entry[5]);
             map.put(SP_USER_DESCRIPTION,    entry[6]);
             map.put(SP_USER_MOCK_ENTRIES_DEFAULT, entry[7]);
-            map.put(SP_USER_PROGRESS_NOTIF_TIMER, entry[8]);
+            map.put(SP_USER_PROGRESS_NOTIFICATION_TIMER, entry[8]);
             map.put(SP_USER_SYNC,           entry[9]);
             map.put(SP_USER_SYNC_WIFI,      entry[10]);
             map.put(SP_USER_SYNC_API_URL,   entry[11]);

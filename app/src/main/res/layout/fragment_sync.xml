@@ -17,31 +17,18 @@
         android:clickable="true"
         android:visibility="gone">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/fragment_sync_conflicting_exists_notification_title_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center">
-
-            <TextView
-                android:id="@+id/fragment_sync_conflicting_exists_notification_title_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:lines="1"
-                android:textColor="@color/color_white"
-                android:textSize="@dimen/fragment_sync_conflicting_exists_notification_title_tv_text_size"
-                android:text="@string/fragment_sync_conflicting_exists_notification_title_tv_text"/>
-
-            <ImageView
-                android:id="@+id/fragment_sync_conflicting_exists_notification_tap_icon_iv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/fragment_sync_conflicting_exists_notification_tap_icon_iv_margin_start"
-                android:contentDescription="@string/fragment_sync_conflicting_exists_notification_title_tv_text"
-                android:src="@drawable/ic_touch_app_white_24dp"/>
-
-        </LinearLayout>
+            android:layout_gravity="center"
+            android:drawablePadding="@dimen/fragment_sync_conflicting_exists_notification_tap_icon_padding"
+            android:drawableEnd="@drawable/ic_touch_app_white_24dp"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="@string/fragment_sync_conflicting_exists_notification_title_tv_text"
+            android:textColor="@color/color_white"
+            android:textSize="@dimen/fragment_sync_conflicting_exists_notification_title_tv_text_size"/>
 
     </FrameLayout>
 

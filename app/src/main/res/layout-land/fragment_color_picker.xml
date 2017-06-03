@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
-    tools:context="com.gamaliev.notes.colorpicker.ColorPickerFragment">
+    tools:context="com.gamaliev.notes.color_picker.ColorPickerFragment">
 
 
     <!-- Favorite icons -->
@@ -72,13 +72,16 @@
         android:layout_height="wrap_content"
         android:elevation="@dimen/fragment_color_picker_scroll_palette_bar_elevation"
         android:background="@color/color_black"
-        android:scrollbars="none">
+        android:scrollbars="none"
+        tools:targetApi="lollipop"
+        tools:ignore="InconsistentLayout">
 
         <LinearLayout
             android:id="@+id/fragment_color_picker_ll_palette_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            tools:ignore="InconsistentLayout">
         </LinearLayout>
     </com.gamaliev.notes.common.SwitchableHorizontalScrollView>
 
@@ -100,13 +103,15 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:paddingBottom="@dimen/fragment_color_picker_ff_result_outer_padding"
-            android:paddingTop="@dimen/fragment_color_picker_ff_result_outer_padding">
+            android:paddingTop="@dimen/fragment_color_picker_ff_result_outer_padding"
+            tools:ignore="InconsistentLayout">
 
             <FrameLayout
                 android:id="@+id/fragment_color_picker_ff_result_box_with_buttons"
                 android:layout_width="@dimen/fragment_color_picker_ff_result_box_with_buttons_land_width"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center">
+                android:layout_gravity="center"
+                tools:ignore="UselessParent">
 
                 <FrameLayout
                     android:id="@+id/fragment_color_picker_ff_result_box"
@@ -116,7 +121,9 @@
                     android:layout_margin="@dimen/fragment_color_picker_ff_result_box_margin"
                     android:background="@color/color_picker_default"
                     android:elevation="@dimen/fragment_color_picker_ff_result_box_elevation"
-                    android:transitionName="@string/shared_transition_name_color_box">
+                    android:transitionName="@string/shared_transition_name_color_box"
+                    tools:targetApi="lollipop"
+                    tools:ignore="InconsistentLayout">
 
                     <TextView
                         android:id="@+id/fragment_color_picker_text_result_box"
@@ -124,7 +131,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:textSize="@dimen/fragment_color_picker_text_result_box_size"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold"
+                        tools:ignore="InconsistentLayout"/>
                 </FrameLayout>
 
                 <ImageView
@@ -132,14 +140,16 @@
                     style="@style/ColorPickerActionIconsLand"
                     android:layout_marginBottom="@dimen/fragment_color_picker_ic_done_margin_bottom"
                     android:contentDescription="@string/fragment_color_picker_ic_done_description"
-                    app:srcCompat="@drawable/ic_done_black_48dp"/>
+                    app:srcCompat="@drawable/ic_done_black_48dp"
+                    tools:ignore="InconsistentLayout"/>
 
                 <ImageView
                     android:id="@+id/fragment_color_picker_ic_cancel"
                     style="@style/ColorPickerActionIconsLand"
                     android:layout_marginTop="@dimen/fragment_color_picker_ic_cancel_margin_top"
                     android:contentDescription="@string/fragment_color_picker_ic_cancel_description"
-                    app:srcCompat="@drawable/ic_clear_black_48dp"/>
+                    app:srcCompat="@drawable/ic_clear_black_48dp"
+                    tools:ignore="InconsistentLayout"/>
 
             </FrameLayout>
 
@@ -162,7 +172,8 @@
                 android:padding="@dimen/fragment_color_picker_ll_favorite_bar_padding"
                 android:orientation="horizontal"
                 android:clipChildren="false"
-                android:clipToPadding="false">
+                android:clipToPadding="false"
+                tools:ignore="InconsistentLayout">
             </LinearLayout>
 
         </HorizontalScrollView>

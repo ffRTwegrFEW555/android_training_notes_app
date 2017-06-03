@@ -40,11 +40,11 @@ import static com.gamaliev.notes.conflict.ConflictUtils.hideConflictStatusBarNot
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("NullableProblems")
 public class SyncFragment extends Fragment implements Observer {
 
     /* Observed */
-    @NonNull
-    public static final String[] OBSERVED = {SYNC};
+    @NonNull private static final String[] OBSERVED = {SYNC};
 
     /* ... */
     @NonNull private View mParentView;

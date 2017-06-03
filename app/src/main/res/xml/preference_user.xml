@@ -5,16 +5,19 @@
     <PreferenceCategory
         android:title="@string/fragment_user_preference_category_name_title">
 
+        <!--suppress AndroidElementNotAllowed -->
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="f_name"
             android:selectAllOnFocus="true"
             android:title="@string/fragment_user_preference_first_name_title"/>
 
+        <!--suppress AndroidElementNotAllowed -->
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="l_name"
             android:selectAllOnFocus="true"
             android:title="@string/fragment_user_preference_last_name_title"/>
 
+        <!--suppress AndroidElementNotAllowed -->
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="m_name"
             android:selectAllOnFocus="true"
@@ -25,11 +28,13 @@
     <PreferenceCategory
         android:title="@string/fragment_user_preference_category_additional_title">
 
+        <!--suppress AndroidElementNotAllowed -->
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="email"
             android:selectAllOnFocus="true"
             android:title="@string/fragment_user_preference_email_title"/>
 
+        <!--suppress AndroidElementNotAllowed -->
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="desc"
             android:selectAllOnFocus="true"
@@ -40,6 +45,7 @@
     <PreferenceCategory
         android:title="@string/fragment_user_preference_category_identifiers_title">
 
+        <!--suppress AndroidElementNotAllowed -->
         <com.gamaliev.notes.common.shared_prefs.EditTextPreferenceWithValueSummary
             android:key="id"
             android:selectAllOnFocus="true"

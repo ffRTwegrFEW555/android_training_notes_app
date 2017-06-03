@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -26,12 +27,11 @@ import com.gamaliev.notes.common.db.DbQueryBuilder;
 import com.gamaliev.notes.common.network.NetworkUtils;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import com.gamaliev.notes.model.ListEntry;
+import com.gamaliev.notes.rest.NoteApi;
 import com.gamaliev.notes.sync.SyncUtils;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.Map;
 
 import retrofit2.Response;
@@ -45,6 +45,7 @@ import static com.gamaliev.notes.common.db.DbHelper.COMMON_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.deleteEntryWithSingle;
+import static com.gamaliev.notes.common.db.DbHelper.getDbFailMessage;
 import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
 import static com.gamaliev.notes.common.observers.ObserverHelper.CONFLICT;
@@ -72,6 +73,7 @@ import static com.gamaliev.notes.sync.SyncUtils.addToSyncJournalAndLogAndNotify;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("NullableProblems")
 public class ConflictSelectDialogFragment extends DialogFragment {
 
     /* Logger */
@@ -119,7 +121,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
             @Nullable final ViewGroup container,
             final Bundle savedInstanceState) {
 
-        mDialog = inflater.inflate(R.layout.fragment_dialog_conflict_select, null);
+        mDialog = inflater.inflate(R.layout.fragment_dialog_conflict_select, container);
         disableTitle();
         return mDialog;
     }
@@ -146,30 +148,46 @@ public class ConflictSelectDialogFragment extends DialogFragment {
 
     private void disableTitle() {
         // Disable title for more space.
-        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        final Window window = getDialog().getWindow();
+        if (window != null) {
+            window.requestFeature(Window.FEATURE_NO_TITLE);
+        }
     }
 
     private void initDialogSize() {
         // Set max size of dialog. ( XML is not work :/ )
-        final DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
-        final ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
-        params.width = Math.min(
-                displayMetrics.widthPixels,
-                getActivity().getResources().getDimensionPixelSize(
-                        R.dimen.fragment_dialog_conflict_select_max_width));
-        params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
-        getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+        final Window window = getDialog().getWindow();
+        if (window != null) {
+            final DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
+            final ViewGroup.LayoutParams params = window.getAttributes();
+            params.width = Math.min(
+                    displayMetrics.widthPixels,
+                    getActivity().getResources().getDimensionPixelSize(
+                            R.dimen.fragment_dialog_conflict_select_max_width));
+            params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
+            window.setAttributes((android.view.WindowManager.LayoutParams) params);
+        }
     }
 
     private void initCircularAnimation() {
-        initCircularRevealAnimation(
-                mDialog,
-                true,
-                EXTRA_REVEAL_ANIM_CENTER_CENTER);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            initCircularRevealAnimation(
+                    mDialog,
+                    true,
+                    EXTRA_REVEAL_ANIM_CENTER_CENTER);
+        }
     }
 
     private void initArgs() {
-        mSyncId = getArguments().getString(EXTRA_SYNC_ID);
+        final String syncId = getArguments().getString(EXTRA_SYNC_ID);
+        if (syncId == null) {
+            final String error = getString(R.string.fragment_dialog_conflict_sync_id_is_null);
+            Log.e(TAG, error);
+            showToastRunOnUiThread(getContext(), error, Toast.LENGTH_SHORT);
+            dismiss();
+            return;
+        }
+        mSyncId = syncId;
         mPosition = getArguments().getInt(EXTRA_POSITION);
     }
 
@@ -216,7 +234,11 @@ public class ConflictSelectDialogFragment extends DialogFragment {
 
         // Get entry from server.
         try {
-            final Response<String> response = getNoteApi()
+            final NoteApi noteApi = getNoteApi();
+            if (noteApi == null) {
+                throw new Exception("Cannot get note api.");
+            }
+            final Response<String> response = noteApi
                     .get(getSyncIdForCurrentUser(getContext()), mSyncId)
                     .execute();
 
@@ -229,6 +251,9 @@ public class ConflictSelectDialogFragment extends DialogFragment {
 
                     if (!TextUtils.isEmpty(data)) {
                         final Map<String, String> mapServer = convertJsonToMap(data);
+                        if (mapServer == null) {
+                            throw new Exception("Cannot convert json to map");
+                        }
                         mapServer.remove(API_KEY_ID);
                         mapServer.remove(API_KEY_EXTRA);
 
@@ -286,11 +311,11 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                         Toast.LENGTH_LONG);
             }
 
-            dismiss();
-
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             Log.e(TAG, e.toString());
         }
+
+        dismiss();
     }
 
     private void initLocalLayoutAsync() {
@@ -324,7 +349,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                 return;
             }
 
-            final JSONObject jsonObject = ListEntry.getJsonObject(getContext(), entryCursor);
+            final JSONObject jsonObject = ListEntry.getJsonObjectFromCursor(getContext(), entryCursor);
             if (jsonObject == null) {
                 showToastRunOnUiThread(
                         getContext(),
@@ -409,61 +434,67 @@ public class ConflictSelectDialogFragment extends DialogFragment {
 
         final Context context = activity.getApplicationContext();
 
-        final ListEntry entry = ListEntry
-                .convertJsonToListEntry(context, data);
-        if (entry == null) {
-            return;
-        }
-        entry.setSyncId(Long.parseLong(mSyncId));
-
-        final SQLiteDatabase db = getWritableDb(context);
-        db.beginTransaction();
         try {
-            insertUpdateEntry(
-                    context,
-                    entry,
-                    db,
-                    true);
+            final ListEntry entry = ListEntry
+                    .convertJsonToListEntry(context, data);
+            if (entry == null) {
+                throw new Exception("Entry is null.");
+            }
+            entry.setSyncId(Long.parseLong(mSyncId));
 
-            final boolean result = deleteEntryWithSingle(
-                    context,
-                    db,
-                    SYNC_CONFLICT_TABLE_NAME,
-                    COMMON_COLUMN_SYNC_ID,
-                    mSyncId,
-                    true);
-
-            if (!result) {
-                throw new SQLiteException(
-                        "[ERROR] Delete entry from conflict table is failed.");
+            final SQLiteDatabase db = getWritableDb(context);
+            if (db == null) {
+                throw new SQLiteException(getDbFailMessage());
             }
 
-            db.setTransactionSuccessful();
+            db.beginTransaction();
+            try {
+                insertUpdateEntry(
+                        context,
+                        entry,
+                        db,
+                        true);
 
-            addToSyncJournalAndLogAndNotify(
-                    context,
-                    ACTION_UPDATED_ON_LOCAL,
-                    STATUS_OK,
-                    1,
-                    RESULT_CODE_SYNC_SUCCESS,
-                    true);
+                final boolean result = deleteEntryWithSingle(
+                        context,
+                        db,
+                        SYNC_CONFLICT_TABLE_NAME,
+                        COMMON_COLUMN_SYNC_ID,
+                        mSyncId,
+                        true);
 
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    makeFinishOperations(activity);
+                if (!result) {
+                    throw new SQLiteException(
+                            "Delete entry from conflict table is failed.");
                 }
-            });
 
-        } catch (SQLiteException e) {
+                db.setTransactionSuccessful();
+
+                addToSyncJournalAndLogAndNotify(
+                        context,
+                        ACTION_UPDATED_ON_LOCAL,
+                        STATUS_OK,
+                        1,
+                        RESULT_CODE_SYNC_SUCCESS,
+                        true);
+
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        makeFinishOperations(activity);
+                    }
+                });
+
+            } finally {
+                db.endTransaction();
+            }
+
+        } catch (Exception e) {
             Log.e(TAG, e.toString());
             showToastRunOnUiThread(
                     context,
                     getString(R.string.fragment_dialog_conflict_resolution_failed),
                     Toast.LENGTH_LONG);
-
-        } finally {
-            db.endTransaction();
         }
     }
 
@@ -473,11 +504,13 @@ public class ConflictSelectDialogFragment extends DialogFragment {
 
         final Context context = activity.getApplicationContext();
 
-        Response<String> response;
         try {
-            response = getNoteApi()
-                    .update(
-                            getSyncIdForCurrentUser(context),
+            final NoteApi noteApi = getNoteApi();
+            if (noteApi == null) {
+                throw new Exception("Cannot get note api.");
+            }
+            final Response<String> response = noteApi
+                    .update(getSyncIdForCurrentUser(context),
                             mSyncId,
                             jsonEntry)
                     .execute();
@@ -517,14 +550,14 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                 }
             }
 
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             Log.e(TAG, e.toString());
         }
     }
 
     private void tryEnableButtons() {
         if (mServerEntryLoaded && mLocalEntryLoaded) {
-            if (mDialog != null && mDialog.isAttachedToWindow()) {
+            if (mDialog.isAttachedToWindow()) {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
