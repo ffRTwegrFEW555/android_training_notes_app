@@ -18,6 +18,7 @@ import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.observers.Observer;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_ADDED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_SELECTED;
 import static com.gamaliev.notes.common.observers.ObserverHelper.USERS;
 import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
@@ -122,6 +123,8 @@ public class UserFragment extends Fragment implements Observer {
                                 .replace(R.id.activity_main_fragment_container, fragment)
                                 .addToBackStack(null)
                                 .commit();
+
+                        notifyObservers(USERS, RESULT_CODE_USER_ADDED, null);
                     }
                 });
     }

@@ -229,8 +229,13 @@ public class ListFragment extends Fragment
      * Getting text from search view, and use for filter. If text is empty, then using empty string.
      */
     private void updateAdapter() {
-        final String searchText = mSearchView.getQuery().toString();
-        updateAdapter(TextUtils.isEmpty(searchText) ? "" : searchText);
+        //noinspection ConstantConditions
+        if (mSearchView == null) {
+            updateAdapter("");
+        } else {
+            final String searchText = mSearchView.getQuery().toString();
+            updateAdapter(TextUtils.isEmpty(searchText) ? "" : searchText);
+        }
     }
 
     private void updateAdapter(String newText) {

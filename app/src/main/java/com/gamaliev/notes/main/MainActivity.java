@@ -51,6 +51,7 @@ import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_NOTES_IMP
 import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE;
 import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_MOCK_ENTRIES_ADDED;
+import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_ADDED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_CHANGE_PREFERENCES;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_DELETED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_SELECTED;
@@ -492,6 +493,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
     public void onNotify(final int resultCode, @Nullable final Bundle data) {
         switch (resultCode) {
             case RESULT_CODE_USER_SELECTED:
+            case RESULT_CODE_USER_ADDED:
             case RESULT_CODE_USER_DELETED:
             case RESULT_CODE_USER_CHANGE_PREFERENCES:
                 runOnUiThread(new Runnable() {
