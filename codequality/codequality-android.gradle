@@ -1,0 +1,33 @@
+android {
+    lintOptions {
+        abortOnError true
+        warningsAsErrors true
+        xmlReport false
+        htmlReport true
+
+        lintConfig file("$codequalityConfigPath/lint-config.xml")
+        htmlOutput file("${rootProject.buildDir}/reports/lint/${project.name}/lint.html")
+    }
+}
+
+def checkstyleTask = task checkstyle(type: Checkstyle)
+configureCodequalityTask(checkstyleTask)
+
+def findbugsTask = task findbugs(type: FindBugs, dependsOn: "assembleDebug") {
+    classes = project.fileTree('build/intermediates/classes/')
+}
+configureCodequalityTask(findbugsTask)
+
+def pmdTask = task pmd(type: Pmd)
+configureCodequalityTask(pmdTask)
+
+private configureCodequalityTask(task) {
+    task.configure {
+        source 'src'
+        include '**/*.java'
+        exclude '**/R.java', '**/BuildConfig.java'
+        classpath = files()
+    }
+}
+
+check.dependsOn checkstyleTask, findbugsTask, pmdTask

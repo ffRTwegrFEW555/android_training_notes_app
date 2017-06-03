@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="InvalidPackage">
+        <ignore regexp=".*junit.*"/>
+    </issue>
+
+    <issue id="InconsistentLayout">
+        <ignore regexp=".*appcompat.*"/>
+    </issue>
+</lint>

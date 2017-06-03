@@ -1,0 +1,39 @@
+ext.codequalityConfigPath = "${rootProject.projectDir}/codequality/config"
+
+apply plugin: 'checkstyle'
+checkstyle {
+    toolVersion = '7.6'
+    ignoreFailures = false
+    checkstyle.configFile = file("$codequalityConfigPath/checkstyle-config.xml")
+    configProperties = [codequalityConfigPath: codequalityConfigPath]
+    reportsDir = file("$rootProject.buildDir/reports/checkstyle/$project.name")
+}
+
+apply plugin: 'findbugs'
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+findbugs {
+    toolVersion = "3.0.1"
+    ignoreFailures = false
+    reportsDir = file("$rootProject.buildDir/reports/findbugs/$project.name")
+    excludeFilter = file("$codequalityConfigPath/findbugs-config.xml")
+}
+
+apply plugin: 'pmd'
+tasks.withType(Pmd) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+pmd {
+    toolVersion = '5.5.4'
+    ignoreFailures = false
+    ruleSetFiles = files("$codequalityConfigPath/pmd-config.xml")
+    reportsDir = file("$rootProject.buildDir/reports/pmd/$project.name")
+    rulePriority = 2
+}

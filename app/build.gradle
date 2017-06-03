@@ -1,5 +1,9 @@
 apply plugin: 'com.android.application'
 
+// Code quality
+apply from: "${rootProject.projectDir}/codequality/codequality.gradle"
+apply from: "${rootProject.projectDir}/codequality/codequality-android.gradle"
+
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
