@@ -98,20 +98,20 @@ public final class DbQueryBuilder {
                 operands);
     }
 
-// --Commented out by Inspection START:
-//    /**
-//     * Add selection and selectionArgs from given query builder, to current query builder.<br>
-//     * Add with 'OR' operator.
-//     *
-//     * @param queryBuilder Query builder, whose selection clauses will be added.
-//     * @return A reference to this object.
-//     */
-//    @NonNull
-//    public DbQueryBuilder addOrInner(@NonNull final DbQueryBuilder queryBuilder) {
-//        addInner(queryBuilder, OPERATOR_OR);
-//        return this;
-//    }
-// --Commented out by Inspection STOP
+    // --Commented out by Inspection START:
+    //    /**
+    //     * Add selection and selectionArgs from given query builder, to current query builder.<br>
+    //     * Add with 'OR' operator.
+    //     *
+    //     * @param queryBuilder Query builder, whose selection clauses will be added.
+    //     * @return A reference to this object.
+    //     */
+    //    @NonNull
+    //    public DbQueryBuilder addOrInner(@NonNull final DbQueryBuilder queryBuilder) {
+    //        addInner(queryBuilder, OPERATOR_OR);
+    //        return this;
+    //    }
+    // --Commented out by Inspection STOP
 
     /**
      * Add selection and selectionArgs from given query builder, to current query builder.<br>
@@ -140,7 +140,7 @@ public final class DbQueryBuilder {
         final StringBuilder sb = new StringBuilder();
 
         // If clause is first in current query builder, then add without operator 'OR' or 'ADD'.
-        if(mSelection != null) {
+        if (mSelection != null) {
             sb.append(operator);
         }
 

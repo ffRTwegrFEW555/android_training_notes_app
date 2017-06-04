@@ -56,6 +56,7 @@ public class SyncFragment extends Fragment implements Observer {
         Init
      */
 
+    @NonNull
     public static SyncFragment newInstance() {
         return new SyncFragment();
     }
@@ -283,14 +284,16 @@ public class SyncFragment extends Fragment implements Observer {
         Callback
      */
 
-/*    @Override
+    /*
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_CANCELED) {
             if (requestCode == REQUEST_CODE_CONFLICTING) {
                 notifyDataSetChangedAndScrollToEnd();
             }
         }
-    }*/
+    }
+    */
 
 
     /*

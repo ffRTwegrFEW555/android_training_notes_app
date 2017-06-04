@@ -18,7 +18,7 @@ import com.gamaliev.notes.common.SwitchableHorizontalScrollView;
 import static com.gamaliev.notes.common.CommonUtils.animateElevation;
 import static com.gamaliev.notes.common.CommonUtils.makeVibrate;
 import static com.gamaliev.notes.common.CommonUtils.playSoundAndShowToast;
-import static com.gamaliev.notes.common.CommonUtils.setBackgroundColorRectangleAPI;
+import static com.gamaliev.notes.common.CommonUtils.setBackgroundColorRectangleApi;
 import static com.gamaliev.notes.common.CommonUtils.showToast;
 
 /**
@@ -157,7 +157,8 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
                 } else {
                     // Check condition to start change color.
                     if (mLongPressed) {
-                        int delta = (int) mResources.getDimension(R.dimen.fragment_color_picker_delta_to_enable_change_color);
+                        int delta = (int) mResources.getDimension(
+                                R.dimen.fragment_color_picker_delta_to_enable_change_color);
                         if (Math.abs(e.getX() - mX1) > delta
                                 || Math.abs(e.getY() - mY1) > delta) {
                             mEditable = true;
@@ -165,6 +166,7 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
                         }
                     }
                 }
+                break;
 
             default:
                 break;
@@ -209,7 +211,7 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
             // Set default color back to palette box.
             @Override
             public boolean onDoubleTap(final MotionEvent e) {
-                setBackgroundColorRectangleAPI(mContext, mView, mHsvColors[mIndex]);
+                setBackgroundColorRectangleApi(mContext, mView, mHsvColors[mIndex]);
                 mHsvColorsOverridden[mIndex] = -1;
                 return true;
             }

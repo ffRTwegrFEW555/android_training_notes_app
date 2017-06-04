@@ -80,6 +80,7 @@ public final class SpUsers {
      * Get hardcoded default user profile in Map-format.
      * @return Default user profile.
      */
+    @SuppressWarnings({"LineLength"})
     @NonNull
     static Map<String, String> getDefaultProfile(@NonNull final Context context) {
         final Map<String, String> map = new HashMap<>();
@@ -105,6 +106,7 @@ public final class SpUsers {
      * @param userId    User id.
      * @return          User profile.
      */
+    @SuppressWarnings({"LineLength"})
     @NonNull
     public static Map<String, String> get(
             @NonNull final Context context,
@@ -122,14 +124,14 @@ public final class SpUsers {
         map.put(SP_USER_EMAIL,      sp.getString(SP_USER_EMAIL,         defaultProfile.get(SP_USER_EMAIL)));
         map.put(SP_USER_FIRST_NAME, sp.getString(SP_USER_FIRST_NAME,    defaultProfile.get(SP_USER_FIRST_NAME)));
         map.put(SP_USER_LAST_NAME,  sp.getString(SP_USER_LAST_NAME,     defaultProfile.get(SP_USER_LAST_NAME)));
-        map.put(SP_USER_MIDDLE_NAME,sp.getString(SP_USER_MIDDLE_NAME,   defaultProfile.get(SP_USER_MIDDLE_NAME)));
-        map.put(SP_USER_DESCRIPTION,sp.getString(SP_USER_DESCRIPTION,   defaultProfile.get(SP_USER_DESCRIPTION)));
+        map.put(SP_USER_MIDDLE_NAME, sp.getString(SP_USER_MIDDLE_NAME,   defaultProfile.get(SP_USER_MIDDLE_NAME)));
+        map.put(SP_USER_DESCRIPTION, sp.getString(SP_USER_DESCRIPTION,   defaultProfile.get(SP_USER_DESCRIPTION)));
         map.put(SP_USER_MOCK_ENTRIES_DEFAULT, sp.getString(SP_USER_MOCK_ENTRIES_DEFAULT, defaultProfile.get(SP_USER_MOCK_ENTRIES_DEFAULT)));
         map.put(SP_USER_PROGRESS_NOTIFICATION_TIMER, sp.getString(SP_USER_PROGRESS_NOTIFICATION_TIMER, defaultProfile.get(SP_USER_PROGRESS_NOTIFICATION_TIMER)));
         map.put(SP_USER_SYNC,       String.valueOf(sp.getBoolean(SP_USER_SYNC,      Boolean.valueOf(defaultProfile.get(SP_USER_SYNC)))));
         map.put(SP_USER_SYNC_WIFI,  String.valueOf(sp.getBoolean(SP_USER_SYNC_WIFI, Boolean.valueOf(defaultProfile.get(SP_USER_SYNC)))));
-        map.put(SP_USER_SYNC_API_URL,sp.getString(SP_USER_SYNC_API_URL, defaultProfile.get(SP_USER_SYNC_API_URL)));
-        map.put(SP_USER_SYNC_PENDING,sp.getString(SP_USER_SYNC_PENDING, defaultProfile.get(SP_USER_SYNC_PENDING)));
+        map.put(SP_USER_SYNC_API_URL, sp.getString(SP_USER_SYNC_API_URL, defaultProfile.get(SP_USER_SYNC_API_URL)));
+        map.put(SP_USER_SYNC_PENDING, sp.getString(SP_USER_SYNC_PENDING, defaultProfile.get(SP_USER_SYNC_PENDING)));
 
         return map;
     }
@@ -336,8 +338,8 @@ public final class SpUsers {
                 .putString(SP_USER_PROGRESS_NOTIFICATION_TIMER, profile.get(SP_USER_PROGRESS_NOTIFICATION_TIMER))
                 .putBoolean(SP_USER_SYNC,       Boolean.parseBoolean(profile.get(SP_USER_SYNC)))
                 .putBoolean(SP_USER_SYNC_WIFI,  Boolean.parseBoolean(profile.get(SP_USER_SYNC_WIFI)))
-                .putString(SP_USER_SYNC_API_URL,profile.get(SP_USER_SYNC_API_URL))
-                .putString(SP_USER_SYNC_PENDING,profile.get(SP_USER_SYNC_PENDING));
+                .putString(SP_USER_SYNC_API_URL, profile.get(SP_USER_SYNC_API_URL))
+                .putString(SP_USER_SYNC_PENDING, profile.get(SP_USER_SYNC_PENDING));
 
         /* Filter profiles */
         editor  .putString(SP_FILTER_PROFILE_DEFAULT, SpFilterProfiles.getDefaultProfile())

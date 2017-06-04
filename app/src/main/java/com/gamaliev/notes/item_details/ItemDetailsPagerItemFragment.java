@@ -100,13 +100,20 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
         Init
      */
 
+    /**
+     * Get new instance of item details pager item fragment.
+     * @param action Action. See: {@link #ACTION_ADD}, {@link #ACTION_EDIT}.
+     * @param entryId Entry id.
+     * @return New instance of item details pager item fragment.
+     */
+    @NonNull
     public static ItemDetailsPagerItemFragment newInstance(
             @NonNull final String action,
-            final long id) {
+            final long entryId) {
 
         final Bundle bundle = new Bundle();
         bundle.putString(ACTION, action);
-        bundle.putLong(EXTRA_ID, id);
+        bundle.putLong(EXTRA_ID, entryId);
 
         final ItemDetailsPagerItemFragment fragment = new ItemDetailsPagerItemFragment();
         fragment.setArguments(bundle);
@@ -271,12 +278,15 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
         checkUrlAndSetError(mImageUrlEditText.getText().toString());
 
         mImageUrlEditText.addTextChangedListener(new TextWatcher() {
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 checkUrlAndSetError(mImageUrlEditText.getText().toString());
             }
+
             @Override
             public void afterTextChanged(Editable s) {}
         });
@@ -297,10 +307,12 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                     .fit()
                     .centerInside()
                     .into(mImageView, new Callback() {
+
                         @Override
                         public void onSuccess() {
                             loadingProgressBar.setVisibility(View.GONE);
                         }
+
                         @Override
                         public void onError() {
                             loadingProgressBar.setVisibility(View.GONE);

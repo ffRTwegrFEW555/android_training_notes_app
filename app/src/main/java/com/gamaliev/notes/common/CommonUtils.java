@@ -80,6 +80,12 @@ public final class CommonUtils {
         Animation
      */
 
+    /**
+     * Animate elevation (Z-parameter) of view. Works only on API >= 21.
+     * @param view      View, who's Z-parameter need to change.
+     * @param duration  Duration of animation.
+     * @param valueTo   The value to be animated to.
+     */
     public static void animateElevation(
             @NonNull final View view,
             final int duration,
@@ -92,16 +98,22 @@ public final class CommonUtils {
         }
     }
 
-    public static void animateScaleXY(
+    /**
+     * Animate scale X, Y-parameters of view.
+     * @param view      View, who's X, Y-parameters need to change.
+     * @param duration  Duration of animation.
+     * @param valueTo   The value to be animated to. new X, Y = valueTo.
+     */
+    public static void animateScaleXy(
             @NonNull final View view,
             final float valueTo,
             final long duration) {
 
         final ObjectAnimator animX = ObjectAnimator.ofFloat(view, "scaleX", valueTo);
         final ObjectAnimator animY = ObjectAnimator.ofFloat(view, "scaleY", valueTo);
-        final AnimatorSet animSetXY = new AnimatorSet();
-        animSetXY.playTogether(animX, animY);
-        animSetXY.setDuration(duration).start();
+        final AnimatorSet animSetXy = new AnimatorSet();
+        animSetXy.playTogether(animX, animY);
+        animSetXy.setDuration(duration).start();
     }
 
     /**
@@ -166,7 +178,7 @@ public final class CommonUtils {
         int y = 0;
         float radius = 0;
 
-        switch(animationCenter) {
+        switch (animationCenter) {
             case EXTRA_REVEAL_ANIM_CENTER_CENTER:
                 x = view.getWidth() / 2;
                 y = view.getHeight() / 2;
@@ -212,7 +224,7 @@ public final class CommonUtils {
             int y = 0;
             float radius = 0;
 
-            switch(animationCenter) {
+            switch (animationCenter) {
                 case EXTRA_REVEAL_ANIM_CENTER_CENTER:
                     x = view.getWidth() / 2;
                     y = view.getHeight() / 2;
@@ -349,7 +361,7 @@ public final class CommonUtils {
      * @param view      View, whose background color is set.
      * @param color     Color.
      */
-    public static void setBackgroundColorRectangleAPI(
+    public static void setBackgroundColorRectangleApi(
             @NonNull final Context context,
             @NonNull final View view,
             final int color) {
@@ -405,20 +417,20 @@ public final class CommonUtils {
         Date. ISO-8601.
      */
 
-// --Commented out by Inspection START:
-//    /**
-//     * @param context   Context.
-//     * @param date      Date, whose will be converted to String in ISO-8610 format.
-//     * @return  String, representing a date in ISO-8601 format.<br>
-//     *          Example pattern: "yyyy-MM-dd'T'HH:mm:ssZZZZZ", "2017-04-22T21:25:35+05:00".
-//     */
-//    @NonNull
-//    public static String getStringDateISO8601(
-//            @NonNull final Context context,
-//            @NonNull final Date date) {
-//        return getDateFormatISO8601(context).format(date);
-//    }
-// --Commented out by Inspection STOP
+    // --Commented out by Inspection START:
+    //    /**
+    //     * @param context   Context.
+    //     * @param date      Date, whose will be converted to String in ISO-8610 format.
+    //     * @return  String, representing a date in ISO-8601 format.<br>
+    //     *          Example pattern: "yyyy-MM-dd'T'HH:mm:ssZZZZZ", "2017-04-22T21:25:35+05:00".
+    //     */
+    //    @NonNull
+    //    public static String getStringDateISO8601(
+    //            @NonNull final Context context,
+    //            @NonNull final Date date) {
+    //        return getDateFormatISO8601(context).format(date);
+    //    }
+    // --Commented out by Inspection STOP
 
     /**
      * @param context   Context.
@@ -427,7 +439,7 @@ public final class CommonUtils {
      *          Example pattern: "yyyy-MM-dd'T'HH:mm:ssZZZZZ", "2017-04-22T21:25:35+05:00".
      */
     @Nullable
-    public static String getStringDateISO8601(
+    public static String getStringDateIso8601(
             @NonNull final Context context,
             @NonNull final String utcDate) {
 
@@ -439,7 +451,7 @@ public final class CommonUtils {
             Log.e(TAG, e.toString());
         }
 
-        return getDateFormatISO8601(context).format(date);
+        return getDateFormatIso8601(context).format(date);
     }
 
     /**
@@ -448,11 +460,11 @@ public final class CommonUtils {
      * @return          Date.
      */
     @Nullable
-    public static Date getDateFromISO8601String(
+    public static Date getDateFromIso8601String(
             @NonNull final Context context,
             @NonNull final String iso8601) {
 
-        final DateFormat df = getDateFormatISO8601(context);
+        final DateFormat df = getDateFormatIso8601(context);
         Date date = null;
         try {
             date = df.parse(iso8601);
@@ -469,7 +481,7 @@ public final class CommonUtils {
      *          Example pattern: "yyyy-MM-dd'T'HH:mm:ssZZZZZ", "2017-04-22T21:25:35+05:00".
      */
     @NonNull
-    public static DateFormat getDateFormatISO8601(@NonNull final Context context) {
+    public static DateFormat getDateFormatIso8601(@NonNull final Context context) {
         return new SimpleDateFormat(
                 context.getResources().getString(R.string.pattern_iso_8601),
                 Locale.ENGLISH);
@@ -663,7 +675,8 @@ public final class CommonUtils {
      * @param activity      Activity.
      * @param permission    Checked permission. See: {@link android.Manifest.permission}
      * @param requestCode   Request code, whose will be returned to given activity.
-     *                      See: {@link android.support.v4.app.ActivityCompat#requestPermissions(Activity, String[], int)}
+     * See: {@link android.support.v4.app.ActivityCompat#requestPermissions(Activity, String[], int)}
+     *
      * @return True if permission granted, otherwise false.
      */
     public static boolean checkAndRequestPermissions(
@@ -717,6 +730,11 @@ public final class CommonUtils {
         Input
      */
 
+    /**
+     * Manually hide soft input.
+     * @param context   Context.
+     * @param view      View, where need to hide soft input.
+     */
     public static void hideKeyboard(
             @NonNull final Context context,
             @NonNull final View view) {

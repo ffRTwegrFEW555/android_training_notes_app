@@ -13,7 +13,7 @@ import com.gamaliev.notes.R;
 import com.gamaliev.notes.color_picker.db.ColorPickerDbHelper;
 
 import static com.gamaliev.notes.common.CommonUtils.animateElevation;
-import static com.gamaliev.notes.common.CommonUtils.animateScaleXY;
+import static com.gamaliev.notes.common.CommonUtils.animateScaleXy;
 import static com.gamaliev.notes.common.CommonUtils.playSoundAndShowToast;
 import static com.gamaliev.notes.common.CommonUtils.setBackgroundColor;
 
@@ -78,7 +78,7 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
                 animateElevation(v,
                         mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_elevation_duration),
                         mRes.getDimensionPixelOffset(R.dimen.fragment_color_picker_favorite_box_anim_elevation_off));
-                animateScaleXY(v,
+                animateScaleXy(v,
                         mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_scale_off) / 100.0f,
                         mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_scale_duration));
                 return true;
@@ -116,7 +116,7 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
                             mRes.getString(R.string.fragment_color_picker_toast_favorite_color_added),
                             Toast.LENGTH_SHORT);
                     setBackgroundColor(mView, resultColor);
-                    animateScaleXY(mView,
+                    animateScaleXy(mView,
                             mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_scale_on) / 100.0f,
                             mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_scale_duration));
                 }

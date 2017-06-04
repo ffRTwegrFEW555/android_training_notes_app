@@ -96,26 +96,26 @@ public final class SpCommon {
                 .apply();
     }
 
-// --Commented out by Inspection START:
-//    /**
-//     * Get value from specified preferences, with specified key.
-//     *
-//     * @param context   Context.
-//     * @param name      Name of preferences.
-//     * @param key       Key.
-//     *
-//     * @return          Value.
-//     */
-//    @Nullable
-//    public static String getString(
-//            @NonNull final Context context,
-//            @NonNull final String name,
-//            @NonNull final String key) {
-//
-//        final SharedPreferences sp = context.getSharedPreferences(name, MODE_PRIVATE);
-//        return sp.getString(key, null);
-//    }
-// --Commented out by Inspection STOP
+    // --Commented out by Inspection START:
+    //    /**
+    //     * Get value from specified preferences, with specified key.
+    //     *
+    //     * @param context   Context.
+    //     * @param name      Name of preferences.
+    //     * @param key       Key.
+    //     *
+    //     * @return          Value.
+    //     */
+    //    @Nullable
+    //    public static String getString(
+    //            @NonNull final Context context,
+    //            @NonNull final String name,
+    //            @NonNull final String key) {
+    //
+    //        final SharedPreferences sp = context.getSharedPreferences(name, MODE_PRIVATE);
+    //        return sp.getString(key, null);
+    //    }
+    // --Commented out by Inspection STOP
 
 
     /*

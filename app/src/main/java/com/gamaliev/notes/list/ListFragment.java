@@ -102,6 +102,7 @@ public class ListFragment extends Fragment
         Init
      */
 
+    @NonNull
     public static ListFragment newInstance() {
         return new ListFragment();
     }
@@ -274,10 +275,12 @@ public class ListFragment extends Fragment
     private void initSearchView(@NonNull final Menu menu) {
         mSearchView = (SearchView) menu.findItem(R.id.menu_list_search).getActionView();
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
             @Override
             public boolean onQueryTextSubmit(String query) {
                 return false;
             }
+
             @Override
             public boolean onQueryTextChange(String newText) {
                 updateAdapter(newText);
@@ -348,35 +351,39 @@ public class ListFragment extends Fragment
                         // Start notification close timer.
                         // Timer is cyclical, while notification is showed.
                         final Timer timer = new Timer();
-                        timer.schedule(new TimerTask() {
+                        timer.schedule(getTimerTaskForFoundNotification(delayClose, timer), delay, delay);
+                    }
+                }
+            }
+        };
+    }
+
+    @NonNull
+    private TimerTask getTimerTaskForFoundNotification(final int delayClose, final Timer timer) {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                if (System.currentTimeMillis() - mTimerFound > delayClose) {
+                    final FragmentActivity activity = getActivity();
+                    if (activity != null) {
+                        activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if (System.currentTimeMillis() - mTimerFound >
-                                        delayClose) {
-
-                                    final FragmentActivity activity = getActivity();
-                                    if (activity != null) {
-                                        activity.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                                    circularRevealAnimationOff(
-                                                            mFoundView,
-                                                            EXTRA_REVEAL_ANIM_CENTER_CENTER,
-                                                            getResources().getInteger(R.integer.circular_reveal_animation_default_value));
-                                                } else {
-                                                    mFoundView.setVisibility(View.INVISIBLE);
-                                                }
-                                            }
-                                        });
-                                    }
-
-                                    // If notification is closed, then stop timer.
-                                    timer.cancel();
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                    circularRevealAnimationOff(
+                                            mFoundView,
+                                            EXTRA_REVEAL_ANIM_CENTER_CENTER,
+                                            getResources().getInteger(
+                                                    R.integer.circular_reveal_animation_default_value));
+                                } else {
+                                    mFoundView.setVisibility(View.INVISIBLE);
                                 }
                             }
-                        }, delay, delay);
+                        });
                     }
+
+                    // If notification is closed, then stop timer.
+                    timer.cancel();
                 }
             }
         };

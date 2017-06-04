@@ -269,8 +269,7 @@ public final class SyncUtils {
                         throw new Exception("Cannot get note api.");
                     }
                     final Response<String> response = noteApi
-                            .add(   getSyncIdForCurrentUser(context),
-                                    jsonNewEntry.toString())
+                            .add(getSyncIdForCurrentUser(context), jsonNewEntry.toString())
                             .execute();
 
                     if (response.isSuccessful()) {
@@ -465,7 +464,7 @@ public final class SyncUtils {
                                             mapServer.remove(API_KEY_EXTRA);
 
                                             // Add to conflict table, if entries not equals.
-                                            if(!mapLocal.equals(mapServer)) {
+                                            if (!mapLocal.equals(mapServer)) {
                                                 insertEntryWithSingleValue(
                                                         context,
                                                         null,

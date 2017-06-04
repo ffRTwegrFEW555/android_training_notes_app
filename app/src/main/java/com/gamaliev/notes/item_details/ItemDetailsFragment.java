@@ -46,9 +46,15 @@ public final class ItemDetailsFragment extends Fragment {
         Init
      */
 
-    public static ItemDetailsFragment newInstance(final long id) {
+    /**
+     * Get new instance of item details fragment.
+     * @param entryId Entry id.
+     * @return New instance of item details fragment.
+     */
+    @NonNull
+    public static ItemDetailsFragment newInstance(final long entryId) {
         final Bundle bundle = new Bundle();
-        bundle.putLong(EXTRA_ID, id);
+        bundle.putLong(EXTRA_ID, entryId);
 
         final ItemDetailsFragment fragment = new ItemDetailsFragment();
         fragment.setArguments(bundle);

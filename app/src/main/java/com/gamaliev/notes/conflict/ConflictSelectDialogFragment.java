@@ -96,6 +96,13 @@ public class ConflictSelectDialogFragment extends DialogFragment {
         Init
      */
 
+    /**
+     * Get new instance of conflict select dialog fragment.
+     * @param syncId    Synchronization id of Entry.
+     * @param position  Position of entry, in adapter of recycler view.
+     * @return New instance of conflict select dialog fragment.
+     */
+    @NonNull
     public static ConflictSelectDialogFragment newInstance(
             @NonNull final String syncId,
             final int position) {

@@ -29,7 +29,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_ID;
  */
 
 public class UserRecyclerViewAdapter
-        extends RecyclerView.Adapter<UserRecyclerViewAdapter.ViewHolder>{
+        extends RecyclerView.Adapter<UserRecyclerViewAdapter.ViewHolder> {
 
     /* Logger */
     private static final String TAG = UserRecyclerViewAdapter.class.getSimpleName();
@@ -76,9 +76,9 @@ public class UserRecyclerViewAdapter
             }
         });
         holder.mTitleView.setText(
-                userProfile.get(SpUsers.SP_USER_FIRST_NAME) + " " +
-                        userProfile.get(SpUsers.SP_USER_LAST_NAME) + " " +
-                        userProfile.get(SpUsers.SP_USER_MIDDLE_NAME));
+                userProfile.get(SpUsers.SP_USER_FIRST_NAME) + " "
+                        + userProfile.get(SpUsers.SP_USER_LAST_NAME) + " "
+                        + userProfile.get(SpUsers.SP_USER_MIDDLE_NAME));
         holder.mDescriptionEmailView.setText(userProfile.get(SpUsers.SP_USER_EMAIL));
         holder.mDescriptionView.setText(userProfile.get(SpUsers.SP_USER_DESCRIPTION));
         holder.mConfigureImageButton.setOnClickListener(new View.OnClickListener() {

@@ -49,6 +49,11 @@ public class UserPreferenceFragment extends PreferenceFragmentCompat
         Init
     */
 
+    /**
+     * Get new instance of user preference fragment.
+     * @param userId User id.
+     * @return New instance of user preference fragment.
+     */
     @NonNull
     public static UserPreferenceFragment newInstance(@NonNull final String userId) {
         final Bundle args = new Bundle();
@@ -66,12 +71,12 @@ public class UserPreferenceFragment extends PreferenceFragmentCompat
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        final String userID = getArguments().getString(EXTRA_USER_ID);
-        if (userID == null) {
+        final String userId = getArguments().getString(EXTRA_USER_ID);
+        if (userId == null) {
             Log.e(TAG, "User id is null.");
             return;
         }
-        mUserId = userID;
+        mUserId = userId;
 
         // Change preference name to current user.
         final PreferenceManager manager = getPreferenceManager();

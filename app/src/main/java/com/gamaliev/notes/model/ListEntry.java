@@ -14,8 +14,8 @@ import org.json.JSONObject;
 
 import java.util.Date;
 
-import static com.gamaliev.notes.common.CommonUtils.getDateFromISO8601String;
-import static com.gamaliev.notes.common.CommonUtils.getStringDateISO8601;
+import static com.gamaliev.notes.common.CommonUtils.getDateFromIso8601String;
+import static com.gamaliev.notes.common.CommonUtils.getStringDateIso8601;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_COLOR;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_CREATED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION;
@@ -63,7 +63,7 @@ public class ListEntry implements Parcelable {
     /*
         Parcelable
      */
-
+    @SuppressWarnings({"NeedBraces"})
     private ListEntry(Parcel in) {
         int whatToRead = in.readInt();
         if ((whatToRead & RW_ID) > 0)           mId = in.readLong();
@@ -77,6 +77,7 @@ public class ListEntry implements Parcelable {
         if ((whatToRead & RW_VIEWED) > 0)       mViewed = (Date) in.readSerializable();
     }
 
+    @SuppressWarnings({"NeedBraces"})
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         // Compute what to write to parcel.
@@ -250,16 +251,13 @@ public class ListEntry implements Parcelable {
 
         final JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put(LIST_ITEMS_COLUMN_TITLE,         title);
-            jsonObject.put(LIST_ITEMS_COLUMN_COLOR,         String.format(
-                    "#%06X",
-                    (0xFFFFFF & Integer.parseInt(color))));
-
-            jsonObject.put(LIST_ITEMS_COLUMN_IMAGE_URL,    imageUrl);
-            jsonObject.put(LIST_ITEMS_COLUMN_DESCRIPTION,  description);
-            jsonObject.put(LIST_ITEMS_COLUMN_CREATED,      getStringDateISO8601(context, created));
-            jsonObject.put(LIST_ITEMS_COLUMN_EDITED,       getStringDateISO8601(context, edited));
-            jsonObject.put(LIST_ITEMS_COLUMN_VIEWED,       getStringDateISO8601(context, viewed));
+            jsonObject.put(LIST_ITEMS_COLUMN_TITLE,     title);
+            jsonObject.put(LIST_ITEMS_COLUMN_COLOR,     String.format("#%06X", (0xFFFFFF & Integer.parseInt(color))));
+            jsonObject.put(LIST_ITEMS_COLUMN_IMAGE_URL, imageUrl);
+            jsonObject.put(LIST_ITEMS_COLUMN_DESCRIPTION, description);
+            jsonObject.put(LIST_ITEMS_COLUMN_CREATED,   getStringDateIso8601(context, created));
+            jsonObject.put(LIST_ITEMS_COLUMN_EDITED,    getStringDateIso8601(context, edited));
+            jsonObject.put(LIST_ITEMS_COLUMN_VIEWED,    getStringDateIso8601(context, viewed));
 
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
@@ -284,43 +282,35 @@ public class ListEntry implements Parcelable {
         return convertJsonToListEntry(context, jsonObject);
     }
 
+    @SuppressWarnings({"NeedBraces"})
     @NonNull
     public static ListEntry convertJsonToListEntry(
             @NonNull final Context context,
             @NonNull final JSONObject jsonObject) {
 
-        final String syncId         = jsonObject.optString(LIST_ITEMS_COLUMN_SYNC_ID_JSON, null);
-        final Long syncIdLong       = syncId == null ? null : Long.parseLong(syncId);
-        final String title          = jsonObject.optString(LIST_ITEMS_COLUMN_TITLE, null);
-        final int color             = Color.parseColor(jsonObject.optString(
-                LIST_ITEMS_COLUMN_COLOR, null));
-        final String imageUrl       = jsonObject.optString(LIST_ITEMS_COLUMN_IMAGE_URL, null);
-        final String description    = jsonObject.optString(LIST_ITEMS_COLUMN_DESCRIPTION, null);
-        final String created        = jsonObject.optString(LIST_ITEMS_COLUMN_CREATED, null);
-        final String edited         = jsonObject.optString(LIST_ITEMS_COLUMN_EDITED, null);
-        final String viewed         = jsonObject.optString(LIST_ITEMS_COLUMN_VIEWED, null);
+        final String syncId     = jsonObject.optString(LIST_ITEMS_COLUMN_SYNC_ID_JSON, null);
+        final Long syncIdLong   = syncId == null ? null : Long.parseLong(syncId);
+        final String title      = jsonObject.optString(LIST_ITEMS_COLUMN_TITLE, null);
+        final int color         = Color.parseColor(jsonObject.optString(LIST_ITEMS_COLUMN_COLOR, null));
+        final String imageUrl   = jsonObject.optString(LIST_ITEMS_COLUMN_IMAGE_URL, null);
+        final String description = jsonObject.optString(LIST_ITEMS_COLUMN_DESCRIPTION, null);
+        final String created    = jsonObject.optString(LIST_ITEMS_COLUMN_CREATED, null);
+        final String edited     = jsonObject.optString(LIST_ITEMS_COLUMN_EDITED, null);
+        final String viewed     = jsonObject.optString(LIST_ITEMS_COLUMN_VIEWED, null);
 
         final ListEntry entry = new ListEntry();
-        if (syncIdLong != null) {
-            entry.setSyncId(syncIdLong);
-        }
+        if (syncIdLong != null) entry.setSyncId(syncIdLong);
         entry.setTitle(title);
         entry.setDescription(description);
         entry.setColor(color);
         entry.setImageUrl(imageUrl);
 
-        final Date createdDate = getDateFromISO8601String(context, created);
-        final Date editedDate = getDateFromISO8601String(context, edited);
-        final Date viewedDate = getDateFromISO8601String(context, viewed);
-        if (createdDate != null) {
-            entry.setCreated(createdDate);
-        }
-        if (editedDate != null) {
-            entry.setEdited(editedDate);
-        }
-        if (viewedDate != null) {
-            entry.setViewed(viewedDate);
-        }
+        final Date createdDate  = getDateFromIso8601String(context, created);
+        final Date editedDate   = getDateFromIso8601String(context, edited);
+        final Date viewedDate   = getDateFromIso8601String(context, viewed);
+        if (createdDate != null) entry.setCreated(createdDate);
+        if (editedDate != null) entry.setEdited(editedDate);
+        if (viewedDate != null) entry.setViewed(viewedDate);
 
         return entry;
     }

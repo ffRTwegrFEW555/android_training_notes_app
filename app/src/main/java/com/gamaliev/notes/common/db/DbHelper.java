@@ -94,39 +94,39 @@ public final class DbHelper extends SQLiteOpenHelper {
 
     /* Colors */
     private static final String SQL_FAVORITE_CREATE_TABLE =
-            "CREATE TABLE " + FAVORITE_TABLE_NAME + " (" +
-                    BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    FAVORITE_COLUMN_INDEX +                 " INTEGER NOT NULL UNIQUE, " +
-                    FAVORITE_COLUMN_COLOR +                 " INTEGER NOT NULL); ";
+            "CREATE TABLE " + FAVORITE_TABLE_NAME + " ("
+                    + BASE_COLUMN_ID +          " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + FAVORITE_COLUMN_INDEX +   " INTEGER NOT NULL UNIQUE, "
+                    + FAVORITE_COLUMN_COLOR +   " INTEGER NOT NULL); ";
 
     /* Entries */
     private static final String SQL_LIST_ITEMS_CREATE_TABLE =
-            "CREATE TABLE " + LIST_ITEMS_TABLE_NAME + " (" +
-                    BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    LIST_ITEMS_COLUMN_MANUALLY +            " INTEGER DEFAULT 0, " +
-                    LIST_ITEMS_COLUMN_TITLE +               " TEXT, " +
-                    COMMON_COLUMN_SYNC_ID +                 " INTEGER, " +
-                    LIST_ITEMS_COLUMN_DESCRIPTION +         " TEXT, " +
-                    LIST_ITEMS_COLUMN_COLOR +               " INTEGER, " +
-                    LIST_ITEMS_COLUMN_IMAGE_URL +           " TEXT, " +
-                    LIST_ITEMS_COLUMN_CREATED + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
-                    LIST_ITEMS_COLUMN_EDITED +  " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
-                    LIST_ITEMS_COLUMN_VIEWED +  " DATETIME DEFAULT CURRENT_TIMESTAMP); ";
+            "CREATE TABLE " + LIST_ITEMS_TABLE_NAME + " ("
+                    + BASE_COLUMN_ID +                  " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + LIST_ITEMS_COLUMN_MANUALLY +      " INTEGER DEFAULT 0, "
+                    + LIST_ITEMS_COLUMN_TITLE +         " TEXT, "
+                    + COMMON_COLUMN_SYNC_ID +           " INTEGER, "
+                    + LIST_ITEMS_COLUMN_DESCRIPTION +   " TEXT, "
+                    + LIST_ITEMS_COLUMN_COLOR +         " INTEGER, "
+                    + LIST_ITEMS_COLUMN_IMAGE_URL +     " TEXT, "
+                    + LIST_ITEMS_COLUMN_CREATED +       " DATETIME DEFAULT CURRENT_TIMESTAMP, "
+                    + LIST_ITEMS_COLUMN_EDITED +        " DATETIME DEFAULT CURRENT_TIMESTAMP, "
+                    + LIST_ITEMS_COLUMN_VIEWED +        " DATETIME DEFAULT CURRENT_TIMESTAMP); ";
 
-// --Commented out by Inspection START:
-//    /* Entries. Drop */
-//    public static final String SQL_LIST_ITEMS_DROP_TABLE =
-//            "DROP TABLE " + LIST_ITEMS_TABLE_NAME + ";";
-// --Commented out by Inspection STOP
+    // --Commented out by Inspection START:
+    //    /* Entries. Drop */
+    //    public static final String SQL_LIST_ITEMS_DROP_TABLE =
+    //            "DROP TABLE " + LIST_ITEMS_TABLE_NAME + ";";
+    // --Commented out by Inspection STOP
 
     /* Sync. Journal table */
     public static final String SQL_SYNC_CREATE_TABLE =
-            "CREATE TABLE " + SYNC_TABLE_NAME + " (" +
-                    BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    SYNC_COLUMN_FINISHED +                  " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
-                    SYNC_COLUMN_ACTION +                    " INTEGER NOT NULL, " +
-                    SYNC_COLUMN_STATUS +                    " INTEGER NOT NULL, " +
-                    SYNC_COLUMN_AMOUNT +                    " INTEGER NOT NULL); ";
+            "CREATE TABLE " + SYNC_TABLE_NAME + " ("
+                    + BASE_COLUMN_ID +          " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + SYNC_COLUMN_FINISHED +    " DATETIME DEFAULT CURRENT_TIMESTAMP, "
+                    + SYNC_COLUMN_ACTION +      " INTEGER NOT NULL, "
+                    + SYNC_COLUMN_STATUS +      " INTEGER NOT NULL, "
+                    + SYNC_COLUMN_AMOUNT +      " INTEGER NOT NULL); ";
 
     /* Sync. Journal table. Drop */
     public static final String SQL_SYNC_DROP_TABLE =
@@ -134,15 +134,15 @@ public final class DbHelper extends SQLiteOpenHelper {
 
     /* Sync. Conflict table */
     private static final String SQL_SYNC_CONFLICT_CREATE_TABLE =
-            "CREATE TABLE " + SYNC_CONFLICT_TABLE_NAME + " (" +
-                    BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COMMON_COLUMN_SYNC_ID +                 " INTEGER NOT NULL UNIQUE); ";
+            "CREATE TABLE " + SYNC_CONFLICT_TABLE_NAME + " ("
+                    + BASE_COLUMN_ID +          " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + COMMON_COLUMN_SYNC_ID +   " INTEGER NOT NULL UNIQUE); ";
 
     /* Sync. Deleted table */
     private static final String SQL_SYNC_DELETED_CREATE_TABLE =
-            "CREATE TABLE " + SYNC_DELETED_TABLE_NAME + " (" +
-                    BASE_COLUMN_ID +                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COMMON_COLUMN_SYNC_ID +                 " INTEGER NOT NULL UNIQUE); ";
+            "CREATE TABLE " + SYNC_DELETED_TABLE_NAME + " ("
+                    + BASE_COLUMN_ID +          " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + COMMON_COLUMN_SYNC_ID +   " INTEGER NOT NULL UNIQUE); ";
 
 
     /*
@@ -168,7 +168,7 @@ public final class DbHelper extends SQLiteOpenHelper {
 
     @NonNull private static final Map<String, DbHelper> INSTANCES;
     @SuppressWarnings("NullableProblems")
-    @NonNull private static final String mDbFailMessage;
+    @NonNull private static final String DB_FAILED_MESSAGE;
 
 
     /*
@@ -177,7 +177,7 @@ public final class DbHelper extends SQLiteOpenHelper {
 
     static {
         INSTANCES = new ConcurrentHashMap<>();
-        mDbFailMessage = getAppContext().getString(R.string.sql_toast_fail);
+        DB_FAILED_MESSAGE = getAppContext().getString(R.string.sql_toast_fail);
     }
 
     /**
@@ -226,9 +226,7 @@ public final class DbHelper extends SQLiteOpenHelper {
         updateDatabase(db, oldVersion, newVersion);
     }
 
-    /**
-     * Creating a new table and populating with default values, or update if database exist
-     */
+    // Creating a new table and populating with default values, or update if database exist.
     private void updateDatabase(
             @NonNull final SQLiteDatabase db,
             final int oldVersion,
@@ -474,22 +472,37 @@ public final class DbHelper extends SQLiteOpenHelper {
         return false;
     }
 
+    /**
+     * Finding cursor position by given parameters.
+     * @param cursor Cursor.
+     * @param column Column.
+     * @param value  Column value.
+     * @return Position. Positive number if found, otherwise '-1'.
+     */
     public static int findCursorPositionByColumnValue(
             @NonNull final Cursor cursor,
             @SuppressWarnings("SameParameterValue") @NonNull final String column,
             @NonNull final String value) {
 
-        int position = cursor.getPosition();
+        int position;
         while (cursor.moveToNext()) {
             final String valueSeek = cursor.getString(cursor.getColumnIndex(column));
             if (value.equals(valueSeek)) {
                 position = cursor.getPosition();
-                break;
+                return position;
             }
         }
-        return position;
+        return -1;
     }
 
+    /**
+     * Finding column value by cursor position.
+     * @param cursor    Cursor.
+     * @param column    Column.
+     * @param position  Position.
+     * @return Value if found, else null.
+     */
+    @Nullable
     public static String findColumnValueByCursorPosition(
             @NonNull final Cursor cursor,
             @SuppressWarnings("SameParameterValue") @NonNull final String column,
@@ -524,6 +537,6 @@ public final class DbHelper extends SQLiteOpenHelper {
 
     @NonNull
     public static String getDbFailMessage() {
-        return mDbFailMessage;
+        return DB_FAILED_MESSAGE;
     }
 }

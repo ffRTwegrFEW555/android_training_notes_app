@@ -277,7 +277,7 @@ public class FileUtils {
      */
     private static void importEntries(
             @NonNull final Activity activity,
-            @NonNull final Uri selectedFile){
+            @NonNull final Uri selectedFile) {
 
         showToastRunOnUiThread(
                 activity,

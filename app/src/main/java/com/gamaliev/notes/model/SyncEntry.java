@@ -40,6 +40,7 @@ public class SyncEntry implements Parcelable {
         Parcelable
      */
 
+    @SuppressWarnings({"NeedBraces"})
     private SyncEntry(Parcel in) {
         int whatToRead = in.readInt();
         if ((whatToRead & RW_ID) > 0)           mId = in.readLong();
@@ -49,6 +50,7 @@ public class SyncEntry implements Parcelable {
         if ((whatToRead & RW_AMOUNT) > 0)       mAmount = in.readInt();
     }
 
+    @SuppressWarnings({"NeedBraces"})
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         // Compute what to write to parcel.
@@ -90,11 +92,11 @@ public class SyncEntry implements Parcelable {
         Setters
      */
 
-// --Commented out by Inspection START:
-//    public void setId(@NonNull final Long id) {
-//        mId = id;
-//    }
-// --Commented out by Inspection STOP
+    // --Commented out by Inspection START:
+    //    public void setId(@NonNull final Long id) {
+    //        mId = id;
+    //    }
+    // --Commented out by Inspection STOP
 
     public void setFinished(@NonNull final Date finished) {
         mFinished = finished;
@@ -117,12 +119,12 @@ public class SyncEntry implements Parcelable {
         Getters
      */
 
-// --Commented out by Inspection START:
-//    @Nullable
-//    public Long getId() {
-//        return mId;
-//    }
-// --Commented out by Inspection STOP
+    // --Commented out by Inspection START:
+    //    @Nullable
+    //    public Long getId() {
+    //        return mId;
+    //    }
+    // --Commented out by Inspection STOP
 
     @Nullable
     public Date getFinished() {
@@ -151,12 +153,12 @@ public class SyncEntry implements Parcelable {
 
     @Override
     public String toString() {
-        return "SyncEntry{" +
-                "mId=" + mId +
-                ", mFinished=" + mFinished +
-                ", mAction=" + (mAction == null ? 0 : NotesApp.getAppContext().getString(ACTION_TEXT[mAction])) +
-                ", mStatus=" + (mStatus == null ? 0 : NotesApp.getAppContext().getString(STATUS_TEXT[mStatus])) +
-                ", mAmount=" + mAmount +
-                '}';
+        return "SyncEntry{"
+                + "mId=" + mId
+                + ", mFinished=" + mFinished
+                + ", mAction=" + (mAction == null ? 0 : NotesApp.getAppContext().getString(ACTION_TEXT[mAction]))
+                + ", mStatus=" + (mStatus == null ? 0 : NotesApp.getAppContext().getString(STATUS_TEXT[mStatus]))
+                + ", mAmount=" + mAmount
+                + '}';
     }
 }

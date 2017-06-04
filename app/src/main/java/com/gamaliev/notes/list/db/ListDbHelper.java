@@ -187,11 +187,9 @@ public class ListDbHelper {
      * Update entry in database.
      * @param entry                 Entry, must contains non-null id.
      * @param editedViewedColumn    Which column should updated with current date and time.
-     *
-     * {@link DbHelper#LIST_ITEMS_COLUMN_EDITED} or
-     * {@link DbHelper#LIST_ITEMS_COLUMN_VIEWED}.
-     * If null, then default is
-     * {@link DbHelper#LIST_ITEMS_COLUMN_EDITED}.
+     *                              {@link DbHelper#LIST_ITEMS_COLUMN_EDITED}
+     *                              or {@link DbHelper#LIST_ITEMS_COLUMN_VIEWED}.
+     *                              If null, then default is {@link DbHelper#LIST_ITEMS_COLUMN_EDITED}.
      */
     @SuppressWarnings("UnusedReturnValue")
     public static boolean updateEntry(
@@ -250,10 +248,18 @@ public class ListDbHelper {
         return false;
     }
 
+    /**
+     * Update synchronization id, in database, form
+     * @param context
+     * @param entryId
+     * @param syncId
+     * @return
+     */
+    TODO
     @SuppressWarnings("UnusedReturnValue")
     public static boolean updateSyncId(
             @NonNull final Context context,
-            @NonNull final String id,
+            @NonNull final String entryId,
             @NonNull final String syncId) {
 
         try {
@@ -269,7 +275,7 @@ public class ListDbHelper {
                     LIST_ITEMS_TABLE_NAME,
                     cv,
                     BASE_COLUMN_ID + " = ?",
-                    new String[]{id});
+                    new String[]{entryId});
 
             if (updateResult == 0) {
                 throw new SQLiteException("[ERROR] The number of rows affected is 0");
@@ -320,6 +326,7 @@ public class ListDbHelper {
      * @param id    Id of entry.
      * @return      Filled object. See {@link ListEntry}
      */
+    @SuppressWarnings({"ParenPad"})
     @Nullable
     public static ListEntry getEntry(
             @NonNull final Context context,
@@ -367,8 +374,7 @@ public class ListDbHelper {
                     entry.setCreated(created);
                     entry.setEdited(edited);
                     entry.setViewed(viewed);
-
-                    }
+                }
 
                 return entry;
             }
@@ -452,35 +458,35 @@ public class ListDbHelper {
         return false;
     }
 
-// --Commented out by Inspection START:
-//    /**
-//     * Delete all rows from list table.
-//     * @return true if ok, otherwise false.
-//     */
-//    public static boolean removeAllEntries(
-//            @NonNull final Context context) {
-//
-//        try {
-//            final SQLiteDatabase db = getWritableDb(context);
-//            db.beginTransaction();
-//            try {
-//                db.execSQL(SQL_LIST_ITEMS_DROP_TABLE);
-//                db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
-//                db.setTransactionSuccessful();
-//                return true;
-//
-//            } finally {
-//                db.endTransaction();
-//            }
-//
-//        } catch (SQLiteException e) {
-//            Log.e(TAG, e.toString());
-//            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
-//        }
-//
-//        return false;
-//    }
-// --Commented out by Inspection STOP
+    // --Commented out by Inspection START:
+    //    /**
+    //     * Delete all rows from list table.
+    //     * @return true if ok, otherwise false.
+    //     */
+    //    public static boolean removeAllEntries(
+    //            @NonNull final Context context) {
+    //
+    //        try {
+    //            final SQLiteDatabase db = getWritableDb(context);
+    //            db.beginTransaction();
+    //            try {
+    //                db.execSQL(SQL_LIST_ITEMS_DROP_TABLE);
+    //                db.execSQL(SQL_LIST_ITEMS_CREATE_TABLE);
+    //                db.setTransactionSuccessful();
+    //                return true;
+    //
+    //            } finally {
+    //                db.endTransaction();
+    //            }
+    //
+    //        } catch (SQLiteException e) {
+    //            Log.e(TAG, e.toString());
+    //            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+    //        }
+    //
+    //        return false;
+    //    }
+    // --Commented out by Inspection STOP
 
     /**
      * Add mock entries.
@@ -553,11 +559,11 @@ public class ListDbHelper {
         final DbQueryBuilder searchTextQueryBuilder = new DbQueryBuilder();
         if (!TextUtils.isEmpty(constraint)) {
             searchTextQueryBuilder
-                    .addOr( SEARCH_COLUMNS[0],
+                    .addOr(SEARCH_COLUMNS[0],
                             OPERATOR_LIKE,
                             new String[] {constraint.toString()})
 
-                    .addOr( SEARCH_COLUMNS[1],
+                    .addOr(SEARCH_COLUMNS[1],
                             OPERATOR_LIKE,
                             new String[] {constraint.toString()});
         }
@@ -570,11 +576,11 @@ public class ListDbHelper {
                     new String[]{profileMap.get(FAVORITE_COLUMN_COLOR)});
         }
 
-        for (String DATES_COLUMN : DATES_COLUMNS) {
+        for (String datesColumn : DATES_COLUMNS) {
             final String dates = getDateFromProfileMap(
                     context,
                     profileMap,
-                    DATES_COLUMN,
+                    datesColumn,
                     EXTRA_DATES_TO_DATETIME);
 
             if (TextUtils.isEmpty(dates)) {
@@ -599,7 +605,7 @@ public class ListDbHelper {
             datesArray[0] = getDateFromProfileMap(
                     context,
                     profileMap,
-                    DATES_COLUMN,
+                    datesColumn,
                     EXTRA_DATES_FROM_DATE);
             datesArray[1] = getStringDateFormatSqlite(
                     context,
@@ -607,9 +613,9 @@ public class ListDbHelper {
                     false);
 
             // Add viewed filter, if not empty or null.
-            if (!TextUtils.isEmpty(profileMap.get(DATES_COLUMN))) {
+            if (!TextUtils.isEmpty(profileMap.get(datesColumn))) {
                 resultQueryBuilder.addAnd(
-                        DATES_COLUMN,
+                        datesColumn,
                         OPERATOR_BETWEEN,
                         datesArray);
             }

@@ -24,7 +24,7 @@ import static com.gamaliev.notes.sync.SyncUtils.STATUS_TEXT;
  */
 
 public class SyncRecyclerViewAdapter
-        extends RecyclerView.Adapter<SyncRecyclerViewAdapter.ViewHolder>{
+        extends RecyclerView.Adapter<SyncRecyclerViewAdapter.ViewHolder> {
 
     /* ... */
     @NonNull private final Fragment mFragment;

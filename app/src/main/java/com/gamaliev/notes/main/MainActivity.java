@@ -167,9 +167,9 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 .getHeaderView(0)
                 .findViewById(R.id.activity_main_nav_drawable_header_title_text_view))
                 .setText(
-                        userProfile.get(SpUsers.SP_USER_FIRST_NAME) + " " +
-                                userProfile.get(SpUsers.SP_USER_LAST_NAME) + " " +
-                                userProfile.get(SpUsers.SP_USER_MIDDLE_NAME));
+                        userProfile.get(SpUsers.SP_USER_FIRST_NAME) + " "
+                                + userProfile.get(SpUsers.SP_USER_LAST_NAME) + " "
+                                + userProfile.get(SpUsers.SP_USER_MIDDLE_NAME));
 
         ((TextView) navView
                 .getHeaderView(0)
@@ -232,7 +232,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     startExportFileChooser();
 
                 } else {
-                    final String deniedMessage = getString(R.string.file_utils_export_message_write_external_storage_denied);
+                    final String deniedMessage =
+                            getString(R.string.file_utils_export_message_write_external_storage_denied);
                     Log.i(TAG, deniedMessage);
                     showMessageDialog(
                             this,
@@ -247,7 +248,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     startImportFileChooser();
 
                 } else {
-                    final String deniedMessage = getString(R.string.file_utils_import_message_read_external_storage_denied);
+                    final String deniedMessage =
+                            getString(R.string.file_utils_import_message_read_external_storage_denied);
                     Log.i(TAG, deniedMessage);
                     showMessageDialog(
                             this,
@@ -453,22 +455,22 @@ public class MainActivity extends AppCompatActivity implements Observer {
         };
     }
 
-// --Commented out by Inspection START:
-//    private void deleteAllEntries() {
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                final boolean success = ListDbHelper.removeAllEntries(MainActivity.this);
-//                showToastRunOnUiThread(
-//                        MainActivity.this,
-//                        success
-//                                ? getString(R.string.activity_main_notification_delete_all_entries_success)
-//                                : getString(R.string.activity_main_notification_delete_all_entries_failed),
-//                        Toast.LENGTH_SHORT);
-//            }
-//        }).start();
-//    }
-// --Commented out by Inspection STOP
+    // --Commented out by Inspection START:
+    //    private void deleteAllEntries() {
+    //        new Thread(new Runnable() {
+    //            @Override
+    //            public void run() {
+    //                final boolean success = ListDbHelper.removeAllEntries(MainActivity.this);
+    //                showToastRunOnUiThread(
+    //                        MainActivity.this,
+    //                        success
+    //                                ? getString(R.string.activity_main_notification_delete_all_entries_success)
+    //                                : getString(R.string.activity_main_notification_delete_all_entries_failed),
+    //                        Toast.LENGTH_SHORT);
+    //            }
+    //        }).start();
+    //    }
+    // --Commented out by Inspection STOP
 
     private void showActionBarAndFullscreenOff() {
         // Show Action bar.

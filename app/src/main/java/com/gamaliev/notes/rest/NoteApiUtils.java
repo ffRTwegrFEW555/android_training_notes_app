@@ -24,7 +24,7 @@ public class NoteApiUtils {
     public static final String API_KEY_ID       = "id";
     public static final String API_KEY_EXTRA    = "extra";
 
-    @Nullable private static final NoteApi sNoteApi;
+    @Nullable private static final NoteApi NOTE_API;
 
 
     /*
@@ -34,9 +34,9 @@ public class NoteApiUtils {
     static {
         final String url = SpUsers.getApiUrlForCurrentUser(NotesApp.getAppContext());
         if (url == null) {
-            sNoteApi = null;
+            NOTE_API = null;
         } else {
-            sNoteApi = new Retrofit.Builder()
+            NOTE_API = new Retrofit.Builder()
                     .baseUrl(url)
                     .addConverterFactory(ScalarsConverterFactory.create())
                     .build()
@@ -51,6 +51,6 @@ public class NoteApiUtils {
 
     @Nullable
     public static NoteApi getNoteApi() {
-        return sNoteApi;
+        return NOTE_API;
     }
 }

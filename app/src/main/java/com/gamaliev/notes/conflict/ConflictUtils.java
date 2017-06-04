@@ -33,6 +33,7 @@ public final class ConflictUtils {
         Status bar notification.
      */
 
+    @SuppressWarnings({"JavadocMethod"})
     public static void checkConflictExistsAndShowStatusBarNotification(
             @NonNull final Context context) {
 
@@ -43,6 +44,7 @@ public final class ConflictUtils {
         }
     }
 
+    @SuppressWarnings({"JavadocMethod"})
     public static void checkConflictExistsAndHideStatusBarNotification(
             @NonNull final Context context) {
 
@@ -57,8 +59,10 @@ public final class ConflictUtils {
         final NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context);
 
-        builder .setContentTitle(context.getString(R.string.fragment_sync_notification_status_bar_conflict_exists_title))
-                .setContentText(context.getString(R.string.fragment_sync_notification_status_bar_conflict_exists_body))
+        builder .setContentTitle(context.getString(
+                        R.string.fragment_sync_notification_status_bar_conflict_exists_title))
+                .setContentText(context.getString(
+                        R.string.fragment_sync_notification_status_bar_conflict_exists_body))
                 .setSmallIcon(R.drawable.ic_warning_white_24dp)
                 .setAutoCancel(true);
 
@@ -66,6 +70,7 @@ public final class ConflictUtils {
                 .notify(EXTRA_ID_CONFLICT_STATUS_BAR_NOTIFICATION, builder.build());
     }
 
+    @SuppressWarnings({"JavadocMethod"})
     public static void hideConflictStatusBarNotification(
             @NonNull final Context context) {
 
@@ -78,6 +83,11 @@ public final class ConflictUtils {
         Check conflicting exists
      */
 
+    /**
+     * Checking existing of conflicting entries in database.
+     * @param context Context.
+     * @return True, if entries > 0, else false.
+     */
     public static boolean checkConflictingExists(
             @NonNull final Context context) {
 

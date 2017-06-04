@@ -122,6 +122,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
         Init
      */
 
+    @NonNull
     public static FilterSortDialogFragment newInstance() {
         return new FilterSortDialogFragment();
     }
@@ -364,9 +365,11 @@ public final class FilterSortDialogFragment extends DialogFragment {
                     mSelectedFilterProfile = profileMap.get(SP_FILTER_ID);
 
                     // BUG.
-                    ((RadioGroup) mDialog.findViewById(R.id.fragment_list_filter_dialog_sorting_by_radio_group_order))
+                    ((RadioGroup) mDialog.findViewById(
+                            R.id.fragment_list_filter_dialog_sorting_by_radio_group_order))
                             .setOnCheckedChangeListener(null);
-                    ((RadioGroup) mDialog.findViewById(R.id.fragment_list_filter_dialog_sorting_by_radio_group_asc_desc))
+                    ((RadioGroup) mDialog.findViewById(
+                            R.id.fragment_list_filter_dialog_sorting_by_radio_group_asc_desc))
                             .setOnCheckedChangeListener(null);
 
                     initComponents();
@@ -474,7 +477,8 @@ public final class FilterSortDialogFragment extends DialogFragment {
                     initComponents();
                 }
                 colorCb.setChecked(true);
-            }});
+            }
+        });
 
         if (TextUtils.isEmpty(mFilterProfileMap.get(SP_FILTER_COLOR))) {
             colorCb.setChecked(true);
@@ -904,7 +908,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
                     newUtcDateToS = resultUtcDateD.before(utcDateTo)
                             ? getDateFromProfileMap(
                                     getActivity(),
-                            mFilterProfileMap,
+                                    mFilterProfileMap,
                                     filterCategory,
                                     EXTRA_DATES_TO_DATETIME)
                             : resultUtcDateS;
@@ -915,7 +919,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
                     newUtcDateFromS = resultUtcDateD.after(utcDateFrom)
                             ? getDateFromProfileMap(
                                     getActivity(),
-                            mFilterProfileMap,
+                                    mFilterProfileMap,
                                     filterCategory,
                                     EXTRA_DATES_FROM_DATETIME)
                             : resultUtcDateS;
@@ -963,10 +967,12 @@ public final class FilterSortDialogFragment extends DialogFragment {
 
     private void setOnAttachStateChangeListener() {
         mDialog.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+
             @Override
             public void onViewAttachedToWindow(View v) {
                 startRunnableTasks();
             }
+
             @Override
             public void onViewDetachedFromWindow(View v) {
                 mSingleThreadExecutor.shutdownNow();

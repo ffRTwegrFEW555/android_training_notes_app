@@ -44,6 +44,7 @@ public class ConflictFragment extends Fragment implements Observer {
         Init
      */
 
+    @NonNull
     public static ConflictFragment newInstance() {
         return new ConflictFragment();
     }

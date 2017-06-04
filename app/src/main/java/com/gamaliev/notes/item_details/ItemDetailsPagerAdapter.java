@@ -62,7 +62,7 @@ class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
         final long id = getId(position);
         return id == -1
                 ? ""
-                :   mFragment.getString(R.string.fragment_item_details_pager_title_strip_prefix)
+                : mFragment.getString(R.string.fragment_item_details_pager_title_strip_prefix)
                     + ": "
                     + String.valueOf(id);
     }
@@ -80,9 +80,9 @@ class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
         return -1;
     }
 
-// --Commented out by Inspection START:
-//    public void setCursor(@NonNull final Cursor cursor) {
-//        mCursor = cursor;
-//    }
-// --Commented out by Inspection STOP
+    // --Commented out by Inspection START:
+    //    public void setCursor(@NonNull final Cursor cursor) {
+    //        mCursor = cursor;
+    //    }
+    // --Commented out by Inspection STOP
 }

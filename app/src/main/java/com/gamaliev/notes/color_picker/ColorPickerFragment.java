@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import static com.gamaliev.notes.common.CommonUtils.getDefaultColor;
-import static com.gamaliev.notes.common.CommonUtils.setBackgroundColorRectangleAPI;
+import static com.gamaliev.notes.common.CommonUtils.setBackgroundColorRectangleApi;
 import static com.gamaliev.notes.common.CommonUtils.shiftColor;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_COLOR_PICKER_SELECTED;
 import static com.gamaliev.notes.common.observers.ObserverHelper.COLOR_PICKER;
@@ -62,7 +62,7 @@ public final class ColorPickerFragment extends Fragment {
     @NonNull private PopupWindow mEditPw;
     @NonNull private int[] mHsvColors;
     @NonNull private int[] mHsvOverriddenColors;
-    private long mId;
+    private long mEntryId;
     private int mBoxesNumber;
     private int mResultColor;
     private float mHsvDegree;
@@ -72,13 +72,20 @@ public final class ColorPickerFragment extends Fragment {
         Init
      */
 
+    /**
+     * Get new instance of color picker fragment.
+     * @param entryId       Entry id.
+     * @param colorToChange Color to change.
+     * @return New instance of color picker fragment.
+     */
+    @NonNull
     public static ColorPickerFragment newInstance(
-            final long id,
-            final int color) {
+            final long entryId,
+            final int colorToChange) {
 
         final Bundle bundle = new Bundle();
-        bundle.putLong(EXTRA_ID, id);
-        bundle.putInt(EXTRA_COLOR, color);
+        bundle.putLong(EXTRA_ID, entryId);
+        bundle.putInt(EXTRA_COLOR, colorToChange);
 
         final ColorPickerFragment fragment = new ColorPickerFragment();
         fragment.setArguments(bundle);
@@ -126,7 +133,7 @@ public final class ColorPickerFragment extends Fragment {
         mResultView     = mParentView.findViewById(R.id.fragment_color_picker_ff_result_box);
         mResultParentView = mParentView.findViewById(R.id.fragment_color_picker_ff_result_outer);
         mEditPw         = getPopupWindow();
-        mId             = getArguments().getLong(EXTRA_ID);
+        mEntryId        = getArguments().getLong(EXTRA_ID);
         mBoxesNumber    = mRes.getInteger(R.integer.fragment_color_picker_palette_boxes_number);
         mHsvDegree      = 360f / (mBoxesNumber * 2);
 
@@ -214,14 +221,16 @@ public final class ColorPickerFragment extends Fragment {
 
         for (int i = 1; i < mHsvColors.length; i += 2) {
             // Create color box with default or overridden color.
-            final int color = mHsvOverriddenColors[i] != -1 ? mHsvOverriddenColors[i] : mHsvColors[i];
+            final int color = mHsvOverriddenColors[i] != -1
+                    ? mHsvOverriddenColors[i]
+                    : mHsvColors[i];
             final View colorBox = new FrameLayout(getContext());
             colorBox.setBackground(new ColorDrawable(color));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 colorBox.setElevation(
                         mRes.getDimensionPixelSize(R.dimen.fragment_color_picker_palette_box_anim_elevation_off));
             }
-            setBackgroundColorRectangleAPI(getContext(), colorBox, color);
+            setBackgroundColorRectangleApi(getContext(), colorBox, color);
 
             colorBox.setOnTouchListener(
                     new ColorBoxOnTouchListener(getContext(), this, colorBox, i));
@@ -333,7 +342,7 @@ public final class ColorPickerFragment extends Fragment {
             color = newColor;
         }
 
-        setBackgroundColorRectangleAPI(getContext(), editedView, color);
+        setBackgroundColorRectangleApi(getContext(), editedView, color);
         mEditPw.getContentView().setBackgroundColor(color);
         mHsvOverriddenColors[index] = color;
     }
@@ -409,7 +418,7 @@ public final class ColorPickerFragment extends Fragment {
         if (notifyAboutSelected) {
             final Bundle bundle = new Bundle();
             bundle.putInt(EXTRA_RESULT_COLOR, mResultColor);
-            bundle.putLong(EXTRA_ID, mId);
+            bundle.putLong(EXTRA_ID, mEntryId);
             notifyObservers(
                     COLOR_PICKER,
                     RESULT_CODE_COLOR_PICKER_SELECTED,

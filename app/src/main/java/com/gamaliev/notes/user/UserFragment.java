@@ -45,6 +45,7 @@ public class UserFragment extends Fragment implements Observer {
         Init
      */
 
+    @NonNull
     public static UserFragment newInstance() {
         return new UserFragment();
     }
