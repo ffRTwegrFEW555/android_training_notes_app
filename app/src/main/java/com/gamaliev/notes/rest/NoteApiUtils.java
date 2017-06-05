@@ -13,7 +13,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class NoteApiUtils {
+public final class NoteApiUtils {
 
     /* ... */
     public static final String API_KEY_STATUS   = "status";
@@ -43,6 +43,8 @@ public class NoteApiUtils {
                     .create(NoteApi.class);
         }
     }
+
+    private NoteApiUtils() {}
 
 
     /*

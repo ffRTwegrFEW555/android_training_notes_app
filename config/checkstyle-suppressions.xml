@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+        "http://checkstyle.sourceforge.net/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+
+    <!-- Auto-generated code -->
+    <suppress
+        files="R\.java"
+        checks=".*"/>
+    <suppress
+        files="Manifest\.java"
+        checks=".*"/>
+
+
+    <!-- Tests -->
+    <suppress
+        files=".*Test\.java"
+        checks="MagicNumber"/>
+
+
+    <!-- -->
+    <suppress
+        files="FilterSortDialogFragment.java"
+        lines="809"
+        checks="MagicNumber"/>
+    <suppress
+        files="ListEntry.java"
+        lines="255"
+        checks="MagicNumber"/>
+    <suppress
+        files="ListDbMockHelper.java"
+        lines="139"
+        checks="MagicNumber"/>
+</suppressions>

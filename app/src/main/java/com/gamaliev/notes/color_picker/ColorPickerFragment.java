@@ -270,6 +270,7 @@ public final class ColorPickerFragment extends Fragment {
         }
     }
 
+    @SuppressWarnings("MagicNumber")
     void setResultBoxColor(final int color) {
         shiftColor(mResultView, mResultColor, color,
                 -1,

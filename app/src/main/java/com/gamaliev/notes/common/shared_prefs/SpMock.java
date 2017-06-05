@@ -200,6 +200,7 @@ final class SpMock {
     /**
      * @return Set of mock filter profiles, in JSON-format.
      */
+    @SuppressWarnings("MagicNumber")
     @Nullable
     private static Set<String> getMockFilterProfiles() {
         final Set<String> set = new HashSet<>();
@@ -236,6 +237,7 @@ final class SpMock {
     /**
      * @return Set of mock user profiles, in Map-format.
      */
+    @SuppressWarnings("MagicNumber")
     @NonNull
     private static Set<Map<String, String>> getMockUserProfiles() {
         final Set<Map<String, String>> set = new HashSet<>();
