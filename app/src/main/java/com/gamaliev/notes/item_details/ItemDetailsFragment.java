@@ -28,10 +28,10 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.getSelecte
 public final class ItemDetailsFragment extends Fragment {
 
     /* Logger */
-    private static final String TAG = ItemDetailsFragment.class.getSimpleName();
+    @NonNull private static final String TAG = ItemDetailsFragment.class.getSimpleName();
 
     /* Extra */
-    private static final String EXTRA_ID = "ItemDetailsFragment.EXTRA_ID";
+    @NonNull private static final String EXTRA_ID = "ItemDetailsFragment.EXTRA_ID";
 
     /* ... */
     private static final int OFFSCREEN_PAGE_LIMIT = 5;

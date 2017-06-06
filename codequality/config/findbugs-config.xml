@@ -1,4 +1,5 @@
 <FindBugsFilter>
+
     <Match>
         <!-- Ignore generated *.R and *.Manifest classes -->
         <!-- Also ignore protobuf Metrica file -->
@@ -7,4 +8,48 @@
             <Class name="~.*\.Manifest\$.*"/>
         </Or>
     </Match>
+
+    <Match>
+        <Class name="com.gamaliev.notes.common.ProgressNotificationHelper" />
+        <Method name="ProgressNotificationHelper" />
+        <Local name="random" />
+        <Bug pattern="PREDICTABLE_RANDOM" />
+    </Match>
+
+    <Match>
+        <Class name="com.gamaliev.notes.sync.db.SyncDbHelper" />
+        <Method name="insertEntry" />
+        <Bug pattern="BX_UNBOXING_IMMEDIATELY_REBOXED" />
+    </Match>
+
+    <Match>
+        <Class name="com.gamaliev.notes.color_picker.db.ColorPickerDbHelper" />
+        <Local name="FAVORITE_COLORS_DEFAULT"/>
+        <Bug pattern="MS_MUTABLE_ARRAY" />
+    </Match>
+
+    <Match>
+        <Class name="com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment" />
+        <Method name="onNotify" />
+        <Bug pattern="SF_SWITCH_NO_DEFAULT" />
+    </Match>
+
+    <Match>
+        <Class name="com.gamaliev.notes.list.ListFragment" />
+        <Method name="onNotify" />
+        <Bug pattern="SF_SWITCH_NO_DEFAULT" />
+    </Match>
+
+    <Match>
+        <Class name="com.gamaliev.notes.main.MainActivity" />
+        <Method name="onNotify" />
+        <Bug pattern="SF_SWITCH_NO_DEFAULT" />
+    </Match>
+
+    <Match>
+        <Class name="com.gamaliev.notes.sync.SyncUtils" />
+        <Method name="deleteAllFromServer" />
+        <Bug pattern="SF_SWITCH_NO_DEFAULT" />
+    </Match>
+
 </FindBugsFilter>

@@ -36,7 +36,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_
 public final class SpUsers {
 
     /* Logger */
-    private static final String TAG = SpUsers.class.getSimpleName();
+    @NonNull private static final String TAG = SpUsers.class.getSimpleName();
 
     /* Users, main */
     public static final String SP_USERS_FILENAME_PREFIX     = "Users";
@@ -124,12 +124,12 @@ public final class SpUsers {
         map.put(SP_USER_EMAIL,      sp.getString(SP_USER_EMAIL,         defaultProfile.get(SP_USER_EMAIL)));
         map.put(SP_USER_FIRST_NAME, sp.getString(SP_USER_FIRST_NAME,    defaultProfile.get(SP_USER_FIRST_NAME)));
         map.put(SP_USER_LAST_NAME,  sp.getString(SP_USER_LAST_NAME,     defaultProfile.get(SP_USER_LAST_NAME)));
-        map.put(SP_USER_MIDDLE_NAME, sp.getString(SP_USER_MIDDLE_NAME,   defaultProfile.get(SP_USER_MIDDLE_NAME)));
-        map.put(SP_USER_DESCRIPTION, sp.getString(SP_USER_DESCRIPTION,   defaultProfile.get(SP_USER_DESCRIPTION)));
+        map.put(SP_USER_MIDDLE_NAME, sp.getString(SP_USER_MIDDLE_NAME,  defaultProfile.get(SP_USER_MIDDLE_NAME)));
+        map.put(SP_USER_DESCRIPTION, sp.getString(SP_USER_DESCRIPTION,  defaultProfile.get(SP_USER_DESCRIPTION)));
         map.put(SP_USER_MOCK_ENTRIES_DEFAULT, sp.getString(SP_USER_MOCK_ENTRIES_DEFAULT, defaultProfile.get(SP_USER_MOCK_ENTRIES_DEFAULT)));
         map.put(SP_USER_PROGRESS_NOTIFICATION_TIMER, sp.getString(SP_USER_PROGRESS_NOTIFICATION_TIMER, defaultProfile.get(SP_USER_PROGRESS_NOTIFICATION_TIMER)));
-        map.put(SP_USER_SYNC,       String.valueOf(sp.getBoolean(SP_USER_SYNC,      Boolean.valueOf(defaultProfile.get(SP_USER_SYNC)))));
-        map.put(SP_USER_SYNC_WIFI,  String.valueOf(sp.getBoolean(SP_USER_SYNC_WIFI, Boolean.valueOf(defaultProfile.get(SP_USER_SYNC)))));
+        map.put(SP_USER_SYNC,       String.valueOf(sp.getBoolean(SP_USER_SYNC,      Boolean.parseBoolean(defaultProfile.get(SP_USER_SYNC)))));
+        map.put(SP_USER_SYNC_WIFI,  String.valueOf(sp.getBoolean(SP_USER_SYNC_WIFI, Boolean.parseBoolean(defaultProfile.get(SP_USER_SYNC)))));
         map.put(SP_USER_SYNC_API_URL, sp.getString(SP_USER_SYNC_API_URL, defaultProfile.get(SP_USER_SYNC_API_URL)));
         map.put(SP_USER_SYNC_PENDING, sp.getString(SP_USER_SYNC_PENDING, defaultProfile.get(SP_USER_SYNC_PENDING)));
 
@@ -310,6 +310,7 @@ public final class SpUsers {
      * @param profile   User profile.
      * @return Id of added user.
      */
+    @SuppressWarnings({"PMD.AvoidReassigningParameters"})
     public static String add(
             @NonNull final Context context,
             @Nullable Map<String, String> profile) {
@@ -441,14 +442,14 @@ public final class SpUsers {
                 .apply();
 
         // Register / Unregister broadcast receiver manually
-        if (status.equals(SP_USER_SYNC_PENDING_TRUE)) {
+        if (SP_USER_SYNC_PENDING_TRUE.equals(status)) {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(CONNECTIVITY_ACTION);
             context.registerReceiver(
                     NetworkBroadcastReceiver.getInstance(),
                     intentFilter);
 
-        } else if (status.equals(SP_USER_SYNC_PENDING_FALSE)) {
+        } else if (SP_USER_SYNC_PENDING_FALSE.equals(status)) {
             try {
                 context.unregisterReceiver(NetworkBroadcastReceiver.getInstance());
             } catch (Exception e) {

@@ -60,21 +60,21 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObser
 public final class ItemDetailsPagerItemFragment extends Fragment implements Observer {
 
     /* Logger */
-    private static final String TAG = ItemDetailsPagerItemFragment.class.getSimpleName();
+    @NonNull private static final String TAG = ItemDetailsPagerItemFragment.class.getSimpleName();
 
     /* Action */
     @SuppressWarnings("WeakerAccess")
-    public static final String ACTION      = "ItemDetailsPagerItemFragment.ACTION";
-    public static final String ACTION_ADD  = "ItemDetailsPagerItemFragment.ACTION_ADD";
-    public static final String ACTION_EDIT = "ItemDetailsPagerItemFragment.ACTION_EDIT";
+    @NonNull public static final String ACTION      = "ItemDetailsPagerItemFragment.ACTION";
+    @NonNull public static final String ACTION_ADD  = "ItemDetailsPagerItemFragment.ACTION_ADD";
+    @NonNull public static final String ACTION_EDIT = "ItemDetailsPagerItemFragment.ACTION_EDIT";
 
-    private static final String ACTION_ENTRY_ADD    = "ItemDetailsPagerItemFragment.ACTION_ENTRY_ADD";
-    private static final String ACTION_ENTRY_EDIT   = "ItemDetailsPagerItemFragment.ACTION_ENTRY_EDIT";
-    private static final String ACTION_ENTRY_DELETE = "ItemDetailsPagerItemFragment.ACTION_ENTRY_DELETE";
+    @NonNull private static final String ACTION_ENTRY_ADD    = "ItemDetailsPagerItemFragment.ACTION_ENTRY_ADD";
+    @NonNull private static final String ACTION_ENTRY_EDIT   = "ItemDetailsPagerItemFragment.ACTION_ENTRY_EDIT";
+    @NonNull private static final String ACTION_ENTRY_DELETE = "ItemDetailsPagerItemFragment.ACTION_ENTRY_DELETE";
 
     /* Extra */
-    private static final String EXTRA_ID    = "ItemDetailsPagerItemFragment.EXTRA_ID";
-    private static final String EXTRA_ENTRY = "ItemDetailsPagerItemFragment.EXTRA_ENTRY";
+    @NonNull private static final String EXTRA_ID    = "ItemDetailsPagerItemFragment.EXTRA_ID";
+    @NonNull private static final String EXTRA_ENTRY = "ItemDetailsPagerItemFragment.EXTRA_ENTRY";
 
     /* Observed */
     @NonNull private static final String[] OBSERVED = {COLOR_PICKER};
@@ -525,19 +525,19 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
         final StringBuilder infoMessage = new StringBuilder();
         infoMessage
                 .append(getString(R.string.fragment_item_details_info_dialog_message_created))
-                .append("\n")
+                .append('\n')
                 .append(getStringDateFormatSqlite(getContext(), mEntry.getCreated(), false))
-                .append("\n\n")
+                .append('\n').append('\n')
                 .append(getString(R.string.fragment_item_details_info_dialog_message_edited))
-                .append("\n")
+                .append('\n')
                 .append(getStringDateFormatSqlite(getContext(), mEntry.getEdited(), false))
-                .append("\n\n")
+                .append('\n').append('\n')
                 .append(getString(R.string.fragment_item_details_info_dialog_message_viewed))
-                .append("\n")
+                .append('\n')
                 .append(getStringDateFormatSqlite(getContext(), mEntry.getViewed(), false))
-                .append("\n\n")
+                .append('\n').append('\n')
                 .append(getString(R.string.fragment_item_details_info_dialog_message_sync_id))
-                .append("\n")
+                .append('\n')
                 .append(mEntry.getSyncId());
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());

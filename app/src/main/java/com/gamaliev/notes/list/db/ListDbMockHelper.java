@@ -31,12 +31,12 @@ public final class ListDbMockHelper {
 
     /* Mock data */
     @SuppressWarnings("SpellCheckingInspection")
-    private static final String[] LIST_MOCK_NAMES = {
+    @NonNull private static final String[] LIST_MOCK_NAMES = {
             "Anastasia Aleksandrova", "Boris Babushkin", "Viktor Vasilyev", "Gennady Georgiyev",
             "Dmitry Dudinsky", "Yelena Yeremeyeva", "Pyotr Vorobyov", "Tatyana Terentyeva",
             "Svetlana Stasova", "Maria Timmerman"};
 
-    private static final String[] LIST_MOCK_DESCRIPTION = {
+    @NonNull private static final String[] LIST_MOCK_DESCRIPTION = {
             "Passion", "Smile", "Love", "Eternity", "Fantastic", "Destiny", "Freedom", "Liberty",
             "Tranquillity", "Peace", "Sunshine", "Gorgeous", "Hope", "Grace", "Rainbow",
             "Sunflower", "serendipity", "bliss", "cute", "hilarious", "aqua", "sentiment",
@@ -44,7 +44,7 @@ public final class ListDbMockHelper {
             "renaissance", "cosy", "butterfly", "galaxy", "moment", "cosmopolitan", "lollipop"
     };
 
-    private static final String[] LIST_MOCK_DATE = {
+    @NonNull private static final String[] LIST_MOCK_DATE = {
             "2017-05-10 21:25:35",
             "2017-05-09 21:25:35",
             "2017-05-08 21:25:35",
@@ -138,7 +138,7 @@ public final class ListDbMockHelper {
         final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 8; i++) {
             sb.append(LIST_MOCK_DESCRIPTION[random.nextInt(LIST_MOCK_DESCRIPTION.length)]);
-            sb.append(" ");
+            sb.append(' ');
         }
         return sb.toString();
     }
@@ -150,7 +150,7 @@ public final class ListDbMockHelper {
      */
     @NonNull
     private static String getRandomFavoriteColor(@NonNull final Random random) {
-        final int[] colors = ColorPickerDbHelper.FAVORITE_COLORS_DEFAULT;
+        final int[] colors = ColorPickerDbHelper.getFavoriteColorsDefault();
         return String.valueOf(colors[random.nextInt(colors.length)]);
     }
 

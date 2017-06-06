@@ -33,7 +33,7 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
 public class ListEntry implements Parcelable {
 
     /* Logger */
-    private static final String TAG = ListEntry.class.getSimpleName();
+    @NonNull private static final String TAG = ListEntry.class.getSimpleName();
 
     /* ... */
     @Nullable private Long      mId;
@@ -152,15 +152,15 @@ public class ListEntry implements Parcelable {
     }
 
     public void setCreated(@NonNull final Date created) {
-        mCreated = created;
+        mCreated = new Date(created.getTime());
     }
 
     public void setEdited(@NonNull final Date edited) {
-        mEdited = edited;
+        mEdited = new Date(edited.getTime());
     }
 
     public void setViewed(@NonNull final Date viewed) {
-        mViewed = viewed;
+        mViewed = new Date(viewed.getTime());
     }
 
 
@@ -200,17 +200,17 @@ public class ListEntry implements Parcelable {
 
     @Nullable
     public Date getCreated() {
-        return mCreated;
+        return mCreated == null ? null : new Date(mCreated.getTime());
     }
 
     @Nullable
     public Date getEdited() {
-        return mEdited;
+        return mEdited == null ? null : new Date(mEdited.getTime());
     }
 
     @Nullable
     public Date getViewed() {
-        return mViewed;
+        return mViewed == null ? null : new Date(mViewed.getTime());
     }
 
 
@@ -302,7 +302,7 @@ public class ListEntry implements Parcelable {
             @NonNull final JSONObject jsonObject) {
 
         final String syncId     = jsonObject.optString(LIST_ITEMS_COLUMN_SYNC_ID_JSON, null);
-        final Long syncIdLong   = syncId == null ? null : Long.parseLong(syncId);
+        final Long syncIdLong   = syncId == null ? null : Long.valueOf(syncId);
         final String title      = jsonObject.optString(LIST_ITEMS_COLUMN_TITLE, null);
         final int color         = Color.parseColor(jsonObject.optString(LIST_ITEMS_COLUMN_COLOR, null));
         final String imageUrl   = jsonObject.optString(LIST_ITEMS_COLUMN_IMAGE_URL, null);

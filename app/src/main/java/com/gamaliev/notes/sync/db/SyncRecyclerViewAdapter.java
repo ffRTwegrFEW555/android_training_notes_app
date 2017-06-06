@@ -15,8 +15,8 @@ import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.CommonUtils;
 import com.gamaliev.notes.common.db.DbHelper;
 
-import static com.gamaliev.notes.sync.SyncUtils.ACTION_TEXT;
-import static com.gamaliev.notes.sync.SyncUtils.STATUS_TEXT;
+import static com.gamaliev.notes.sync.SyncUtils.getActionText;
+import static com.gamaliev.notes.sync.SyncUtils.getStatusText;
 
 /**
  * @author Vadim Gamaliev
@@ -69,9 +69,9 @@ public class SyncRecyclerViewAdapter
         final String finished   = CommonUtils
                 .convertUtcToLocal(context, mCursor.getString(indexFinished));
         final int actionIndex   = Integer.parseInt(mCursor.getString(indexAction));
-        final String action     = context.getString(ACTION_TEXT[actionIndex]);
+        final String action     = context.getString(getActionText()[actionIndex]);
         final int statusIndex   = Integer.parseInt(mCursor.getString(indexStatus));
-        final String status     = context.getString(STATUS_TEXT[statusIndex]);
+        final String status     = context.getString(getStatusText()[statusIndex]);
         final String amount     = mCursor.getString(indexAmount);
         final String description =
                 context.getString(R.string.fragment_sync_item_status_prefix) + ": "
@@ -115,7 +115,7 @@ public class SyncRecyclerViewAdapter
         ...
      */
 
-    public void updateCursor() {
+    public final void updateCursor() {
         closeCursor();
         mCursor = SyncDbHelper.getAll(mFragment.getContext());
     }

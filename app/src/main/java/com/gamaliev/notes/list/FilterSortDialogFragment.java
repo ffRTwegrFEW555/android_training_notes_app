@@ -102,7 +102,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.updateCurr
 public final class FilterSortDialogFragment extends DialogFragment {
 
     /* Logger */
-    private static final String TAG = FilterSortDialogFragment.class.getSimpleName();
+    @NonNull private static final String TAG = FilterSortDialogFragment.class.getSimpleName();
 
     /* Extra */
     private static final String EXTRA_PROFILE_MAP = "FilterSortDialogFragment.EXTRA_PROFILE_MAP";
@@ -332,6 +332,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
+                                        //noinspection SetTextI18n
                                         foundTextView.setText("(" + count + ")");
                                         progressBar.setVisibility(View.GONE);
                                         foundTextView.setVisibility(View.VISIBLE);
@@ -343,6 +344,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
                 });
 
             } else {
+                //noinspection SetTextI18n
                 foundTextView.setText("(" + foundedEntries + ")");
                 foundTextView.setVisibility(View.VISIBLE);
             }
@@ -491,7 +493,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
         params.setMargins(m, m, m, m);
 
         // Seek all favorite colors.
-        for (int i = 0; i < ColorPickerDbHelper.FAVORITE_COLORS_DEFAULT.length; i++) {
+        for (int i = 0; i < ColorPickerDbHelper.getFavoriteColorsDefault().length; i++) {
             final ImageButton button = new ImageButton(getActivity());
             button.setLayoutParams(params);
 

@@ -34,7 +34,7 @@ import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 public final class DbHelper extends SQLiteOpenHelper {
 
     /* Logger */
-    private static final String TAG = DbHelper.class.getSimpleName();
+    @NonNull private static final String TAG = DbHelper.class.getSimpleName();
 
 
     /*
@@ -265,7 +265,7 @@ public final class DbHelper extends SQLiteOpenHelper {
             ColorPickerDbHelper.insertFavoriteColor(
                     db,
                     i,
-                    ColorPickerDbHelper.FAVORITE_COLORS_DEFAULT[i]);
+                    ColorPickerDbHelper.getFavoriteColorsDefault()[i]);
         }
     }
 
@@ -341,7 +341,7 @@ public final class DbHelper extends SQLiteOpenHelper {
      * @param columnName    Column name.
      * @param value         Value.
      */
-    @SuppressWarnings("UnusedReturnValue")
+    @SuppressWarnings({"UnusedReturnValue", "PMD.AvoidReassigningParameters"})
     public static boolean insertEntryWithSingleValue(
             @NonNull final Context context,
             @Nullable SQLiteDatabase db,
@@ -433,6 +433,7 @@ public final class DbHelper extends SQLiteOpenHelper {
      * @param handleException Handle exception or not.
      * @return              True if success, otherwise false.
      */
+    @SuppressWarnings({"PMD.AvoidReassigningParameters"})
     public static boolean deleteEntryWithSingle(
             @NonNull final Context context,
             @Nullable SQLiteDatabase db,
@@ -484,12 +485,10 @@ public final class DbHelper extends SQLiteOpenHelper {
             @SuppressWarnings("SameParameterValue") @NonNull final String column,
             @NonNull final String value) {
 
-        int position;
         while (cursor.moveToNext()) {
             final String valueSeek = cursor.getString(cursor.getColumnIndex(column));
             if (value.equals(valueSeek)) {
-                position = cursor.getPosition();
-                return position;
+                return cursor.getPosition();
             }
         }
         return -1;

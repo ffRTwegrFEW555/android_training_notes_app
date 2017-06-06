@@ -32,11 +32,11 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
 public final class SpCommon {
 
     /* Logger */
-    private static final String TAG = SpCommon.class.getSimpleName();
+    @NonNull private static final String TAG = SpCommon.class.getSimpleName();
 
     /* ... */
-    static final String SP_INITIALIZED = "initialized";
-    static final String SP_MAIN = "Main";
+    @NonNull static final String SP_INITIALIZED = "initialized";
+    @NonNull static final String SP_MAIN = "Main";
 
 
     /*

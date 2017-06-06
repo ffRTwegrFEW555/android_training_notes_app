@@ -58,6 +58,7 @@ final class ConflictRecyclerViewAdapter
         }
 
         final String syncId = mCursor.getString(mCursor.getColumnIndex(COMMON_COLUMN_SYNC_ID));
+        //noinspection SetTextI18n
         holder.mTextView.setText(
                 holder.mTextView.getContext()
                         .getString(R.string.fragment_dialog_conflict_select_item_title_prefix)

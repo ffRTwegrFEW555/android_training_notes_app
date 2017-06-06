@@ -71,7 +71,7 @@ import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
 public final class SyncUtils {
 
     /* Logger */
-    private static final String TAG = SyncUtils.class.getSimpleName();
+    @NonNull private static final String TAG = SyncUtils.class.getSimpleName();
 
     /* ... */
     @SuppressWarnings("unused")
@@ -93,12 +93,12 @@ public final class SyncUtils {
     public static final int ACTION_PENDING_START_NO_WIFI = 12;
     public static final int ACTION_PENDING_START_NO_INTERNET = 13;
 
-    public static final int[] STATUS_TEXT = {
+    @NonNull private static final int[] STATUS_TEXT = {
             R.string.fragment_sync_item_status_error,
             R.string.fragment_sync_item_status_success
     };
 
-    public static final int[] ACTION_TEXT = {
+    @NonNull private static final int[] ACTION_TEXT = {
             R.string.fragment_sync_item_action_nothing,
             R.string.fragment_sync_item_action_add_to_server,
             R.string.fragment_sync_item_action_add_to_local,
@@ -156,7 +156,7 @@ public final class SyncUtils {
                     if (status == null) {
                         status = SpUsers.SP_USER_SYNC_PENDING_FALSE;
                     }
-                    if (!status.equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
+                    if (!SpUsers.SP_USER_SYNC_PENDING_TRUE.equals(status)) {
                         addToSyncJournalAndLogAndNotify(
                                 context,
                                 ACTION_PENDING_START_NO_WIFI,
@@ -179,7 +179,7 @@ public final class SyncUtils {
                 if (status == null) {
                     status = SpUsers.SP_USER_SYNC_PENDING_FALSE;
                 }
-                if (!status.equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
+                if (!SpUsers.SP_USER_SYNC_PENDING_TRUE.equals(status)) {
                     addToSyncJournalAndLogAndNotify(
                             context,
                             ACTION_PENDING_START_NO_INTERNET,
@@ -287,7 +287,7 @@ public final class SyncUtils {
                         final JSONObject jsonResponse = new JSONObject(body);
                         final String status = jsonResponse.optString(API_KEY_STATUS);
 
-                        if (status.equals(API_STATUS_OK)) {
+                        if (API_STATUS_OK.equals(status)) {
                             final String newSyncId = jsonResponse.optString(API_KEY_DATA);
                             final String id = cursor.getString(cursor.getColumnIndex(BASE_COLUMN_ID));
                             ListDbHelper.updateSyncId(context, id, newSyncId);
@@ -344,7 +344,7 @@ public final class SyncUtils {
                         final JSONObject jsonResponse = new JSONObject(body);
                         final String status = jsonResponse.optString(API_KEY_STATUS);
 
-                        if (status.equals(API_STATUS_OK)) {
+                        if (API_STATUS_OK.equals(status)) {
                             deleteEntryWithSingle(
                                     context,
                                     null,
@@ -400,7 +400,7 @@ public final class SyncUtils {
                 final JSONObject jsonResponse = new JSONObject(body);
                 final String status = jsonResponse.optString(API_KEY_STATUS);
 
-                if (status.equals(API_STATUS_OK)) {
+                if (API_STATUS_OK.equals(status)) {
                     final JSONArray data = jsonResponse.getJSONArray(API_KEY_DATA);
                     if (data != null) {
 
@@ -615,7 +615,7 @@ public final class SyncUtils {
                 final JSONObject jsonResponse = new JSONObject(body);
                 final String status = jsonResponse.optString(API_KEY_STATUS);
 
-                if (status.equals(API_STATUS_OK)) {
+                if (API_STATUS_OK.equals(status)) {
                     final JSONArray entries = jsonResponse.getJSONArray(API_KEY_DATA);
                     for (int i = 0; i < entries.length(); i++) {
                         final JSONObject jsonObject = entries.getJSONObject(i);
@@ -739,7 +739,7 @@ public final class SyncUtils {
         if (status == null) {
             status = SpUsers.SP_USER_SYNC_PENDING_FALSE;
         }
-        if (status.equals(SpUsers.SP_USER_SYNC_PENDING_TRUE)) {
+        if (SpUsers.SP_USER_SYNC_PENDING_TRUE.equals(status)) {
             SyncUtils.synchronize(context);
             return true;
         }
@@ -751,7 +751,24 @@ public final class SyncUtils {
         Getters
      */
 
+    @NonNull
     public static ExecutorService getSingleThreadExecutor() {
         return SINGLE_THREAD_EXECUTOR;
+    }
+
+    /**
+     * @return Clone of {@link #STATUS_TEXT} array.
+     */
+    @NonNull
+    public static int[] getStatusText() {
+        return STATUS_TEXT.clone();
+    }
+
+    /**
+     * @return Clone of {@link #ACTION_TEXT} array.
+     */
+    @NonNull
+    public static int[] getActionText() {
+        return ACTION_TEXT.clone();
     }
 }

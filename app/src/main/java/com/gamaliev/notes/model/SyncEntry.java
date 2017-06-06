@@ -9,8 +9,8 @@ import com.gamaliev.notes.app.NotesApp;
 
 import java.util.Date;
 
-import static com.gamaliev.notes.sync.SyncUtils.ACTION_TEXT;
-import static com.gamaliev.notes.sync.SyncUtils.STATUS_TEXT;
+import static com.gamaliev.notes.sync.SyncUtils.getActionText;
+import static com.gamaliev.notes.sync.SyncUtils.getStatusText;
 
 /**
  * @author Vadim Gamaliev
@@ -99,7 +99,7 @@ public class SyncEntry implements Parcelable {
     // --Commented out by Inspection STOP
 
     public void setFinished(@NonNull final Date finished) {
-        mFinished = finished;
+        mFinished = new Date(finished.getTime());
     }
 
     public void setAction(@NonNull final Integer action) {
@@ -128,7 +128,7 @@ public class SyncEntry implements Parcelable {
 
     @Nullable
     public Date getFinished() {
-        return mFinished;
+        return mFinished == null ? null : new Date(mFinished.getTime());
     }
 
     @Nullable
@@ -156,8 +156,8 @@ public class SyncEntry implements Parcelable {
         return "SyncEntry{"
                 + "mId=" + mId
                 + ", mFinished=" + mFinished
-                + ", mAction=" + (mAction == null ? 0 : NotesApp.getAppContext().getString(ACTION_TEXT[mAction]))
-                + ", mStatus=" + (mStatus == null ? 0 : NotesApp.getAppContext().getString(STATUS_TEXT[mStatus]))
+                + ", mAction=" + (mAction == null ? 0 : NotesApp.getAppContext().getString(getActionText()[mAction]))
+                + ", mStatus=" + (mStatus == null ? 0 : NotesApp.getAppContext().getString(getStatusText()[mStatus]))
                 + ", mAmount=" + mAmount
                 + '}';
     }

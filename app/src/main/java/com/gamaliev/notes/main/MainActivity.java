@@ -70,7 +70,7 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObser
 public class MainActivity extends AppCompatActivity implements Observer {
 
     /* Logger */
-    private static final String TAG = MainActivity.class.getSimpleName();
+    @NonNull private static final String TAG = MainActivity.class.getSimpleName();
 
     /* Observed */
     @NonNull private static final String[] OBSERVED = {USERS};
@@ -166,8 +166,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
         ((TextView) navView
                 .getHeaderView(0)
                 .findViewById(R.id.activity_main_nav_drawable_header_title_text_view))
-                .setText(
-                        userProfile.get(SpUsers.SP_USER_FIRST_NAME) + " "
+                //noinspection SetTextI18n
+                .setText(userProfile.get(SpUsers.SP_USER_FIRST_NAME) + " "
                                 + userProfile.get(SpUsers.SP_USER_LAST_NAME) + " "
                                 + userProfile.get(SpUsers.SP_USER_MIDDLE_NAME));
 

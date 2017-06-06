@@ -249,31 +249,31 @@ public final class ListRecyclerViewAdapter
     public boolean dragDropEnable() {
         final Context context = mFragment.getContext();
 
-        if (!SP_FILTER_PROFILE_MANUAL_ID.equals(getSelectedIdForCurrentUser(context))) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder .setTitle(context.getString(R.string.fragment_list_drag_drop_dialog_title))
-                    .setMessage(context.getString(R.string.fragment_list_drag_drop_dialog_message))
-                    .setPositiveButton(context.getString(R.string.fragment_list_drag_drop_dialog_button_ok),
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.cancel();
-                                    setSelectedForCurrentUser(context, SP_FILTER_PROFILE_MANUAL_ID);
-                                    notifyObservers(
-                                            LIST_FILTER,
-                                            RESULT_CODE_LIST_FILTERED,
-                                            null);
-                                }
-                            })
-                    .setNegativeButton(
-                            context.getString(R.string.fragment_list_drag_drop_dialog_button_cancel),
-                            null)
-                    .create()
-                    .show();
-
-            return false;
+        if (SP_FILTER_PROFILE_MANUAL_ID.equals(getSelectedIdForCurrentUser(context))) {
+            return true;
         }
 
-        return true;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder .setTitle(context.getString(R.string.fragment_list_drag_drop_dialog_title))
+                .setMessage(context.getString(R.string.fragment_list_drag_drop_dialog_message))
+                .setPositiveButton(context.getString(R.string.fragment_list_drag_drop_dialog_button_ok),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                                setSelectedForCurrentUser(context, SP_FILTER_PROFILE_MANUAL_ID);
+                                notifyObservers(
+                                        LIST_FILTER,
+                                        RESULT_CODE_LIST_FILTERED,
+                                        null);
+                            }
+                        })
+                .setNegativeButton(
+                        context.getString(R.string.fragment_list_drag_drop_dialog_button_cancel),
+                        null)
+                .create()
+                .show();
+
+        return false;
     }
 
     @Override

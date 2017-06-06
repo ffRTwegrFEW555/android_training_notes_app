@@ -32,7 +32,7 @@ public class UserRecyclerViewAdapter
         extends RecyclerView.Adapter<UserRecyclerViewAdapter.ViewHolder> {
 
     /* Logger */
-    private static final String TAG = UserRecyclerViewAdapter.class.getSimpleName();
+    @NonNull private static final String TAG = UserRecyclerViewAdapter.class.getSimpleName();
 
     /* ... */
     @NonNull private final Fragment mFragment;
@@ -75,6 +75,7 @@ public class UserRecyclerViewAdapter
                 notifyObservers(USERS, RESULT_CODE_USER_SELECTED, null);
             }
         });
+        //noinspection SetTextI18n
         holder.mTitleView.setText(
                 userProfile.get(SpUsers.SP_USER_FIRST_NAME) + " "
                         + userProfile.get(SpUsers.SP_USER_LAST_NAME) + " "

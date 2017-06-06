@@ -16,20 +16,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ObserverHelper {
 
     /* Observers */
-    private static final Map<String, Map<String, Observer>> OBSERVERS;
+    @NonNull private static final Map<String, Map<String, Observer>> OBSERVERS;
 
     /* Types of observation */
     @SuppressWarnings("WeakerAccess")
-    public static final String COMMON           = "COMMON";
-    public static final String FILE_EXPORT      = "FILE_EXPORT";
-    public static final String FILE_IMPORT      = "FILE_IMPORT";
-    public static final String COLOR_PICKER     = "COLOR_PICKER";
-    public static final String ENTRY            = "ENTRY";
-    public static final String ENTRIES_MOCK     = "ENTRIES_MOCK";
-    public static final String LIST_FILTER      = "LIST_FILTER";
-    public static final String SYNC             = "SYNC";
-    public static final String USERS            = "USERS";
-    public static final String CONFLICT         = "CONFLICT";
+    @NonNull public static final String COMMON          = "COMMON";
+    @NonNull public static final String FILE_EXPORT     = "FILE_EXPORT";
+    @NonNull public static final String FILE_IMPORT     = "FILE_IMPORT";
+    @NonNull public static final String COLOR_PICKER    = "COLOR_PICKER";
+    @NonNull public static final String ENTRY           = "ENTRY";
+    @NonNull public static final String ENTRIES_MOCK    = "ENTRIES_MOCK";
+    @NonNull public static final String LIST_FILTER     = "LIST_FILTER";
+    @NonNull public static final String SYNC            = "SYNC";
+    @NonNull public static final String USERS           = "USERS";
+    @NonNull public static final String CONFLICT        = "CONFLICT";
 
 
     /*

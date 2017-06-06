@@ -73,10 +73,10 @@ public class ListFragment extends Fragment
         implements OnStartDragListener, Observer {
 
     /* Logger */
-    private static final String TAG = ListFragment.class.getSimpleName();
+    @NonNull private static final String TAG = ListFragment.class.getSimpleName();
 
     /* SQLite */
-    @NonNull public static final String[] SEARCH_COLUMNS = {
+    @NonNull private static final String[] SEARCH_COLUMNS = {
             DbHelper.LIST_ITEMS_COLUMN_TITLE,
             DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION};
 
@@ -239,7 +239,7 @@ public class ListFragment extends Fragment
         }
     }
 
-    private void updateAdapter(String newText) {
+    private void updateAdapter(@NonNull final String newText) {
         mAdapter.updateCursor(newText, mFilterProfileMap);
         mAdapter.notifyDataSetChanged();
         showFoundNotification();
@@ -255,7 +255,7 @@ public class ListFragment extends Fragment
         rv.setAdapter(mAdapter);
 
         // Drag & Drop.
-        ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(mAdapter);
+        final ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(mAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(rv);
     }
@@ -426,5 +426,18 @@ public class ListFragment extends Fragment
             default:
                 break;
         }
+    }
+
+
+    /*
+        Getters
+     */
+
+    /**
+     * @return Clone of {@link #SEARCH_COLUMNS} array.
+     */
+    @NonNull
+    public static String[] getSearchColumns() {
+        return SEARCH_COLUMNS.clone();
     }
 }

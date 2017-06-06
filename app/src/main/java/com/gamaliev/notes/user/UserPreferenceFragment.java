@@ -37,10 +37,10 @@ public class UserPreferenceFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     /* Logger */
-    private static final String TAG = UserPreferenceFragment.class.getSimpleName();
+    @NonNull private static final String TAG = UserPreferenceFragment.class.getSimpleName();
 
     /* ... */
-    private static final String EXTRA_USER_ID = "UserPreferenceFragment.EXTRA_USER_ID";
+    @NonNull private static final String EXTRA_USER_ID = "UserPreferenceFragment.EXTRA_USER_ID";
     @SuppressWarnings("NullableProblems")
     @NonNull private String mUserId;
 

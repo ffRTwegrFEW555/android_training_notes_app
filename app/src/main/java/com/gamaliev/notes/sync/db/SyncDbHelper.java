@@ -37,7 +37,7 @@ import static com.gamaliev.notes.sync.SyncUtils.ACTION_NOTHING;
 public final class SyncDbHelper {
 
     /* Logger */
-    private static final String TAG = SyncDbHelper.class.getSimpleName();
+    @NonNull private static final String TAG = SyncDbHelper.class.getSimpleName();
 
 
     /*

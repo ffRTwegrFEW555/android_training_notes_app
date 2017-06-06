@@ -51,7 +51,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_
 public final class CommonUtils {
 
     /* Logger */
-    private static final String TAG = CommonUtils.class.getSimpleName();
+    @NonNull private static final String TAG = CommonUtils.class.getSimpleName();
 
     /* Extra */
     public static final int EXTRA_DATES_FROM_DATETIME               = 0;

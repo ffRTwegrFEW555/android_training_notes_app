@@ -22,6 +22,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_NOTES_EXPORTED;
@@ -59,11 +61,11 @@ import static com.gamaliev.notes.model.ListEntry.getJsonObjectFromCursor;
 public final class FileUtils {
 
     /* Logger */
-    private static final String TAG = FileUtils.class.getSimpleName();
+    @NonNull private static final String TAG = FileUtils.class.getSimpleName();
 
     /* ... */
-    public static final String FILE_NAME_EXPORT_DEFAULT = "item_list.ili";
-    private static final CommonUtils.LooperHandlerThread IMPORT_EXPORT_HANDLER_LOOPER_THREAD;
+    @NonNull public static final String FILE_NAME_EXPORT_DEFAULT = "item_list.ili";
+    @NonNull private static final CommonUtils.LooperHandlerThread IMPORT_EXPORT_HANDLER_LOOPER_THREAD;
 
 
     /*
@@ -219,7 +221,7 @@ public final class FileUtils {
             if (os == null) {
                 throw new IOException("OutputStream is null.");
             }
-            os.write(result.getBytes());
+            os.write(result.getBytes(StandardCharsets.UTF_8));
             os.close();
 
             showToastRunOnUiThread(
@@ -332,7 +334,7 @@ public final class FileUtils {
             bytes.close();
             is.close();
 
-            inputJson = bytes.toString();
+            inputJson = bytes.toString("UTF-8");
 
         } catch (IOException e) {
             Log.e(TAG, e.toString());

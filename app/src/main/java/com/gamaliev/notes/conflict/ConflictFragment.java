@@ -34,7 +34,7 @@ public class ConflictFragment extends Fragment implements Observer {
     @NonNull private static final String[] OBSERVED = {CONFLICT};
 
     /* ... */
-    public static final String EXTRA_CONFLICT_SELECT_POSITION = "position";
+    @NonNull public static final String EXTRA_CONFLICT_SELECT_POSITION = "position";
 
     @NonNull private View mParentView;
     @NonNull private ConflictRecyclerViewAdapter mAdapter;

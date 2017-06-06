@@ -1,5 +1,6 @@
 package com.gamaliev.notes.color_picker;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.media.RingtoneManager;
@@ -62,6 +63,7 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
      * <br>
      * Long press, single tap: see {@link #getSimpleOnGestureListener()}
      */
+    @SuppressLint({"ClickableViewAccessibility"})
     @Override
     public boolean onTouch(final View v, final MotionEvent e) {
         mGestureDetector.onTouchEvent(e);

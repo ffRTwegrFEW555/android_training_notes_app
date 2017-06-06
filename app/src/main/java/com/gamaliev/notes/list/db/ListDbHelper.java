@@ -54,7 +54,7 @@ import static com.gamaliev.notes.common.db.DbHelper.insertEntryWithSingleValue;
 import static com.gamaliev.notes.common.db.DbQueryBuilder.OPERATOR_BETWEEN;
 import static com.gamaliev.notes.common.db.DbQueryBuilder.OPERATOR_EQUALS;
 import static com.gamaliev.notes.common.db.DbQueryBuilder.OPERATOR_LIKE;
-import static com.gamaliev.notes.list.ListFragment.SEARCH_COLUMNS;
+import static com.gamaliev.notes.list.ListFragment.getSearchColumns;
 
 /**
  * @author Vadim Gamaliev
@@ -64,7 +64,7 @@ import static com.gamaliev.notes.list.ListFragment.SEARCH_COLUMNS;
 public final class ListDbHelper {
 
     /* Logger */
-    private static final String TAG = ListDbHelper.class.getSimpleName();
+    @NonNull private static final String TAG = ListDbHelper.class.getSimpleName();
 
     @NonNull private static final String[] DATES_COLUMNS = {
             LIST_ITEMS_COLUMN_CREATED,
@@ -191,7 +191,7 @@ public final class ListDbHelper {
      *                              or {@link DbHelper#LIST_ITEMS_COLUMN_VIEWED}.
      *                              If null, then default is {@link DbHelper#LIST_ITEMS_COLUMN_EDITED}.
      */
-    @SuppressWarnings("UnusedReturnValue")
+    @SuppressWarnings({"UnusedReturnValue", "PMD.AvoidReassigningParameters"})
     public static boolean updateEntry(
             @NonNull final Context context,
             @NonNull final ListEntry entry,
@@ -558,11 +558,11 @@ public final class ListDbHelper {
         final DbQueryBuilder searchTextQueryBuilder = new DbQueryBuilder();
         if (!TextUtils.isEmpty(constraint)) {
             searchTextQueryBuilder
-                    .addOr(SEARCH_COLUMNS[0],
+                    .addOr(getSearchColumns()[0],
                             OPERATOR_LIKE,
                             new String[] {constraint.toString()})
 
-                    .addOr(SEARCH_COLUMNS[1],
+                    .addOr(getSearchColumns()[1],
                             OPERATOR_LIKE,
                             new String[] {constraint.toString()});
         }
@@ -586,37 +586,36 @@ public final class ListDbHelper {
                 continue;
             }
 
-            final DateFormat df = CommonUtils.getDateFormatSqlite(context, false);
-            Date dateUtc = null;
             try {
-                dateUtc = df.parse(dates);
+                final DateFormat df = CommonUtils.getDateFormatSqlite(context, false);
+                Date dateUtc = df.parse(dates);
+
+                // Add +1 day to dateTo.
+                final Calendar newDateTo = Calendar.getInstance();
+                newDateTo.setTime(dateUtc);
+                newDateTo.add(Calendar.DATE, 1);
+
+                // Create array for queryBuilder.
+                final String[] datesArray = new String[2];
+                datesArray[0] = getDateFromProfileMap(
+                        context,
+                        profileMap,
+                        datesColumn,
+                        EXTRA_DATES_FROM_DATE);
+                datesArray[1] = getStringDateFormatSqlite(
+                        context,
+                        newDateTo.getTime(),
+                        false);
+
+                // Add viewed filter, if not empty or null.
+                if (!TextUtils.isEmpty(profileMap.get(datesColumn))) {
+                    resultQueryBuilder.addAnd(
+                            datesColumn,
+                            OPERATOR_BETWEEN,
+                            datesArray);
+                }
             } catch (ParseException e) {
                 Log.e(TAG, e.toString());
-            }
-
-            // Add +1 day to dateTo.
-            final Calendar newDateTo = Calendar.getInstance();
-            newDateTo.setTime(dateUtc);
-            newDateTo.add(Calendar.DATE, 1);
-
-            // Create array for queryBuilder.
-            final String[] datesArray = new String[2];
-            datesArray[0] = getDateFromProfileMap(
-                    context,
-                    profileMap,
-                    datesColumn,
-                    EXTRA_DATES_FROM_DATE);
-            datesArray[1] = getStringDateFormatSqlite(
-                    context,
-                    newDateTo.getTime(),
-                    false);
-
-            // Add viewed filter, if not empty or null.
-            if (!TextUtils.isEmpty(profileMap.get(datesColumn))) {
-                resultQueryBuilder.addAnd(
-                        datesColumn,
-                        OPERATOR_BETWEEN,
-                        datesArray);
             }
         }
 

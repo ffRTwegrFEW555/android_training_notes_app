@@ -20,7 +20,7 @@ import java.util.Random;
 public final class ProgressNotificationHelper {
 
     /* Logger */
-    private static final String TAG = ProgressNotificationHelper.class.getSimpleName();
+    @NonNull private static final String TAG = ProgressNotificationHelper.class.getSimpleName();
 
     /* ... */
     @NonNull private final NotificationManager mManager;

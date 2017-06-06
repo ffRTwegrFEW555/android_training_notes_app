@@ -77,7 +77,7 @@ import static com.gamaliev.notes.sync.SyncUtils.addToSyncJournalAndLogAndNotify;
 public class ConflictSelectDialogFragment extends DialogFragment {
 
     /* Logger */
-    private static final String TAG = ConflictSelectDialogFragment.class.getSimpleName();
+    @NonNull private static final String TAG = ConflictSelectDialogFragment.class.getSimpleName();
 
     /* ... */
     private static final String EXTRA_SYNC_ID = "syncId";
@@ -253,7 +253,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                 final JSONObject jsonResponse = new JSONObject(response.body());
                 final String status = jsonResponse.optString(API_KEY_STATUS);
 
-                if (status.equals(API_STATUS_OK)) {
+                if (API_STATUS_OK.equals(status)) {
                     final String data = jsonResponse.getString(API_KEY_DATA);
 
                     if (!TextUtils.isEmpty(data)) {
@@ -278,6 +278,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                //noinspection SetTextI18n
                                 serverHeaderTv.setText(
                                         getString(R.string.fragment_dialog_conflict_select_server_header_prefix)
                                                 + ": "
@@ -373,6 +374,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
             final TextView localBodyTv = (TextView) mDialog
                     .findViewById(R.id.fragment_dialog_conflict_select_local_body_tv);
 
+            //noinspection SetTextI18n
             localHeaderTv.setText(
                     getString(R.string.fragment_dialog_conflict_select_local_header_prefix)
                             + ": "
@@ -447,7 +449,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
             if (entry == null) {
                 throw new Exception("Entry is null.");
             }
-            entry.setSyncId(Long.parseLong(mSyncId));
+            entry.setSyncId(Long.valueOf(mSyncId));
 
             final SQLiteDatabase db = getWritableDb(context);
             if (db == null) {
@@ -526,7 +528,7 @@ public class ConflictSelectDialogFragment extends DialogFragment {
                 final JSONObject jsonResponse = new JSONObject(response.body());
                 final String status = jsonResponse.optString(API_KEY_STATUS);
 
-                if (status.equals(API_STATUS_OK)) {
+                if (API_STATUS_OK.equals(status)) {
                     final boolean result = deleteEntryWithSingle(
                             context,
                             null,

@@ -48,10 +48,10 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers
 public final class ColorPickerFragment extends Fragment {
 
     /* Extra */
-    public static final String EXTRA_ID             = "ColorPickerFragment.EXTRA_ID";
-    public static final String EXTRA_COLOR          = "ColorPickerFragment.EXTRA_COLOR";
-    public static final String EXTRA_RESULT_COLOR   = "ColorPickerFragment.EXTRA_RESULT_COLOR";
-    public static final String EXTRA_HSV_COLOR_OVERRIDDEN = "ColorPickerFragment.EXTRA_HSV_COLOR_OVERRIDDEN";
+    @NonNull public static final String EXTRA_ID            = "ColorPickerFragment.EXTRA_ID";
+    @NonNull public static final String EXTRA_COLOR         = "ColorPickerFragment.EXTRA_COLOR";
+    @NonNull public static final String EXTRA_RESULT_COLOR  = "ColorPickerFragment.EXTRA_RESULT_COLOR";
+    @NonNull public static final String EXTRA_HSV_COLOR_OVERRIDDEN = "ColorPickerFragment.EXTRA_HSV_COLOR_OVERRIDDEN";
 
     /* ... */
     @NonNull private View mParentView;
@@ -299,6 +299,7 @@ public final class ColorPickerFragment extends Fragment {
         // Contrast text.
         final TextView tv = (TextView) mParentView
                 .findViewById(R.id.fragment_color_picker_text_result_box);
+        //noinspection SetTextI18n
         tv.setText(rgb + "\n" + hsvString);
         tv.setTextColor(Color.rgb(
                 255 - Color.red(color),

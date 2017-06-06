@@ -11,6 +11,10 @@ import android.widget.Toast;
 
 import com.gamaliev.notes.common.db.DbHelper;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import static com.gamaliev.notes.common.CommonUtils.showToast;
@@ -29,10 +33,10 @@ import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
 public final class ColorPickerDbHelper {
 
     /* Logger */
-    private static final String TAG = ColorPickerDbHelper.class.getSimpleName();
+    @NonNull private static final String TAG = ColorPickerDbHelper.class.getSimpleName();
 
     /* ... */
-    public static final int[] FAVORITE_COLORS_DEFAULT = {
+    @NonNull private static final int[] FAVORITE_COLORS_DEFAULT = {
             -53248,     -28672,     -4096,      -5177600,
             -11469056,  -16711920,  -16711824,  -16711728,
             -16723713,  -16748289,  -16772865,  -11534081,
@@ -142,5 +146,18 @@ public final class ColorPickerDbHelper {
                     "[ERROR] Insert favorite color {%s: %d, %s: %d}",
                     FAVORITE_COLUMN_INDEX, index, FAVORITE_COLUMN_COLOR, color));
         }
+    }
+
+
+    /*
+        Getters
+     */
+
+    /**
+     * @return Clone of {@link #FAVORITE_COLORS_DEFAULT} array.
+     */
+    @NonNull
+    public static int[] getFavoriteColorsDefault() {
+        return FAVORITE_COLORS_DEFAULT.clone();
     }
 }

@@ -55,10 +55,10 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_WIFI;
 final class SpMock {
 
     /* Logger */
-    private static final String TAG = SpMock.class.getSimpleName();
+    @NonNull private static final String TAG = SpMock.class.getSimpleName();
 
     /* ... */
-    private static final String[][] SP_MOCK_FILTER_PROFILES = new String[][] {
+    @NonNull private static final String[][] SP_MOCK_FILTER_PROFILES = new String[][] {
             {"0",
                     "Without filter, title asc",
                     "",
@@ -105,7 +105,7 @@ final class SpMock {
     };
 
     @SuppressWarnings("SpellCheckingInspection")
-    private static final String[][] SP_MOCK_USER_PROFILES = new String[][] {
+    @NonNull private static final String[][] SP_MOCK_USER_PROFILES = new String[][] {
             {"0",
                     "777",
                     "gamaliev-vadim@yandex.com",
@@ -200,7 +200,7 @@ final class SpMock {
     /**
      * @return Set of mock filter profiles, in JSON-format.
      */
-    @SuppressWarnings("MagicNumber")
+    @SuppressWarnings({"MagicNumber"})
     @Nullable
     private static Set<String> getMockFilterProfiles() {
         final Set<String> set = new HashSet<>();

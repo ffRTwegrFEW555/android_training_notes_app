@@ -38,29 +38,29 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPreferencesName;
 public final class SpFilterProfiles {
 
     /* Logger */
-    private static final String TAG = SpFilterProfiles.class.getSimpleName();
+    @NonNull private static final String TAG = SpFilterProfiles.class.getSimpleName();
 
     /* Filter, profiles */
-    public static final String SP_FILTER_PROFILE_SELECTED_ID    = "filterProfileSelectedId";
-    public static final String SP_FILTER_PROFILE_DEFAULT        = "filterProfileDefault";
-    public static final String SP_FILTER_PROFILE_DEFAULT_ID     = "-1";
-    public static final String SP_FILTER_PROFILE_MANUAL         = "filterProfileManual";
-    public static final String SP_FILTER_PROFILE_MANUAL_ID      = "-2";
-    public static final String SP_FILTER_PROFILE_CURRENT        = "filterProfileCurrent";
-    public static final String SP_FILTER_PROFILE_CURRENT_ID     = "-3";
-    public static final String SP_FILTER_PROFILES_SET           = "filterProfilesSet";
+    @NonNull public static final String SP_FILTER_PROFILE_SELECTED_ID   = "filterProfileSelectedId";
+    @NonNull public static final String SP_FILTER_PROFILE_DEFAULT       = "filterProfileDefault";
+    @NonNull public static final String SP_FILTER_PROFILE_DEFAULT_ID    = "-1";
+    @NonNull public static final String SP_FILTER_PROFILE_MANUAL        = "filterProfileManual";
+    @NonNull public static final String SP_FILTER_PROFILE_MANUAL_ID     = "-2";
+    @NonNull public static final String SP_FILTER_PROFILE_CURRENT       = "filterProfileCurrent";
+    @NonNull public static final String SP_FILTER_PROFILE_CURRENT_ID    = "-3";
+    @NonNull public static final String SP_FILTER_PROFILES_SET          = "filterProfilesSet";
 
     /* Filter */
-    public static final String SP_FILTER_ID                 = BASE_COLUMN_ID;
-    public static final String SP_FILTER_TITLE              = "title";
-    public static final String SP_FILTER_COLOR              = FAVORITE_COLUMN_COLOR;
-    public static final String SP_FILTER_CREATED            = LIST_ITEMS_COLUMN_CREATED;
-    public static final String SP_FILTER_EDITED             = LIST_ITEMS_COLUMN_EDITED;
-    public static final String SP_FILTER_VIEWED             = LIST_ITEMS_COLUMN_VIEWED;
+    @NonNull public static final String SP_FILTER_ID        = BASE_COLUMN_ID;
+    @NonNull public static final String SP_FILTER_TITLE     = "title";
+    @NonNull public static final String SP_FILTER_COLOR     = FAVORITE_COLUMN_COLOR;
+    @NonNull public static final String SP_FILTER_CREATED   = LIST_ITEMS_COLUMN_CREATED;
+    @NonNull public static final String SP_FILTER_EDITED    = LIST_ITEMS_COLUMN_EDITED;
+    @NonNull public static final String SP_FILTER_VIEWED    = LIST_ITEMS_COLUMN_VIEWED;
 
-    public static final String SP_FILTER_SYMBOL_DATE_SPLIT  = "#";
-    public static final String SP_FILTER_ORDER              = "order";
-    public static final String SP_FILTER_ORDER_ASC          = "orderAscDesc";
+    @NonNull public static final String SP_FILTER_SYMBOL_DATE_SPLIT = "#";
+    @NonNull public static final String SP_FILTER_ORDER     = "order";
+    @NonNull public static final String SP_FILTER_ORDER_ASC = "orderAscDesc";
 
 
     /*

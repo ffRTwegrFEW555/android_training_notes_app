@@ -16,18 +16,18 @@ import android.util.Log;
 public final class DbQueryBuilder {
 
     /* Logger */
-    private static final String TAG = DbQueryBuilder.class.getSimpleName();
+    @NonNull private static final String TAG = DbQueryBuilder.class.getSimpleName();
 
     /* SQL */
-    public static final String OPERATOR_EQUALS  = " = ";
-    public static final String OPERATOR_BETWEEN = " BETWEEN ";
-    public static final String OPERATOR_LIKE    = " LIKE ";
+    @NonNull public static final String OPERATOR_EQUALS     = " = ";
+    @NonNull public static final String OPERATOR_BETWEEN    = " BETWEEN ";
+    @NonNull public static final String OPERATOR_LIKE       = " LIKE ";
 
-    private static final String OPERATOR_OR     = " OR ";
-    private static final String OPERATOR_AND    = " AND ";
+    @NonNull private static final String OPERATOR_OR        = " OR ";
+    @NonNull private static final String OPERATOR_AND       = " AND ";
 
-    private static final String SYMBOL_MASK     = " ? ";
-    private static final String SYMBOL_PERCENT  = "%";
+    @NonNull private static final String SYMBOL_MASK        = " ? ";
+    @NonNull private static final String SYMBOL_PERCENT     = "%";
 
     @Nullable private String[] mSelection;
     @Nullable private String[] mSelectionArgs;
@@ -200,7 +200,7 @@ public final class DbQueryBuilder {
             sb.append(operatorPrimary);
         }
 
-        sb      .append("(")
+        sb      .append('(')
                 .append(column);
 
         switch (operatorSecondary) {
@@ -347,7 +347,7 @@ public final class DbQueryBuilder {
         final StringBuilder sb = new StringBuilder();
         for (String cause : mSelection) {
             sb      .append(cause)
-                    .append(" ");
+                    .append(' ');
         }
         return sb.toString();
     }

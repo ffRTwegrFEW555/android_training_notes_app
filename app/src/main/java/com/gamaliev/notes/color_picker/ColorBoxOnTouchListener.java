@@ -1,5 +1,6 @@
 package com.gamaliev.notes.color_picker;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -83,6 +84,7 @@ final class ColorBoxOnTouchListener implements View.OnTouchListener {
      * Long press, double tap, single tap: see {@link #getSimpleOnGestureListener()}<br>
      * Move action: change palette box color, when "edit mode" is turn on.
      */
+    @SuppressLint({"ClickableViewAccessibility"})
     @Override
     public boolean onTouch(final View v, final MotionEvent e) {
         mGestureDetector.onTouchEvent(e);
