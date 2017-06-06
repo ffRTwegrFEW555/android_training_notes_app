@@ -267,6 +267,13 @@ public class ListEntry implements Parcelable {
         return jsonObject;
     }
 
+
+    /**
+     * Convert list entry from json-format, to object.
+     * @param context   Context.
+     * @param json      List entry in json-format.
+     * @return List entry object.
+     */
     @Nullable
     public static ListEntry convertJsonToListEntry(
             @NonNull final Context context,
@@ -282,6 +289,12 @@ public class ListEntry implements Parcelable {
         return convertJsonToListEntry(context, jsonObject);
     }
 
+    /**
+     * Convert list entry from json-format, to object.
+     * @param context       Context.
+     * @param jsonObject    List entry in json-format.
+     * @return List entry object.
+     */
     @SuppressWarnings({"NeedBraces"})
     @NonNull
     public static ListEntry convertJsonToListEntry(

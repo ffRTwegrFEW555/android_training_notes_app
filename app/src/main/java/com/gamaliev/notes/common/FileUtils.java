@@ -56,7 +56,7 @@ import static com.gamaliev.notes.model.ListEntry.getJsonObjectFromCursor;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class FileUtils {
+public final class FileUtils {
 
     /* Logger */
     private static final String TAG = FileUtils.class.getSimpleName();

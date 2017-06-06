@@ -68,6 +68,11 @@ public final class ProgressNotificationHelper {
         ...
      */
 
+    /**
+     * Set progress of bar notification. {@link #isEnable()} must be {@code true}.
+     * @param max       Max possible value of progress.
+     * @param progress  Current value of progress.
+     */
     public void setProgress(
             @SuppressWarnings("SameParameterValue") final int max,
             final int progress) {
@@ -78,6 +83,9 @@ public final class ProgressNotificationHelper {
         }
     }
 
+    /**
+     * Set continuing progress of bar notification. {@link #isEnable()} must be {@code true}.
+     */
     @SuppressWarnings("WeakerAccess")
     public void setContinuingProgress() {
         if (isEnable()) {
@@ -86,6 +94,10 @@ public final class ProgressNotificationHelper {
         }
     }
 
+    /**
+     * Finish progress of bar notification, and show result text.
+     * {@link #isEnable()} must be {@code true}.
+     */
     public void endProgress() {
         mFinished = true;
 

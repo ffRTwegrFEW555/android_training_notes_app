@@ -10,7 +10,7 @@ import android.support.annotation.NonNull;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class NetworkUtils {
+public final class NetworkUtils {
 
     /* ... */
     public static final int NETWORK_NO      = -1;

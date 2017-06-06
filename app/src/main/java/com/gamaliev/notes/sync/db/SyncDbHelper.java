@@ -34,7 +34,7 @@ import static com.gamaliev.notes.sync.SyncUtils.ACTION_NOTHING;
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class SyncDbHelper {
+public final class SyncDbHelper {
 
     /* Logger */
     private static final String TAG = SyncDbHelper.class.getSimpleName();
@@ -51,6 +51,12 @@ public class SyncDbHelper {
         ...
      */
 
+    /**
+     * Insert sync entry in database.
+     * @param context   Context.
+     * @param entry     Sync entry.
+     * @return {@code true} if ok, else {@code false}.
+     */
     @SuppressWarnings("UnusedReturnValue")
     public static boolean insertEntry(
             @NonNull final Context context,

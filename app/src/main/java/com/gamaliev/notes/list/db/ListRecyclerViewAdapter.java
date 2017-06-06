@@ -60,6 +60,10 @@ public final class ListRecyclerViewAdapter
         Init
      */
 
+    /**
+     * @param fragment          Parent fragment.
+     * @param dragStartListener Drag start listener.
+     */
     public ListRecyclerViewAdapter(
             @NonNull final Fragment fragment,
             @NonNull final OnStartDragListener dragStartListener) {
@@ -203,6 +207,11 @@ public final class ListRecyclerViewAdapter
         ...
      */
 
+    /**
+     * Update cursor of the recycler view adapter.
+     * @param constraint        Search text.
+     * @param filterProfileMap  Filter profile in map-format.
+     */
     public void updateCursor(
             @NonNull final String constraint,
             @NonNull final Map<String, String> filterProfileMap) {

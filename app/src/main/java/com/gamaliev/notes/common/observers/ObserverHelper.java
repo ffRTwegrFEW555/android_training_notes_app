@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class ObserverHelper {
+public final class ObserverHelper {
 
     /* Observers */
     private static final Map<String, Map<String, Observer>> OBSERVERS;
@@ -48,6 +48,12 @@ public class ObserverHelper {
         Registrations
      */
 
+    /**
+     * Register observer, who will be notified for signed events.
+     * @param observationTypes  Types of observation (events).
+     * @param name              Unique name of observer.
+     * @param observer          Observer, whose implements {@link Observer}.
+     */
     public static void registerObserver(
             @NonNull final String[] observationTypes,
             @NonNull final String name,
@@ -63,6 +69,11 @@ public class ObserverHelper {
         }
     }
 
+    /**
+     * Unregister observer from given events.
+     * @param observationTypes  Type of observation (events).
+     * @param name              Unique name of observer.
+     */
     public static void unregisterObserver(
             @NonNull final String[] observationTypes,
             @NonNull final String name) {
@@ -86,6 +97,11 @@ public class ObserverHelper {
         Notifying
      */
 
+    /**
+     * Notify all registered observers, regardless of the type of signed events.
+     * @param resultCode    Result code of event.
+     * @param data          Data of event.
+     */
     @SuppressWarnings("SameParameterValue")
     public static void notifyAllObservers(
             final int resultCode,
@@ -98,6 +114,12 @@ public class ObserverHelper {
         }
     }
 
+    /**
+     * Notify registered observers, for given event.
+     * @param type          Type of observation (event).
+     * @param resultCode    Result code of event.
+     * @param data          Data of event.
+     */
     public static void notifyObservers(
             @NonNull final String type,
             final int resultCode,

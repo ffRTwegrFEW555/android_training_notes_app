@@ -198,6 +198,11 @@ public final class SyncUtils {
         Main
      */
 
+    /**
+     * Starting synchronization of note entries with server in async mode.
+     * {@link #isSyncRunning()} must be {@code false}.
+     * @param context Context.
+     */
     public static void synchronize(@NonNull final Context context) {
         if (isSyncRunning()) {
             return;
@@ -211,6 +216,11 @@ public final class SyncUtils {
         });
     }
 
+    /**
+     * Starting synchronization of note entries with server in sync mode.
+     * @param context Context.
+     * @return {@code true} if ok, else {@code false}.
+     */
     @SuppressWarnings({"UnusedReturnValue", "SameReturnValue"})
     public static boolean makeSynchronize(@NonNull final Context context) {
         setSyncRunning(true);
@@ -527,6 +537,11 @@ public final class SyncUtils {
         Delete all from server (Optional. For tests)
      */
 
+    /**
+     * Deleting all note entries from server. Note, this action will not add deleted entries
+     * in table of deleted entries (for synchronization).
+     * @param context Context.
+     */
     public static void deleteAllFromServerAsync(@NonNull final Context context) {
         SINGLE_THREAD_EXECUTOR.submit(new Runnable() {
             @Override
@@ -678,6 +693,14 @@ public final class SyncUtils {
                 null);
     }
 
+    /**
+     * Logging message with info level. Showing toast if needed.
+     * Notifying registered observers with given result code.
+     * @param context       Context.
+     * @param message       Message to logging, and to showing toast.
+     * @param showToast     {@code true} if show toast, else {@code false}.
+     * @param resultCode    Result code for notifying registered observers.
+     */
     @SuppressWarnings("SameParameterValue")
     public static void logAndNotify(
             @NonNull final Context context,
@@ -702,6 +725,14 @@ public final class SyncUtils {
         ...
      */
 
+    /**
+     * Checking status of pending synchronization. If {@code true}, then start
+     * {@link #synchronize(Context)}.
+     *
+     * @param context   Context.
+     * @return          {@code true} if pending status true, and started synchronization,
+     *                  otherwise {@code false}.
+     */
     @SuppressWarnings("UnusedReturnValue")
     public static boolean checkPendingSyncAndStart(@NonNull final Context context) {
         String status = getPendingSyncStatusForCurrentUser(context);

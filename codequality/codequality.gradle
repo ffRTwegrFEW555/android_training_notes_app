@@ -2,9 +2,9 @@ ext.codequalityConfigPath = "${rootProject.projectDir}/codequality/config"
 
 apply plugin: 'checkstyle'
 checkstyle {
-    toolVersion = '7.6'
+    toolVersion = '7.8.1'
     ignoreFailures = false
-    checkstyle.configFile = file("$codequalityConfigPath/checkstyle-config.xml")
+    checkstyle.configFile = file("$codequalityConfigPath/checkstyle_config.xml")
     configProperties = [codequalityConfigPath: codequalityConfigPath]
     reportsDir = file("$rootProject.buildDir/reports/checkstyle/$project.name")
 }

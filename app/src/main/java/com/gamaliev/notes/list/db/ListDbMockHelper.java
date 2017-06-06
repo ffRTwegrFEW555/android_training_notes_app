@@ -27,7 +27,7 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class ListDbMockHelper {
+public final class ListDbMockHelper {
 
     /* Mock data */
     @SuppressWarnings("SpellCheckingInspection")

@@ -61,7 +61,7 @@ import static com.gamaliev.notes.list.ListFragment.SEARCH_COLUMNS;
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class ListDbHelper {
+public final class ListDbHelper {
 
     /* Logger */
     private static final String TAG = ListDbHelper.class.getSimpleName();
@@ -249,13 +249,12 @@ public class ListDbHelper {
     }
 
     /**
-     * Update synchronization id, in database, form
-     * @param context
-     * @param entryId
-     * @param syncId
-     * @return
+     * Update synchronization id, in database, of the select entry.
+     * @param context   Context.
+     * @param entryId   Entry id.
+     * @param syncId    Sync id.
+     * @return True if ok, else false.
      */
-    TODO
     @SuppressWarnings("UnusedReturnValue")
     public static boolean updateSyncId(
             @NonNull final Context context,

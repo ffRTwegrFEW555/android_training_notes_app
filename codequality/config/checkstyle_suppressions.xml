@@ -20,7 +20,7 @@
         checks="MagicNumber"/>
 
 
-    <!-- -->
+    <!-- MagicNumber -->
     <suppress
         files="FilterSortDialogFragment.java"
         lines="809"
@@ -33,4 +33,11 @@
         files="ListDbMockHelper.java"
         lines="139"
         checks="MagicNumber"/>
+
+
+    <!-- UnusedImports -->
+    <suppress
+        files="ItemTouchHelperAdapter.java"
+        lines="20"
+        checks="UnusedImports"/>
 </suppressions>

@@ -673,9 +673,10 @@ public final class CommonUtils {
      * If permission denied, then requesting permission from the user, then return result to given activity.
      *
      * @param activity      Activity.
-     * @param permission    Checked permission. See: {@link android.Manifest.permission}
+     * @param permission    Checked permission. See: android.Manifest.permission.
      * @param requestCode   Request code, whose will be returned to given activity.
-     * See: {@link android.support.v4.app.ActivityCompat#requestPermissions(Activity, String[], int)}
+     *                      See: {@link android.support.v4.app.ActivityCompat
+     *                      #requestPermissions(Activity, String[], int)}
      *
      * @return True if permission granted, otherwise false.
      */

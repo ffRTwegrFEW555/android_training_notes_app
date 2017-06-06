@@ -5,7 +5,7 @@ package com.gamaliev.notes.common.codes;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class ResultCode {
+public final class ResultCode {
 
     /* Notes. Import. Export */
     public static final int RESULT_CODE_NOTES_IMPORTED          = 101;

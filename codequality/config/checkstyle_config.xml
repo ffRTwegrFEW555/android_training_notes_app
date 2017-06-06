@@ -30,7 +30,7 @@
     <!-- Support @SuppressWarnings annotations.                                             -->
     <!-- See http://checkstyle.sourceforge.net/config_filters.html#SuppressWarningsFilter   -->
     <module name="SuppressionFilter">
-        <property name="file" value="checkstyle-suppressions.xml"/>
+        <property name="file" value="${codequalityConfigPath}/checkstyle_suppressions.xml"/>
     </module>
     <module name="SuppressWarningsFilter"/>
 

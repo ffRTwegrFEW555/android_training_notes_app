@@ -22,6 +22,9 @@ public class NetworkBroadcastReceiver extends BroadcastReceiver {
         Init
      */
 
+    /**
+     * @return Broadcast receiver, that monitors changes in the network.
+     */
     @Nullable
     public static synchronized BroadcastReceiver getInstance() {
         if (sInstance == null) {

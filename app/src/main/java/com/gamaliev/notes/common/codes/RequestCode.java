@@ -5,7 +5,7 @@ package com.gamaliev.notes.common.codes;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class RequestCode {
+public final class RequestCode {
 
     /* External storage. Permissions */
     public static final int REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 101;
