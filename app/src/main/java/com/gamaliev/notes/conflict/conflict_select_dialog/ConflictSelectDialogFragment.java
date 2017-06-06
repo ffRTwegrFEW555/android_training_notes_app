@@ -1,4 +1,4 @@
-package com.gamaliev.notes.conflict;
+package com.gamaliev.notes.conflict.conflict_select_dialog;
 
 import android.app.Activity;
 import android.content.Context;
@@ -55,7 +55,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertMapToJson;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
 import static com.gamaliev.notes.conflict.ConflictFragment.EXTRA_CONFLICT_SELECT_POSITION;
-import static com.gamaliev.notes.conflict.ConflictUtils.checkConflictExistsAndHideStatusBarNotification;
+import static com.gamaliev.notes.conflict.utils.ConflictUtils.checkConflictExistsAndHideStatusBarNotification;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
 import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_DATA;
 import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_EXTRA;

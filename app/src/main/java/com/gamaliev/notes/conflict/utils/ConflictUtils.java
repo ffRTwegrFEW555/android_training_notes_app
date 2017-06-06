@@ -1,4 +1,4 @@
-package com.gamaliev.notes.conflict;
+package com.gamaliev.notes.conflict.utils;
 
 import android.app.NotificationManager;
 import android.content.Context;

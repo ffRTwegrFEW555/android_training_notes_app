@@ -28,7 +28,8 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObser
  */
 
 @SuppressWarnings("NullableProblems")
-public class ConflictFragment extends Fragment implements Observer {
+public class ConflictFragment extends Fragment
+        implements Observer, ConflictContract.View {
 
     /* Observed */
     @NonNull private static final String[] OBSERVED = {CONFLICT};
@@ -37,7 +38,7 @@ public class ConflictFragment extends Fragment implements Observer {
     @NonNull public static final String EXTRA_CONFLICT_SELECT_POSITION = "position";
 
     @NonNull private View mParentView;
-    @NonNull private ConflictRecyclerViewAdapter mAdapter;
+    @NonNull private ConflictContract.Presenter mPresenter;
 
 
     /*
@@ -89,8 +90,7 @@ public class ConflictFragment extends Fragment implements Observer {
     private void init() {
         initTransition();
         initActionBar();
-        initAdapter();
-        initRecyclerView();
+        initPresenter();
     }
 
     private void initTransition() {
@@ -105,29 +105,30 @@ public class ConflictFragment extends Fragment implements Observer {
         }
     }
 
-
-    /*
-        RecyclerView & Adapter
-     */
-
-    private void initAdapter() {
-        mAdapter = new ConflictRecyclerViewAdapter(this);
+    private void initPresenter() {
+        new ConflictPresenter(this);
+        mPresenter.start();
     }
 
-    private void initRecyclerView() {
+
+    /*
+        ConflictContract.View
+     */
+
+    @Override
+    public void setPresenter(ConflictContract.Presenter presenter) {
+        mPresenter = presenter;
+    }
+
+    @Override
+    public RecyclerView getRecyclerView() {
         final RecyclerView rv = (RecyclerView) mParentView.findViewById(R.id.fragment_conflict_rv);
         rv.addItemDecoration(
                 new DividerItemDecoration(
-                        getActivity(),
+                        rv.getContext(),
                         DividerItemDecoration.VERTICAL));
-        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
-        rv.setAdapter(mAdapter);
-    }
-
-    private void updateAdapter(final int deletedPosition) {
-        mAdapter.updateCursor();
-        mAdapter.notifyItemRemoved(deletedPosition);
-        mAdapter.notifyItemRangeChanged(deletedPosition, mAdapter.getItemCount());
+        rv.setLayoutManager(new LinearLayoutManager(rv.getContext()));
+        return rv;
     }
 
 
@@ -143,7 +144,8 @@ public class ConflictFragment extends Fragment implements Observer {
                     @Override
                     public void run() {
                         if (data != null) {
-                            updateAdapter(data.getInt(EXTRA_CONFLICT_SELECT_POSITION));
+                            mPresenter.updateRecyclerView(
+                                    data.getInt(EXTRA_CONFLICT_SELECT_POSITION));
                         }
                     }
                 });

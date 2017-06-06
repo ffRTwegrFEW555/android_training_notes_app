@@ -32,8 +32,8 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.SYNC;
 import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
 import static com.gamaliev.notes.common.observers.ObserverHelper.registerObserver;
 import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObserver;
-import static com.gamaliev.notes.conflict.ConflictUtils.checkConflictingExists;
-import static com.gamaliev.notes.conflict.ConflictUtils.hideConflictStatusBarNotification;
+import static com.gamaliev.notes.conflict.utils.ConflictUtils.checkConflictingExists;
+import static com.gamaliev.notes.conflict.utils.ConflictUtils.hideConflictStatusBarNotification;
 
 /**
  * @author Vadim Gamaliev

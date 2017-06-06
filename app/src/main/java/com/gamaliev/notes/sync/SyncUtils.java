@@ -51,7 +51,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPendingSyncStatu
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getProgressNotificationTimerForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.setPendingSyncStatusForCurrentUser;
-import static com.gamaliev.notes.conflict.ConflictUtils.checkConflictExistsAndShowStatusBarNotification;
+import static com.gamaliev.notes.conflict.utils.ConflictUtils.checkConflictExistsAndShowStatusBarNotification;
 import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntry;
 import static com.gamaliev.notes.list.db.ListDbHelper.getNewEntries;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;

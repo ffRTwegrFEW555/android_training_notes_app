@@ -10,7 +10,7 @@ import com.gamaliev.notes.common.observers.ObserverHelper;
 import com.gamaliev.notes.common.shared_prefs.SpCommon;
 import com.gamaliev.notes.sync.SyncUtils;
 
-import static com.gamaliev.notes.conflict.ConflictUtils.checkConflictExistsAndShowStatusBarNotification;
+import static com.gamaliev.notes.conflict.utils.ConflictUtils.checkConflictExistsAndShowStatusBarNotification;
 
 /**
  * @author Vadim Gamaliev

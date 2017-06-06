@@ -67,7 +67,6 @@ public class SettingsPreferenceFragment extends PreferenceFragmentCompat
         getPreferenceManager()
                 .getSharedPreferences()
                 .registerOnSharedPreferenceChangeListener(this);
-
     }
 
     @Override
