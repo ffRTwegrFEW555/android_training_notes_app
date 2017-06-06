@@ -11,10 +11,6 @@ import android.widget.Toast;
 
 import com.gamaliev.notes.common.db.DbHelper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 
 import static com.gamaliev.notes.common.CommonUtils.showToast;

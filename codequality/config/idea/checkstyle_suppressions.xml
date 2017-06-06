@@ -23,7 +23,7 @@
     <!-- MagicNumber -->
     <suppress
         files="FilterSortDialogFragment.java"
-        lines="809"
+        lines="811"
         checks="MagicNumber"/>
     <suppress
         files="ListEntry.java"
