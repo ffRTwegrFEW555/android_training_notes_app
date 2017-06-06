@@ -1,4 +1,4 @@
-package com.gamaliev.notes.color_picker;
+package com.gamaliev.notes.color_picker.listeners;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -14,6 +14,7 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
+import com.gamaliev.notes.color_picker.ColorPickerFragment;
 import com.gamaliev.notes.common.custom_view.SwitchableHorizontalScrollView;
 
 import static com.gamaliev.notes.common.CommonUtils.animateElevation;
@@ -27,7 +28,7 @@ import static com.gamaliev.notes.common.CommonUtils.showToast;
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-final class ColorPickerColorBoxOnTouchListener implements View.OnTouchListener {
+public final class ColorPickerColorBoxOnTouchListener implements View.OnTouchListener {
 
     /* ... */
     @NonNull private final Context mContext;
@@ -52,7 +53,13 @@ final class ColorPickerColorBoxOnTouchListener implements View.OnTouchListener {
         Init
      */
 
-    ColorPickerColorBoxOnTouchListener(
+    /**
+     * @param context   Context.
+     * @param fragment  Fragment.
+     * @param view      ColorBox, to be listened.
+     * @param index     Index of color.
+     */
+    public ColorPickerColorBoxOnTouchListener(
             @NonNull final Context context,
             @NonNull final ColorPickerFragment fragment,
             @NonNull final View view,

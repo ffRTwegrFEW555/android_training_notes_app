@@ -1,4 +1,4 @@
-package com.gamaliev.notes.color_picker;
+package com.gamaliev.notes.color_picker.listeners;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -11,6 +11,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
+import com.gamaliev.notes.color_picker.ColorPickerContract;
+import com.gamaliev.notes.color_picker.ColorPickerFragment;
 import com.gamaliev.notes.color_picker.db.ColorPickerDbHelper;
 
 import static com.gamaliev.notes.common.CommonUtils.animateElevation;
@@ -23,14 +25,13 @@ import static com.gamaliev.notes.common.CommonUtils.setBackgroundColor;
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-final class ColorPickerFavoriteColorBoxOnTouchListener implements View.OnTouchListener {
+public final class ColorPickerFavoriteColorBoxOnTouchListener implements View.OnTouchListener {
 
     /* ... */
-    @NonNull private final Context mContext;
-    @NonNull private final ColorPickerFragment mFragment;
     @NonNull private final Resources mRes;
     @NonNull private final GestureDetector mGestureDetector;
     @NonNull private final View mView;
+    @NonNull private ColorPickerContract.Presenter mPresenter;
     private final int mIndex;
 
 
@@ -38,16 +39,21 @@ final class ColorPickerFavoriteColorBoxOnTouchListener implements View.OnTouchLi
         Init
      */
 
-    ColorPickerFavoriteColorBoxOnTouchListener(
+    /**
+     * @param context   Context.
+     * @param view      ColorBox, to be listened.
+     * @param index     Index of favorite color.
+     */
+    public ColorPickerFavoriteColorBoxOnTouchListener(
             @NonNull final Context context,
-            @NonNull final ColorPickerFragment fragment,
+            @NonNull final ColorPickerContract.Presenter presenter,
             @NonNull final View view,
             final int index) {
 
-        mIndex      = index;
-        mContext    = context;
-        mFragment   = fragment;
+        mPresenter  = presenter;
         mView       = view;
+        mIndex      = index;
+
         mRes        = context.getResources();
         mGestureDetector = new GestureDetector(context, getSimpleOnGestureListener());
     }
@@ -110,28 +116,13 @@ final class ColorPickerFavoriteColorBoxOnTouchListener implements View.OnTouchLi
             // Add result color to favorite box.
             @Override
             public void onLongPress(final MotionEvent e) {
-                final int resultColor = mFragment.getResultColor();
-                if (ColorPickerDbHelper.updateFavoriteColor(mContext, mIndex, resultColor)) {
-                    playSoundAndShowToast(
-                            mContext,
-                            RingtoneManager.TYPE_NOTIFICATION,
-                            mRes.getString(R.string.fragment_color_picker_toast_favorite_color_added),
-                            Toast.LENGTH_SHORT);
-                    setBackgroundColor(mView, resultColor);
-                    animateScaleXy(mView,
-                            mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_scale_on) / 100.0f,
-                            mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_scale_duration));
-                }
+                mPresenter.updateFavoriteColor(mView, mIndex);
             }
 
             // Set favorite color to result box. Get Last value from database.
             @Override
             public boolean onSingleTapConfirmed(final MotionEvent e) {
-                final int color = ColorPickerDbHelper.getFavoriteColor(mContext, mIndex);
-                if (color != -1) {
-                    setBackgroundColor(mView, color); // Updating himself.
-                    mFragment.setResultBoxColor(color);
-                }
+                mPresenter.loadFavoriteColor(mView, mIndex);
                 return true;
             }
         };

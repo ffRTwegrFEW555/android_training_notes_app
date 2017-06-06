@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
+import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,14 +25,20 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gamaliev.notes.R;
+import com.gamaliev.notes.color_picker.listeners.ColorPickerColorBoxOnTouchListener;
+import com.gamaliev.notes.color_picker.listeners.ColorPickerFavoriteColorBoxOnTouchListener;
 import com.gamaliev.notes.common.custom_view.SwitchableHorizontalScrollView;
 
 import java.util.Arrays;
 import java.util.Locale;
 
+import static com.gamaliev.notes.common.CommonUtils.animateScaleXy;
 import static com.gamaliev.notes.common.CommonUtils.getDefaultColor;
+import static com.gamaliev.notes.common.CommonUtils.playSoundAndShowToast;
+import static com.gamaliev.notes.common.CommonUtils.setBackgroundColor;
 import static com.gamaliev.notes.common.CommonUtils.setBackgroundColorRectangleApi;
 import static com.gamaliev.notes.common.CommonUtils.shiftColor;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_COLOR_PICKER_SELECTED;
@@ -243,7 +250,7 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
     }
 
     @SuppressWarnings("MagicNumber")
-    void setResultBoxColor(final int color) {
+    public void setResultBoxColor(final int color) {
         shiftColor(mResultView, mResultColor, color,
                 -1,
                 mRes.getInteger(R.integer.fragment_color_picker_result_box_animation_change_color_duration));
@@ -307,7 +314,7 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
      * @param newColor      Color to set. "-1" to set default value.
      * @param index         Color index.
      */
-    void setColorOnMove(
+    public void setColorOnMove(
             @NonNull final View editedView,
             final int newColor,
             final int index) {
@@ -349,7 +356,7 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
                     .setColorFilter(favoriteColors[i], PorterDuff.Mode.SRC);
 
             button.setOnTouchListener(
-                    new ColorPickerFavoriteColorBoxOnTouchListener(getContext(), this, button, i));
+                    new ColorPickerFavoriteColorBoxOnTouchListener(getContext(), mPresenter, button, i));
 
             favoriteBarVg.addView(button, params);
         }
@@ -374,7 +381,7 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
         return popupWindow;
     }
 
-    void showPopupWindow() {
+    public void showPopupWindow() {
         mEditPw.setAnimationStyle(R.style.ColorPickerPopupWindowAnimation);
         mEditPw.showAtLocation(mParentView,
                 mRes.getInteger(R.integer.fragment_color_picker_popup_window_gravity),
@@ -387,31 +394,32 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
         Getters
      */
 
-    int getResultColor() {
+    @Override
+    public int getResultColor() {
         return mResultColor;
     }
 
     @NonNull
-    SwitchableHorizontalScrollView getPaletteHsvSv() {
+    public SwitchableHorizontalScrollView getPaletteHsvSv() {
         return mPaletteHsvSv;
     }
 
     @NonNull
-    PopupWindow getEditPw() {
+    public PopupWindow getEditPw() {
         return mEditPw;
     }
 
     @NonNull
-    int[] getHsvColors() {
+    public int[] getHsvColors() {
         return mHsvColors;
     }
 
     @NonNull
-    int[] getHsvColorsOverridden() {
+    public int[] getHsvColorsOverridden() {
         return mHsvOverriddenColors;
     }
 
-    float getHsvDegree() {
+    public float getHsvDegree() {
         return mHsvDegree;
     }
 
@@ -436,9 +444,29 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
     }
 
     @Override
+    public void updateFavoriteColor(@NonNull final View view, final int color) {
+        playSoundAndShowToast(
+                getContext(),
+                RingtoneManager.TYPE_NOTIFICATION,
+                mRes.getString(R.string.fragment_color_picker_toast_favorite_color_added),
+                Toast.LENGTH_SHORT);
+        setBackgroundColor(view, color);
+        animateScaleXy(view,
+                mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_scale_on) / 100.0f,
+                mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_scale_duration));
+    }
+
+    @Override
+    public void updateResultColor(@NonNull final View view, final int color) {
+        setBackgroundColor(view, color); // Updating himself.
+        setResultBoxColor(color);
+    }
+
+    @Override
     public boolean isActive() {
         return isAdded();
     }
+
 
     /*
         Finish
