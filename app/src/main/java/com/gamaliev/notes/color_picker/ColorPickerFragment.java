@@ -26,8 +26,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.color_picker.db.ColorPickerDbHelper;
-import com.gamaliev.notes.common.SwitchableHorizontalScrollView;
+import com.gamaliev.notes.common.custom_view.SwitchableHorizontalScrollView;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -45,7 +44,7 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers
  */
 
 @SuppressWarnings({"WeakerAccess", "NullableProblems"})
-public final class ColorPickerFragment extends Fragment {
+public final class ColorPickerFragment extends Fragment implements ColorPickerContract.View {
 
     /* Extra */
     @NonNull public static final String EXTRA_ID            = "ColorPickerFragment.EXTRA_ID";
@@ -62,6 +61,7 @@ public final class ColorPickerFragment extends Fragment {
     @NonNull private PopupWindow mEditPw;
     @NonNull private int[] mHsvColors;
     @NonNull private int[] mHsvOverriddenColors;
+    @NonNull private ColorPickerContract.Presenter mPresenter;
     private long mEntryId;
     private int mBoxesNumber;
     private int mResultColor;
@@ -143,13 +143,15 @@ public final class ColorPickerFragment extends Fragment {
             mResultColor = color == -1
                     ? getDefaultColor(getContext())
                     : color;
-            getNewHsvOverriddenColors();
+            setNewHsvOverriddenColors();
 
         } else {
             mResultColor = savedInstanceState.getInt(EXTRA_RESULT_COLOR);
             final int[] temp = savedInstanceState.getIntArray(EXTRA_HSV_COLOR_OVERRIDDEN);
             if (temp == null) {
-                getNewHsvOverriddenColors();
+                setNewHsvOverriddenColors();
+            } else {
+                mHsvOverriddenColors = temp;
             }
         }
 
@@ -157,9 +159,10 @@ public final class ColorPickerFragment extends Fragment {
         initFullScreen();
         setGradient();
         addColorBoxesAndSetListeners();
-        addFavoriteColorBoxesAndSetListeners();
         setResultBoxColor(mResultColor);
         setDoneCancelListeners();
+
+        initPresenter();
     }
 
     private void initTransition() {
@@ -185,7 +188,7 @@ public final class ColorPickerFragment extends Fragment {
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
     }
 
-    private void getNewHsvOverriddenColors() {
+    private void setNewHsvOverriddenColors() {
         mHsvOverriddenColors = new int[mBoxesNumber * 2 + 1];
         Arrays.fill(mHsvOverriddenColors, -1);
     }
@@ -233,40 +236,9 @@ public final class ColorPickerFragment extends Fragment {
             setBackgroundColorRectangleApi(getContext(), colorBox, color);
 
             colorBox.setOnTouchListener(
-                    new ColorBoxOnTouchListener(getContext(), this, colorBox, i));
+                    new ColorPickerColorBoxOnTouchListener(getContext(), this, colorBox, i));
 
             paletteBarVg.addView(colorBox, params);
-        }
-    }
-
-    private void addFavoriteColorBoxesAndSetListeners() {
-        final ViewGroup favoriteBarVg =
-                (ViewGroup) mParentView.findViewById(R.id.fragment_color_picker_ll_favorite_bar);
-        final int boxesNumber = mRes.getInteger(R.integer.fragment_color_picker_favorite_boxes_number);
-
-        final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                (int) mRes.getDimension(R.dimen.fragment_color_picker_favorite_box_width),
-                (int) mRes.getDimension(R.dimen.fragment_color_picker_favorite_box_height));
-        final int m = (int) mRes.getDimension(R.dimen.fragment_color_picker_favorite_box_margin);
-        params.setMargins(m, m, m, m);
-
-        for (int i = 0; i < boxesNumber; i++) {
-            // Create color box with color from database.
-            final View button = new Button(getContext());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                button.setBackground(mRes.getDrawable(R.drawable.btn_oval, null));
-            } else {
-                //noinspection deprecation
-                button.setBackground(mRes.getDrawable(R.drawable.btn_oval));
-            }
-            button.getBackground()
-                    .setColorFilter(ColorPickerDbHelper
-                            .getFavoriteColor(getContext(), i), PorterDuff.Mode.SRC);
-
-            button.setOnTouchListener(
-                    new FavoriteColorBoxOnTouchListener(getContext(), this, button, i));
-
-            favoriteBarVg.addView(button, params);
         }
     }
 
@@ -324,6 +296,11 @@ public final class ColorPickerFragment extends Fragment {
                 });
     }
 
+    private void initPresenter() {
+        new ColorPickerPresenter(this);
+        mPresenter.start();
+    }
+
     /**
      * Set color to palette box and popupWindow, when "edit mode" is turn on.
      * @param editedView    View, whose "edit mode" is turn on, that changes color.
@@ -347,6 +324,35 @@ public final class ColorPickerFragment extends Fragment {
         setBackgroundColorRectangleApi(getContext(), editedView, color);
         mEditPw.getContentView().setBackgroundColor(color);
         mHsvOverriddenColors[index] = color;
+    }
+
+    private void addFavoriteColorBoxesAndSetListeners(@NonNull final int[] favoriteColors) {
+        final ViewGroup favoriteBarVg =
+                (ViewGroup) mParentView.findViewById(R.id.fragment_color_picker_ll_favorite_bar);
+
+        final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                (int) mRes.getDimension(R.dimen.fragment_color_picker_favorite_box_width),
+                (int) mRes.getDimension(R.dimen.fragment_color_picker_favorite_box_height));
+        final int m = (int) mRes.getDimension(R.dimen.fragment_color_picker_favorite_box_margin);
+        params.setMargins(m, m, m, m);
+
+        for (int i = 0; i < favoriteColors.length; i++) {
+            // Create color box with color from database.
+            final View button = new Button(getContext());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                button.setBackground(mRes.getDrawable(R.drawable.btn_oval, null));
+            } else {
+                //noinspection deprecation
+                button.setBackground(mRes.getDrawable(R.drawable.btn_oval));
+            }
+            button  .getBackground()
+                    .setColorFilter(favoriteColors[i], PorterDuff.Mode.SRC);
+
+            button.setOnTouchListener(
+                    new ColorPickerFavoriteColorBoxOnTouchListener(getContext(), this, button, i));
+
+            favoriteBarVg.addView(button, params);
+        }
     }
 
 
@@ -411,7 +417,31 @@ public final class ColorPickerFragment extends Fragment {
 
 
     /*
-        ...
+        ColorPickerContract.View
+     */
+
+    @Override
+    public void setPresenter(@NonNull final ColorPickerContract.Presenter presenter) {
+        mPresenter = presenter;
+    }
+
+    @Override
+    public void addFavoriteColorBoxesAndSetListenersUiThread(@NonNull final int[] favoriteColors) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                addFavoriteColorBoxesAndSetListeners(favoriteColors);
+            }
+        });
+    }
+
+    @Override
+    public boolean isActive() {
+        return isAdded();
+    }
+
+    /*
+        Finish
      */
 
     private void finish(final boolean notifyAboutSelected) {

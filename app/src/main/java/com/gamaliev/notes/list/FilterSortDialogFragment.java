@@ -493,6 +493,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
         params.setMargins(m, m, m, m);
 
         // Seek all favorite colors.
+        final String colorFromSettings = mFilterProfileMap.get(SP_FILTER_COLOR);
         for (int i = 0; i < ColorPickerDbHelper.getFavoriteColorsDefault().length; i++) {
             final ImageButton button = new ImageButton(getActivity());
             button.setLayoutParams(params);
@@ -512,7 +513,6 @@ public final class FilterSortDialogFragment extends DialogFragment {
             CommonUtils.setBackgroundColor(button, color);
 
             // If color is selected, then set done icon.
-            final String colorFromSettings = mFilterProfileMap.get(SP_FILTER_COLOR);
             if (!TextUtils.isEmpty(colorFromSettings)
                     && Integer.parseInt(colorFromSettings) == color) {
                 button.setImageResource(R.drawable.ic_done_white_24dp);

@@ -12,8 +12,8 @@ public final class RequestCode {
     public static final int REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE = 102;
 
     /* Notes. Import. Export */
-    public static final int REQUEST_CODE_NOTES_IMPORT               = 111;
-    public static final int REQUEST_CODE_NOTES_EXPORT               = 112;
+    public static final int REQUEST_CODE_NOTES_IMPORT = 111;
+    public static final int REQUEST_CODE_NOTES_EXPORT = 112;
 
 
     /*

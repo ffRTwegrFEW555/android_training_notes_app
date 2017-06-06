@@ -1,4 +1,4 @@
-package com.gamaliev.notes.common;
+package com.gamaliev.notes.common.custom_view;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

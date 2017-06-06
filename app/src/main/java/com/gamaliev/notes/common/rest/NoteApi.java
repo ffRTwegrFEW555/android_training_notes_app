@@ -1,4 +1,4 @@
-package com.gamaliev.notes.rest;
+package com.gamaliev.notes.common.rest;
 
 import retrofit2.Call;
 import retrofit2.http.Body;

@@ -18,6 +18,7 @@ import static com.gamaliev.notes.common.db.DbHelper.FAVORITE_COLUMN_COLOR;
 import static com.gamaliev.notes.common.db.DbHelper.FAVORITE_COLUMN_INDEX;
 import static com.gamaliev.notes.common.db.DbHelper.FAVORITE_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.getDbFailMessage;
+import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 import static com.gamaliev.notes.common.db.DbHelper.getReadableDb;
 import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
 
@@ -82,6 +83,28 @@ public final class ColorPickerDbHelper {
         }
 
         return false;
+    }
+
+    /**
+     * Get all favorite colors from database.
+     * @param context Context.
+     * @return  Array, where index of array is index of color, value is color.
+     *          If error, then return empty array.
+     * */
+    @NonNull
+    public static int[] getAllFavoriteColors(@NonNull final Context context) {
+        try (Cursor cursor = getEntries(context, FAVORITE_TABLE_NAME, null)) {
+            if (cursor != null) {
+                final int[] result = new int[cursor.getCount()];
+                while (cursor.moveToNext()) {
+                    final int index = cursor.getInt(cursor.getColumnIndex(DbHelper.FAVORITE_COLUMN_INDEX));
+                    final int color = cursor.getInt(cursor.getColumnIndex(DbHelper.FAVORITE_COLUMN_COLOR));
+                    result[index] = color;
+                }
+                return result;
+            }
+        }
+        return new int[0];
     }
 
     /**

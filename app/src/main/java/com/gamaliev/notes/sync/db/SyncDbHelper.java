@@ -10,7 +10,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.gamaliev.notes.model.SyncEntry;
+import com.gamaliev.notes.entity.SyncEntry;
 
 import java.util.Date;
 import java.util.Locale;

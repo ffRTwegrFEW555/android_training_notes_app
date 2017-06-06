@@ -13,9 +13,9 @@ import com.gamaliev.notes.common.network.NetworkUtils;
 import com.gamaliev.notes.common.shared_prefs.SpCommon;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import com.gamaliev.notes.list.db.ListDbHelper;
-import com.gamaliev.notes.model.ListEntry;
-import com.gamaliev.notes.model.SyncEntry;
-import com.gamaliev.notes.rest.NoteApi;
+import com.gamaliev.notes.entity.ListEntry;
+import com.gamaliev.notes.entity.SyncEntry;
+import com.gamaliev.notes.common.rest.NoteApi;
 import com.gamaliev.notes.sync.db.SyncDbHelper;
 
 import org.json.JSONArray;
@@ -55,12 +55,12 @@ import static com.gamaliev.notes.conflict.ConflictUtils.checkConflictExistsAndSh
 import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntry;
 import static com.gamaliev.notes.list.db.ListDbHelper.getNewEntries;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
-import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_DATA;
-import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_EXTRA;
-import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_ID;
-import static com.gamaliev.notes.rest.NoteApiUtils.API_KEY_STATUS;
-import static com.gamaliev.notes.rest.NoteApiUtils.API_STATUS_OK;
-import static com.gamaliev.notes.rest.NoteApiUtils.getNoteApi;
+import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_DATA;
+import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_EXTRA;
+import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_ID;
+import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_STATUS;
+import static com.gamaliev.notes.common.rest.NoteApiUtils.API_STATUS_OK;
+import static com.gamaliev.notes.common.rest.NoteApiUtils.getNoteApi;
 
 /**
  * @author Vadim Gamaliev

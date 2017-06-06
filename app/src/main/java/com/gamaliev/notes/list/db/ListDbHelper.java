@@ -16,7 +16,7 @@ import com.gamaliev.notes.common.ProgressNotificationHelper;
 import com.gamaliev.notes.common.db.DbHelper;
 import com.gamaliev.notes.common.db.DbQueryBuilder;
 import com.gamaliev.notes.common.shared_prefs.SpFilterProfiles;
-import com.gamaliev.notes.model.ListEntry;
+import com.gamaliev.notes.entity.ListEntry;
 
 import java.text.DateFormat;
 import java.text.ParseException;

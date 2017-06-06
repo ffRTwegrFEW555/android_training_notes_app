@@ -32,7 +32,7 @@ import com.gamaliev.notes.R;
 import com.gamaliev.notes.color_picker.ColorPickerFragment;
 import com.gamaliev.notes.common.observers.Observer;
 import com.gamaliev.notes.list.db.ListDbHelper;
-import com.gamaliev.notes.model.ListEntry;
+import com.gamaliev.notes.entity.ListEntry;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 

@@ -1,4 +1,4 @@
-package com.gamaliev.notes.model;
+package com.gamaliev.notes.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;

@@ -23,7 +23,7 @@ import static com.gamaliev.notes.common.CommonUtils.setBackgroundColor;
  * <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
+final class ColorPickerFavoriteColorBoxOnTouchListener implements View.OnTouchListener {
 
     /* ... */
     @NonNull private final Context mContext;
@@ -38,7 +38,7 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
         Init
      */
 
-    FavoriteColorBoxOnTouchListener(
+    ColorPickerFavoriteColorBoxOnTouchListener(
             @NonNull final Context context,
             @NonNull final ColorPickerFragment fragment,
             @NonNull final View view,
@@ -124,12 +124,12 @@ final class FavoriteColorBoxOnTouchListener implements View.OnTouchListener {
                 }
             }
 
-            // Set favorite color to result box.
+            // Set favorite color to result box. Get Last value from database.
             @Override
             public boolean onSingleTapConfirmed(final MotionEvent e) {
                 final int color = ColorPickerDbHelper.getFavoriteColor(mContext, mIndex);
                 if (color != -1) {
-                    setBackgroundColor(mView, color);
+                    setBackgroundColor(mView, color); // Updating himself.
                     mFragment.setResultBoxColor(color);
                 }
                 return true;

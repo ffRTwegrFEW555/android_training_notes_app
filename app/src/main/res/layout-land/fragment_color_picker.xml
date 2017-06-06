@@ -65,7 +65,7 @@
 
 
     <!-- Palette bar -->
-    <com.gamaliev.notes.common.SwitchableHorizontalScrollView
+    <com.gamaliev.notes.common.custom_view.SwitchableHorizontalScrollView
         android:id="@+id/fragment_color_picker_scroll_palette_bar"
         android:layout_alignParentTop="true"
         android:layout_width="match_parent"
@@ -83,7 +83,7 @@
             android:orientation="horizontal"
             tools:ignore="InconsistentLayout">
         </LinearLayout>
-    </com.gamaliev.notes.common.SwitchableHorizontalScrollView>
+    </com.gamaliev.notes.common.custom_view.SwitchableHorizontalScrollView>
 
 
     <!-- Result and Favorite colors -->

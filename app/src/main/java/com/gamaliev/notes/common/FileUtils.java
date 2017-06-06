@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.list.db.ListDbHelper;
-import com.gamaliev.notes.model.ListEntry;
+import com.gamaliev.notes.entity.ListEntry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,8 +35,8 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.FILE_EXPORT;
 import static com.gamaliev.notes.common.observers.ObserverHelper.FILE_IMPORT;
 import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getProgressNotificationTimerForCurrentUser;
-import static com.gamaliev.notes.model.ListEntry.convertJsonToListEntry;
-import static com.gamaliev.notes.model.ListEntry.getJsonObjectFromCursor;
+import static com.gamaliev.notes.entity.ListEntry.convertJsonToListEntry;
+import static com.gamaliev.notes.entity.ListEntry.getJsonObjectFromCursor;
 
 /**
  * Class, for working with files, for exporting/importing entries from/to database.<br>

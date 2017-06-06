@@ -1,4 +1,4 @@
-package com.gamaliev.notes.rest;
+package com.gamaliev.notes.common.rest;
 
 import android.support.annotation.Nullable;
 
