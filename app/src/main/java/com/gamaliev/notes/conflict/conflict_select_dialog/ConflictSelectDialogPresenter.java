@@ -86,6 +86,8 @@ public class ConflictSelectDialogPresenter implements ConflictSelectDialogContra
         mConflictSelectDialogView = conflictSelectDialogView;
         mSyncId = syncId;
         mPosition = position;
+
+        mConflictSelectDialogView.setPresenter(this);
     }
 
 
@@ -118,7 +120,8 @@ public class ConflictSelectDialogPresenter implements ConflictSelectDialogContra
         switch (networkResult) {
             case NetworkUtils.NETWORK_MOBILE:
                 if (SpUsers.getSyncWifiOnlyForCurrentUser(mContext)) {
-                    mConflictSelectDialogView.performNoWifiError();
+                    mConflictSelectDialogView.performError(
+                            mContext.getString(R.string.fragment_dialog_conflict_select_connection_only_wifi));
                     return;
                 }
                 break;
@@ -126,7 +129,8 @@ public class ConflictSelectDialogPresenter implements ConflictSelectDialogContra
                 break;
             case NetworkUtils.NETWORK_NO:
             default:
-                mConflictSelectDialogView.performNoInternetError();
+                mConflictSelectDialogView.performError(
+                        mContext.getString(R.string.fragment_dialog_conflict_select_connection_no_internet));
                 return;
         }
 
@@ -177,17 +181,22 @@ public class ConflictSelectDialogPresenter implements ConflictSelectDialogContra
                     } else {
                         // If entry not exists.
                         Log.e(TAG, response.toString());
-                        mConflictSelectDialogView.performSrvEntryNotFoundError();
+                        mConflictSelectDialogView.performError(
+                                mContext.getString(
+                                        R.string.fragment_dialog_conflict_select_connection_server_entry_not_found));
                     }
                 } else {
                     // If status not ok.
                     Log.e(TAG, response.toString());
-                    mConflictSelectDialogView.performSrvConnectionRequestError();
+                    mConflictSelectDialogView.performError(
+                            mContext.getString(
+                                    R.string.fragment_dialog_conflict_select_connection_server_request_error));
                 }
             } else {
                 // If response not ok.
                 Log.e(TAG, response.toString());
-                mConflictSelectDialogView.performSrvConnectionServerError();
+                mConflictSelectDialogView.performError(
+                        mContext.getString(R.string.fragment_dialog_conflict_select_connection_server_error));
             }
 
         } catch (Exception e) {
@@ -222,14 +231,16 @@ public class ConflictSelectDialogPresenter implements ConflictSelectDialogContra
 
             if (entryCursor == null || !entryCursor.moveToFirst()) {
                 Log.e(TAG, LocalDbError);
-                mConflictSelectDialogView.performLocalDbError();
+                mConflictSelectDialogView.performError(
+                        mContext.getString(R.string.fragment_dialog_conflict_select_local_database_error));
                 return;
             }
 
             final JSONObject jsonObject = ListEntry.getJsonObjectFromCursor(mContext, entryCursor);
             if (jsonObject == null) {
                 Log.e(TAG, LocalDbError);
-                mConflictSelectDialogView.performLocalDbError();
+                mConflictSelectDialogView.performError(
+                        mContext.getString(R.string.fragment_dialog_conflict_select_local_database_error));
                 return;
             }
 
@@ -351,7 +362,8 @@ public class ConflictSelectDialogPresenter implements ConflictSelectDialogContra
 
         } catch (Exception e) {
             Log.e(TAG, e.toString());
-            mConflictSelectDialogView.performConflictResolutionFailedError();
+            mConflictSelectDialogView.performError(
+                    mContext.getString(R.string.fragment_dialog_conflict_resolution_failed));
         }
     }
 

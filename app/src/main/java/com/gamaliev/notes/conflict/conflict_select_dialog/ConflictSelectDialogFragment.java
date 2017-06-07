@@ -221,65 +221,8 @@ public class ConflictSelectDialogFragment extends DialogFragment
     }
 
     @Override
-    public void performNoWifiError() {
-        showToastRunOnUiThread(
-                getContext(),
-                getString(R.string.fragment_dialog_conflict_select_connection_only_wifi),
-                Toast.LENGTH_LONG);
-        dismiss();
-    }
-
-    @Override
-    public void performNoInternetError() {
-        showToastRunOnUiThread(
-                getContext(),
-                getString(R.string.fragment_dialog_conflict_select_connection_no_internet),
-                Toast.LENGTH_LONG);
-        dismiss();
-    }
-
-    @Override
-    public void performSrvEntryNotFoundError() {
-        showToastRunOnUiThread(
-                getContext(),
-                getString(R.string.fragment_dialog_conflict_select_connection_server_entry_not_found),
-                Toast.LENGTH_LONG);
-        dismiss();
-    }
-
-    @Override
-    public void performSrvConnectionRequestError() {
-        showToastRunOnUiThread(
-                getContext(),
-                getString(R.string.fragment_dialog_conflict_select_connection_server_request_error),
-                Toast.LENGTH_LONG);
-        dismiss();
-    }
-
-    @Override
-    public void performSrvConnectionServerError() {
-        showToastRunOnUiThread(
-                getContext(),
-                getString(R.string.fragment_dialog_conflict_select_connection_server_error),
-                Toast.LENGTH_LONG);
-        dismiss();
-    }
-
-    @Override
-    public void performLocalDbError() {
-        showToastRunOnUiThread(
-                getContext(),
-                getString(R.string.fragment_dialog_conflict_select_local_database_error),
-                Toast.LENGTH_LONG);
-        dismiss();
-    }
-
-    @Override
-    public void performConflictResolutionFailedError() {
-        showToastRunOnUiThread(
-                getContext(),
-                getString(R.string.fragment_dialog_conflict_resolution_failed),
-                Toast.LENGTH_LONG);
+    public void performError(@NonNull final String text) {
+        showToastRunOnUiThread(getContext(), text, Toast.LENGTH_LONG);
         dismiss();
     }
 

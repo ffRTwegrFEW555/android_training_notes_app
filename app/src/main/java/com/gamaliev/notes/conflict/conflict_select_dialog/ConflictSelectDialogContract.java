@@ -22,19 +22,7 @@ public interface ConflictSelectDialogContract {
 
         void setLocalSaveBtnOnClickListener(android.view.View.OnClickListener listener);
 
-        void performNoWifiError();
-
-        void performNoInternetError();
-
-        void performSrvEntryNotFoundError();
-
-        void performSrvConnectionRequestError();
-
-        void performSrvConnectionServerError();
-
-        void performLocalDbError();
-
-        void performConflictResolutionFailedError();
+        void performError(String text);
 
         void enableSaveButtons();
 
