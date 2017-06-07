@@ -47,10 +47,6 @@ public class ConflictPresenter implements ConflictContract.Presenter {
         initRecyclerView();
     }
 
-    /**
-     * Updating cursor, notifying adapter of recycler view, animation of deleted entry.
-     * @param deletedPosition Deleted position of adapter of recycler view.
-     */
     @Override
     public void updateRecyclerView(final int deletedPosition) {
         updateCursor();

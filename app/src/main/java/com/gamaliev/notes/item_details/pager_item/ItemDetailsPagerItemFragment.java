@@ -31,10 +31,7 @@ import android.widget.Toast;
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.color_picker.ColorPickerFragment;
 import com.gamaliev.notes.common.observers.Observer;
-import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.entity.ListEntry;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
 
 import static com.gamaliev.notes.app.NotesApp.getAppContext;
 import static com.gamaliev.notes.color_picker.ColorPickerFragment.EXTRA_RESULT_COLOR;
@@ -48,8 +45,6 @@ import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_ADDED
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_CANCEL;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_DELETED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_ENTRY_EDITED;
-import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
-import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
 import static com.gamaliev.notes.common.observers.ObserverHelper.COLOR_PICKER;
 import static com.gamaliev.notes.common.observers.ObserverHelper.ENTRY;
 import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
@@ -57,7 +52,8 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.registerObserve
 import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObserver;
 
 @SuppressWarnings("NullableProblems")
-public final class ItemDetailsPagerItemFragment extends Fragment implements Observer {
+public final class ItemDetailsPagerItemFragment extends Fragment
+        implements Observer, ItemDetailsPagerItemContract.View {
 
     /* Logger */
     @NonNull private static final String TAG = ItemDetailsPagerItemFragment.class.getSimpleName();
@@ -68,18 +64,18 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
     @NonNull public static final String ACTION_ADD  = "ItemDetailsPagerItemFragment.ACTION_ADD";
     @NonNull public static final String ACTION_EDIT = "ItemDetailsPagerItemFragment.ACTION_EDIT";
 
-    @NonNull private static final String ACTION_ENTRY_ADD    = "ItemDetailsPagerItemFragment.ACTION_ENTRY_ADD";
-    @NonNull private static final String ACTION_ENTRY_EDIT   = "ItemDetailsPagerItemFragment.ACTION_ENTRY_EDIT";
-    @NonNull private static final String ACTION_ENTRY_DELETE = "ItemDetailsPagerItemFragment.ACTION_ENTRY_DELETE";
+    @NonNull public static final String ACTION_ENTRY_ADD    = "ItemDetailsPagerItemFragment.ACTION_ENTRY_ADD";
+    @NonNull public static final String ACTION_ENTRY_EDIT   = "ItemDetailsPagerItemFragment.ACTION_ENTRY_EDIT";
+    @NonNull public static final String ACTION_ENTRY_DELETE = "ItemDetailsPagerItemFragment.ACTION_ENTRY_DELETE";
 
     /* Extra */
-    @NonNull private static final String EXTRA_ID    = "ItemDetailsPagerItemFragment.EXTRA_ID";
-    @NonNull private static final String EXTRA_ENTRY = "ItemDetailsPagerItemFragment.EXTRA_ENTRY";
+    @NonNull private static final String EXTRA_ENTRY_ID = "ItemDetailsPagerItemFragment.EXTRA_ENTRY_ID";
 
     /* Observed */
     @NonNull private static final String[] OBSERVED = {COLOR_PICKER};
 
     /* ... */
+    @NonNull private ItemDetailsPagerItemContract.Presenter mPresenter;
     @NonNull private View       mParentView;
     @NonNull private ActionBar  mActionBar;
     @NonNull private View       mColorView;
@@ -87,13 +83,12 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
     @NonNull private EditText   mDescEditText;
     @NonNull private EditText   mImageUrlEditText;
     @NonNull private ImageView  mImageView;
+    @NonNull private View       mLoadingProgressBar;
+    @NonNull private View       mErrorImageView;
     @NonNull private TextInputLayout mImageUrlEditTextLayout;
-    @NonNull private ListEntry  mEntry;
     @NonNull private Menu       mMenu;
     @NonNull private String     mAction;
     @Nullable private Bundle    mSavedInstanceState;
-    private int mColor;
-    private long mId;
 
 
     /*
@@ -113,7 +108,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
 
         final Bundle bundle = new Bundle();
         bundle.putString(ACTION, action);
-        bundle.putLong(EXTRA_ID, entryId);
+        bundle.putLong(EXTRA_ENTRY_ID, entryId);
 
         final ItemDetailsPagerItemFragment fragment = new ItemDetailsPagerItemFragment();
         fragment.setArguments(bundle);
@@ -155,7 +150,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
 
     @Override
     public void onSaveInstanceState(final Bundle outState) {
-        outState.putParcelable(EXTRA_ENTRY, mEntry);
+        mPresenter.onSaveInstanceState(outState);
         super.onSaveInstanceState(outState);
     }
 
@@ -165,15 +160,18 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
      */
 
     private void init(@Nullable final Bundle savedInstanceState) {
-        mColorView      = mParentView.findViewById(R.id.fragment_item_details_color);
-        mTitleEditText  = (EditText) mParentView.findViewById(R.id.fragment_item_details_title_text_view);
-        mDescEditText   = (EditText) mParentView.findViewById(R.id.fragment_item_details_description_text_view);
-        mImageUrlEditText = (EditText) mParentView.findViewById(R.id.fragment_item_details_image_url_text_view);
+        mColorView          = mParentView.findViewById(R.id.fragment_item_details_color);
+        mTitleEditText      = (EditText) mParentView.findViewById(R.id.fragment_item_details_title_text_view);
+        mDescEditText       = (EditText) mParentView.findViewById(R.id.fragment_item_details_description_text_view);
+        mImageUrlEditText   = (EditText) mParentView.findViewById(R.id.fragment_item_details_image_url_text_view);
         mImageUrlEditTextLayout = (TextInputLayout) mParentView.findViewById(
                 R.id.fragment_item_details_image_url_text_input_layout);
-        mImageView      = (ImageView) mParentView.findViewById(R.id.fragment_item_details_image_view);
+        mImageView          = (ImageView) mParentView.findViewById(R.id.fragment_item_details_image_view);
+        mLoadingProgressBar = mParentView.findViewById(R.id.fragment_item_details_image_view_progress);
+        mErrorImageView     = mParentView.findViewById(R.id.fragment_item_details_image_view_error);
         mSavedInstanceState = savedInstanceState;
 
+        initPresenter();
         initArgs();
         initTransition();
         initActionBar();
@@ -191,7 +189,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
             getActivity().onBackPressed();
         } else {
             mAction = action;
-            mId = getArguments().getLong(EXTRA_ID);
         }
     }
 
@@ -219,23 +216,22 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
     }
 
     /**
-     * Process Action, when start activity.<br>
+     * Process Action, when start fragment.<br>
      * Filling in the necessary views.<br>
      * See also: {@link #ACTION_ADD}, {@link #ACTION_EDIT}.
      */
     private void initAction() {
+        ListEntry entry = mPresenter.getEntry();
+        
         switch (mAction) {
             case ACTION_ADD:
                 mActionBar.setTitle(getString(R.string.fragment_item_details_title_add));
                 if (mSavedInstanceState == null) {
-                    //noinspection ConstantConditions
-                    if (mEntry == null) {
-                        mEntry = new ListEntry();
-                        mEntry.setColor(getDefaultColor(getContext()));
+                    if (entry == null) {
+                        mPresenter.initializeNewEntry();
                     }
-
                 } else {
-                    setEntryFromParcelableOrDefault();
+                    mPresenter.setEntryFromSavedInstanceStateOrDefault(mSavedInstanceState);
                 }
                 fillActivityViews();
                 break;
@@ -243,14 +239,12 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
             case ACTION_EDIT:
                 mActionBar.setTitle(getString(R.string.fragment_item_details_title_edit));
                 if (mSavedInstanceState == null) {
-                    //noinspection ConstantConditions
-                    if (mEntry == null) {
-                        mEntry = ListDbHelper.getEntry(getContext(), mId);
-                        ListDbHelper.updateEntry(getContext(), mEntry, LIST_ITEMS_COLUMN_VIEWED);
+                    if (entry == null) {
+                        entry = mPresenter.initializeEntryFromDb();
+                        mPresenter.updateEntryViewed();
                     }
 
-                    //noinspection ConstantConditions
-                    if (mEntry != null && mEntry.getId() != null) {
+                    if (entry != null && entry.getId() != null) {
                         fillActivityViews();
 
                     } else {
@@ -261,7 +255,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                     }
 
                 } else {
-                    setEntryFromParcelableOrDefault();
+                    mPresenter.setEntryFromSavedInstanceStateOrDefault(mSavedInstanceState);
                     fillActivityViews();
                 }
                 break;
@@ -290,38 +284,18 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
     }
 
     private void initImageView() {
-        final View loadingProgressBar = mParentView.findViewById(R.id.fragment_item_details_image_view_progress);
-        final View errorImageView = mParentView.findViewById(R.id.fragment_item_details_image_view_error);
         final String pathToImage = mImageUrlEditText.getText().toString();
 
         if (!TextUtils.isEmpty(pathToImage)) {
-            loadingProgressBar.setVisibility(View.VISIBLE);
+            // Show loading.
+            mLoadingProgressBar.setVisibility(View.VISIBLE);
             mImageView.setVisibility(View.VISIBLE);
-            errorImageView.setVisibility(View.GONE);
+            mErrorImageView.setVisibility(View.GONE);
 
-            Picasso.with(getContext())
-                    .load(pathToImage)
-                    .fit()
-                    .centerInside()
-                    .into(mImageView, new Callback() {
-
-                        @Override
-                        public void onSuccess() {
-                            loadingProgressBar.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onError() {
-                            loadingProgressBar.setVisibility(View.GONE);
-                            mImageView.setVisibility(View.GONE);
-                            errorImageView.setVisibility(View.VISIBLE);
-                        }
-                    });
+            mPresenter.loadImage(mImageView, pathToImage);
 
         } else {
-            loadingProgressBar.setVisibility(View.GONE);
-            mImageView.setVisibility(View.GONE);
-            errorImageView.setVisibility(View.VISIBLE);
+            performErrorLoadingImage();
         }
     }
 
@@ -364,8 +338,23 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
             public void onClick(View v) {
                 refreshEntry();
 
+                final ListEntry entry = mPresenter.getEntry();
+                if (entry == null) {
+                    Log.e(TAG, "Entry is null.");
+                    return;
+                }
+
+                final Long entryId = entry.getId();
+                final Integer color = entry.getColor();
+                if (color == null) {
+                    Log.e(TAG, "Entry id or color is null.");
+                    return;
+                }
+
                 final ColorPickerFragment fragment =
-                        ColorPickerFragment.newInstance(mId, mColor);
+                        ColorPickerFragment.newInstance(
+                                entryId == null ? -1 : entryId,
+                                color);
 
                 // Transitions.
                 final View headerBox = mParentView.findViewById(R.id.fragment_item_details_ff_header);
@@ -389,19 +378,10 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
         });
     }
 
-    private void setEntryFromParcelableOrDefault() {
-        if (mSavedInstanceState == null) {
-            mEntry = new ListEntry();
-            mEntry.setColor(getDefaultColor(getContext()));
-        } else {
-            final ListEntry entry = mSavedInstanceState.getParcelable(EXTRA_ENTRY);
-            if (entry == null) {
-                mEntry = new ListEntry();
-                mEntry.setColor(getDefaultColor(getContext()));
-            } else {
-                mEntry = entry;
-            }
-        }
+    private void initPresenter() {
+        new ItemDetailsPagerItemPresenter(this);
+        mPresenter.setEntryId(getArguments().getLong(EXTRA_ENTRY_ID, -1));
+        mPresenter.start();
     }
 
 
@@ -413,22 +393,22 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
      * Fill all activity views with values from the entry-object.
      */
     private void fillActivityViews() {
-        mTitleEditText.setText(mEntry.getTitle());
-        mDescEditText.setText(mEntry.getDescription());
-        mImageUrlEditText.setText(mEntry.getImageUrl());
-        refreshColorBox(mEntry.getColor() == null
-                ? getDefaultColor(getContext())
-                : mEntry.getColor());
-    }
+        final ListEntry entry = mPresenter.getEntry();
+        if (entry == null) {
+            Log.e(TAG, "Entry is null.");
+            return;
+        }
 
-    /**
-     * Fill entry-fields with values from all activity views.
-     */
-    private void refreshEntry() {
-        mEntry.setTitle(mTitleEditText.getText().toString());
-        mEntry.setDescription(mDescEditText.getText().toString());
-        mEntry.setColor(mColor);
-        mEntry.setImageUrl(mImageUrlEditText.getText().toString());
+        mTitleEditText.setText(entry.getTitle());
+        mDescEditText.setText(entry.getDescription());
+        mImageUrlEditText.setText(entry.getImageUrl());
+
+        Integer color = entry.getColor();
+        if (color == null) {
+            color = getDefaultColor(getContext());
+            entry.setColor(color);
+        }
+        refreshColorBox(color);
     }
 
     /**
@@ -436,9 +416,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
      * @param color New color.
      */
     private void refreshColorBox(final int color) {
-        mColor = color;
-        mColorView.setBackground(
-                getGradientDrawableCircleWithBorder(color));
+        mColorView.setBackground(getGradientDrawableCircleWithBorder(color));
     }
 
     /**
@@ -479,10 +457,10 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
             case R.id.menu_list_item_details_done:
                 switch (mAction) {
                     case ACTION_ADD:
-                        startActionAsyncTask(ACTION_ENTRY_ADD);
+                        mPresenter.startActionAsyncTask(ACTION_ENTRY_ADD);
                         break;
                     case ACTION_EDIT:
-                        startActionAsyncTask(ACTION_ENTRY_EDIT);
+                        mPresenter.startActionAsyncTask(ACTION_ENTRY_EDIT);
                         break;
                     default:
                         break;
@@ -512,9 +490,11 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
      * Show info dialog with next info: created, edited, viewed dates.
      */
     private void showInfoDialog() {
-        if (mEntry.getCreated() == null
-                || mEntry.getEdited() == null
-                || mEntry.getViewed() == null) {
+        final ListEntry entry = mPresenter.getEntry();
+        if (entry == null
+                || entry.getCreated() == null
+                || entry.getEdited() == null
+                || entry.getViewed() == null) {
             Log.e(TAG, "Get date from entry error.");
             return;
         }
@@ -523,19 +503,19 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
         infoMessage
                 .append(getString(R.string.fragment_item_details_info_dialog_message_created))
                 .append('\n')
-                .append(getStringDateFormatSqlite(getContext(), mEntry.getCreated(), false))
+                .append(getStringDateFormatSqlite(getContext(), entry.getCreated(), false))
                 .append('\n').append('\n')
                 .append(getString(R.string.fragment_item_details_info_dialog_message_edited))
                 .append('\n')
-                .append(getStringDateFormatSqlite(getContext(), mEntry.getEdited(), false))
+                .append(getStringDateFormatSqlite(getContext(), entry.getEdited(), false))
                 .append('\n').append('\n')
                 .append(getString(R.string.fragment_item_details_info_dialog_message_viewed))
                 .append('\n')
-                .append(getStringDateFormatSqlite(getContext(), mEntry.getViewed(), false))
+                .append(getStringDateFormatSqlite(getContext(), entry.getViewed(), false))
                 .append('\n').append('\n')
                 .append(getString(R.string.fragment_item_details_info_dialog_message_sync_id))
                 .append('\n')
-                .append(mEntry.getSyncId());
+                .append(entry.getSyncId());
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder .setTitle(getString(R.string.fragment_item_details_info_dialog_title))
@@ -559,7 +539,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
-                                startActionAsyncTask(ACTION_ENTRY_DELETE);
+                                mPresenter.startActionAsyncTask(ACTION_ENTRY_DELETE);
                             }
                         })
                 .setNegativeButton(
@@ -567,66 +547,6 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                         null)
                 .create()
                 .show();
-    }
-
-    private void startActionAsyncTask(@NonNull final String action) {
-        showProgressBarAndHideMenuItems();
-
-        final Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                switch (action) {
-                    case ACTION_ENTRY_ADD:
-                        refreshEntry();
-                        ListDbHelper.insertUpdateEntry(
-                                getContext(),
-                                mEntry,
-                                false);
-                        break;
-
-                    case ACTION_ENTRY_EDIT:
-                        refreshEntry();
-                        ListDbHelper.updateEntry(
-                                getContext(),
-                                mEntry,
-                                LIST_ITEMS_COLUMN_EDITED);
-                        break;
-
-                    case ACTION_ENTRY_DELETE:
-                        final Long id = mEntry.getId();
-                        if (id == null) {
-                            Log.e(TAG, "User id is null.");
-                            break;
-                        }
-                        ListDbHelper.deleteEntry(getContext(), id, true);
-                        break;
-
-                    default:
-                        break;
-                }
-
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        finish(action);
-                    }
-                });
-            }
-        });
-        thread.start();
-    }
-
-    private void showProgressBarAndHideMenuItems() {
-        // Replace color box with progress bar.
-        mParentView.findViewById(R.id.fragment_item_details_color)
-                .setVisibility(View.GONE);
-        mParentView.findViewById(R.id.fragment_item_details_progress_bar_replacer)
-                .setVisibility(View.VISIBLE);
-
-        // Hide menu items.
-        mMenu.findItem(R.id.menu_list_item_details_done).setVisible(false);
-        mMenu.findItem(R.id.menu_list_item_details_cancel).setVisible(false);
-        mMenu.findItem(R.id.menu_list_item_details_delete).setVisible(false);
     }
 
 
@@ -642,13 +562,18 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                     @Override
                     public void run() {
                         if (data == null
-                                || data.getLong(ColorPickerFragment.EXTRA_ID, -1) != mId) {
+                                || data.getLong(ColorPickerFragment.EXTRA_ID, -1) != mPresenter.getEntryId()) {
                             return;
                         }
                         final int color = data.getInt(
                                 EXTRA_RESULT_COLOR,
                                 getDefaultColor(getAppContext()));
-                        mEntry.setColor(color);
+                        final ListEntry entry = mPresenter.getEntry();
+                        if (entry == null) {
+                            Log.e(TAG, "Entry is null.");
+                            return;
+                        }
+                        mPresenter.getEntry().setColor(color);
                         fillActivityViews();
                     }
                 });
@@ -659,10 +584,55 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
 
 
     /*
-        Finish
+        ItemDetailsPagerItemContract.View
      */
 
-    private void finish(@Nullable final String action) {
+    @Override
+    public void setPresenter(ItemDetailsPagerItemContract.Presenter presenter) {
+        mPresenter = presenter;
+    }
+
+    @Override
+    public boolean isActive() {
+        return isAdded();
+    }
+
+    @Override
+    public void showProgressBarAndHideMenuItems() {
+        // Replace color box with progress bar.
+        mParentView.findViewById(R.id.fragment_item_details_color)
+                .setVisibility(View.GONE);
+        mParentView.findViewById(R.id.fragment_item_details_progress_bar_replacer)
+                .setVisibility(View.VISIBLE);
+
+        // Hide menu items.
+        mMenu.findItem(R.id.menu_list_item_details_done).setVisible(false);
+        mMenu.findItem(R.id.menu_list_item_details_cancel).setVisible(false);
+        mMenu.findItem(R.id.menu_list_item_details_delete).setVisible(false);
+    }
+
+    @Override
+    public void refreshEntry() {
+        mPresenter.refreshEntry(
+                mTitleEditText.getText().toString(),
+                mDescEditText.getText().toString(),
+                mImageUrlEditText.getText().toString());
+    }
+
+    @Override
+    public void performSuccessLoadingImage() {
+        mLoadingProgressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void performErrorLoadingImage() {
+        mLoadingProgressBar.setVisibility(View.GONE);
+        mImageView.setVisibility(View.GONE);
+        mErrorImageView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void finish(@Nullable final String action) {
         if (action != null) {
             int resultCode = RESULT_CODE_ENTRY_CANCEL;
             switch (action) {
@@ -689,7 +659,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
             }
 
             final Bundle bundle = new Bundle();
-            bundle.putLong(EXTRA_ID, mId);
+            bundle.putLong(EXTRA_ENTRY_ID, mPresenter.getEntryId());
 
             notifyObservers(
                     ENTRY,

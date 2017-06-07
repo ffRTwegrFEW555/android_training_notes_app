@@ -14,7 +14,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.transition.AutoTransition;
 import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,7 +68,6 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
     @NonNull private int[] mHsvColors;
     @NonNull private int[] mHsvOverriddenColors;
     @NonNull private ColorPickerContract.Presenter mPresenter;
-    private long mEntryId;
     private int mBoxesNumber;
     private int mResultColor;
     private float mHsvDegree;
@@ -140,7 +138,6 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
         mResultView     = mParentView.findViewById(R.id.fragment_color_picker_ff_result_box);
         mResultParentView = mParentView.findViewById(R.id.fragment_color_picker_ff_result_outer);
         mEditPw         = getPopupWindow();
-        mEntryId        = getArguments().getLong(EXTRA_ID);
         mBoxesNumber    = mRes.getInteger(R.integer.fragment_color_picker_palette_boxes_number);
         mHsvDegree      = 360f / (mBoxesNumber * 2);
 
@@ -425,10 +422,6 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
         mPresenter = presenter;
     }
 
-    /**
-     * Add favorite colors to parent view, and set listeners.
-     * @param favoriteColors Array, where index of array is index of color, value is color.
-     */
     @Override
     public void addFavoriteColorBoxesAndSetListenersUiThread(@NonNull final int[] favoriteColors) {
         getActivity().runOnUiThread(new Runnable() {
@@ -439,11 +432,6 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
         });
     }
 
-    /**
-     * Update favorite view by given color.
-     * @param view  ColorBox, that will be updated.
-     * @param color Color to update.
-     */
     @Override
     public void updateFavoriteColor(@NonNull final View view, final int color) {
         playSoundAndShowToast(
@@ -456,28 +444,17 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
                 mRes.getInteger(R.integer.fragment_color_picker_favorite_box_anim_scale_duration));
     }
 
-    /**
-     * Update result view by given color.
-     * @param view  Favorite ColorBox, that will be refreshed.
-     * @param color Color to update.
-     */
     @Override
     public void updateResultColor(@NonNull final View view, final int color) {
         setBackgroundColor(view, color); // Updating himself.
         setResultBoxColor(color);
     }
 
-    /**
-     * @return Selected color.
-     */
     @Override
     public int getResultColor() {
         return mResultColor;
     }
 
-    /**
-     * @return True, if view is active (attached or added), otherwise false.
-     */
     @Override
     public boolean isActive() {
         return isAdded();
@@ -494,7 +471,7 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
         if (notifyAboutSelected) {
             final Bundle bundle = new Bundle();
             bundle.putInt(EXTRA_RESULT_COLOR, mResultColor);
-            bundle.putLong(EXTRA_ID, mEntryId);
+            bundle.putLong(EXTRA_ID, getArguments().getLong(EXTRA_ID));
             notifyObservers(
                     COLOR_PICKER,
                     RESULT_CODE_COLOR_PICKER_SELECTED,

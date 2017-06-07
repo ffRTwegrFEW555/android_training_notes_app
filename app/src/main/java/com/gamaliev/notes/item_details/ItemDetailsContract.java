@@ -1,5 +1,6 @@
 package com.gamaliev.notes.item_details;
 
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 
@@ -15,11 +16,13 @@ public interface ItemDetailsContract {
 
     interface View extends BaseView<Presenter> {
 
+        @NonNull
         FragmentManager getChildFragmentManager();
 
+        @NonNull
         ViewPager getViewPager();
 
-        void performError(String text);
+        void performError(@NonNull String text);
     }
 
     interface Presenter extends BasePresenter {

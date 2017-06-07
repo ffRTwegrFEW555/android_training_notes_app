@@ -232,9 +232,6 @@ public class ConflictSelectDialogFragment extends DialogFragment
         mLocalSaveBtn.setEnabled(true);
     }
 
-    /**
-     * @return True, if view is active (attached or added), otherwise false.
-     */
     @Override
     public boolean isActive() {
         return isAdded() && mDialog.isAttachedToWindow();

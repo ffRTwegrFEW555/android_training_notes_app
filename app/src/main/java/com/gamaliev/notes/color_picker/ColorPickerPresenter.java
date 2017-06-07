@@ -41,11 +41,6 @@ public class ColorPickerPresenter implements ColorPickerContract.Presenter {
         loadFavoriteColors();
     }
 
-    /**
-     * Update color in database.
-     * @param view  ColorBox, that will be updated.
-     * @param index Index of color.
-     */
     @Override
     public void updateFavoriteColor(@NonNull final View view, final int index) {
         final int resultColor = mColorPickerView.getResultColor();
@@ -55,11 +50,6 @@ public class ColorPickerPresenter implements ColorPickerContract.Presenter {
         }
     }
 
-    /**
-     * Load color from database, and set to result box view.
-     * @param view  ColorBox, that was clicked.
-     * @param index Index of color.
-     */
     @Override
     public void loadFavoriteColor(@NonNull final View view, final int index) {
         final int color = ColorPickerDbHelper.getFavoriteColor(mContext, index);
