@@ -1,5 +1,6 @@
-package com.gamaliev.notes.conflict;
+package com.gamaliev.notes.list;
 
+import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
@@ -13,12 +14,11 @@ import com.gamaliev.notes.BaseView;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public interface ConflictContract {
+public interface ListContract {
 
     interface View extends BaseView<Presenter> {
 
-        @NonNull
-        RecyclerView getRecyclerView();
+        void showFoundNotification(int itemsCount);
 
         @NonNull
         FragmentManager getSupportFragmentManager();
@@ -26,22 +26,22 @@ public interface ConflictContract {
 
     interface Presenter extends BasePresenter {
 
-        /**
-         * Updating cursor, notifying adapter of recycler view, animation of deleted entry.
-         * @param deletedPosition Deleted position of adapter of recycler view.
-         */
-        void updateRecyclerView(int deletedPosition);
+        void loadFilterProfile();
+
+        void updateAdapter(@NonNull String text);
+
+        void initRecyclerView(@NonNull RecyclerView rv);
 
         @Nullable
-        String getSyncId(int position);
+        Cursor getCursor();
 
         int getItemCount();
+
+        boolean swapItems(int from, int to);
 
         @NonNull
         FragmentManager getSupportFragmentManager();
 
         void onDestroyView();
-
-        void onDetachedFromRecyclerView();
     }
 }

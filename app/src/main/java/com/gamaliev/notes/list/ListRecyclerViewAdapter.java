@@ -6,8 +6,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -23,36 +22,27 @@ import com.gamaliev.notes.common.recycler_view_item_touch_helper.ItemTouchHelper
 import com.gamaliev.notes.common.recycler_view_item_touch_helper.ItemTouchHelperViewHolder;
 import com.gamaliev.notes.common.recycler_view_item_touch_helper.OnStartDragListener;
 import com.gamaliev.notes.item_details.ItemDetailsFragment;
-import com.gamaliev.notes.list.db.ListDbHelper;
 
-import java.util.Map;
-
-import static com.gamaliev.notes.app.NotesApp.getAppContext;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_LIST_FILTERED;
-import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
-import static com.gamaliev.notes.common.db.DbHelper.findColumnValueByCursorPosition;
 import static com.gamaliev.notes.common.observers.ObserverHelper.LIST_FILTER;
 import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_PROFILE_MANUAL_ID;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.getSelectedIdForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.setSelectedForCurrentUser;
-import static com.gamaliev.notes.list.db.ListDbHelper.getCursorWithParams;
 
 /**
  * @author Vadim Gamaliev
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 @SuppressWarnings("NullableProblems")
-public final class ListRecyclerViewAdapter
+final class ListRecyclerViewAdapter
         extends RecyclerView.Adapter<ListRecyclerViewAdapter.ViewHolder>
         implements ItemTouchHelperAdapter {
 
     /* ... */
-    @NonNull private final Fragment mFragment;
+    @NonNull private Context mContext;
+    @NonNull private ListContract.Presenter mPresenter;
     @NonNull private final OnStartDragListener mDragStartListener;
-    @Nullable private Cursor mCursor;
-    @NonNull private String mConstraint;
-    @NonNull private Map<String, String> mFilterProfileMap;
     @SuppressWarnings("unused")
     private boolean mSwipeEnable;
 
@@ -61,15 +51,13 @@ public final class ListRecyclerViewAdapter
         Init
      */
 
-    /**
-     * @param fragment          Parent fragment.
-     * @param dragStartListener Drag start listener.
-     */
-    public ListRecyclerViewAdapter(
-            @NonNull final Fragment fragment,
+    ListRecyclerViewAdapter(
+            @NonNull final FragmentActivity activity,
+            @NonNull final ListContract.Presenter presenter,
             @NonNull final OnStartDragListener dragStartListener) {
 
-        mFragment = fragment;
+        mContext = activity;
+        mPresenter = presenter;
         mDragStartListener = dragStartListener;
     }
 
@@ -88,25 +76,24 @@ public final class ListRecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        if (mCursor == null || !mCursor.moveToPosition(position)) {
+        final Cursor cursor = mPresenter.getCursor();
+        if (cursor == null || !cursor.moveToPosition(position)) {
             return;
         }
 
-        final Context context       = holder.mParentView.getContext();
+        final int indexId           = cursor.getColumnIndex(DbHelper.BASE_COLUMN_ID);
+        final int indexTitle        = cursor.getColumnIndex(DbHelper.LIST_ITEMS_COLUMN_TITLE);
+        final int indexDescription  = cursor.getColumnIndex(DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION);
+        final int indexEdited       = cursor.getColumnIndex(DbHelper.LIST_ITEMS_COLUMN_EDITED);
+        final int indexColor        = cursor.getColumnIndex(DbHelper.LIST_ITEMS_COLUMN_COLOR);
 
-        final int indexId           = mCursor.getColumnIndex(DbHelper.BASE_COLUMN_ID);
-        final int indexTitle        = mCursor.getColumnIndex(DbHelper.LIST_ITEMS_COLUMN_TITLE);
-        final int indexDescription  = mCursor.getColumnIndex(DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION);
-        final int indexEdited       = mCursor.getColumnIndex(DbHelper.LIST_ITEMS_COLUMN_EDITED);
-        final int indexColor        = mCursor.getColumnIndex(DbHelper.LIST_ITEMS_COLUMN_COLOR);
-
-        final long id               = mCursor.getLong(indexId);
-        final String title          = mCursor.getString(indexTitle);
-        final String description    = mCursor.getString(indexDescription);
+        final long id               = cursor.getLong(indexId);
+        final String title          = cursor.getString(indexTitle);
+        final String description    = cursor.getString(indexDescription);
         final String localDate      = CommonUtils
-                .convertUtcToLocal(context, mCursor.getString(indexEdited));
+                .convertUtcToLocal(mContext, cursor.getString(indexEdited));
         final String edited         = localDate == null ? null : localDate.split(" ")[0];
-        final int color             = mCursor.getInt(indexColor);
+        final int color             = cursor.getInt(indexColor);
 
         holder.mTitleView       .setText(title);
         holder.mDescriptionView .setText(description);
@@ -124,14 +111,13 @@ public final class ListRecyclerViewAdapter
                 // Transitions.
                 final View colorView = v.findViewById(R.id.fragment_list_item_color);
                 final String colorTransName =
-                        context.getString(R.string.shared_transition_name_color_box);
+                        mContext.getString(R.string.shared_transition_name_color_box);
                 final String viewTransName =
-                        context.getString(R.string.shared_transition_name_layout);
+                        mContext.getString(R.string.shared_transition_name_layout);
                 ViewCompat.setTransitionName(colorView, colorTransName);
                 ViewCompat.setTransitionName(v, viewTransName);
 
-                mFragment.getActivity()
-                        .getSupportFragmentManager()
+                mPresenter.getSupportFragmentManager()
                         .beginTransaction()
                         .addSharedElement(v, viewTransName)
                         .addSharedElement(colorView, colorTransName)
@@ -155,12 +141,7 @@ public final class ListRecyclerViewAdapter
 
     @Override
     public int getItemCount() {
-        return mCursor == null || mCursor.isClosed() ? 0 : mCursor.getCount();
-    }
-
-    @Override
-    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
-        closeCursor();
+        return mPresenter.getItemCount();
     }
 
 
@@ -205,39 +186,6 @@ public final class ListRecyclerViewAdapter
 
 
     /*
-        ...
-     */
-
-    /**
-     * Update cursor of the recycler view adapter.
-     * @param constraint        Search text.
-     * @param filterProfileMap  Filter profile in map-format.
-     */
-    public void updateCursor(
-            @NonNull final String constraint,
-            @NonNull final Map<String, String> filterProfileMap) {
-
-        mConstraint = constraint;
-        mFilterProfileMap = filterProfileMap;
-        updateCursor();
-    }
-
-    private void updateCursor() {
-        closeCursor();
-        mCursor = getCursorWithParams(
-                getAppContext(),
-                mConstraint,
-                mFilterProfileMap);
-    }
-
-    private void closeCursor() {
-        if (mCursor != null && !mCursor.isClosed()) {
-            mCursor.close();
-        }
-    }
-
-
-    /*
         ItemTouchHelperAdapter
      */
 
@@ -248,20 +196,18 @@ public final class ListRecyclerViewAdapter
 
     @Override
     public boolean dragDropEnable() {
-        final Context context = mFragment.getContext();
-
-        if (SP_FILTER_PROFILE_MANUAL_ID.equals(getSelectedIdForCurrentUser(context))) {
+        if (SP_FILTER_PROFILE_MANUAL_ID.equals(getSelectedIdForCurrentUser(mContext))) {
             return true;
         }
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder .setTitle(context.getString(R.string.fragment_list_drag_drop_dialog_title))
-                .setMessage(context.getString(R.string.fragment_list_drag_drop_dialog_message))
-                .setPositiveButton(context.getString(R.string.fragment_list_drag_drop_dialog_button_ok),
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder .setTitle(mContext.getString(R.string.fragment_list_drag_drop_dialog_title))
+                .setMessage(mContext.getString(R.string.fragment_list_drag_drop_dialog_message))
+                .setPositiveButton(mContext.getString(R.string.fragment_list_drag_drop_dialog_button_ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
-                                setSelectedForCurrentUser(context, SP_FILTER_PROFILE_MANUAL_ID);
+                                setSelectedForCurrentUser(mContext, SP_FILTER_PROFILE_MANUAL_ID);
                                 notifyObservers(
                                         LIST_FILTER,
                                         RESULT_CODE_LIST_FILTERED,
@@ -269,7 +215,7 @@ public final class ListRecyclerViewAdapter
                             }
                         })
                 .setNegativeButton(
-                        context.getString(R.string.fragment_list_drag_drop_dialog_button_cancel),
+                        mContext.getString(R.string.fragment_list_drag_drop_dialog_button_cancel),
                         null)
                 .create()
                 .show();
@@ -284,32 +230,10 @@ public final class ListRecyclerViewAdapter
 
     @Override
     public boolean onItemMove(final int fromPosition, final int toPosition) {
-        if (mCursor == null || mCursor.isClosed()) {
+        if (!mPresenter.swapItems(fromPosition, toPosition)) {
             return false;
         }
 
-        final String entryIdFrom = findColumnValueByCursorPosition(
-                mCursor,
-                BASE_COLUMN_ID,
-                fromPosition);
-        if (entryIdFrom == null) {
-            return false;
-        }
-
-        final String entryIdTo = findColumnValueByCursorPosition(
-                mCursor,
-                BASE_COLUMN_ID,
-                toPosition);
-        if (entryIdTo == null) {
-            return false;
-        }
-
-        ListDbHelper.swapManuallyColumnValue(
-                getAppContext(),
-                entryIdFrom,
-                entryIdTo);
-
-        updateCursor();
         notifyItemMoved(fromPosition, toPosition);
         return true;
     }

@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -14,11 +15,9 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.transition.AutoTransition;
 import android.transition.Fade;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,16 +27,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.common.db.DbHelper;
 import com.gamaliev.notes.common.observers.Observer;
-import com.gamaliev.notes.common.recycler_view_item_touch_helper.ItemTouchHelperCallback;
-import com.gamaliev.notes.common.recycler_view_item_touch_helper.OnStartDragListener;
-import com.gamaliev.notes.common.shared_prefs.SpFilterProfiles;
 import com.gamaliev.notes.item_details.pager_item.ItemDetailsPagerItemFragment;
 import com.gamaliev.notes.list.filter_sort_dialog.FilterSortDialogFragment;
 
 import java.util.Locale;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -60,7 +54,6 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.LIST_FILTER;
 import static com.gamaliev.notes.common.observers.ObserverHelper.SYNC;
 import static com.gamaliev.notes.common.observers.ObserverHelper.registerObserver;
 import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObserver;
-import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
 import static com.gamaliev.notes.item_details.pager_item.ItemDetailsPagerItemFragment.ACTION_ADD;
 
 /**
@@ -70,15 +63,7 @@ import static com.gamaliev.notes.item_details.pager_item.ItemDetailsPagerItemFra
 
 @SuppressWarnings("NullableProblems")
 public class ListFragment extends Fragment
-        implements OnStartDragListener, Observer {
-
-    /* Logger */
-    @NonNull private static final String TAG = ListFragment.class.getSimpleName();
-
-    /* SQLite */
-    @NonNull private static final String[] SEARCH_COLUMNS = {
-            DbHelper.LIST_ITEMS_COLUMN_TITLE,
-            DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION};
+        implements Observer, ListContract.View {
 
     /* Observed */
     @NonNull private static final String[] OBSERVED = {
@@ -89,12 +74,10 @@ public class ListFragment extends Fragment
             SYNC};
 
     /* ... */
+    @NonNull private ListContract.Presenter mPresenter;
     @NonNull private View mParentView;
-    @NonNull private ListRecyclerViewAdapter mAdapter;
     @NonNull private Button mFoundView;
     @NonNull private SearchView mSearchView;
-    @NonNull private Map<String, String> mFilterProfileMap;
-    @NonNull private ItemTouchHelper mItemTouchHelper;
     private long mTimerFound;
 
 
@@ -129,7 +112,7 @@ public class ListFragment extends Fragment
 
     @Override
     public void onResume() {
-        initFilterProfile();
+        mPresenter.loadFilterProfile();
         updateAdapter();
         registerObserver(OBSERVED, toString(), this);
         super.onResume();
@@ -141,17 +124,22 @@ public class ListFragment extends Fragment
         super.onPause();
     }
 
+    @Override
+    public void onDestroyView() {
+        mPresenter.onDestroyView();
+        super.onDestroyView();
+    }
 
     /*
         ...
      */
 
     private void init() {
+        initPresenter();
         initTransition();
         initActionBar();
         initFabOnClickListener();
         initFoundView();
-        initAdapter();
         initRecyclerView();
     }
 
@@ -198,32 +186,20 @@ public class ListFragment extends Fragment
         });
     }
 
-    private void initFilterProfile() {
-        final String filterProfile = SpFilterProfiles.getSelectedForCurrentUser(getContext());
-        if (filterProfile == null) {
-            final Map<String, String> map = convertJsonToMap(SpFilterProfiles.getDefaultProfile());
-            if (map != null) {
-                mFilterProfileMap = map;
-            } else {
-                Log.e(TAG, "Cannot get default filter profile.");
-            }
-        } else {
-            final Map<String, String> map = convertJsonToMap(filterProfile);
-            if (map != null) {
-                mFilterProfileMap = map;
-            } else {
-                Log.e(TAG, "Cannot get filter profile for current user.");
-            }
-        }
+    private void initRecyclerView() {
+        final RecyclerView rv = (RecyclerView) mParentView.findViewById(R.id.fragment_list_rv);
+        rv.addItemDecoration(
+                new DividerItemDecoration(
+                        getActivity(),
+                        DividerItemDecoration.VERTICAL));
+        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        mPresenter.initRecyclerView(rv);
     }
 
-
-    /*
-        RecyclerView & Adapter
-     */
-
-    private void initAdapter() {
-        mAdapter = new ListRecyclerViewAdapter(this, this);
+    private void initPresenter() {
+        new ListPresenter(getActivity(), this);
+        mPresenter.start();
     }
 
     /**
@@ -232,32 +208,11 @@ public class ListFragment extends Fragment
     private void updateAdapter() {
         //noinspection ConstantConditions
         if (mSearchView == null) {
-            updateAdapter("");
+            mPresenter.updateAdapter("");
         } else {
             final String searchText = mSearchView.getQuery().toString();
-            updateAdapter(TextUtils.isEmpty(searchText) ? "" : searchText);
+            mPresenter.updateAdapter(TextUtils.isEmpty(searchText) ? "" : searchText);
         }
-    }
-
-    private void updateAdapter(@NonNull final String newText) {
-        mAdapter.updateCursor(newText, mFilterProfileMap);
-        mAdapter.notifyDataSetChanged();
-        showFoundNotification();
-    }
-
-    private void initRecyclerView() {
-        final RecyclerView rv = (RecyclerView) mParentView.findViewById(R.id.fragment_list_rv);
-        rv.addItemDecoration(
-                new DividerItemDecoration(
-                        getActivity(),
-                        DividerItemDecoration.VERTICAL));
-        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
-        rv.setAdapter(mAdapter);
-
-        // Drag & Drop.
-        final ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(mAdapter);
-        mItemTouchHelper = new ItemTouchHelper(callback);
-        mItemTouchHelper.attachToRecyclerView(rv);
     }
 
 
@@ -283,7 +238,7 @@ public class ListFragment extends Fragment
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                updateAdapter(newText);
+                mPresenter.updateAdapter(newText);
                 return true;
             }
         });
@@ -310,15 +265,8 @@ public class ListFragment extends Fragment
         mFoundView = (Button) mParentView.findViewById(R.id.fragment_list_button_found);
     }
 
-    private void showFoundNotification() {
-        final Handler handler = new Handler();
-        handler.postDelayed(
-                getRunnableForFoundNotification(),
-                getResources().getInteger(R.integer.fragment_list_notification_delay));
-    }
-
     @NonNull
-    private Runnable getRunnableForFoundNotification() {
+    private Runnable getRunnableForFoundNotification(final int itemsCount) {
         return new Runnable() {
             @Override
             public void run() {
@@ -332,9 +280,10 @@ public class ListFragment extends Fragment
                         .getInteger(R.integer.fragment_list_notification_delay_auto_close);
 
                 if (mFoundView.isAttachedToWindow()) {
-                    mFoundView.setText(String.format(Locale.ENGLISH,
+                    mFoundView.setText(String.format(
+                            Locale.ENGLISH,
                             getString(R.string.fragment_list_notification_found_text) + "\n%d",
-                            mAdapter.getItemCount()));
+                            itemsCount));
 
                     mTimerFound = System.currentTimeMillis();
 
@@ -391,16 +340,6 @@ public class ListFragment extends Fragment
 
 
     /*
-        OnStartDragListener
-     */
-
-    @Override
-    public void onStartDrag(final RecyclerView.ViewHolder viewHolder) {
-        mItemTouchHelper.startDrag(viewHolder);
-    }
-
-
-    /*
         Observer
      */
 
@@ -419,7 +358,7 @@ public class ListFragment extends Fragment
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        initFilterProfile();
+                        mPresenter.loadFilterProfile();
                         updateAdapter();
                     }
                 });
@@ -430,14 +369,30 @@ public class ListFragment extends Fragment
 
 
     /*
-        Getters
+        ListContract.View
      */
 
-    /**
-     * @return Clone of {@link #SEARCH_COLUMNS} array.
-     */
+    @Override
+    public void setPresenter(@NonNull final ListContract.Presenter presenter) {
+        mPresenter = presenter;
+    }
+
+    @Override
+    public boolean isActive() {
+        return false;
+    }
+
+    @Override
+    public void showFoundNotification(final int itemsCount) {
+        final Handler handler = new Handler();
+        handler.postDelayed(
+                getRunnableForFoundNotification(itemsCount),
+                getResources().getInteger(R.integer.fragment_list_notification_delay));
+    }
+
     @NonNull
-    public static String[] getSearchColumns() {
-        return SEARCH_COLUMNS.clone();
+    @Override
+    public FragmentManager getSupportFragmentManager() {
+        return getActivity().getSupportFragmentManager();
     }
 }

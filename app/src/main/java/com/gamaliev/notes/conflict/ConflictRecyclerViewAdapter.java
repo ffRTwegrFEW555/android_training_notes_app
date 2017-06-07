@@ -64,7 +64,7 @@ final class ConflictRecyclerViewAdapter
             public void onClick(View v) {
                 final ConflictSelectDialogFragment df =
                         ConflictSelectDialogFragment.newInstance(syncId, holder.getAdapterPosition());
-                df.show(mPresenter.getFragmentManager(), null);
+                df.show(mPresenter.getSupportFragmentManager(), null);
             }
         });
     }

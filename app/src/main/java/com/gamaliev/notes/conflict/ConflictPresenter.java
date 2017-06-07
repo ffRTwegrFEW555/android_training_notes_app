@@ -70,8 +70,8 @@ public class ConflictPresenter implements ConflictContract.Presenter {
 
     @NonNull
     @Override
-    public FragmentManager getFragmentManager() {
-        return mConflictView.getFragmentManager();
+    public FragmentManager getSupportFragmentManager() {
+        return mConflictView.getSupportFragmentManager();
     }
 
     private void updateCursor() {

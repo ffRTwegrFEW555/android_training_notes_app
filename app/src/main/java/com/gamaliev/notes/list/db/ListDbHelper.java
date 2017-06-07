@@ -54,7 +54,6 @@ import static com.gamaliev.notes.common.db.DbHelper.insertEntryWithSingleValue;
 import static com.gamaliev.notes.common.db.DbQueryBuilder.OPERATOR_BETWEEN;
 import static com.gamaliev.notes.common.db.DbQueryBuilder.OPERATOR_EQUALS;
 import static com.gamaliev.notes.common.db.DbQueryBuilder.OPERATOR_LIKE;
-import static com.gamaliev.notes.list.ListFragment.getSearchColumns;
 
 /**
  * @author Vadim Gamaliev
@@ -558,11 +557,11 @@ public final class ListDbHelper {
         final DbQueryBuilder searchTextQueryBuilder = new DbQueryBuilder();
         if (!TextUtils.isEmpty(constraint)) {
             searchTextQueryBuilder
-                    .addOr(getSearchColumns()[0],
+                    .addOr(LIST_ITEMS_COLUMN_TITLE,
                             OPERATOR_LIKE,
                             new String[] {constraint.toString()})
 
-                    .addOr(getSearchColumns()[1],
+                    .addOr(LIST_ITEMS_COLUMN_DESCRIPTION,
                             OPERATOR_LIKE,
                             new String[] {constraint.toString()});
         }
@@ -645,7 +644,7 @@ public final class ListDbHelper {
 
             db.beginTransaction();
             try {
-                final String entryFirstValue = getManuallyColumnValue(context, db, entryFirstId);
+                final String entryFirstValue = getManuallyColumnValue(db, entryFirstId);
                 if (entryFirstValue == null) {
                     throw new SQLiteException(
                             String.format(
@@ -654,7 +653,7 @@ public final class ListDbHelper {
                                     entryFirstId));
                 }
 
-                final String entrySecondValue = getManuallyColumnValue(context, db, entrySecondId);
+                final String entrySecondValue = getManuallyColumnValue(db, entrySecondId);
                 if (entrySecondValue == null) {
                     throw new SQLiteException(
                             String.format(
@@ -663,8 +662,8 @@ public final class ListDbHelper {
                                     entrySecondId));
                 }
 
-                updateManuallyColumnValue(context, db, entryFirstId, entrySecondValue);
-                updateManuallyColumnValue(context, db, entrySecondId, entryFirstValue);
+                updateManuallyColumnValue(db, entryFirstId, entrySecondValue);
+                updateManuallyColumnValue(db, entrySecondId, entryFirstValue);
 
                 db.setTransactionSuccessful();
                 return true;
@@ -683,7 +682,6 @@ public final class ListDbHelper {
 
     @Nullable
     private static String getManuallyColumnValue(
-            @NonNull final Context context,
             @NonNull final SQLiteDatabase db,
             @NonNull final String entryId) {
 
@@ -717,7 +715,6 @@ public final class ListDbHelper {
 
     @SuppressWarnings("UnusedReturnValue")
     private static boolean updateManuallyColumnValue(
-            @NonNull final Context context,
             @NonNull final SQLiteDatabase db,
             @NonNull final String entryId,
             @NonNull final String value) {
