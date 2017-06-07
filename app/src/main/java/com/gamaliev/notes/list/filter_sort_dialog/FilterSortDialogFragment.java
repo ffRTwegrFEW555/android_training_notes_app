@@ -1,4 +1,4 @@
-package com.gamaliev.notes.list;
+package com.gamaliev.notes.list.filter_sort_dialog;
 
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;

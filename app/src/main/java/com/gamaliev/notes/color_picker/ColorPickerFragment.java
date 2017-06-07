@@ -168,6 +168,16 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
         initPresenter();
     }
 
+    private void initFullScreen() {
+        final ActionBar actionBar =
+                ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
+        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+    }
+
     private void initTransition() {
         setExitTransition(new Fade());
         setEnterTransition(new Fade());
@@ -177,16 +187,6 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
         ViewCompat.setTransitionName(
                 mResultParentView,
                 getString(R.string.shared_transition_name_layout));
-    }
-
-    private void initFullScreen() {
-        final ActionBar actionBar =
-                ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
-        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
     }
 
     private void setNewHsvOverriddenColors() {

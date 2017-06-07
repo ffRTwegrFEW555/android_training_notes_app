@@ -1,4 +1,4 @@
-package com.gamaliev.notes.list.db;
+package com.gamaliev.notes.list;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -23,6 +23,7 @@ import com.gamaliev.notes.common.recycler_view_item_touch_helper.ItemTouchHelper
 import com.gamaliev.notes.common.recycler_view_item_touch_helper.ItemTouchHelperViewHolder;
 import com.gamaliev.notes.common.recycler_view_item_touch_helper.OnStartDragListener;
 import com.gamaliev.notes.item_details.ItemDetailsFragment;
+import com.gamaliev.notes.list.db.ListDbHelper;
 
 import java.util.Map;
 

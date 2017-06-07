@@ -632,7 +632,7 @@ public final class ListDbHelper {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    static boolean swapManuallyColumnValue(
+    public static boolean swapManuallyColumnValue(
             @NonNull final Context context,
             @NonNull final String entryFirstId,
             @NonNull final String entrySecondId) {

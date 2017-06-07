@@ -64,14 +64,9 @@ public class ColorPickerPresenter implements ColorPickerContract.Presenter {
      */
 
     private void loadFavoriteColors() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final int[] favoriteColors = getAllFavoriteColors(mContext);
-                if (mColorPickerView.isActive()) {
-                    mColorPickerView.addFavoriteColorBoxesAndSetListenersUiThread(favoriteColors);
-                }
-            }
-        }).start();
+        final int[] favoriteColors = getAllFavoriteColors(mContext);
+        if (mColorPickerView.isActive()) {
+            mColorPickerView.addFavoriteColorBoxesAndSetListenersUiThread(favoriteColors);
+        }
     }
 }

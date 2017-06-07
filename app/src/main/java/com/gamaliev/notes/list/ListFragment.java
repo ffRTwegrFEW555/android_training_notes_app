@@ -34,7 +34,7 @@ import com.gamaliev.notes.common.recycler_view_item_touch_helper.ItemTouchHelper
 import com.gamaliev.notes.common.recycler_view_item_touch_helper.OnStartDragListener;
 import com.gamaliev.notes.common.shared_prefs.SpFilterProfiles;
 import com.gamaliev.notes.item_details.pager_item.ItemDetailsPagerItemFragment;
-import com.gamaliev.notes.list.db.ListRecyclerViewAdapter;
+import com.gamaliev.notes.list.filter_sort_dialog.FilterSortDialogFragment;
 
 import java.util.Locale;
 import java.util.Map;
