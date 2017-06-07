@@ -13,10 +13,7 @@ import static com.gamaliev.notes.common.db.DbHelper.SYNC_CONFLICT_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 
 /**
- * Created by USER on 06.06.2017, 22:59.
- *
  * @author Vadim Gamaliev <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
- * @version 1.0
  */
 public class ConflictPresenter implements ConflictContract.Presenter {
 
