@@ -40,6 +40,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import static com.gamaliev.notes.app.NotesApp.getAppContext;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_SYMBOL_DATE_SPLIT;
 
 /**
@@ -266,13 +267,12 @@ public final class CommonUtils {
      * {@link RingtoneManager#getDefaultUri(int)}<br>
      * {@link RingtoneManager#getRingtone(Context, Uri)}
      *
-     * @param context   Context.
      * @param type      The ringtone type whose default should be returned.
      */
-    public static void playSound(@NonNull final Context context, final int type) {
+    public static void playSound(final int type) {
         final Uri uri = RingtoneManager.getDefaultUri(type);
         RingtoneManager
-                .getRingtone(context, uri)
+                .getRingtone(getAppContext(), uri)
                 .play();
     }
 
@@ -292,16 +292,11 @@ public final class CommonUtils {
      * Shows a toast-message.<br>
      * See also: {@link Toast#makeText(Context, CharSequence, int)}<br>
      *
-     * @param context   Context.
      * @param message   Message to show.
      * @param duration  Duration of shows.
      */
-    public static void showToast(
-            @NonNull final Context context,
-            @NonNull final String message,
-            final int duration) {
-
-        Toast   .makeText(context, message, duration)
+    public static void showToast(@NonNull final String message, final int duration) {
+        Toast   .makeText(getAppContext(), message, duration)
                 .show();
     }
 
@@ -309,43 +304,36 @@ public final class CommonUtils {
      * Shows a toast-message on Ui thread of given activity.<br>
      * See also: {@link Toast#makeText(Context, CharSequence, int)}<br>
      *
-     * @param context   Context.
      * @param message   Message to show.
      * @param duration  Duration of shows.
      */
     public static void showToastRunOnUiThread(
-            @NonNull final Context context,
             @NonNull final String message,
             final int duration) {
 
         getMainHandler().post(new Runnable() {
             @Override
             public void run() {
-                showToast(context, message, duration);
+                showToast(message, duration);
             }
         });
     }
 
     /**
      * Plays a ringtone and shows a toast-message.
-     * See also:<br>
-     * {@link #playSound(Context, int)}<br>
-     * {@link #showToast(Context, String, int)}<br>
      *
-     * @param context   Context.
      * @param type      The ringtone type whose default should be returned.
      * @param message   Message to show.
      * @param duration  Duration of shows.
      */
     @SuppressWarnings("SameParameterValue")
     public static void playSoundAndShowToast(
-            @NonNull final Context context,
             final int type,
             @NonNull final String message,
             final int duration) {
 
-        playSound(context, type);
-        showToast(context, message, duration);
+        playSound(type);
+        showToast(message, duration);
     }
 
 

@@ -1,45 +1,31 @@
 package com.gamaliev.notes.item_details;
 
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.Fade;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.list.db.ListDbHelper;
 
-import java.util.Map;
+import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
 
-import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
-import static com.gamaliev.notes.common.db.DbHelper.findCursorPositionByColumnValue;
-import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
-import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.getSelectedForCurrentUser;
-
-public final class ItemDetailsFragment extends Fragment {
-
-    /* Logger */
-    @NonNull private static final String TAG = ItemDetailsFragment.class.getSimpleName();
+@SuppressWarnings("NullableProblems")
+public final class ItemDetailsFragment extends Fragment implements ItemDetailsContract.View {
 
     /* Extra */
     @NonNull private static final String EXTRA_ID = "ItemDetailsFragment.EXTRA_ID";
 
     /* ... */
-    private static final int OFFSCREEN_PAGE_LIMIT = 5;
-
-    @SuppressWarnings("NullableProblems")
     @NonNull private View mParentView;
-    @Nullable private Cursor mCursor;
-    private long mId;
+    @NonNull private ItemDetailsContract.Presenter mPresenter;
 
 
     /*
@@ -48,13 +34,13 @@ public final class ItemDetailsFragment extends Fragment {
 
     /**
      * Get new instance of item details fragment.
-     * @param entryId Entry id.
+     * @param initialEntryId Initial entry id.
      * @return New instance of item details fragment.
      */
     @NonNull
-    public static ItemDetailsFragment newInstance(final long entryId) {
+    public static ItemDetailsFragment newInstance(final long initialEntryId) {
         final Bundle bundle = new Bundle();
-        bundle.putLong(EXTRA_ID, entryId);
+        bundle.putLong(EXTRA_ID, initialEntryId);
 
         final ItemDetailsFragment fragment = new ItemDetailsFragment();
         fragment.setArguments(bundle);
@@ -83,25 +69,19 @@ public final class ItemDetailsFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        if (mCursor != null && !mCursor.isClosed()) {
-            mCursor.close();
-        }
+        mPresenter.onDestroyView();
         super.onDestroyView();
     }
+
 
     /*
         ...
      */
 
     private void init() {
-        initArgs();
         initTransition();
         initActionBar();
-        initViewPager();
-    }
-
-    private void initArgs() {
-        mId = getArguments().getLong(EXTRA_ID);
+        initPresenter();
     }
 
     private void initTransition() {
@@ -112,49 +92,45 @@ public final class ItemDetailsFragment extends Fragment {
     private void initActionBar() {
         final ActionBar actionBar =
                 ((AppCompatActivity) getActivity()).getSupportActionBar();
-
         if (actionBar != null) {
             actionBar.setElevation(0);
         }
     }
 
-    private void initViewPager() {
-        final String filterProfile = getSelectedForCurrentUser(getContext());
-        if (filterProfile == null) {
-            Log.e(TAG, "Filter profile for current user is null.");
-            getActivity().onBackPressed();
-            return;
-        }
-        final Map<String, String> filterProfileMap = convertJsonToMap(filterProfile);
-        if (filterProfileMap == null) {
-            Log.e(TAG, "Filter profile for current user is null.");
-            getActivity().onBackPressed();
+    private void initPresenter() {
+        final long initialEntryId = getArguments().getLong(EXTRA_ID, -1);
+        if (initialEntryId == -1) {
+            performError(getContext().getString(R.string.fragment_item_details_edit_mode_wrong_id));
             return;
         }
 
-        mCursor = ListDbHelper.getCursorWithParams(
-                getContext(),
-                "",
-                filterProfileMap);
+        new ItemDetailsPresenter(this, initialEntryId);
+        mPresenter.start();
+    }
 
-        int startPosition = 0;
-        if (mCursor != null) {
-            startPosition = findCursorPositionByColumnValue(
-                    mCursor,
-                    BASE_COLUMN_ID,
-                    String.valueOf(mId));
-        }
 
-        final FragmentStatePagerAdapter adapter =
-                new ItemDetailsPagerAdapter(
-                        getChildFragmentManager(),
-                        this,
-                        mCursor);
+    /*
+        ItemDetailsContract.View
+     */
 
-        final ViewPager viewPager =
-                (ViewPager) mParentView.findViewById(R.id.fragment_item_details_vp);
-        viewPager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT);
-        viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(startPosition);
+    @Override
+    public void setPresenter(@NonNull final ItemDetailsContract.Presenter presenter) {
+        mPresenter = presenter;
+    }
+
+    @Override
+    public boolean isActive() {
+        return isAdded();
+    }
+
+    @Override
+    public ViewPager getViewPager() {
+        return (ViewPager) mParentView.findViewById(R.id.fragment_item_details_vp);
+    }
+
+    @Override
+    public void performError(@NonNull final String text) {
+        showToastRunOnUiThread(text, Toast.LENGTH_LONG);
+        getActivity().onBackPressed();
     }
 }

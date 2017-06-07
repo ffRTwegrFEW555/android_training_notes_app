@@ -1114,9 +1114,7 @@ public final class FilterSortDialogFragment extends DialogFragment {
             updateCurrentForCurrentUser(getActivity(), mFilterProfileMap);
         }
 
-        showToast(
-                getContext(),
-                getString(R.string.fragment_list_notification_filtered),
+        showToast(getString(R.string.fragment_list_notification_filtered),
                 Toast.LENGTH_SHORT);
 
         notifyObservers(

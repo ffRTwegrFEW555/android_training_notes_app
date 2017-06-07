@@ -1,16 +1,16 @@
 package com.gamaliev.notes.item_details;
 
-import android.database.Cursor;
+import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.gamaliev.notes.R;
+import com.gamaliev.notes.item_details.pager_item.ItemDetailsPagerItemFragment;
 
-import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
-import static com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment.ACTION_EDIT;
+import static com.gamaliev.notes.app.NotesApp.getAppContext;
+import static com.gamaliev.notes.item_details.pager_item.ItemDetailsPagerItemFragment.ACTION_EDIT;
 
 /**
  * @author Vadim Gamaliev
@@ -20,8 +20,8 @@ import static com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment.ACTIO
 class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
 
     /* ... */
-    @NonNull private final Fragment mFragment;
-    @Nullable private final Cursor mCursor;
+    @NonNull private Context mContext;
+    @NonNull private final ItemDetailsContract.Presenter mPresenter;
 
 
     /*
@@ -29,13 +29,12 @@ class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
      */
 
     ItemDetailsPagerAdapter(
-            @NonNull final FragmentManager fm,
-            @NonNull final Fragment fragment,
-            @Nullable final Cursor cursor) {
+            @NonNull final ItemDetailsContract.Presenter presenter,
+            @NonNull final FragmentManager fm) {
 
         super(fm);
-        mFragment = fragment;
-        mCursor = cursor;
+        mContext = getAppContext();
+        mPresenter = presenter;
     }
 
 
@@ -45,44 +44,25 @@ class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(final int position) {
-        if (mCursor != null && mCursor.moveToPosition(position)) {
-            final long id = getId(position);
-            return ItemDetailsPagerItemFragment.newInstance(ACTION_EDIT, id);
+        final long id = mPresenter.getIdByPosition(position);
+        if (id == -1) {
+            return null;
         }
-        return null;
+        return ItemDetailsPagerItemFragment.newInstance(ACTION_EDIT, id);
     }
 
     @Override
     public int getCount() {
-        return mCursor == null ? 0 : mCursor.getCount();
+        return mPresenter.getCount();
     }
 
     @Override
     public CharSequence getPageTitle(final int position) {
-        final long id = getId(position);
+        final long id = mPresenter.getIdByPosition(position);
         return id == -1
                 ? ""
-                : mFragment.getString(R.string.fragment_item_details_pager_title_strip_prefix)
+                : mContext.getString(R.string.fragment_item_details_pager_title_strip_prefix)
                     + ": "
                     + String.valueOf(id);
     }
-
-
-    /*
-        ...
-     */
-
-    private long getId(final int position) {
-        if (mCursor != null && mCursor.moveToPosition(position)) {
-            return mCursor.getLong(
-                    mCursor.getColumnIndex(BASE_COLUMN_ID));
-        }
-        return -1;
-    }
-
-    // --Commented out by Inspection START:
-    //    public void setCursor(@NonNull final Cursor cursor) {
-    //        mCursor = cursor;
-    //    }
-    // --Commented out by Inspection STOP
 }

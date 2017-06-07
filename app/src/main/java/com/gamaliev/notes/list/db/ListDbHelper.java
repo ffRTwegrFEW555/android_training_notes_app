@@ -105,7 +105,7 @@ public final class ListDbHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
         }
 
         return false;
@@ -242,7 +242,7 @@ public final class ListDbHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
         }
 
         return false;
@@ -284,7 +284,7 @@ public final class ListDbHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
         }
 
         return false;
@@ -314,7 +314,7 @@ public final class ListDbHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
         }
 
         return null;
@@ -380,7 +380,7 @@ public final class ListDbHelper {
 
         } catch (ParseException | SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
         }
         return null;
     }
@@ -451,7 +451,7 @@ public final class ListDbHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
         }
 
         return false;
@@ -480,7 +480,7 @@ public final class ListDbHelper {
     //
     //        } catch (SQLiteException e) {
     //            Log.e(TAG, e.toString());
-    //            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+    //            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
     //        }
     //
     //        return false;
@@ -519,7 +519,7 @@ public final class ListDbHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
         }
 
         return -1;
@@ -675,7 +675,7 @@ public final class ListDbHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
         }
 
         return false;
@@ -709,7 +709,7 @@ public final class ListDbHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
         }
 
         return value;
@@ -733,7 +733,7 @@ public final class ListDbHelper {
 
         if (updateResult == 0) {
             Log.e(TAG, "[ERROR] The number of rows affected is 0");
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
             return false;
         }
 

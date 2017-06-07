@@ -97,7 +97,7 @@ public final class SyncDbHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
         }
 
         return false;
@@ -126,7 +126,7 @@ public final class SyncDbHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
         }
 
         return null;
@@ -158,7 +158,7 @@ public final class SyncDbHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
         }
 
         return false;

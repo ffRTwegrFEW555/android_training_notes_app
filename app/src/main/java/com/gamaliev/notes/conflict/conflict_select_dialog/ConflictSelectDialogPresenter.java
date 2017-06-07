@@ -411,6 +411,8 @@ public class ConflictSelectDialogPresenter implements ConflictSelectDialogContra
 
         } catch (Exception e) {
             Log.e(TAG, e.toString());
+            mConflictSelectDialogView.performError(
+                    mContext.getString(R.string.fragment_dialog_conflict_resolution_failed));
         }
     }
 

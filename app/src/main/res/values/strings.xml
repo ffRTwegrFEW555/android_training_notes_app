@@ -74,6 +74,7 @@
     <string name="fragment_item_details_text_view_description">Description</string>
     <string name="fragment_item_details_image_url_text_view">Image URL</string>
     <string name="fragment_item_details_edit_mode_wrong_id">Entry with given id is not exists</string>
+    <string name="fragment_item_details_edit_mode_filter_profile_not_found">Filter profile for current user not found</string>
     <string name="fragment_item_details_image_url_error">Invalid URL</string>
     <string name="fragment_item_details_image_view_description">Image from URL</string>
     <string name="fragment_item_details_image_view_error">Loading image from URL failed</string>

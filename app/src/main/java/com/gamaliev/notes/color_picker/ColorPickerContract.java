@@ -19,8 +19,6 @@ public interface ColorPickerContract {
         void updateResultColor(android.view.View view, int color);
 
         int getResultColor();
-
-        boolean isActive();
     }
 
     interface Presenter extends BasePresenter {

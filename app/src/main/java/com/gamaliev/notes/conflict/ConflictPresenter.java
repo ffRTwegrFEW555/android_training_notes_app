@@ -15,6 +15,7 @@ import static com.gamaliev.notes.common.db.DbHelper.getEntries;
 /**
  * @author Vadim Gamaliev <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
+@SuppressWarnings("NullableProblems")
 public class ConflictPresenter implements ConflictContract.Presenter {
 
     /* ... */
@@ -71,6 +72,7 @@ public class ConflictPresenter implements ConflictContract.Presenter {
         return mCursor == null || mCursor.isClosed() ? 0 : mCursor.getCount();
     }
 
+    @NonNull
     @Override
     public FragmentManager getFragmentManager() {
         return mConflictView.getFragmentManager();
@@ -82,10 +84,13 @@ public class ConflictPresenter implements ConflictContract.Presenter {
     }
 
     @Override
-    public void closeCursor() {
-        if (mCursor != null && !mCursor.isClosed()) {
-            mCursor.close();
-        }
+    public void onDestroyView() {
+        closeCursor();
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView() {
+        closeCursor();
     }
 
 
@@ -101,5 +106,16 @@ public class ConflictPresenter implements ConflictContract.Presenter {
     private void initRecyclerView() {
         final RecyclerView rv = mConflictView.getRecyclerView();
         rv.setAdapter(mAdapter);
+    }
+
+
+    /*
+        ...
+     */
+
+    private void closeCursor() {
+        if (mCursor != null && !mCursor.isClosed()) {
+            mCursor.close();
+        }
     }
 }

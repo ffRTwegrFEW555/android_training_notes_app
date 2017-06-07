@@ -114,7 +114,6 @@ public final class FileUtils {
             @NonNull final Uri selectedFile) {
 
         showToastRunOnUiThread(
-                activity,
                 activity.getString(R.string.file_utils_export_notification_start),
                 Toast.LENGTH_SHORT);
 
@@ -224,7 +223,6 @@ public final class FileUtils {
             os.close();
 
             showToastRunOnUiThread(
-                    activity,
                     activity.getString(R.string.file_utils_export_toast_message_success)
                             + " (" + jsonArray.length() + ")",
                     Toast.LENGTH_LONG);
@@ -239,7 +237,6 @@ public final class FileUtils {
         } catch (IOException e) {
             Log.e(TAG, e.toString());
             showToastRunOnUiThread(
-                    activity,
                     activity.getString(R.string.file_utils_export_toast_message_failed),
                     Toast.LENGTH_SHORT);
         }
@@ -281,7 +278,6 @@ public final class FileUtils {
             @NonNull final Uri selectedFile) {
 
         showToastRunOnUiThread(
-                activity,
                 activity.getString(R.string.file_utils_import_notification_start),
                 Toast.LENGTH_SHORT);
 
@@ -338,7 +334,6 @@ public final class FileUtils {
         } catch (IOException e) {
             Log.e(TAG, e.toString());
             showToastRunOnUiThread(
-                    activity,
                     activity.getString(R.string.file_utils_import_toast_message_failed),
                     Toast.LENGTH_SHORT);
         }
@@ -400,7 +395,6 @@ public final class FileUtils {
         } catch (JSONException | SQLiteException e) {
             Log.e(TAG, e.toString());
             showToastRunOnUiThread(
-                    activity,
                     activity.getString(R.string.file_utils_import_toast_message_failed),
                     Toast.LENGTH_SHORT);
         }
@@ -414,7 +408,6 @@ public final class FileUtils {
         notification.endProgress();
 
         showToastRunOnUiThread(
-                activity,
                 activity.getString(R.string.file_utils_import_toast_message_success)
                         + " (" + jsonArray.length() + ")",
                 Toast.LENGTH_LONG);

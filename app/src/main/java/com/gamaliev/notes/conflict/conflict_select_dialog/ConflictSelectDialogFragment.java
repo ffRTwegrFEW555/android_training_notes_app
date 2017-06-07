@@ -147,7 +147,7 @@ public class ConflictSelectDialogFragment extends DialogFragment
         if (syncId == null) {
             final String error = getString(R.string.fragment_dialog_conflict_sync_id_is_null);
             Log.e(TAG, error);
-            showToastRunOnUiThread(getContext(), error, Toast.LENGTH_SHORT);
+            showToastRunOnUiThread(error, Toast.LENGTH_SHORT);
             dismiss();
             return;
         }
@@ -222,7 +222,7 @@ public class ConflictSelectDialogFragment extends DialogFragment
 
     @Override
     public void performError(@NonNull final String text) {
-        showToastRunOnUiThread(getContext(), text, Toast.LENGTH_LONG);
+        showToastRunOnUiThread(text, Toast.LENGTH_LONG);
         dismiss();
     }
 

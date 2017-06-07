@@ -29,7 +29,7 @@
     </Match>
 
     <Match>
-        <Class name="com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment" />
+        <Class name="com.gamaliev.notes.item_details.pager_item.ItemDetailsPagerItemFragment" />
         <Method name="onNotify" />
         <Bug pattern="SF_SWITCH_NO_DEFAULT" />
     </Match>

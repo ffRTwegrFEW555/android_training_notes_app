@@ -259,14 +259,10 @@ public class SyncFragment extends Fragment implements Observer {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
                                 if (SyncDbHelper.clear(getContext())) {
-                                    showToast(
-                                            getContext(),
-                                            getString(R.string.menu_sync_action_clear_journal_success),
+                                    showToast(getString(R.string.menu_sync_action_clear_journal_success),
                                             Toast.LENGTH_SHORT);
                                 } else {
-                                    showToast(
-                                            getContext(),
-                                            getString(R.string.menu_sync_action_clear_journal_failed),
+                                    showToast(getString(R.string.menu_sync_action_clear_journal_failed),
                                             Toast.LENGTH_SHORT);
                                 }
                                 notifyObservers(SYNC, RESULT_CODE_SYNC_JOURNAL_CLEARED, null);

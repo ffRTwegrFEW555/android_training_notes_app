@@ -33,7 +33,7 @@ import com.gamaliev.notes.common.observers.Observer;
 import com.gamaliev.notes.common.recycler_view_item_touch_helper.ItemTouchHelperCallback;
 import com.gamaliev.notes.common.recycler_view_item_touch_helper.OnStartDragListener;
 import com.gamaliev.notes.common.shared_prefs.SpFilterProfiles;
-import com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment;
+import com.gamaliev.notes.item_details.pager_item.ItemDetailsPagerItemFragment;
 import com.gamaliev.notes.list.db.ListRecyclerViewAdapter;
 
 import java.util.Locale;
@@ -61,7 +61,7 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.SYNC;
 import static com.gamaliev.notes.common.observers.ObserverHelper.registerObserver;
 import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObserver;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
-import static com.gamaliev.notes.item_details.ItemDetailsPagerItemFragment.ACTION_ADD;
+import static com.gamaliev.notes.item_details.pager_item.ItemDetailsPagerItemFragment.ACTION_ADD;
 
 /**
  * @author Vadim Gamaliev

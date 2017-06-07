@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.transition.Fade;
+import android.util.Log;
 import android.view.View;
 
 import com.gamaliev.notes.R;
@@ -23,6 +24,9 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class SettingsPreferenceFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+    /* Logger */
+    @NonNull private static final String TAG = SettingsPreferenceFragment.class.getSimpleName();
 
     /*
         Init
@@ -42,6 +46,7 @@ public class SettingsPreferenceFragment extends PreferenceFragmentCompat
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         final String userId = SpUsers.getSelected(getActivity());
         if (userId == null) {
+            Log.e(TAG, "User id is null.");
             return;
         }
 

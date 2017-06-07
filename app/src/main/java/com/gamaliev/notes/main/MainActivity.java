@@ -307,7 +307,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
             @Override
             public void run() {
                 showToastRunOnUiThread(
-                        MainActivity.this,
                         getString(R.string.activity_main_notification_add_mock_entries_start),
                         Toast.LENGTH_SHORT);
 
@@ -327,7 +326,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         numberOfEntries);
 
                 showToastRunOnUiThread(
-                        MainActivity.this,
                         added > -1
                                 ? getString(R.string.activity_main_notification_add_mock_entries_success)
                                 + " (" + added + ")"
@@ -462,7 +460,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
     //            public void run() {
     //                final boolean success = ListDbHelper.removeAllEntries(MainActivity.this);
     //                showToastRunOnUiThread(
-    //                        MainActivity.this,
     //                        success
     //                                ? getString(R.string.activity_main_notification_delete_all_entries_success)
     //                                : getString(R.string.activity_main_notification_delete_all_entries_failed),

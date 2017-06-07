@@ -26,8 +26,6 @@ public interface ConflictSelectDialogContract {
 
         void enableSaveButtons();
 
-        boolean isActive();
-
         void dismiss();
     }
 

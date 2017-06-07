@@ -82,6 +82,11 @@ public class ConflictFragment extends Fragment
         super.onPause();
     }
 
+    @Override
+    public void onDestroyView() {
+        mPresenter.onDestroyView();
+        super.onDestroyView();
+    }
 
     /*
         ...
@@ -116,10 +121,16 @@ public class ConflictFragment extends Fragment
      */
 
     @Override
-    public void setPresenter(ConflictContract.Presenter presenter) {
+    public void setPresenter(@NonNull final ConflictContract.Presenter presenter) {
         mPresenter = presenter;
     }
 
+    @Override
+    public boolean isActive() {
+        return false;
+    }
+
+    @NonNull
     @Override
     public RecyclerView getRecyclerView() {
         final RecyclerView rv = (RecyclerView) mParentView.findViewById(R.id.fragment_conflict_rv);

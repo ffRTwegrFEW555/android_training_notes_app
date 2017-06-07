@@ -46,6 +46,11 @@ final class ConflictRecyclerViewAdapter
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         final String syncId = mPresenter.getSyncId(position);
+        if (syncId == null) {
+            holder.mTextView.setText("");
+            holder.mParentView.setOnClickListener(null);
+            return;
+        }
 
         //noinspection SetTextI18n
         holder.mTextView.setText(
@@ -71,7 +76,7 @@ final class ConflictRecyclerViewAdapter
 
     @Override
     public void onDetachedFromRecyclerView(final RecyclerView recyclerView) {
-        mPresenter.closeCursor();
+        mPresenter.onDetachedFromRecyclerView();
     }
 
 

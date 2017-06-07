@@ -162,8 +162,8 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
             }
         }
 
-        initTransition();
         initFullScreen();
+        initTransition();
         setGradient();
         addColorBoxesAndSetListeners();
         setResultBoxColor(mResultColor);
@@ -174,8 +174,6 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
     private void initTransition() {
         setExitTransition(new Fade());
         setEnterTransition(new Fade());
-        setSharedElementEnterTransition(new AutoTransition());
-        setSharedElementReturnTransition(new AutoTransition());
         ViewCompat.setTransitionName(
                 mResultView,
                 getString(R.string.shared_transition_name_color_box));
@@ -449,7 +447,6 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
     @Override
     public void updateFavoriteColor(@NonNull final View view, final int color) {
         playSoundAndShowToast(
-                getContext(),
                 RingtoneManager.TYPE_NOTIFICATION,
                 mRes.getString(R.string.fragment_color_picker_toast_favorite_color_added),
                 Toast.LENGTH_SHORT);

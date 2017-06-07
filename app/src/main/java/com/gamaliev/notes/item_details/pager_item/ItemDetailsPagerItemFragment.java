@@ -1,4 +1,4 @@
-package com.gamaliev.notes.item_details;
+package com.gamaliev.notes.item_details.pager_item;
 
 import android.content.DialogInterface;
 import android.graphics.drawable.GradientDrawable;
@@ -257,10 +257,7 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
                         finish(null);
                         final String error = getString(R.string.fragment_item_details_edit_mode_wrong_id);
                         Log.e(TAG, error);
-                        showToast(
-                                getContext(),
-                                error,
-                                Toast.LENGTH_LONG);
+                        showToast(error, Toast.LENGTH_LONG);
                     }
 
                 } else {
@@ -671,25 +668,19 @@ public final class ItemDetailsPagerItemFragment extends Fragment implements Obse
             switch (action) {
                 case ACTION_ENTRY_ADD:
                     resultCode = RESULT_CODE_ENTRY_ADDED;
-                    showToast(
-                            getContext(),
-                            getString(R.string.fragment_list_notification_entry_added),
+                    showToast(getString(R.string.fragment_list_notification_entry_added),
                             Toast.LENGTH_SHORT);
                     break;
 
                 case ACTION_ENTRY_EDIT:
                     resultCode = RESULT_CODE_ENTRY_EDITED;
-                    showToast(
-                            getContext(),
-                            getString(R.string.fragment_list_notification_entry_updated),
+                    showToast(getString(R.string.fragment_list_notification_entry_updated),
                             Toast.LENGTH_SHORT);
                     break;
 
                 case ACTION_ENTRY_DELETE:
                     resultCode = RESULT_CODE_ENTRY_DELETED;
-                    showToast(
-                            getContext(),
-                            getString(R.string.fragment_list_notification_entry_deleted),
+                    showToast(getString(R.string.fragment_list_notification_entry_deleted),
                             Toast.LENGTH_SHORT);
                     break;
 

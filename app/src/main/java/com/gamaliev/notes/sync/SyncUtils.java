@@ -556,7 +556,6 @@ public final class SyncUtils {
             case NetworkUtils.NETWORK_MOBILE:
                 if (SpUsers.getSyncWifiOnlyForCurrentUser(context)) {
                     logAndNotify(
-                            context,
                             context.getString(R.string.fragment_sync_item_action_delete_all_from_server_no_wifi),
                             true,
                             RESULT_CODE_SYNC_FAILED);
@@ -569,7 +568,6 @@ public final class SyncUtils {
 
             case NetworkUtils.NETWORK_NO:
                 logAndNotify(
-                        context,
                         context.getString(R.string.fragment_sync_item_action_delete_all_from_server_no_internet),
                         true,
                         RESULT_CODE_SYNC_FAILED);
@@ -684,7 +682,7 @@ public final class SyncUtils {
         Log.i(TAG, message);
 
         if (showToast) {
-            showToastRunOnUiThread(context, message, Toast.LENGTH_LONG);
+            showToastRunOnUiThread(message, Toast.LENGTH_LONG);
         }
 
         notifyObservers(
@@ -696,14 +694,12 @@ public final class SyncUtils {
     /**
      * Logging message with info level. Showing toast if needed.
      * Notifying registered observers with given result code.
-     * @param context       Context.
      * @param message       Message to logging, and to showing toast.
      * @param showToast     {@code true} if show toast, else {@code false}.
      * @param resultCode    Result code for notifying registered observers.
      */
     @SuppressWarnings("SameParameterValue")
     public static void logAndNotify(
-            @NonNull final Context context,
             @NonNull final String message,
             final boolean showToast,
             final int resultCode) {
@@ -711,7 +707,7 @@ public final class SyncUtils {
         Log.i(TAG, message);
 
         if (showToast) {
-            showToastRunOnUiThread(context, message, Toast.LENGTH_LONG);
+            showToastRunOnUiThread(message, Toast.LENGTH_LONG);
         }
 
         notifyObservers(

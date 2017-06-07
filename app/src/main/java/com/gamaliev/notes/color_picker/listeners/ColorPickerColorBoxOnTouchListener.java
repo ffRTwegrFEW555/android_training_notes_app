@@ -109,8 +109,7 @@ public final class ColorPickerColorBoxOnTouchListener implements View.OnTouchLis
                     mEditable = false;
                     mPaletteHsvSv.setEnableScrolling(true);
                     mEditPw.dismiss();
-                    showToast(mContext,
-                            mResources.getString(R.string.fragment_color_picker_toast_edit_mode_off),
+                    showToast(mResources.getString(R.string.fragment_color_picker_toast_edit_mode_off),
                             Toast.LENGTH_SHORT);
                 }
 
@@ -203,7 +202,6 @@ public final class ColorPickerColorBoxOnTouchListener implements View.OnTouchLis
             @Override
             public void onLongPress(final MotionEvent e) {
                 playSoundAndShowToast(
-                        mContext,
                         RingtoneManager.TYPE_NOTIFICATION,
                         mResources.getString(R.string.fragment_color_picker_toast_edit_mode_on),
                         Toast.LENGTH_SHORT);

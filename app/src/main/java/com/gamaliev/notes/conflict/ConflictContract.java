@@ -30,6 +30,8 @@ public interface ConflictContract {
 
         FragmentManager getFragmentManager();
 
-        void closeCursor();
+        void onDestroyView();
+
+        void onDetachedFromRecyclerView();
     }
 }

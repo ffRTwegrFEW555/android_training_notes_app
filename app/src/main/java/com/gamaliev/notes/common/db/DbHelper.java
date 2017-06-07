@@ -303,7 +303,7 @@ public final class DbHelper extends SQLiteOpenHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
         }
 
         return null;
@@ -379,7 +379,7 @@ public final class DbHelper extends SQLiteOpenHelper {
 
         } catch (SQLiteException e) {
             Log.e(TAG, e.toString());
-            showToast(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+            showToast(getDbFailMessage(), Toast.LENGTH_SHORT);
         }
 
         return false;
@@ -464,7 +464,7 @@ public final class DbHelper extends SQLiteOpenHelper {
         } catch (SQLiteException e) {
             if (handleException) {
                 Log.e(TAG, e.toString());
-                showToastRunOnUiThread(context, getDbFailMessage(), Toast.LENGTH_SHORT);
+                showToastRunOnUiThread(getDbFailMessage(), Toast.LENGTH_SHORT);
             } else {
                 return true;
             }

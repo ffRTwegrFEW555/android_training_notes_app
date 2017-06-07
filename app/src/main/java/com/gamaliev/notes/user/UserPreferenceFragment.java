@@ -162,9 +162,7 @@ public class UserPreferenceFragment extends PreferenceFragmentCompat
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
                                 if (SpUsers.SP_USERS_DEFAULT_USER_ID.equals(mUserId)) {
-                                    showToast(
-                                            getContext(),
-                                            getString(R.string.fragment_user_preference_delete_default_error),
+                                    showToast(getString(R.string.fragment_user_preference_delete_default_error),
                                             Toast.LENGTH_LONG);
 
                                 } else {
