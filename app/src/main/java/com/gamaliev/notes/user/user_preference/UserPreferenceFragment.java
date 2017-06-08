@@ -1,4 +1,4 @@
-package com.gamaliev.notes.user;
+package com.gamaliev.notes.user.user_preference;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -19,7 +19,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.common.shared_prefs.SpUsers;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.gamaliev.notes.common.CommonUtils.showToast;
@@ -33,14 +32,16 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("NullableProblems")
 public class UserPreferenceFragment extends PreferenceFragmentCompat
-        implements SharedPreferences.OnSharedPreferenceChangeListener {
+        implements SharedPreferences.OnSharedPreferenceChangeListener, UserPreferenceContract.View {
 
     /* Logger */
     @NonNull private static final String TAG = UserPreferenceFragment.class.getSimpleName();
 
     /* ... */
     @NonNull private static final String EXTRA_USER_ID = "UserPreferenceFragment.EXTRA_USER_ID";
+    @NonNull private UserPreferenceContract.Presenter mPresenter;
     @SuppressWarnings("NullableProblems")
     @NonNull private String mUserId;
 
@@ -71,16 +72,21 @@ public class UserPreferenceFragment extends PreferenceFragmentCompat
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        // User id.
         final String userId = getArguments().getString(EXTRA_USER_ID);
         if (userId == null) {
             Log.e(TAG, "User id is null.");
+            getActivity().onBackPressed();
             return;
         }
         mUserId = userId;
 
+        // Presenter.
+        new UserPreferencePresenter(this);
+
         // Change preference name to current user.
         final PreferenceManager manager = getPreferenceManager();
-        manager.setSharedPreferencesName(SpUsers.getPreferencesName(mUserId));
+        manager.setSharedPreferencesName(mPresenter.getPreferenceName(mUserId));
         manager.setSharedPreferencesMode(MODE_PRIVATE);
 
         // Load the preferences from an XML resource
@@ -161,14 +167,7 @@ public class UserPreferenceFragment extends PreferenceFragmentCompat
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
-                                if (SpUsers.SP_USERS_DEFAULT_USER_ID.equals(mUserId)) {
-                                    showToast(getString(R.string.fragment_user_preference_delete_default_error),
-                                            Toast.LENGTH_LONG);
-
-                                } else {
-                                    SpUsers.delete(getContext(), mUserId);
-                                    finishDeleted();
-                                }
+                                mPresenter.deleteUser(mUserId);
                             }
                         })
                 .setNegativeButton(
@@ -190,6 +189,31 @@ public class UserPreferenceFragment extends PreferenceFragmentCompat
         notifyObservers(USERS, RESULT_CODE_USER_CHANGE_PREFERENCES, null);
     }
 
+
+    /*
+        UserPreferenceContract.View
+     */
+
+    @Override
+    public void setPresenter(@NonNull UserPreferenceContract.Presenter presenter) {
+        mPresenter = presenter;
+    }
+
+    @Override
+    public boolean isActive() {
+        return isAdded() && !isDetached();
+    }
+
+    @Override
+    public void onDeleteUserFailed() {
+        showToast(getString(R.string.fragment_user_preference_delete_default_error),
+                Toast.LENGTH_LONG);
+    }
+
+    @Override
+    public void onDeleteUserSuccess() {
+        finishDeleted();
+    }
 
     /*
         Finish

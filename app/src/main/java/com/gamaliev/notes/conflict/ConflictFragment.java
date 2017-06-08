@@ -40,6 +40,7 @@ public class ConflictFragment extends Fragment
 
     @NonNull private View mParentView;
     @NonNull private ConflictContract.Presenter mPresenter;
+    @NonNull private RecyclerView mRecyclerView;
 
 
     /*
@@ -97,6 +98,7 @@ public class ConflictFragment extends Fragment
     private void init() {
         initTransition();
         initActionBar();
+        initRecyclerView();
         initPresenter();
     }
 
@@ -110,6 +112,15 @@ public class ConflictFragment extends Fragment
         if (actionBar != null) {
             actionBar.setTitle(getString(R.string.fragment_conflict));
         }
+    }
+
+    private void initRecyclerView() {
+        mRecyclerView = (RecyclerView) mParentView.findViewById(R.id.fragment_conflict_rv);
+        mRecyclerView.addItemDecoration(
+                new DividerItemDecoration(
+                        getContext(),
+                        DividerItemDecoration.VERTICAL));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     private void initPresenter() {
@@ -135,13 +146,7 @@ public class ConflictFragment extends Fragment
     @NonNull
     @Override
     public RecyclerView getRecyclerView() {
-        final RecyclerView rv = (RecyclerView) mParentView.findViewById(R.id.fragment_conflict_rv);
-        rv.addItemDecoration(
-                new DividerItemDecoration(
-                        rv.getContext(),
-                        DividerItemDecoration.VERTICAL));
-        rv.setLayoutManager(new LinearLayoutManager(rv.getContext()));
-        return rv;
+        return mRecyclerView;
     }
 
     @NonNull

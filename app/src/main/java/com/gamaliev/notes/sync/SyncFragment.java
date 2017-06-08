@@ -23,8 +23,6 @@ import android.widget.Toast;
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.observers.Observer;
 import com.gamaliev.notes.conflict.ConflictFragment;
-import com.gamaliev.notes.sync.db.SyncDbHelper;
-import com.gamaliev.notes.sync.db.SyncRecyclerViewAdapter;
 
 import static com.gamaliev.notes.common.CommonUtils.showToast;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_SYNC_JOURNAL_CLEARED;
@@ -32,8 +30,6 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.SYNC;
 import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
 import static com.gamaliev.notes.common.observers.ObserverHelper.registerObserver;
 import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObserver;
-import static com.gamaliev.notes.conflict.utils.ConflictUtils.checkConflictingExists;
-import static com.gamaliev.notes.conflict.utils.ConflictUtils.hideConflictStatusBarNotification;
 
 /**
  * @author Vadim Gamaliev
@@ -41,15 +37,17 @@ import static com.gamaliev.notes.conflict.utils.ConflictUtils.hideConflictStatus
  */
 
 @SuppressWarnings("NullableProblems")
-public class SyncFragment extends Fragment implements Observer {
+public class SyncFragment extends Fragment
+        implements Observer, SyncContract.View {
 
     /* Observed */
     @NonNull private static final String[] OBSERVED = {SYNC};
 
     /* ... */
+    @NonNull private SyncContract.Presenter mPresenter;
     @NonNull private View mParentView;
     @NonNull private RecyclerView mRecyclerView;
-    @NonNull private SyncRecyclerViewAdapter mAdapter;
+    @NonNull private View mConflictWarningView;
 
 
     /*
@@ -101,9 +99,9 @@ public class SyncFragment extends Fragment implements Observer {
     private void init() {
         initTransition();
         initActionBar();
-        initAdapter();
-        initRecyclerView();
         initConflictWarning();
+        initRecyclerView();
+        initPresenter();
     }
 
     private void initTransition() {
@@ -118,33 +116,10 @@ public class SyncFragment extends Fragment implements Observer {
         }
         setHasOptionsMenu(true);
     }
-    
+
     private void initConflictWarning() {
-        final boolean result = checkConflictingExists(getContext());
-        final View view = mParentView
+        mConflictWarningView = mParentView
                 .findViewById(R.id.fragment_sync_conflicting_exists_notification_fl);
-        if (result) {
-            view.setVisibility(View.VISIBLE);
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startConflictFragment();
-                }
-            });
-        } else {
-            view.setVisibility(View.GONE);
-            view.setOnClickListener(null);
-            hideConflictStatusBarNotification(getContext());
-        }
-    }
-
-
-    /*
-        RecyclerView & Adapter
-     */
-
-    private void initAdapter() {
-        mAdapter = new SyncRecyclerViewAdapter(this);
     }
 
     private void initRecyclerView() {
@@ -154,27 +129,13 @@ public class SyncFragment extends Fragment implements Observer {
                         getActivity(),
                         DividerItemDecoration.VERTICAL));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerView.setAdapter(mAdapter);
-
-        scrollRecyclerViewToBottom();
     }
 
-    private void updateAdapter() {
-        initConflictWarning();
-        mAdapter.updateCursor();
-        mAdapter.notifyDataSetChanged();
-        scrollRecyclerViewToBottom();
+    private void initPresenter() {
+        new SyncPresenter(this);
+        mPresenter.start();
     }
-
-    private void scrollRecyclerViewToBottom() {
-        mRecyclerView.post(new Runnable() {
-            @Override
-            public void run() {
-                mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
-            }
-        });
-    }
-
+    
 
     /*
         Options menu
@@ -190,7 +151,7 @@ public class SyncFragment extends Fragment implements Observer {
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_sync_synchronize:
-                SyncUtils.synchronize(getContext());
+                 mPresenter.synchronize();
                 break;
 
             case R.id.menu_sync_show_conflicting:
@@ -240,7 +201,7 @@ public class SyncFragment extends Fragment implements Observer {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
-                                SyncUtils.deleteAllFromServerAsync(getContext());
+                                mPresenter.deleteAllFromServerAsync();
                             }
                         })
                 .setNegativeButton(
@@ -258,14 +219,7 @@ public class SyncFragment extends Fragment implements Observer {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
-                                if (SyncDbHelper.clear(getContext())) {
-                                    showToast(getString(R.string.menu_sync_action_clear_journal_success),
-                                            Toast.LENGTH_SHORT);
-                                } else {
-                                    showToast(getString(R.string.menu_sync_action_clear_journal_failed),
-                                            Toast.LENGTH_SHORT);
-                                }
-                                notifyObservers(SYNC, RESULT_CODE_SYNC_JOURNAL_CLEARED, null);
+                                mPresenter.clearJournal();
                             }
                         })
                 .setNegativeButton(
@@ -277,33 +231,77 @@ public class SyncFragment extends Fragment implements Observer {
 
 
     /*
-        Callback
-     */
-
-    /*
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_CANCELED) {
-            if (requestCode == REQUEST_CODE_CONFLICTING) {
-                notifyDataSetChangedAndScrollToEnd();
-            }
-        }
-    }
-    */
-
-
-    /*
         Observer
      */
 
     @Override
     public void onNotify(final int resultCode, @Nullable final Bundle data) {
-
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                updateAdapter();
+                mPresenter.updateAdapter();
             }
         });
+    }
+
+
+    /*
+        SyncContract.Presenter
+     */
+
+    @Override
+    public void setPresenter(@NonNull final SyncContract.Presenter presenter) {
+        mPresenter = presenter;
+    }
+
+    @Override
+    public boolean isActive() {
+        return isAdded() && !isDetached();
+    }
+
+    @NonNull
+    @Override
+    public RecyclerView getRecyclerView() {
+        return mRecyclerView;
+    }
+
+    @Override
+    public void scrollRecyclerViewToBottom(final int position) {
+        mRecyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.scrollToPosition(position);
+            }
+        });
+    }
+
+    @Override
+    public void showConflictWarning() {
+        mConflictWarningView.setVisibility(View.VISIBLE);
+        mConflictWarningView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startConflictFragment();
+            }
+        });
+    }
+
+    @Override
+    public void hideConflictWarning() {
+        mConflictWarningView.setVisibility(View.GONE);
+        mConflictWarningView.setOnClickListener(null);
+    }
+
+    @Override
+    public void onSuccessClearJournal() {
+        showToast(getString(R.string.menu_sync_action_clear_journal_success),
+                Toast.LENGTH_SHORT);
+        notifyObservers(SYNC, RESULT_CODE_SYNC_JOURNAL_CLEARED, null);
+    }
+
+    @Override
+    public void onFailedClearJournal() {
+        showToast(getString(R.string.menu_sync_action_clear_journal_failed),
+                Toast.LENGTH_SHORT);
     }
 }

@@ -16,7 +16,7 @@ import com.gamaliev.notes.common.network.NetworkUtils;
 import com.gamaliev.notes.common.rest.NoteApi;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import com.gamaliev.notes.entity.ListEntry;
-import com.gamaliev.notes.sync.SyncUtils;
+import com.gamaliev.notes.sync.utils.SyncUtils;
 
 import org.json.JSONObject;
 
@@ -50,10 +50,10 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrent
 import static com.gamaliev.notes.conflict.ConflictFragment.EXTRA_CONFLICT_SELECT_POSITION;
 import static com.gamaliev.notes.conflict.utils.ConflictUtils.checkConflictExistsAndHideStatusBarNotification;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
-import static com.gamaliev.notes.sync.SyncUtils.ACTION_UPDATED_ON_LOCAL;
-import static com.gamaliev.notes.sync.SyncUtils.ACTION_UPDATED_ON_SERVER;
-import static com.gamaliev.notes.sync.SyncUtils.STATUS_OK;
-import static com.gamaliev.notes.sync.SyncUtils.addToSyncJournalAndLogAndNotify;
+import static com.gamaliev.notes.sync.utils.SyncUtils.ACTION_UPDATED_ON_LOCAL;
+import static com.gamaliev.notes.sync.utils.SyncUtils.ACTION_UPDATED_ON_SERVER;
+import static com.gamaliev.notes.sync.utils.SyncUtils.STATUS_OK;
+import static com.gamaliev.notes.sync.utils.SyncUtils.addToSyncJournalAndLogAndNotify;
 
 /**
  * @author Vadim Gamaliev <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>

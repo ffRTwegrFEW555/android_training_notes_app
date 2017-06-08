@@ -120,7 +120,7 @@ public final class ItemDetailsFragment extends Fragment implements ItemDetailsCo
 
     @Override
     public boolean isActive() {
-        return isAdded();
+        return isAdded() && !isDetached();
     }
 
     @Override

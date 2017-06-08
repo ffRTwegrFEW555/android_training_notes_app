@@ -588,13 +588,13 @@ public final class ItemDetailsPagerItemFragment extends Fragment
      */
 
     @Override
-    public void setPresenter(ItemDetailsPagerItemContract.Presenter presenter) {
+    public void setPresenter(@NonNull final ItemDetailsPagerItemContract.Presenter presenter) {
         mPresenter = presenter;
     }
 
     @Override
     public boolean isActive() {
-        return isAdded();
+        return isAdded() && !isDetached();
     }
 
     @Override

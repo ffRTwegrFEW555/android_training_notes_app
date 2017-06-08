@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.observers.Observer;
-import com.gamaliev.notes.common.shared_prefs.SpUsers;
+import com.gamaliev.notes.user.user_preference.UserPreferenceFragment;
 
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_ADDED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_SELECTED;
@@ -31,14 +31,16 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObser
  */
 
 @SuppressWarnings("NullableProblems")
-public class UserFragment extends Fragment implements Observer {
+public class UserFragment extends Fragment
+        implements Observer, UserContract.View {
 
     /* Observed */
     @NonNull private static final String[] OBSERVED = {USERS};
 
     /* ... */
+    @NonNull private UserContract.Presenter mPresenter;
     @NonNull private View mParentView;
-    @NonNull private UserRecyclerViewAdapter mAdapter;
+    @NonNull private RecyclerView mRecyclerView;
 
 
     /*
@@ -91,8 +93,8 @@ public class UserFragment extends Fragment implements Observer {
         initTransition();
         initActionBar();
         initFabOnClickListener();
-        initAdapter();
         initRecyclerView();
+        initPresenter();
     }
 
     private void initTransition() {
@@ -115,39 +117,23 @@ public class UserFragment extends Fragment implements Observer {
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        final String newUserId = SpUsers.add(getContext(), null);
-                        final UserPreferenceFragment fragment
-                                = UserPreferenceFragment.newInstance(newUserId);
-                        getActivity()
-                                .getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.activity_main_fragment_container, fragment)
-                                .addToBackStack(null)
-                                .commit();
-
-                        notifyObservers(USERS, RESULT_CODE_USER_ADDED, null);
+                        mPresenter.addNewUser();
                     }
                 });
     }
 
-
-    /*
-        RecyclerView & Adapter
-     */
-
-    private void initAdapter() {
-        mAdapter = new UserRecyclerViewAdapter(this);
-    }
-
     private void initRecyclerView() {
-        final RecyclerView rv =
-                (RecyclerView) mParentView.findViewById(R.id.fragment_user_rv);
-        rv.addItemDecoration(
+        mRecyclerView = (RecyclerView) mParentView.findViewById(R.id.fragment_user_rv);
+        mRecyclerView.addItemDecoration(
                 new DividerItemDecoration(
                         getActivity(),
                         DividerItemDecoration.VERTICAL));
-        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
-        rv.setAdapter(mAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+    }
+
+    private void initPresenter() {
+        new UserPresenter(this);
+        mPresenter.start();
     }
 
 
@@ -169,6 +155,41 @@ public class UserFragment extends Fragment implements Observer {
             default:
                 break;
         }
+    }
+
+
+    /*
+        UserContract.View
+     */
+
+    @Override
+    public void setPresenter(@NonNull final UserContract.Presenter presenter) {
+        mPresenter = presenter;
+    }
+
+    @Override
+    public boolean isActive() {
+        return isAdded() && !isDetached();
+    }
+
+    @NonNull
+    @Override
+    public RecyclerView getRecyclerView() {
+        return mRecyclerView;
+    }
+
+    @Override
+    public void startUserPreferenceFragment(@NonNull final String newUserId) {
+        final UserPreferenceFragment fragment
+                = UserPreferenceFragment.newInstance(newUserId);
+        getActivity()
+                .getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.activity_main_fragment_container, fragment)
+                .addToBackStack(null)
+                .commit();
+
+        notifyObservers(USERS, RESULT_CODE_USER_ADDED, null);
     }
 
 

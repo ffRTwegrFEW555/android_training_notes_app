@@ -26,9 +26,10 @@ class ColorPickerPresenter implements ColorPickerContract.Presenter {
      */
 
     ColorPickerPresenter(@NonNull final ColorPickerContract.View colorPickerView) {
-        mColorPickerView = colorPickerView;
-        mColorPickerView.setPresenter(this);
         mContext = getAppContext();
+        mColorPickerView = colorPickerView;
+
+        mColorPickerView.setPresenter(this);
     }
 
 

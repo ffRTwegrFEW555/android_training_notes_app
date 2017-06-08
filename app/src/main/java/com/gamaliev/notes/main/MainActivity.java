@@ -25,15 +25,12 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.FileUtils;
-import com.gamaliev.notes.common.ProgressNotificationHelper;
 import com.gamaliev.notes.common.observers.Observer;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import com.gamaliev.notes.list.ListFragment;
-import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.settings.SettingsPreferenceFragment;
 import com.gamaliev.notes.sync.SyncFragment;
 import com.gamaliev.notes.user.UserFragment;
@@ -43,21 +40,15 @@ import java.util.Map;
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static com.gamaliev.notes.common.CommonUtils.checkAndRequestPermissions;
 import static com.gamaliev.notes.common.CommonUtils.showMessageDialog;
-import static com.gamaliev.notes.common.CommonUtils.showToastRunOnUiThread;
-import static com.gamaliev.notes.common.FileUtils.exportEntriesAsync;
-import static com.gamaliev.notes.common.FileUtils.importEntriesAsync;
 import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_NOTES_EXPORT;
 import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_NOTES_IMPORT;
 import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_PERMISSIONS_READ_EXTERNAL_STORAGE;
 import static com.gamaliev.notes.common.codes.RequestCode.REQUEST_CODE_PERMISSIONS_WRITE_EXTERNAL_STORAGE;
-import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_MOCK_ENTRIES_ADDED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_ADDED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_CHANGE_PREFERENCES;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_DELETED;
 import static com.gamaliev.notes.common.codes.ResultCode.RESULT_CODE_USER_SELECTED;
-import static com.gamaliev.notes.common.observers.ObserverHelper.ENTRIES_MOCK;
 import static com.gamaliev.notes.common.observers.ObserverHelper.USERS;
-import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
 import static com.gamaliev.notes.common.observers.ObserverHelper.registerObserver;
 import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObserver;
 
@@ -67,7 +58,8 @@ import static com.gamaliev.notes.common.observers.ObserverHelper.unregisterObser
  */
 
 @SuppressWarnings("NullableProblems")
-public class MainActivity extends AppCompatActivity implements Observer {
+public class MainActivity extends AppCompatActivity
+        implements Observer, MainContract.View {
 
     /* Logger */
     @NonNull private static final String TAG = MainActivity.class.getSimpleName();
@@ -76,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
     @NonNull private static final String[] OBSERVED = {USERS};
 
     /* ... */
+    @NonNull private MainContract.Presenter mPresenter;
     @NonNull private NavigationView mNavView;
     @NonNull private DrawerLayout mDrawer;
     @NonNull private Toolbar mToolbar;
@@ -103,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
     @Override
     protected void onResume() {
         initDrawerLockMode();
-        initUserInfo(mNavView);
+        mPresenter.initUserInfo();
         registerObserver(OBSERVED, toString(), this);
         super.onResume();
     }
@@ -120,7 +113,13 @@ public class MainActivity extends AppCompatActivity implements Observer {
      */
 
     private void init() {
+        initPresenter();
         initToolbarAndNavigationDrawer();
+    }
+
+    private void initPresenter() {
+        new MainPresenter(this);
+        mPresenter.start();
     }
 
     private void initToolbarAndNavigationDrawer() {
@@ -131,8 +130,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
         mNavView = (NavigationView) findViewById(R.id.activity_main_nav_view);
         mNavView.setNavigationItemSelectedListener(getNavItemSelectedListener());
-
-        initUserInfo(mNavView);
     }
 
     private void initDrawerLockMode() {
@@ -152,29 +149,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
             mDrawer.closeDrawer(GravityCompat.START);
             toggle.syncState();
         }
-    }
-
-    private void initUserInfo(@NonNull final NavigationView navView) {
-        final String userId = SpUsers.getSelected(getApplicationContext());
-        if (userId == null) {
-            Log.e(TAG, "User ID is null.");
-            return;
-        }
-
-        final Map<String, String> userProfile = SpUsers.get(getApplicationContext(), userId);
-
-        ((TextView) navView
-                .getHeaderView(0)
-                .findViewById(R.id.activity_main_nav_drawable_header_title_text_view))
-                //noinspection SetTextI18n
-                .setText(userProfile.get(SpUsers.SP_USER_FIRST_NAME) + " "
-                                + userProfile.get(SpUsers.SP_USER_LAST_NAME) + " "
-                                + userProfile.get(SpUsers.SP_USER_MIDDLE_NAME));
-
-        ((TextView) navView
-                .getHeaderView(0)
-                .findViewById(R.id.activity_main_nav_drawable_header_mail_text_view))
-                .setText(userProfile.get(SpUsers.SP_USER_EMAIL));
     }
 
 
@@ -210,11 +184,11 @@ public class MainActivity extends AppCompatActivity implements Observer {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CODE_NOTES_IMPORT) {
                 final Uri selectedFile = data.getData();
-                importEntriesAsync(this, selectedFile);
+                mPresenter.importEntriesAsync(this, selectedFile);
 
             } else if (requestCode == REQUEST_CODE_NOTES_EXPORT) {
                 final Uri selectedFile = data.getData();
-                exportEntriesAsync(this, selectedFile);
+                mPresenter.exportEntriesAsync(this, selectedFile);
             }
         }
     }
@@ -295,49 +269,11 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 .setPositiveButton(save, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         final String enteredText = editText.getText().toString();
-                        addMockEntries(Integer.parseInt(enteredText));
+                        mPresenter.addMockEntries(Integer.parseInt(enteredText));
                     }
                 })
                 .setNegativeButton(cancel, null)
                 .show();
-    }
-
-    private void addMockEntries(final int numberOfEntries) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                showToastRunOnUiThread(
-                        getString(R.string.activity_main_notification_add_mock_entries_start),
-                        Toast.LENGTH_SHORT);
-
-                final ProgressNotificationHelper notification =
-                        new ProgressNotificationHelper(
-                                MainActivity.this,
-                                getString(R.string.activity_main_notification_add_mock_title),
-                                getString(R.string.activity_main_notification_add_mock_text),
-                                getString(R.string.activity_main_notification_add_mock_finish));
-                notification.startTimerToEnableNotification(
-                        SpUsers.getProgressNotificationTimerForCurrentUser(getApplicationContext()),
-                        false);
-
-                final int added = ListDbHelper.addMockEntries(
-                        MainActivity.this,
-                        notification,
-                        numberOfEntries);
-
-                showToastRunOnUiThread(
-                        added > -1
-                                ? getString(R.string.activity_main_notification_add_mock_entries_success)
-                                + " (" + added + ")"
-                                : getString(R.string.activity_main_notification_add_mock_entries_failed),
-                        Toast.LENGTH_SHORT);
-
-                notifyObservers(
-                        ENTRIES_MOCK,
-                        RESULT_CODE_MOCK_ENTRIES_ADDED,
-                        null);
-            }
-        }).start();
     }
 
 
@@ -405,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
                     /*// Remove all entries.
                     case R.id.activity_main_nav_drawer_item_delete_all_entries:
-                        deleteAllEntries();
+                        mPresenter.deleteAllEntries();
                         break;*/
 
                     case R.id.activity_main_nav_drawer_item_sync_notes:
@@ -453,22 +389,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
         };
     }
 
-    // --Commented out by Inspection START:
-    //    private void deleteAllEntries() {
-    //        new Thread(new Runnable() {
-    //            @Override
-    //            public void run() {
-    //                final boolean success = ListDbHelper.removeAllEntries(MainActivity.this);
-    //                showToastRunOnUiThread(
-    //                        success
-    //                                ? getString(R.string.activity_main_notification_delete_all_entries_success)
-    //                                : getString(R.string.activity_main_notification_delete_all_entries_failed),
-    //                        Toast.LENGTH_SHORT);
-    //            }
-    //        }).start();
-    //    }
-    // --Commented out by Inspection STOP
-
     private void showActionBarAndFullscreenOff() {
         // Show Action bar.
         final ActionBar actionBar = getSupportActionBar();
@@ -498,11 +418,42 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        initUserInfo(mNavView);
+                        mPresenter.initUserInfo();
                     }
                 });
             default:
                 break;
         }
+    }
+
+
+    /*
+        MainContract.View
+     */
+
+    @Override
+    public void setPresenter(@NonNull final MainContract.Presenter presenter) {
+        mPresenter = presenter;
+    }
+
+    @Override
+    public boolean isActive() {
+        return !isDestroyed() && !isFinishing();
+    }
+
+    @Override
+    public void updateUserInfo(@NonNull final Map<String, String> userProfile) {
+        ((TextView) mNavView
+                .getHeaderView(0)
+                .findViewById(R.id.activity_main_nav_drawable_header_title_text_view))
+                //noinspection SetTextI18n
+                .setText(userProfile.get(SpUsers.SP_USER_FIRST_NAME) + " "
+                        + userProfile.get(SpUsers.SP_USER_LAST_NAME) + " "
+                        + userProfile.get(SpUsers.SP_USER_MIDDLE_NAME));
+
+        ((TextView) mNavView
+                .getHeaderView(0)
+                .findViewById(R.id.activity_main_nav_drawable_header_mail_text_view))
+                .setText(userProfile.get(SpUsers.SP_USER_EMAIL));
     }
 }

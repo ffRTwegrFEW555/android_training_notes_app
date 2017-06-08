@@ -1,4 +1,4 @@
-package com.gamaliev.notes.sync;
+package com.gamaliev.notes.sync.utils;
 
 import android.content.Context;
 import android.database.Cursor;

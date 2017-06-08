@@ -457,7 +457,7 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
 
     @Override
     public boolean isActive() {
-        return isAdded();
+        return isAdded() && !isDetached();
     }
 
 

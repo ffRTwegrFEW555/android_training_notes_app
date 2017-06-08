@@ -9,8 +9,8 @@ import com.gamaliev.notes.app.NotesApp;
 
 import java.util.Date;
 
-import static com.gamaliev.notes.sync.SyncUtils.getActionText;
-import static com.gamaliev.notes.sync.SyncUtils.getStatusText;
+import static com.gamaliev.notes.sync.utils.SyncUtils.getActionText;
+import static com.gamaliev.notes.sync.utils.SyncUtils.getStatusText;
 
 /**
  * @author Vadim Gamaliev

@@ -27,7 +27,7 @@ import static com.gamaliev.notes.common.db.DbHelper.SYNC_TABLE_NAME;
 import static com.gamaliev.notes.common.db.DbHelper.getDbFailMessage;
 import static com.gamaliev.notes.common.db.DbHelper.getReadableDb;
 import static com.gamaliev.notes.common.db.DbHelper.getWritableDb;
-import static com.gamaliev.notes.sync.SyncUtils.ACTION_NOTHING;
+import static com.gamaliev.notes.sync.utils.SyncUtils.ACTION_NOTHING;
 
 /**
  * @author Vadim Gamaliev
@@ -108,7 +108,7 @@ public final class SyncDbHelper {
      * @return Result cursor.
      */
     @Nullable
-    static Cursor getAll(@NonNull final Context context) {
+    public static Cursor getAll(@NonNull final Context context) {
 
         try {
             final SQLiteDatabase db = getReadableDb(context);

@@ -270,7 +270,7 @@ public class ListFragment extends Fragment
         return new Runnable() {
             @Override
             public void run() {
-                if (!ListFragment.this.isAdded()) {
+                if (!isAdded() || isDetached()) {
                     return;
                 }
 

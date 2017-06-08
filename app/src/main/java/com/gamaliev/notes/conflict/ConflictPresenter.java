@@ -74,11 +74,6 @@ class ConflictPresenter implements ConflictContract.Presenter {
         return mConflictView.getSupportFragmentManager();
     }
 
-    private void updateCursor() {
-        closeCursor();
-        mCursor = getEntries(mContext, SYNC_CONFLICT_TABLE_NAME, null);
-    }
-
     @Override
     public void onDestroyView() {
         closeCursor();
@@ -91,7 +86,7 @@ class ConflictPresenter implements ConflictContract.Presenter {
 
 
     /*
-        RecyclerView & Adapter
+        ...
      */
 
     private void initAdapter() {
@@ -104,10 +99,10 @@ class ConflictPresenter implements ConflictContract.Presenter {
         rv.setAdapter(mAdapter);
     }
 
-
-    /*
-        ...
-     */
+    private void updateCursor() {
+        closeCursor();
+        mCursor = getEntries(mContext, SYNC_CONFLICT_TABLE_NAME, null);
+    }
 
     private void closeCursor() {
         if (mCursor != null && !mCursor.isClosed()) {

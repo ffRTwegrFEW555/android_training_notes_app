@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 
-import com.gamaliev.notes.sync.SyncUtils;
+import com.gamaliev.notes.sync.utils.SyncUtils;
 
 /**
  * @author Vadim Gamaliev

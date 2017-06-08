@@ -483,7 +483,7 @@ public final class FilterSortDialogFragment extends DialogFragment
      */
 
     @Override
-    public void setPresenter(FilterSortDialogContract.Presenter presenter) {
+    public void setPresenter(@NonNull final FilterSortDialogContract.Presenter presenter) {
         mPresenter = presenter;
     }
 

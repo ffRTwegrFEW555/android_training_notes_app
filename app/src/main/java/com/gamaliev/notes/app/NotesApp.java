@@ -8,7 +8,7 @@ import com.gamaliev.notes.common.FileUtils;
 import com.gamaliev.notes.common.db.DbHelper;
 import com.gamaliev.notes.common.observers.ObserverHelper;
 import com.gamaliev.notes.common.shared_prefs.SpCommon;
-import com.gamaliev.notes.sync.SyncUtils;
+import com.gamaliev.notes.sync.utils.SyncUtils;
 
 import static com.gamaliev.notes.conflict.utils.ConflictUtils.checkConflictExistsAndShowStatusBarNotification;
 

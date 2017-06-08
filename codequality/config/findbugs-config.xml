@@ -47,7 +47,7 @@
     </Match>
 
     <Match>
-        <Class name="com.gamaliev.notes.sync.SyncUtils" />
+        <Class name="com.gamaliev.notes.sync.utils.SyncUtils" />
         <Method name="deleteAllFromServer" />
         <Bug pattern="SF_SWITCH_NO_DEFAULT" />
     </Match>
