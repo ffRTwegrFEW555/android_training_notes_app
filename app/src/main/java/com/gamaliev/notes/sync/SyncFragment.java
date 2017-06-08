@@ -91,6 +91,11 @@ public class SyncFragment extends Fragment
         super.onPause();
     }
 
+    @Override
+    public void onDestroyView() {
+        mPresenter.onDestroyView();
+        super.onDestroyView();
+    }
 
     /*
         ...

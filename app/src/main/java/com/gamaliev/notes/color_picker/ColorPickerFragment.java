@@ -243,6 +243,10 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
         }
     }
 
+    /**
+     * Set color to result color box.
+     * @param color Color to set.
+     */
     @SuppressWarnings("MagicNumber")
     public void setResultBoxColor(final int color) {
         shiftColor(mResultView, mResultColor, color,
@@ -375,6 +379,9 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
         return popupWindow;
     }
 
+    /**
+     * Showing popup window for color choice.
+     */
     public void showPopupWindow() {
         mEditPw.setAnimationStyle(R.style.ColorPickerPopupWindowAnimation);
         mEditPw.showAtLocation(mParentView,
@@ -400,7 +407,7 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
 
     @NonNull
     public int[] getHsvColors() {
-        return mHsvColors;
+        return mHsvColors.clone();
     }
 
     @NonNull

@@ -66,9 +66,8 @@ class ConflictSelectDialogPresenter implements ConflictSelectDialogContract.Pres
     /* ... */
     @NonNull private final Context mContext;
     @NonNull private final ConflictSelectDialogContract.View mConflictSelectDialogView;
-
-    @NonNull private String mSyncId;
-    private int mPosition;
+    @NonNull private final String mSyncId;
+    private final int mPosition;
     private boolean mServerEntryLoaded;
     private boolean mLocalEntryLoaded;
 
@@ -162,6 +161,9 @@ class ConflictSelectDialogPresenter implements ConflictSelectDialogContract.Pres
                         // Srv header and body text.
                         final String srvBodyText =
                                 convertEntryJsonToString(mContext, convertMapToJson(mapServer));
+                        if (srvBodyText == null) {
+                            throw new Exception("Cannot convert map to result string.");
+                        }
                         getMainHandler().post(new Runnable() {
                             @Override
                             public void run() {
@@ -214,7 +216,7 @@ class ConflictSelectDialogPresenter implements ConflictSelectDialogContract.Pres
     }
 
     private void initLocalLayout() {
-        final String LocalDbError =
+        final String localDbError =
                 mContext.getString(R.string.fragment_dialog_conflict_select_local_database_error);
 
         // Get entry from database.
@@ -230,7 +232,7 @@ class ConflictSelectDialogPresenter implements ConflictSelectDialogContract.Pres
                 queryBuilder)) {
 
             if (entryCursor == null || !entryCursor.moveToFirst()) {
-                Log.e(TAG, LocalDbError);
+                Log.e(TAG, localDbError);
                 mConflictSelectDialogView.performError(
                         mContext.getString(R.string.fragment_dialog_conflict_select_local_database_error));
                 return;
@@ -238,7 +240,7 @@ class ConflictSelectDialogPresenter implements ConflictSelectDialogContract.Pres
 
             final JSONObject jsonObject = ListEntry.getJsonObjectFromCursor(mContext, entryCursor);
             if (jsonObject == null) {
-                Log.e(TAG, LocalDbError);
+                Log.e(TAG, localDbError);
                 mConflictSelectDialogView.performError(
                         mContext.getString(R.string.fragment_dialog_conflict_select_local_database_error));
                 return;
@@ -246,6 +248,11 @@ class ConflictSelectDialogPresenter implements ConflictSelectDialogContract.Pres
 
             // Local header and body text.
             final String localBodyText = convertEntryJsonToString(mContext, jsonObject.toString());
+            if (localBodyText == null) {
+                mConflictSelectDialogView.performError(
+                        mContext.getString(R.string.fragment_dialog_conflict_select_local_database_error));
+                return;
+            }
             getMainHandler().post(new Runnable() {
                 @Override
                 public void run() {

@@ -36,7 +36,7 @@ class ListPresenter implements ListContract.Presenter, OnStartDragListener {
     @NonNull private static final String TAG = ListPresenter.class.getSimpleName();
 
     /* ... */
-    @NonNull private FragmentActivity mActivity;
+    @NonNull private final FragmentActivity mActivity;
     @NonNull private final ListContract.View mListView;
     @NonNull private Map<String, String> mFilterProfileMap;
     @NonNull private ListRecyclerViewAdapter mAdapter;

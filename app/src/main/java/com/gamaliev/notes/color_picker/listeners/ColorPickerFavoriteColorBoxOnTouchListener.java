@@ -3,22 +3,16 @@ package com.gamaliev.notes.color_picker.listeners;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
-import android.media.RingtoneManager;
 import android.support.annotation.NonNull;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 import com.gamaliev.notes.R;
 import com.gamaliev.notes.color_picker.ColorPickerContract;
-import com.gamaliev.notes.color_picker.ColorPickerFragment;
-import com.gamaliev.notes.color_picker.db.ColorPickerDbHelper;
 
 import static com.gamaliev.notes.common.CommonUtils.animateElevation;
 import static com.gamaliev.notes.common.CommonUtils.animateScaleXy;
-import static com.gamaliev.notes.common.CommonUtils.playSoundAndShowToast;
-import static com.gamaliev.notes.common.CommonUtils.setBackgroundColor;
 
 /**
  * @author Vadim Gamaliev
@@ -31,7 +25,7 @@ public final class ColorPickerFavoriteColorBoxOnTouchListener implements View.On
     @NonNull private final Resources mRes;
     @NonNull private final GestureDetector mGestureDetector;
     @NonNull private final View mView;
-    @NonNull private ColorPickerContract.Presenter mPresenter;
+    @NonNull private final ColorPickerContract.Presenter mPresenter;
     private final int mIndex;
 
 

@@ -10,12 +10,12 @@ import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.ProgressNotificationHelper;
 import com.gamaliev.notes.common.db.DbQueryBuilder;
 import com.gamaliev.notes.common.network.NetworkUtils;
+import com.gamaliev.notes.common.rest.NoteApi;
 import com.gamaliev.notes.common.shared_prefs.SpCommon;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
-import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.entity.ListEntry;
 import com.gamaliev.notes.entity.SyncEntry;
-import com.gamaliev.notes.common.rest.NoteApi;
+import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.sync.db.SyncDbHelper;
 
 import org.json.JSONArray;
@@ -45,6 +45,12 @@ import static com.gamaliev.notes.common.db.DbHelper.getEntriesCount;
 import static com.gamaliev.notes.common.db.DbHelper.insertEntryWithSingleValue;
 import static com.gamaliev.notes.common.observers.ObserverHelper.SYNC;
 import static com.gamaliev.notes.common.observers.ObserverHelper.notifyObservers;
+import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_DATA;
+import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_EXTRA;
+import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_ID;
+import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_STATUS;
+import static com.gamaliev.notes.common.rest.NoteApiUtils.API_STATUS_OK;
+import static com.gamaliev.notes.common.rest.NoteApiUtils.getNoteApi;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_PENDING_FALSE;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_PENDING_TRUE;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPendingSyncStatusForCurrentUser;
@@ -55,12 +61,6 @@ import static com.gamaliev.notes.conflict.utils.ConflictUtils.checkConflictExist
 import static com.gamaliev.notes.list.db.ListDbHelper.deleteEntry;
 import static com.gamaliev.notes.list.db.ListDbHelper.getNewEntries;
 import static com.gamaliev.notes.list.db.ListDbHelper.insertUpdateEntry;
-import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_DATA;
-import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_EXTRA;
-import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_ID;
-import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_STATUS;
-import static com.gamaliev.notes.common.rest.NoteApiUtils.API_STATUS_OK;
-import static com.gamaliev.notes.common.rest.NoteApiUtils.getNoteApi;
 
 /**
  * @author Vadim Gamaliev

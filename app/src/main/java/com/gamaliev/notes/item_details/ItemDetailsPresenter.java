@@ -36,7 +36,7 @@ class ItemDetailsPresenter implements ItemDetailsContract.Presenter {
     @NonNull private final Context mContext;
     @NonNull private final ItemDetailsContract.View mItemDetailsView;
     @Nullable private Cursor mCursor;
-    private long mInitialEntryId;
+    private final long mInitialEntryId;
 
 
     /*

@@ -11,8 +11,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.gamaliev.notes.R;
-import com.gamaliev.notes.list.db.ListDbHelper;
 import com.gamaliev.notes.entity.ListEntry;
+import com.gamaliev.notes.list.db.ListDbHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;

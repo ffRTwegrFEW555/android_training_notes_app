@@ -20,7 +20,7 @@ import static com.gamaliev.notes.item_details.pager_item.ItemDetailsPagerItemFra
 class ItemDetailsPagerAdapter extends FragmentStatePagerAdapter {
 
     /* ... */
-    @NonNull private Context mContext;
+    @NonNull private final Context mContext;
     @NonNull private final ItemDetailsContract.Presenter mPresenter;
 
 

@@ -202,7 +202,7 @@ class FilterSortDialogPresenter implements FilterSortDialogContract.Presenter {
 
     @Override
     public void initSortComponents() {
-        final String order = mFilterProfileMap.get(SP_FILTER_ORDER);;
+        final String order = mFilterProfileMap.get(SP_FILTER_ORDER);
         if (order == null) {
             Log.e(TAG, "Order is null.");
             mFilterSortDialogView.dismiss();
@@ -390,7 +390,7 @@ class FilterSortDialogPresenter implements FilterSortDialogContract.Presenter {
     public void onChange() {
         mSelectedFilterProfile = SP_FILTER_PROFILE_CURRENT_ID;
         mFilterSortDialogView.initProfilesComponents();
-        refreshFoundText();
+        mFilterSortDialogView.refreshFoundText();
     }
 
     @Override

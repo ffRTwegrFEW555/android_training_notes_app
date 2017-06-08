@@ -40,8 +40,8 @@ final class ListRecyclerViewAdapter
         implements ItemTouchHelperAdapter {
 
     /* ... */
-    @NonNull private Context mContext;
-    @NonNull private ListContract.Presenter mPresenter;
+    @NonNull private final Context mContext;
+    @NonNull private final ListContract.Presenter mPresenter;
     @NonNull private final OnStartDragListener mDragStartListener;
     @SuppressWarnings("unused")
     private boolean mSwipeEnable;

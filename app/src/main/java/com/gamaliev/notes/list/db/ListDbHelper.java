@@ -630,6 +630,13 @@ public final class ListDbHelper {
         return resultQueryBuilder;
     }
 
+    /**
+     * Swapping two values.
+     * @param context       Context.
+     * @param entryFirstId  First entry id.
+     * @param entrySecondId Second entry id.
+     * @return True if ok, else false.
+     */
     @SuppressWarnings("UnusedReturnValue")
     public static boolean swapManuallyColumnValue(
             @NonNull final Context context,

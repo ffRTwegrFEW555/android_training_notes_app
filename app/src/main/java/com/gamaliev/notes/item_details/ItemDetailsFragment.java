@@ -123,6 +123,7 @@ public final class ItemDetailsFragment extends Fragment implements ItemDetailsCo
         return isAdded() && !isDetached();
     }
 
+    @NonNull
     @Override
     public ViewPager getViewPager() {
         return (ViewPager) mParentView.findViewById(R.id.fragment_item_details_vp);

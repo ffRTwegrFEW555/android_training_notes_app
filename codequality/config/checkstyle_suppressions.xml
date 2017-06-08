@@ -22,8 +22,8 @@
 
     <!-- MagicNumber -->
     <suppress
-        files="FilterSortDialogFragment.java"
-        lines="811"
+        files="FilterSortDialogPresenter.java"
+        lines="495"
         checks="MagicNumber"/>
     <suppress
         files="ListEntry.java"
