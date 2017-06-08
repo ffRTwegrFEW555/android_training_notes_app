@@ -89,6 +89,7 @@ public class ConflictFragment extends Fragment
         super.onDestroyView();
     }
 
+
     /*
         ...
      */

@@ -58,7 +58,7 @@ import static com.gamaliev.notes.sync.SyncUtils.addToSyncJournalAndLogAndNotify;
 /**
  * @author Vadim Gamaliev <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
-public class ConflictSelectDialogPresenter implements ConflictSelectDialogContract.Presenter {
+class ConflictSelectDialogPresenter implements ConflictSelectDialogContract.Presenter {
 
     /* Logger */
     @NonNull private static final String TAG = ConflictSelectDialogPresenter.class.getSimpleName();
@@ -77,7 +77,7 @@ public class ConflictSelectDialogPresenter implements ConflictSelectDialogContra
         Init
      */
 
-    public ConflictSelectDialogPresenter(
+    ConflictSelectDialogPresenter(
             @NonNull final ConflictSelectDialogContract.View conflictSelectDialogView,
             @NonNull final String syncId,
             final int position) {

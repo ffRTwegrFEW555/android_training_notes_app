@@ -29,13 +29,13 @@ import static com.gamaliev.notes.list.db.ListDbHelper.updateEntry;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class ItemDetailsPagerItemPresenter implements ItemDetailsPagerItemContract.Presenter {
+class ItemDetailsPagerItemPresenter implements ItemDetailsPagerItemContract.Presenter {
 
     /* Logger */
     @NonNull private static final String TAG = ItemDetailsPagerItemPresenter.class.getSimpleName();
 
     /* Extra */
-    @NonNull public static final String EXTRA_ENTRY = "ItemDetailsPagerItemPresenter.EXTRA_ENTRY";
+    @NonNull private static final String EXTRA_ENTRY = "ItemDetailsPagerItemPresenter.EXTRA_ENTRY";
 
     /* ... */
     @NonNull private final Context mContext;
@@ -50,7 +50,7 @@ public class ItemDetailsPagerItemPresenter implements ItemDetailsPagerItemContra
         Init
      */
 
-    public ItemDetailsPagerItemPresenter(
+    ItemDetailsPagerItemPresenter(
             @NonNull final ItemDetailsPagerItemContract.View itemDetailsPagerItemView) {
 
         mContext = getAppContext();

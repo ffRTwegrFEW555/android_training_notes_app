@@ -14,7 +14,7 @@ import com.gamaliev.notes.entity.ListEntry;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public interface ItemDetailsPagerItemContract {
+interface ItemDetailsPagerItemContract {
 
     interface View extends BaseView<Presenter> {
 

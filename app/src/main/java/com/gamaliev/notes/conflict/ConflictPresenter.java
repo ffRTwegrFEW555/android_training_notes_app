@@ -16,7 +16,7 @@ import static com.gamaliev.notes.common.db.DbHelper.getEntries;
  * @author Vadim Gamaliev <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 @SuppressWarnings("NullableProblems")
-public class ConflictPresenter implements ConflictContract.Presenter {
+class ConflictPresenter implements ConflictContract.Presenter {
 
     /* ... */
     @NonNull private final Context mContext;
@@ -25,14 +25,14 @@ public class ConflictPresenter implements ConflictContract.Presenter {
     @Nullable private Cursor mCursor;
 
 
-
     /*
         Init
      */
 
-    public ConflictPresenter(@NonNull final ConflictContract.View conflictView) {
+    ConflictPresenter(@NonNull final ConflictContract.View conflictView) {
         mContext = getAppContext();
         mConflictView = conflictView;
+
         mConflictView.setPresenter(this);
     }
 

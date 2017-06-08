@@ -14,7 +14,7 @@ import static com.gamaliev.notes.color_picker.db.ColorPickerDbHelper.getAllFavor
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class ColorPickerPresenter implements ColorPickerContract.Presenter {
+class ColorPickerPresenter implements ColorPickerContract.Presenter {
 
     /* ... */
     @NonNull private final ColorPickerContract.View mColorPickerView;
@@ -25,7 +25,7 @@ public class ColorPickerPresenter implements ColorPickerContract.Presenter {
         Init
      */
 
-    public ColorPickerPresenter(@NonNull final ColorPickerContract.View colorPickerView) {
+    ColorPickerPresenter(@NonNull final ColorPickerContract.View colorPickerView) {
         mColorPickerView = colorPickerView;
         mColorPickerView.setPresenter(this);
         mContext = getAppContext();

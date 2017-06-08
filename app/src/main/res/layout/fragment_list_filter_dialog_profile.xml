@@ -38,7 +38,7 @@
         android:layout_toStartOf="@+id/fragment_list_filter_dialog_profile_delete"
         android:layout_centerVertical="true"
         android:theme="@style/AppTheme.ContrastColorAccent"
-        android:visibility="gone"/>
+        android:visibility="visible"/>
 
     <!-- Profile delete button -->
     <ImageButton

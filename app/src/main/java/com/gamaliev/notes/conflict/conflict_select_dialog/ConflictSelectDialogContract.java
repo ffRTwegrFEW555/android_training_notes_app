@@ -8,7 +8,7 @@ import com.gamaliev.notes.BaseView;
 /**
  * @author Vadim Gamaliev <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
-public interface ConflictSelectDialogContract {
+interface ConflictSelectDialogContract {
 
     interface View extends BaseView<Presenter> {
 

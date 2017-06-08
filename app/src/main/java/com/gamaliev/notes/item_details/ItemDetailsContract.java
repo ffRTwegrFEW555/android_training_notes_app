@@ -12,7 +12,7 @@ import com.gamaliev.notes.BaseView;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public interface ItemDetailsContract {
+interface ItemDetailsContract {
 
     interface View extends BaseView<Presenter> {
 

@@ -25,7 +25,7 @@ import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.getSelecte
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public class ItemDetailsPresenter implements ItemDetailsContract.Presenter {
+class ItemDetailsPresenter implements ItemDetailsContract.Presenter {
 
     /* Logger */
     @NonNull private static final String TAG = ItemDetailsPresenter.class.getSimpleName();
@@ -43,7 +43,7 @@ public class ItemDetailsPresenter implements ItemDetailsContract.Presenter {
         Init
      */
 
-    public ItemDetailsPresenter(
+    ItemDetailsPresenter(
             @NonNull final ItemDetailsContract.View itemDetailsView,
             final long initialEntryId) {
 
