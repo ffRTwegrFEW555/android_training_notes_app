@@ -25,8 +25,8 @@ import java.util.concurrent.ExecutorService;
 import retrofit2.Response;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.gamaliev.notes.TestUtils.clearUserPrefs;
-import static com.gamaliev.notes.TestUtils.initDefaultPrefs;
+import static com.gamaliev.notes.UtilsTest.clearUserPrefs;
+import static com.gamaliev.notes.UtilsTest.initDefaultPrefs;
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
 import static com.gamaliev.notes.common.db.DbHelper.COMMON_COLUMN_SYNC_ID;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;

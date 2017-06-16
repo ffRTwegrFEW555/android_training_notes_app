@@ -12,8 +12,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import static com.gamaliev.notes.TestUtils.clearUserPrefs;
-import static com.gamaliev.notes.TestUtils.initDefaultPrefs;
+import static com.gamaliev.notes.UtilsTest.clearUserPrefs;
+import static com.gamaliev.notes.UtilsTest.initDefaultPrefs;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_ID;
 import static com.gamaliev.notes.common.shared_prefs.SpFilterProfiles.SP_FILTER_PROFILE_CURRENT_ID;
 import static org.junit.Assert.assertEquals;

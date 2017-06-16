@@ -19,8 +19,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.gamaliev.notes.TestUtils.clearUserPrefs;
-import static com.gamaliev.notes.TestUtils.initDefaultPrefs;
+import static com.gamaliev.notes.UtilsTest.clearUserPrefs;
+import static com.gamaliev.notes.UtilsTest.initDefaultPrefs;
 import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_MANUALLY;

@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import java.util.Set;
 
-import static com.gamaliev.notes.TestUtils.initDefaultPrefs;
+import static com.gamaliev.notes.UtilsTest.initDefaultPrefs;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 

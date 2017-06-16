@@ -13,8 +13,8 @@ import org.junit.Test;
 
 import java.io.File;
 
-import static com.gamaliev.notes.TestUtils.clearUserPrefs;
-import static com.gamaliev.notes.TestUtils.initDefaultPrefs;
+import static com.gamaliev.notes.UtilsTest.clearUserPrefs;
+import static com.gamaliev.notes.UtilsTest.initDefaultPrefs;
 import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_TABLE_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

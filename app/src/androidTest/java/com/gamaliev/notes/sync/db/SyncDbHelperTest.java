@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import java.util.Date;
 
-import static com.gamaliev.notes.TestUtils.initDefaultPrefs;
+import static com.gamaliev.notes.UtilsTest.initDefaultPrefs;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_COLUMN_ACTION;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_COLUMN_AMOUNT;
 import static com.gamaliev.notes.common.db.DbHelper.SYNC_COLUMN_FINISHED;

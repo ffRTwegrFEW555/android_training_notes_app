@@ -9,8 +9,8 @@ import org.junit.Test;
 import java.util.Map;
 import java.util.Set;
 
-import static com.gamaliev.notes.TestUtils.clearUserPrefs;
-import static com.gamaliev.notes.TestUtils.initDefaultPrefs;
+import static com.gamaliev.notes.UtilsTest.clearUserPrefs;
+import static com.gamaliev.notes.UtilsTest.initDefaultPrefs;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;

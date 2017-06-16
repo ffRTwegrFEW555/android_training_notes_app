@@ -10,6 +10,12 @@
     </Match>
 
     <Match>
+        <!-- Test classes are suffixed by 'Test' -->
+        <Class name="~.*\.*Test" />
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD, URF_UNREAD_FIELD" />
+    </Match>
+
+    <Match>
         <Class name="com.gamaliev.notes.common.ProgressNotificationHelper" />
         <Method name="ProgressNotificationHelper" />
         <Local name="random" />

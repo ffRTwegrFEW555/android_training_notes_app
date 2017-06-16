@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.uiautomator.UiDevice;
 
 import com.gamaliev.notes.common.db.DbHelper;
 import com.gamaliev.notes.common.shared_prefs.SpCommon;
@@ -17,13 +18,13 @@ import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPreferencesName;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
-public final class TestUtils {
+public final class UtilsTest {
 
     /*
         Init
      */
 
-    private TestUtils() {}
+    private UtilsTest() {}
 
 
     /*
@@ -71,5 +72,37 @@ public final class TestUtils {
         boolean result = context.deleteDatabase(dbName);
         DbHelper.clearInstances();
         return result;
+    }
+
+    /**
+     * Sleep the current thread.
+     * @param millis        Time to sleep. if '-1', then default value is '1000'.
+     * @throws Exception    Thread.sleep() exceptions.
+     */
+    public static void sleepCurrentThread(final int millis) throws Exception {
+        if (millis == -1) {
+            Thread.sleep(1000);
+        } else {
+            Thread.sleep(millis);
+        }
+    }
+
+
+    /*
+        Utils. UI
+     */
+
+    /**
+     * Turn left -> Thread.sleep(1000) -> Turn right -> Thread.sleep(1000) -> Turn natural.
+     * @param device        UI device.
+     * @throws Exception    Thread.sleep() exceptions.
+     */
+    public static void changeOrientation(@NonNull final UiDevice device) throws Exception {
+        device.setOrientationLeft();
+        sleepCurrentThread(-1);
+        device.setOrientationRight();
+        sleepCurrentThread(-1);
+        device.setOrientationNatural();
+        sleepCurrentThread(-1);
     }
 }

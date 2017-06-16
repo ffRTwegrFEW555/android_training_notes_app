@@ -65,8 +65,8 @@ public final class NotesHttpServerTest {
     private boolean mIsRunning = false;
 
     /* Db, <UserId, <NoteId, Note>> */
-    private Map<String, Map<String, JSONObject>> mDb;
-    private AtomicInteger mNoteIdCounter;
+    @NonNull private Map<String, Map<String, JSONObject>> mDb;
+    @NonNull private AtomicInteger mNoteIdCounter;
 
 
     /*
