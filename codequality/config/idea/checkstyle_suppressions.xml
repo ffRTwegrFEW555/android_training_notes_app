@@ -13,12 +13,16 @@
         files="Manifest\.java"
         checks=".*"/>
 
-
     <!-- Tests -->
     <suppress
         files=".*Test\.java"
         checks="MagicNumber"/>
-
+    <suppress
+        files=".*Test\.java"
+        checks="AvoidStarImport"/>
+    <suppress
+        files=".*Test\.java"
+        checks="JavadocMethod"/>
 
     <!-- MagicNumber -->
     <suppress
@@ -33,7 +37,6 @@
         files="ListDbMockHelper.java"
         lines="139"
         checks="MagicNumber"/>
-
 
     <!-- UnusedImports -->
     <suppress

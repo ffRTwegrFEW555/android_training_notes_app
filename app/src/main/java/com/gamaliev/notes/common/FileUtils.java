@@ -1,6 +1,6 @@
 package com.gamaliev.notes.common;
 
-import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -87,17 +87,17 @@ public final class FileUtils {
      * Starting the export in asynchronous mode,
      * using a dedicated shared thread, with looper and message queue.<br>
      *
-     * @param activity      Activity.
+     * @param context       Context.
      * @param selectedFile  Selected file.
      */
     public static void exportEntriesAsync(
-            @NonNull final Activity activity,
+            @NonNull final Context context,
             @NonNull final Uri selectedFile) {
 
         IMPORT_EXPORT_HANDLER_LOOPER_THREAD.getHandler().post(new Runnable() {
             @Override
             public void run() {
-                exportEntries(activity, selectedFile);
+                exportEntries(context, selectedFile);
             }
         });
     }
@@ -106,30 +106,30 @@ public final class FileUtils {
      * Export entries from database to file with Json-format.<br>
      * If the operation time is longer than the specified time, then progress notification enable.
      *
-     * @param activity              Activity.
+     * @param context               Context.
      * @param selectedFile          Selected file.
      */
     private static void exportEntries(
-            @NonNull final Activity activity,
+            @NonNull final Context context,
             @NonNull final Uri selectedFile) {
 
         showToastRunOnUiThread(
-                activity.getString(R.string.file_utils_export_notification_start),
+                context.getString(R.string.file_utils_export_notification_start),
                 Toast.LENGTH_SHORT);
 
         final ProgressNotificationHelper notification =
                 new ProgressNotificationHelper(
-                        activity,
-                        activity.getString(R.string.file_utils_export_notification_panel_title),
-                        activity.getString(R.string.file_utils_export_notification_panel_text),
-                        activity.getString(R.string.file_utils_export_notification_panel_finish));
+                        context,
+                        context.getString(R.string.file_utils_export_notification_panel_title),
+                        context.getString(R.string.file_utils_export_notification_panel_text),
+                        context.getString(R.string.file_utils_export_notification_panel_finish));
         notification.startTimerToEnableNotification(
-                getProgressNotificationTimerForCurrentUser(activity.getApplicationContext()),
+                getProgressNotificationTimerForCurrentUser(context.getApplicationContext()),
                 false);
 
         final JSONArray jsonArray = new JSONArray();
         final String result = getEntriesFromDatabase(
-                activity,
+                context,
                 jsonArray,
                 notification);
 
@@ -137,7 +137,7 @@ public final class FileUtils {
             Log.e(TAG, "getEntriesFromDatabase() is null.");
         } else {
             saveStringToFile(
-                    activity,
+                    context,
                     jsonArray,
                     result,
                     selectedFile,
@@ -148,7 +148,7 @@ public final class FileUtils {
     /**
      * Get all entries from database.
      *
-     * @param activity      Activity.
+     * @param context       Context.
      * @param jsonArray     JSONArray-object to fill.
      * @param notification  Notification helper.
      *
@@ -156,12 +156,12 @@ public final class FileUtils {
      */
     @Nullable
     private static String getEntriesFromDatabase(
-            @NonNull final Activity activity,
+            @NonNull final Context context,
             @NonNull final JSONArray jsonArray,
             @NonNull final ProgressNotificationHelper notification) {
 
         final Cursor cursor = getEntries(
-                activity,
+                context,
                 LIST_ITEMS_TABLE_NAME,
                 null);
 
@@ -180,7 +180,7 @@ public final class FileUtils {
                     break;
                 }
 
-                jsonObject = getJsonObjectFromCursor(activity, cursor);
+                jsonObject = getJsonObjectFromCursor(context, cursor);
 
             // Catch clause is used, because during the export there can be changes.
             } catch (IllegalStateException e) {
@@ -206,14 +206,14 @@ public final class FileUtils {
      * Saving given string to file, and notifying.
      */
     private static void saveStringToFile(
-            @NonNull final Activity activity,
+            @NonNull final Context context,
             @NonNull final JSONArray jsonArray,
             @NonNull final String result,
             @NonNull final Uri selectedFile,
             @NonNull final ProgressNotificationHelper notification) {
 
         try {
-            final OutputStream os = activity
+            final OutputStream os = context
                     .getContentResolver()
                     .openOutputStream(selectedFile);
             if (os == null) {
@@ -223,7 +223,7 @@ public final class FileUtils {
             os.close();
 
             showToastRunOnUiThread(
-                    activity.getString(R.string.file_utils_export_toast_message_success)
+                    context.getString(R.string.file_utils_export_toast_message_success)
                             + " (" + jsonArray.length() + ")",
                     Toast.LENGTH_LONG);
 
@@ -237,7 +237,7 @@ public final class FileUtils {
         } catch (IOException e) {
             Log.e(TAG, e.toString());
             showToastRunOnUiThread(
-                    activity.getString(R.string.file_utils_export_toast_message_failed),
+                    context.getString(R.string.file_utils_export_toast_message_failed),
                     Toast.LENGTH_SHORT);
         }
     }
@@ -251,17 +251,17 @@ public final class FileUtils {
      * Starting the import in asynchronous mode,
      * using a dedicated shared thread, with looper and message queue.<br>
      *
-     * @param activity              Activity.
-     * @param selectedFile          Selected file.
+     * @param context       Context.
+     * @param selectedFile  Selected file.
      */
     public static void importEntriesAsync(
-            @NonNull final Activity activity,
+            @NonNull final Context context,
             @NonNull final Uri selectedFile) {
 
         IMPORT_EXPORT_HANDLER_LOOPER_THREAD.getHandler().post(new Runnable() {
             @Override
             public void run() {
-                importEntries(activity, selectedFile);
+                importEntries(context, selectedFile);
             }
         });
     }
@@ -270,50 +270,50 @@ public final class FileUtils {
      * Import entries from file to database.<br>
      * If the operation time is longer than the specified time, then progress notification enable.
      *
-     * @param activity      Activity.
+     * @param context       Context.
      * @param selectedFile  Selected file.
      */
     private static void importEntries(
-            @NonNull final Activity activity,
+            @NonNull final Context context,
             @NonNull final Uri selectedFile) {
 
         showToastRunOnUiThread(
-                activity.getString(R.string.file_utils_import_notification_start),
+                context.getString(R.string.file_utils_import_notification_start),
                 Toast.LENGTH_SHORT);
 
         final ProgressNotificationHelper notification =
                 new ProgressNotificationHelper(
-                        activity,
-                        activity.getString(R.string.file_utils_import_notification_panel_title),
-                        activity.getString(R.string.file_utils_import_notification_panel_text),
-                        activity.getString(R.string.file_utils_import_notification_panel_finish));
+                        context,
+                        context.getString(R.string.file_utils_import_notification_panel_title),
+                        context.getString(R.string.file_utils_import_notification_panel_text),
+                        context.getString(R.string.file_utils_import_notification_panel_finish));
         notification.startTimerToEnableNotification(
-                getProgressNotificationTimerForCurrentUser(activity.getApplicationContext()),
+                getProgressNotificationTimerForCurrentUser(context.getApplicationContext()),
                 false);
 
-        final String inputJson = getStringFromFile(activity, selectedFile);
+        final String inputJson = getStringFromFile(context, selectedFile);
         if (inputJson == null) {
             Log.e(TAG, "getStringFromFile() is null.");
         } else {
             parseAndSaveToDatabase(
-                    activity,
+                    context,
                     inputJson,
                     notification);
         }
     }
 
     /**
-     * @param activity      Activity.
+     * @param context       Context.
      * @param selectedFile  File with string.
      */
     @Nullable
     private static String getStringFromFile(
-            @NonNull final Activity activity,
+            @NonNull final Context context,
             @NonNull final Uri selectedFile) {
 
         String inputJson = null;
         try {
-            final InputStream is = activity
+            final InputStream is = context
                     .getContentResolver()
                     .openInputStream(selectedFile);
             if (is == null) {
@@ -334,7 +334,7 @@ public final class FileUtils {
         } catch (IOException e) {
             Log.e(TAG, e.toString());
             showToastRunOnUiThread(
-                    activity.getString(R.string.file_utils_import_toast_message_failed),
+                    context.getString(R.string.file_utils_import_toast_message_failed),
                     Toast.LENGTH_SHORT);
         }
 
@@ -344,16 +344,16 @@ public final class FileUtils {
     /**
      * Parse given string in Json-format, and save to database.
      *
-     * @param activity  Activity.
+     * @param context   Context.
      * @param inputJson String in Json-format.
      */
     private static void parseAndSaveToDatabase(
-            @NonNull final Activity activity,
+            @NonNull final Context context,
             @NonNull final String inputJson,
             @NonNull final ProgressNotificationHelper notification) {
 
         try {
-            final SQLiteDatabase db = getWritableDb(activity.getApplicationContext());
+            final SQLiteDatabase db = getWritableDb(context.getApplicationContext());
             if (db == null) {
                 throw new SQLiteException(getDbFailMessage());
             }
@@ -366,8 +366,8 @@ public final class FileUtils {
             try {
                 for (int i = 0; i < size; i++) {
                     final JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    final ListEntry entry = convertJsonToListEntry(activity, jsonObject);
-                    ListDbHelper.insertUpdateEntry(activity, entry, db, false);
+                    final ListEntry entry = convertJsonToListEntry(context, jsonObject);
+                    ListDbHelper.insertUpdateEntry(context, entry, db, false);
 
                     // Update progress. Without flooding. 0-100%
                     final int percentNew = i * 100 / size;
@@ -388,27 +388,27 @@ public final class FileUtils {
             }
 
             makeSuccessImportOperations(
-                    activity,
+                    context,
                     jsonArray,
                     notification);
 
         } catch (JSONException | SQLiteException e) {
             Log.e(TAG, e.toString());
             showToastRunOnUiThread(
-                    activity.getString(R.string.file_utils_import_toast_message_failed),
+                    context.getString(R.string.file_utils_import_toast_message_failed),
                     Toast.LENGTH_SHORT);
         }
     }
 
     private static void makeSuccessImportOperations(
-            @NonNull final Activity activity,
+            @NonNull final Context context,
             @NonNull final JSONArray jsonArray,
             @NonNull final ProgressNotificationHelper notification) {
 
         notification.endProgress();
 
         showToastRunOnUiThread(
-                activity.getString(R.string.file_utils_import_toast_message_success)
+                context.getString(R.string.file_utils_import_toast_message_success)
                         + " (" + jsonArray.length() + ")",
                 Toast.LENGTH_LONG);
 

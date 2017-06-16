@@ -11,6 +11,7 @@ import com.gamaliev.notes.common.ProgressNotificationHelper;
 import com.gamaliev.notes.common.db.DbQueryBuilder;
 import com.gamaliev.notes.common.network.NetworkUtils;
 import com.gamaliev.notes.common.rest.NoteApi;
+import com.gamaliev.notes.common.rest.NoteApiUtils;
 import com.gamaliev.notes.common.shared_prefs.SpCommon;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import com.gamaliev.notes.entity.ListEntry;
@@ -50,9 +51,9 @@ import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_EXTRA;
 import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_ID;
 import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_STATUS;
 import static com.gamaliev.notes.common.rest.NoteApiUtils.API_STATUS_OK;
-import static com.gamaliev.notes.common.rest.NoteApiUtils.getNoteApi;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_PENDING_FALSE;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.SP_USER_SYNC_PENDING_TRUE;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.getApiUrlForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getPendingSyncStatusForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getProgressNotificationTimerForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
@@ -274,7 +275,7 @@ public final class SyncUtils {
                     continue;
                 }
                 try {
-                    final NoteApi noteApi = getNoteApi();
+                    final NoteApi noteApi = NoteApiUtils.newInstance(getApiUrlForCurrentUser(context));
                     if (noteApi == null) {
                         throw new Exception("Cannot get note api.");
                     }
@@ -330,7 +331,7 @@ public final class SyncUtils {
             while (cursor.moveToNext()) {
                 final String syncId = cursor.getString(cursor.getColumnIndex(COMMON_COLUMN_SYNC_ID));
                 try {
-                    final NoteApi noteApi = getNoteApi();
+                    final NoteApi noteApi = NoteApiUtils.newInstance(getApiUrlForCurrentUser(context));
                     if (noteApi == null) {
                         throw new Exception("Cannot get note api.");
                     }
@@ -387,7 +388,7 @@ public final class SyncUtils {
         int counterDeletedOnLocal   = 0;
 
         try {
-            final NoteApi noteApi = getNoteApi();
+            final NoteApi noteApi = NoteApiUtils.newInstance(getApiUrlForCurrentUser(context));
             if (noteApi == null) {
                 throw new Exception("Cannot get note api.");
             }
@@ -600,7 +601,7 @@ public final class SyncUtils {
         int counter = 0;
 
         try {
-            final NoteApi noteApi = getNoteApi();
+            final NoteApi noteApi = NoteApiUtils.newInstance(getApiUrlForCurrentUser(context));
             if (noteApi == null) {
                 throw new Exception("Cannot get note api.");
             }

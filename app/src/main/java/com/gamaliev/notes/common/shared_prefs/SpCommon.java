@@ -29,14 +29,15 @@ import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
 
+@SuppressWarnings("WeakerAccess")
 public final class SpCommon {
 
     /* Logger */
     @NonNull private static final String TAG = SpCommon.class.getSimpleName();
 
     /* ... */
-    @NonNull static final String SP_INITIALIZED = "initialized";
-    @NonNull static final String SP_MAIN = "Main";
+    @NonNull public static final String SP_INITIALIZED = "initialized";
+    @NonNull public static final String SP_MAIN = "Main";
 
 
     /*
@@ -151,6 +152,19 @@ public final class SpCommon {
     }
 
     /**
+     * Convert Map-format to Json-format.
+     * @param map   Map-format.
+     * @return      Json-format.
+     */
+    @NonNull
+    public static String convertMapToJson(
+            @NonNull final Map<String, String> map) {
+
+        final JSONObject jsonObject = new JSONObject(map);
+        return jsonObject.toString();
+    }
+
+    /**
      * Convert Json-format to Formatted string with line breaks.
      * @param json  Json-format.
      * @return      Formatted string, with line breaks.
@@ -212,18 +226,5 @@ public final class SpCommon {
                 .append(viewed);
 
         return sb.toString();
-    }
-
-    /**
-     * Convert Map-format to Json-format.
-     * @param map   Map-format.
-     * @return      Json-format.
-     */
-    @NonNull
-    public static String convertMapToJson(
-            @NonNull final Map<String, String> map) {
-
-        final JSONObject jsonObject = new JSONObject(map);
-        return jsonObject.toString();
     }
 }

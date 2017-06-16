@@ -139,17 +139,17 @@ public final class ListDbHelper {
         cv.put(LIST_ITEMS_COLUMN_COLOR,         color);
         cv.put(LIST_ITEMS_COLUMN_IMAGE_URL,     imageUrl);
 
-        String utcCreatedDate =
+        final String utcCreatedDate =
                 getStringDateFormatSqlite(
                         context,
                         entry.getCreated() == null ? new Date() : entry.getCreated(),
                         true);
-        String utcEditedDate =
+        final String utcEditedDate =
                 getStringDateFormatSqlite(
                         context,
                         entry.getEdited() == null ? new Date() : entry.getEdited(),
                         true);
-        String utcViewedDate =
+        final String utcViewedDate =
                 getStringDateFormatSqlite(
                         context,
                         entry.getViewed() == null ? new Date() : entry.getViewed(),

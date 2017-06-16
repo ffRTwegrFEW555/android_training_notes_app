@@ -99,7 +99,7 @@ public class SyncEntry implements Parcelable {
     // --Commented out by Inspection STOP
 
     public void setFinished(@NonNull final Date finished) {
-        mFinished = new Date(finished.getTime());
+        mFinished = (Date) finished.clone();
     }
 
     public void setAction(@NonNull final Integer action) {
@@ -128,7 +128,7 @@ public class SyncEntry implements Parcelable {
 
     @Nullable
     public Date getFinished() {
-        return mFinished == null ? null : new Date(mFinished.getTime());
+        return mFinished == null ? null : (Date) mFinished.clone();
     }
 
     @Nullable
@@ -150,6 +150,35 @@ public class SyncEntry implements Parcelable {
     /*
         ...
      */
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final SyncEntry syncEntry = (SyncEntry) o;
+
+        return !((mId != null ? !mId.equals(syncEntry.mId) : syncEntry.mId != null)
+                || (mFinished != null ? !mFinished.equals(syncEntry.mFinished) : syncEntry.mFinished != null)
+                || (mAction != null ? !mAction.equals(syncEntry.mAction) : syncEntry.mAction != null)
+                || (mStatus != null ? !mStatus.equals(syncEntry.mStatus) : syncEntry.mStatus != null)
+                || (mAmount != null ? !mAmount.equals(syncEntry.mAmount) : syncEntry.mAmount != null));
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mId != null ? mId.hashCode() : 0;
+        result = 31 * result + (mFinished != null ? mFinished.hashCode() : 0);
+        result = 31 * result + (mAction != null ? mAction.hashCode() : 0);
+        result = 31 * result + (mStatus != null ? mStatus.hashCode() : 0);
+        result = 31 * result + (mAmount != null ? mAmount.hashCode() : 0);
+        return result;
+    }
 
     @Override
     public String toString() {

@@ -5,7 +5,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.2'
+        classpath 'com.android.tools.build:gradle:2.3.3'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -15,7 +15,25 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        maven {
+            url "https://maven.google.com"
+        }
     }
+}
+
+ext {
+    buildToolsVersion       = "25.0.2"
+
+    espressoContribVersion  = "2.2.2"
+    uiautomatorV18Version   = "2.1.2"
+
+    junitVersion            = "4.12"
+    hamcrestVersion         = "1.3"
+    mockitoCoreVersion      = "1.10.19"
+
+    supportLibVersion       = "25.4.0"
+    picassoVersion          = "2.5.2"
+    retrofitVersion         = "2.3.0"
 }
 
 task clean(type: Delete) {

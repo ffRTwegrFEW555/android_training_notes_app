@@ -1,0 +1,263 @@
+    /*
+        == Info response
+
+        > GET /info HTTP/1.1
+        > Host: notesbackend-yufimtsev.rhcloud.com
+        > User-Agent: insomnia/5.0.20
+        > Accept: *\/*
+        > Accept-Encoding: deflate, gzip
+
+
+        < HTTP/1.1 200 OK
+        < Date: Wed, 17 May 2017 06:19:45 GMT
+        < Server: Apache/2.2.15 (Red Hat)
+        < Access-Control-Allow-Origin: *
+        < Content-Type: application/json; charset=utf-8
+        < Vary: Accept-Encoding
+        < Content-Encoding: gzip
+        < Content-Length: 274
+
+        {
+            "status": "ok",
+            "data": {
+                "Host": "notesbackend-yufimtsev.rhcloud.com",
+                "User-Agent": "insomnia\/5.0.20",
+                "Accept": "*\/*",
+                "Accept-Encoding": "deflate, gzip",
+                "X-Forwarded-Proto": "https",
+                "X-Forwarded-Port": "443",
+                "X-Forwarded-SSL-Client-Cert": "",
+                "X-Request-Start": "t=1495001985887573",
+                "X-Client-IP": "109.195.110.251",
+                "X-Forwarded-For": "109.195.110.251",
+                "X-Forwarded-Host": "notesbackend-yufimtsev.rhcloud.com",
+                "X-Forwarded-Server": "notesbackend-yufimtsev.rhcloud.com",
+                "Connection": "Keep-Alive"
+            }
+        }
+
+
+        == Error
+
+        < HTTP/1.1 404 Not Found
+        < Date: Tue, 13 Jun 2017 05:30:19 GMT
+        < Server: Apache/2.2.15 (Red Hat)
+        < Access-Control-Allow-Origin: *
+        < Content-Length: 78
+        < Content-Type: text/html
+
+        <h1>404 Not Found</h1><h3>The page you have requested could not be found.</h3>
+     */
+
+    /*
+        == Get all
+
+        > GET /user/777/notes HTTP/1.1
+        > Host: notesbackend-yufimtsev.rhcloud.com
+        > User-Agent: insomnia/5.0.20
+        > Accept: *\/*
+        > Accept-Encoding: deflate, gzip
+
+
+        < HTTP/1.1 200 OK
+        < Date: Mon, 29 May 2017 08:24:03 GMT
+        < Server: Apache/2.2.15 (Red Hat)
+        < Access-Control-Allow-Origin: *
+        < Content-Type: application/json; charset=utf-8
+        < Vary: Accept-Encoding
+        < Content-Encoding: gzip
+        < Content-Length: 1106
+
+        {
+            "status": "ok",
+            "data": [
+                {
+                    "id": "11827",
+                    "title": "Gennady Georgiyev",
+                    "description": "Sunshine aqua Fantastic Destiny Tranquillity cosmopolitan Eternity bubble ",
+                    "color": "#B000FF",
+                    "created": "2017-05-09T21:25:35+00:00",
+                    "edited": "2017-05-10T21:25:35+00:00",
+                    "viewed": "2017-05-03T21:25:35+00:00",
+                    "imageUrl": "https:\/\/developer.android.com\/images\/brand\/Android_Robot_100.png",
+                    "extra": null
+                },
+                {
+                    "id": "11828",
+                    "title": "Maria Timmerman",
+                    "description": "Blossom Gorgeous Destiny butterfly galaxy Sunshine Rainbow Cherish ",
+                    "color": "#B0FF00",
+                    "created": "2017-05-01T21:25:35+00:00",
+                    "edited": "2017-05-09T21:25:35+00:00",
+                    "viewed": "2017-05-06T21:25:35+00:00",
+                    "imageUrl": "https:\/\/developer.android.com\/images\/brand\/Android_Robot_100.png",
+                    "extra": null
+                }
+            ]
+        }
+     */
+
+    /*
+        == Get note
+
+        > GET /user/777/note/13670 HTTP/1.1
+        > Host: notesbackend-yufimtsev.rhcloud.com
+        > User-Agent: insomnia/5.2.0
+        > Accept: *\/*
+        > Accept-Encoding: deflate, gzip
+
+
+        < HTTP/1.1 200 OK
+        < Date: Tue, 13 Jun 2017 05:37:24 GMT
+        < Server: Apache/2.2.15 (Red Hat)
+        < Access-Control-Allow-Origin: *
+        < Content-Type: application/json; charset=utf-8
+        < Vary: Accept-Encoding
+        < Content-Encoding: gzip
+        < Content-Length: 254
+
+        {
+            "status": "ok",
+            "data": {
+                "id": "13670",
+                "title": "Boris Babushkin",
+                "description": "butterfly Blossom aqua banana Blossom Peace banana Fantastic ",
+                "color": "#00D0FF",
+                "created": "2017-05-03T21:25:35+00:00",
+                "edited": "2017-05-01T21:25:35+00:00",
+                "viewed": "2017-05-05T21:25:35+00:00",
+                "imageUrl": "https:\/\/developer.android.com\/images\/brand\/Android_Robot_100.png",
+                "extra": null
+            }
+        }
+
+
+        == Error (/user/777/note/1367)
+
+        {
+            "status": "error",
+            "error": "not_found"
+        }
+
+     */
+
+    /*
+        == Add note
+
+        > POST /user/777/notes HTTP/1.1
+        > Host: notesbackend-yufimtsev.rhcloud.com
+        > User-Agent: insomnia/5.0.20
+        > Accept: *\/*
+        > Accept-Encoding: deflate, gzip
+        > Content-Type: application/json
+        > Content-Length: 340
+
+        {
+            "title": "Yelena Yeremeyeva",
+            "color": "#0010FF",
+            "imageUrl": "https:\/\/developer.android.com\/images\/brand\/Android_Robot_100.png",
+            "description": "butterfly galaxy Peace Smile bubble cosmopolitan cosy Love ",
+            "created": "2017-05-05T02:25:35+05:00",
+            "edited": "2017-05-05T02:25:35+05:00",
+            "viewed": "2017-05-08T02:25:35+05:00"
+        }
+
+
+        < HTTP/1.1 200 OK
+        < Date: Fri, 19 May 2017 09:33:41 GMT
+        < Server: Apache/2.2.15 (Red Hat)
+        < Access-Control-Allow-Origin: *
+        < Content-Type: application/json; charset=utf-8
+        < Vary: Accept-Encoding
+        < Content-Encoding: gzip
+        < Content-Length: 47
+
+        {
+            "status": "ok",
+            "data": 4242
+        }
+
+
+        == Error
+
+        {
+            "status": "error",
+            "error": "invalid_data"
+        }
+     */
+
+    /*
+        == Update note
+
+        > POST /user/777/note/1234 HTTP/1.1
+        > Host: notesbackend-yufimtsev.rhcloud.com
+        > User-Agent: insomnia/5.0.20
+        > Accept: *\/*
+        > Accept-Encoding: deflate, gzip
+        > Content-Type: application/json
+        > Content-Length: 340
+
+        {
+            "title": "Yelena Yeremeyeva",
+            "color": "#0010FF",
+            "imageUrl": "https:\/\/developer.android.com\/images\/brand\/Android_Robot_100.png",
+            "description": "butterfly galaxy Peace Smile bubble cosmopolitan cosy Love ",
+            "created": "2017-05-05T02:25:35+05:00",
+            "edited": "2017-05-05T02:25:35+05:00",
+            "viewed": "2017-05-08T02:25:35+05:00"
+        }
+
+
+        < HTTP/1.1 200 OK
+        < Date: Fri, 19 May 2017 09:33:41 GMT
+        < Server: Apache/2.2.15 (Red Hat)
+        < Access-Control-Allow-Origin: *
+        < Content-Type: application/json; charset=utf-8
+        < Vary: Accept-Encoding
+        < Content-Encoding: gzip
+        < Content-Length: 47
+
+        {
+            "status": "ok"
+        }
+
+
+        == Error
+
+        {
+            "status": "error",
+            "error": "invalid_data"
+        }
+     */
+
+    /*
+        == Delete note
+
+        > DELETE /user/777/note/5948 HTTP/1.1
+        > Host: notesbackend-yufimtsev.rhcloud.com
+        > User-Agent: insomnia/5.0.20
+        > Accept: *\/*
+        > Accept-Encoding: deflate, gzip
+
+
+        < HTTP/1.1 200 OK
+        < Date: Tue, 23 May 2017 07:48:07 GMT
+        < Server: Apache/2.2.15 (Red Hat)
+        < Access-Control-Allow-Origin: *
+        < Content-Type: application/json; charset=utf-8
+        < Vary: Accept-Encoding
+        < Content-Encoding: gzip
+        < Content-Length: 35
+
+        {
+            "status": "ok"
+        }
+
+
+        == Error
+
+        {
+            "status": "error",
+            "error": "not_found"
+        }
+     */

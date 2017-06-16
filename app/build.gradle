@@ -4,12 +4,16 @@ apply plugin: 'com.android.application'
 apply from: "${rootProject.projectDir}/codequality/codequality.gradle"
 apply from: "${rootProject.projectDir}/codequality/codequality-android.gradle"
 
+// Jacoco
+apply from: "jacoco.gradle"
+
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion rootProject.buildToolsVersion
     defaultConfig {
         applicationId "com.gamaliev.notes"
         minSdkVersion 19
+        //noinspection OldTargetApi
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -20,22 +24,44 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        /* jacoco */
+        debug {
+            testCoverageEnabled = true
+        }
+    }
+    /* jacoco */
+    testOptions {
+        unitTests.all {
+            jacoco {
+                includeNoLocationClasses = true
+            }
+        }
     }
 }
 
+// ./gradlew app:dependencies
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    androidTestCompile 'com.android.support.test.espresso:espresso-contrib:' + rootProject.espressoContribVersion, {
         exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:support-fragment:25.3.1'
-    compile 'com.android.support:preference-v14:25.3.1'
-    compile 'com.android.support:gridlayout-v7:25.3.1'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.android.support:cardview-v7:25.3.1'
-    compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    compile 'com.squareup.retrofit2:converter-scalars:2.3.0'
-    testCompile 'junit:junit:4.12'
+        exclude group: 'com.android.support', module: 'support-v4'
+        exclude group: 'com.android.support', module: 'design'
+        exclude group: 'com.android.support', module: 'recyclerview-v7'
+    }
+    androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:' + rootProject.uiautomatorV18Version
+
+    testCompile 'junit:junit:'                      + rootProject.junitVersion
+    testCompile 'org.hamcrest:hamcrest-library:'    + rootProject.hamcrestVersion
+    testCompile 'org.mockito:mockito-core:'         + rootProject.mockitoCoreVersion
+
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    compile 'com.android.support:appcompat-v7:'     + rootProject.supportLibVersion
+    compile 'com.android.support:support-fragment:' + rootProject.supportLibVersion
+    compile 'com.android.support:preference-v14:'   + rootProject.supportLibVersion
+    compile 'com.android.support:gridlayout-v7:'    + rootProject.supportLibVersion
+    compile 'com.android.support:design:'           + rootProject.supportLibVersion
+    compile 'com.android.support:cardview-v7:'      + rootProject.supportLibVersion
+    compile 'com.squareup.picasso:picasso:'         + rootProject.picassoVersion
+    compile 'com.squareup.retrofit2:retrofit:'      + rootProject.retrofitVersion
+    compile 'com.squareup.retrofit2:converter-scalars:' + rootProject.retrofitVersion
 }

@@ -80,9 +80,10 @@ public final class SpFilterProfiles {
      */
     @NonNull
     public static String getDefaultProfile() {
-        final JSONObject jsonObject = new JSONObject();
+        JSONObject result = new JSONObject();
 
         try {
+            final JSONObject jsonObject = new JSONObject();
             jsonObject.put(SP_FILTER_ID,        SP_FILTER_PROFILE_CURRENT_ID);
             jsonObject.put(SP_FILTER_TITLE,     "");
             jsonObject.put(SP_FILTER_COLOR,     "");
@@ -92,11 +93,13 @@ public final class SpFilterProfiles {
             jsonObject.put(SP_FILTER_ORDER,     LIST_ITEMS_COLUMN_TITLE);
             jsonObject.put(SP_FILTER_ORDER_ASC, ORDER_ASC_DESC_DEFAULT);
 
+            result = jsonObject;
+
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
         }
 
-        return jsonObject.toString();
+        return result.toString();
     }
 
     /**
@@ -105,9 +108,10 @@ public final class SpFilterProfiles {
      */
     @NonNull
     public static String getManualProfile() {
-        final JSONObject jsonObject = new JSONObject();
+        JSONObject result = new JSONObject();
 
         try {
+            final JSONObject jsonObject = new JSONObject();
             jsonObject.put(SP_FILTER_ID,        SP_FILTER_PROFILE_MANUAL_ID);
             jsonObject.put(SP_FILTER_TITLE,     "");
             jsonObject.put(SP_FILTER_COLOR,     "");
@@ -117,11 +121,13 @@ public final class SpFilterProfiles {
             jsonObject.put(SP_FILTER_ORDER,     LIST_ITEMS_COLUMN_MANUALLY);
             jsonObject.put(SP_FILTER_ORDER_ASC, ORDER_ASCENDING);
 
+            result = jsonObject;
+
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
         }
 
-        return jsonObject.toString();
+        return result.toString();
     }
 
     /**

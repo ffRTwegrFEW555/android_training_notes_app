@@ -127,8 +127,8 @@ final class SpMock {
                     "Userov",
                     "Userovich",
                     "Description... 123",
-                    "500",
-                    "10",
+                    "5",
+                    "3100",
                     "true",
                     "false",
                     "https://notesbackend-yufimtsev.rhcloud.com/",
@@ -200,9 +200,9 @@ final class SpMock {
     /**
      * @return Set of mock filter profiles, in JSON-format.
      */
-    @SuppressWarnings({"MagicNumber"})
+    @SuppressWarnings({"MagicNumber", "WeakerAccess"})
     @Nullable
-    private static Set<String> getMockFilterProfiles() {
+    public static Set<String> getMockFilterProfiles() {
         final Set<String> set = new HashSet<>();
 
         JSONObject jsonObject;

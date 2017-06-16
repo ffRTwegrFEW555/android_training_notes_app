@@ -14,6 +14,7 @@ import com.gamaliev.notes.R;
 import com.gamaliev.notes.common.db.DbQueryBuilder;
 import com.gamaliev.notes.common.network.NetworkUtils;
 import com.gamaliev.notes.common.rest.NoteApi;
+import com.gamaliev.notes.common.rest.NoteApiUtils;
 import com.gamaliev.notes.common.shared_prefs.SpUsers;
 import com.gamaliev.notes.entity.ListEntry;
 import com.gamaliev.notes.sync.utils.SyncUtils;
@@ -42,10 +43,10 @@ import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_EXTRA;
 import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_ID;
 import static com.gamaliev.notes.common.rest.NoteApiUtils.API_KEY_STATUS;
 import static com.gamaliev.notes.common.rest.NoteApiUtils.API_STATUS_OK;
-import static com.gamaliev.notes.common.rest.NoteApiUtils.getNoteApi;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertEntryJsonToString;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertJsonToMap;
 import static com.gamaliev.notes.common.shared_prefs.SpCommon.convertMapToJson;
+import static com.gamaliev.notes.common.shared_prefs.SpUsers.getApiUrlForCurrentUser;
 import static com.gamaliev.notes.common.shared_prefs.SpUsers.getSyncIdForCurrentUser;
 import static com.gamaliev.notes.conflict.ConflictFragment.EXTRA_CONFLICT_SELECT_POSITION;
 import static com.gamaliev.notes.conflict.utils.ConflictUtils.checkConflictExistsAndHideStatusBarNotification;
@@ -135,7 +136,7 @@ class ConflictSelectDialogPresenter implements ConflictSelectDialogContract.Pres
 
         // Get entry from server.
         try {
-            final NoteApi noteApi = getNoteApi();
+            final NoteApi noteApi = NoteApiUtils.newInstance(getApiUrlForCurrentUser(mContext));
             if (noteApi == null) {
                 throw new Exception("Cannot get note api.");
             }
@@ -376,7 +377,7 @@ class ConflictSelectDialogPresenter implements ConflictSelectDialogContract.Pres
 
     private void saveLocalEntryToServer(@NonNull final String jsonEntry) {
         try {
-            final NoteApi noteApi = getNoteApi();
+            final NoteApi noteApi = NoteApiUtils.newInstance(getApiUrlForCurrentUser(mContext));
             if (noteApi == null) {
                 throw new Exception("Cannot get note api.");
             }

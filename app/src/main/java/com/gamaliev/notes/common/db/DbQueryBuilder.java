@@ -2,8 +2,18 @@ package com.gamaliev.notes.common.db;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.util.Log;
+
+import static com.gamaliev.notes.common.db.DbHelper.BASE_COLUMN_ID;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_COLOR;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_CREATED;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_DESCRIPTION;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_EDITED;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_MANUALLY;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_TITLE;
+import static com.gamaliev.notes.common.db.DbHelper.LIST_ITEMS_COLUMN_VIEWED;
+import static com.gamaliev.notes.common.db.DbHelper.ORDER_ASCENDING;
+import static com.gamaliev.notes.common.db.DbHelper.ORDER_DESCENDING;
 
 /**
  * Helper for create select query, associated with
@@ -13,6 +23,7 @@ import android.util.Log;
  * @author Vadim Gamaliev
  *         <a href="mailto:gamaliev-vadim@yandex.com">(e-mail: gamaliev-vadim@yandex.com)</a>
  */
+@SuppressWarnings("WeakerAccess")
 public final class DbQueryBuilder {
 
     /* Logger */
@@ -180,7 +191,7 @@ public final class DbQueryBuilder {
         if (!(OPERATOR_BETWEEN.equals(operatorSecondary)
                 || OPERATOR_LIKE.equals(operatorSecondary)
                 || OPERATOR_EQUALS.equals(operatorSecondary))) {
-            throw new UnsupportedOperationException(
+            throw new IllegalArgumentException(
                     "Supported only 'BETWEEN', 'LIKE' and '=' operators");
         }
 
@@ -303,6 +314,7 @@ public final class DbQueryBuilder {
      * {@link DbHelper#ORDER_COLUMN_DEFAULT}<br>
      *     See also: <br>
      *     {@link DbHelper#BASE_COLUMN_ID}<br>
+     *     {@link DbHelper#LIST_ITEMS_COLUMN_MANUALLY}<br>
      *     {@link DbHelper#LIST_ITEMS_COLUMN_TITLE}<br>
      *     {@link DbHelper#LIST_ITEMS_COLUMN_DESCRIPTION}<br>
      *     {@link DbHelper#LIST_ITEMS_COLUMN_COLOR}<br>
@@ -312,10 +324,20 @@ public final class DbQueryBuilder {
      *
      * @param order Column.
      */
-    public void setOrder(@NonNull String order) {
-        if (!TextUtils.isEmpty(order)) {
-            mOrder = order;
+    public void setOrder(@NonNull final String order) {
+        if (!(BASE_COLUMN_ID.equals(order)
+                || LIST_ITEMS_COLUMN_MANUALLY.equals(order)
+                || LIST_ITEMS_COLUMN_TITLE.equals(order)
+                || LIST_ITEMS_COLUMN_DESCRIPTION.equals(order)
+                || LIST_ITEMS_COLUMN_COLOR.equals(order)
+                || LIST_ITEMS_COLUMN_CREATED.equals(order)
+                || LIST_ITEMS_COLUMN_EDITED.equals(order)
+                || LIST_ITEMS_COLUMN_VIEWED.equals(order))) {
+
+            throw new IllegalArgumentException(
+                    String.format("Unsupported sorting order: %s.", order));
         }
+        mOrder = order;
     }
 
     /**
@@ -326,9 +348,13 @@ public final class DbQueryBuilder {
      *     {@link DbHelper#ORDER_DESCENDING}<br>
      */
     public void setAscDesc(@NonNull final String ascDesc) {
-        if (!TextUtils.isEmpty(ascDesc)) {
-            mAscDesc = ascDesc;
+        if (!(ORDER_ASCENDING.equals(ascDesc)
+                || ORDER_DESCENDING.equals(ascDesc))) {
+
+            throw new IllegalArgumentException(
+                    String.format("Unsupported sorting order: %s.", ascDesc));
         }
+        mAscDesc = ascDesc;
     }
 
 
@@ -340,7 +366,7 @@ public final class DbQueryBuilder {
      * @return Selection result of query, with mask.
      */
     @Nullable
-    String getSelectionResult() {
+    public String getSelectionResult() {
         if (mSelection == null) {
             return null;
         }
@@ -356,15 +382,15 @@ public final class DbQueryBuilder {
      * @return Selection arguments of query.
      */
     @Nullable
-    String[] getSelectionArgs() {
-        return mSelectionArgs;
+    public String[] getSelectionArgs() {
+        return mSelectionArgs == null ? null : mSelectionArgs.clone();
     }
 
     /**
      * @return Get formed sort order. {@link #mOrder} + {@link #mAscDesc}. Default value is "id ASC"
      */
     @NonNull
-    String getSortOrder() {
+    public String getSortOrder() {
         return mOrder + " " + mAscDesc;
     }
 }

@@ -152,15 +152,15 @@ public class ListEntry implements Parcelable {
     }
 
     public void setCreated(@NonNull final Date created) {
-        mCreated = new Date(created.getTime());
+        mCreated = (Date) created.clone();
     }
 
     public void setEdited(@NonNull final Date edited) {
-        mEdited = new Date(edited.getTime());
+        mEdited = (Date) edited.clone();
     }
 
     public void setViewed(@NonNull final Date viewed) {
-        mViewed = new Date(viewed.getTime());
+        mViewed = (Date) viewed.clone();
     }
 
 
@@ -200,17 +200,17 @@ public class ListEntry implements Parcelable {
 
     @Nullable
     public Date getCreated() {
-        return mCreated == null ? null : new Date(mCreated.getTime());
+        return mCreated == null ? null : (Date) mCreated.clone();
     }
 
     @Nullable
     public Date getEdited() {
-        return mEdited == null ? null : new Date(mEdited.getTime());
+        return mEdited == null ? null : (Date) mEdited.clone();
     }
 
     @Nullable
     public Date getViewed() {
-        return mViewed == null ? null : new Date(mViewed.getTime());
+        return mViewed == null ? null : (Date) mViewed.clone();
     }
 
 
@@ -259,7 +259,7 @@ public class ListEntry implements Parcelable {
             jsonObject.put(LIST_ITEMS_COLUMN_EDITED,    getStringDateIso8601(context, edited));
             jsonObject.put(LIST_ITEMS_COLUMN_VIEWED,    getStringDateIso8601(context, viewed));
 
-        } catch (JSONException e) {
+        } catch (Exception e) {
             Log.e(TAG, e.toString());
             return null;
         }
@@ -326,5 +326,48 @@ public class ListEntry implements Parcelable {
         if (viewedDate != null) entry.setViewed(viewedDate);
 
         return entry;
+    }
+
+
+    /*
+        Equals
+     */
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final ListEntry listEntry = (ListEntry) o;
+
+        return !((mId != null ? !mId.equals(listEntry.mId) : listEntry.mId != null)
+                || (mSyncId != null ? !mSyncId.equals(listEntry.mSyncId) : listEntry.mSyncId != null)
+                || (mTitle != null ? !mTitle.equals(listEntry.mTitle) : listEntry.mTitle != null)
+                || (mDescription != null
+                    ? !mDescription.equals(listEntry.mDescription)
+                    : listEntry.mDescription != null)
+                || (mColor != null ? !mColor.equals(listEntry.mColor) : listEntry.mColor != null)
+                || (mImageUrl != null ? !mImageUrl.equals(listEntry.mImageUrl) : listEntry.mImageUrl != null)
+                || (mCreated != null ? !mCreated.equals(listEntry.mCreated) : listEntry.mCreated != null)
+                || (mEdited != null ? !mEdited.equals(listEntry.mEdited) : listEntry.mEdited != null)
+                || (mViewed != null ? !mViewed.equals(listEntry.mViewed) : listEntry.mViewed != null));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mId != null ? mId.hashCode() : 0;
+        result = 31 * result + (mSyncId != null ? mSyncId.hashCode() : 0);
+        result = 31 * result + (mTitle != null ? mTitle.hashCode() : 0);
+        result = 31 * result + (mDescription != null ? mDescription.hashCode() : 0);
+        result = 31 * result + (mColor != null ? mColor.hashCode() : 0);
+        result = 31 * result + (mImageUrl != null ? mImageUrl.hashCode() : 0);
+        result = 31 * result + (mCreated != null ? mCreated.hashCode() : 0);
+        result = 31 * result + (mEdited != null ? mEdited.hashCode() : 0);
+        result = 31 * result + (mViewed != null ? mViewed.hashCode() : 0);
+        return result;
     }
 }
