@@ -58,6 +58,9 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
     @NonNull public static final String EXTRA_RESULT_COLOR  = "ColorPickerFragment.EXTRA_RESULT_COLOR";
     @NonNull public static final String EXTRA_HSV_COLOR_OVERRIDDEN = "ColorPickerFragment.EXTRA_HSV_COLOR_OVERRIDDEN";
 
+    /* Tag */
+    @NonNull private static final String TAG_COLOR_BOX = "ColorPickerFragment.TAG_COLOR_BOX";
+
     /* ... */
     @NonNull private View mParentView;
     @NonNull private Resources mRes;
@@ -229,6 +232,7 @@ public final class ColorPickerFragment extends Fragment implements ColorPickerCo
                     ? mHsvOverriddenColors[i]
                     : mHsvColors[i];
             final View colorBox = new FrameLayout(getContext());
+            colorBox.setTag(TAG_COLOR_BOX + i);
             colorBox.setBackground(new ColorDrawable(color));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 colorBox.setElevation(

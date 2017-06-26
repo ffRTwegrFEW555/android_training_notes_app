@@ -379,18 +379,11 @@ public final class CommonUtils {
      * @param resourceColor Resource of color.
      * @return Color, associated with given resource.
      */
-    @SuppressWarnings("deprecation")
     public static int getResourceColorApi(
             @NonNull final Context context,
             final int resourceColor) {
 
-        int color;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            color = context.getResources().getColor(resourceColor, null);
-        } else {
-            color = context.getResources().getColor(resourceColor);
-        }
-        return color;
+        return ContextCompat.getColor(context, resourceColor);
     }
 
     /**

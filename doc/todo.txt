@@ -1,0 +1,8 @@
+TODO: binding
+TODO: dagger
+TODO: rxJava + rxAndroid
+TODO: MVVM (new architecture)
+TODO: ContextCompat
+TODO: RecyclerView, LayoutManager -> to Xml
+TODO: bugs
+TODO: tests

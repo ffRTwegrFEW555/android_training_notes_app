@@ -43,4 +43,10 @@
         files="ItemTouchHelperAdapter.java"
         lines="20"
         checks="UnusedImports"/>
+
+    <!-- VariableDeclarationUsageDistanceCheck -->
+    <suppress
+        files="ColorPickerFragmentTest.java"
+        lines="139"
+        checks="VariableDeclarationUsageDistanceCheck"/>
 </suppressions>
