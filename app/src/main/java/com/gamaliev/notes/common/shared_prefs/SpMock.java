@@ -117,7 +117,7 @@ final class SpMock {
                     "3000",
                     "true",
                     "false",
-                    "https://notesbackend-yufimtsev.rhcloud.com/",
+                    "https://localhost:8080/",
                     SP_USER_SYNC_PENDING_FALSE},
 
             {"1",
@@ -131,7 +131,7 @@ final class SpMock {
                     "3100",
                     "true",
                     "false",
-                    "https://notesbackend-yufimtsev.rhcloud.com/",
+                    "https://localhost:8080/",
                     SP_USER_SYNC_PENDING_FALSE},
     };
 
